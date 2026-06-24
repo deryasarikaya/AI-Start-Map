@@ -1,0 +1,46 @@
+Table sessions {
+  id integer [primary key]
+  user_name varchar
+  email varchar
+  business_type varchar
+  ai_experience_level varchar
+  input_mode varchar
+  status varchar
+  created_at datetime
+  updated_at datetime
+}
+
+Table answers {
+  id integer [primary key]
+  session_id integer [not null]
+  question_key varchar
+  question_text text
+  answer_text text
+  created_at datetime
+}
+
+Table analyses {
+  id integer [primary key]
+  session_id integer [not null]
+  summary text
+  extracted_facts_json text
+  top_3_json text
+  full_result_json text
+  model_used_extraction varchar
+  model_used_recommendation varchar
+  created_at datetime
+}
+
+Table workflow_catalog {
+  id integer [primary key]
+  title varchar
+  category varchar
+  problem text
+  benefit text
+  when_it_fits text
+  expected_output text
+  effort_level varchar
+  value_level varchar
+  is_quick_win boolean
+  description text
+}
