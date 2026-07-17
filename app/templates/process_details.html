@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Prozess beschreiben · AI Start Map{% endblock %}
+
+{% block content %}
+<nav class="phase-list" aria-label="Fortschritt">
+    <span class="phase">Unternehmen</span><span class="phase-arrow">→</span>
+    <span class="phase">Prozess</span><span class="phase-arrow">→</span>
+    <span class="phase current" aria-current="step">Details</span><span class="phase-arrow">→</span>
+    <span class="phase">Ergebnis</span>
+</nav>
+
+<section class="content-intro">
+    <p class="section-kicker">{{ process.process_name }}</p>
+    <h1 class="page-title">Beschreibe den tatsächlichen Ablauf.</h1>
+</section>
+
+<form class="interview-form" action="{{ url_for('save_process_details', session_id=session_id) }}" method="post">
+    {% if error_message %}<div class="error-message" role="alert">{{ error_message }}</div>{% endif %}
+    {% for question in questions %}
+    <div class="question-card">
+        <span class="question-index">{{ "%02d"|format(loop.index) }}</span>
+        <div class="question-content">
+            <label for="{{ question.question_key }}">{{ question.question_text }}</label>
+            <textarea id="{{ question.question_key }}" name="{{ question.question_key }}" rows="6" required>{{ answers[question.question_key] }}</textarea>
+        </div>
+    </div>
+    {% endfor %}
+    <button class="primary-button" type="submit">Details speichern</button>
+</form>
+{% endblock %}

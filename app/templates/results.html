@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Deine Prozessanalyse · AI Start Map{% endblock %}
+
+{% block content %}
+<nav class="phase-list" aria-label="Fortschritt">
+    <span class="phase">Unternehmen</span><span class="phase-arrow">→</span>
+    <span class="phase">Prozess</span><span class="phase-arrow">→</span>
+    <span class="phase">Details</span><span class="phase-arrow">→</span>
+    <span class="phase current" aria-current="step">Ergebnis</span>
+</nav>
+
+<section class="result-section">
+    <p class="section-kicker">Prozess</p>
+    <h1 class="page-title">{{ process.process_name }}</h1>
+    <p class="lead">{{ analysis.process_summary }}</p>
+
+    <h2>Ist-Prozess</h2>
+    <ol class="step-list">
+        {% for step in analysis.as_is_steps %}<li>{{ step }}</li>{% endfor %}
+    </ol>
+</section>
+
+<section class="bottleneck-card">
+    <p class="section-kicker">Kernengpass</p>
+    <h2>{{ analysis.core_bottleneck }}</h2>
+</section>
+
+{% if analysis.uncertainties %}
+<section class="result-section">
+    <h2>Unsicherheiten</h2>
+    <ul>{% for uncertainty in analysis.uncertainties %}<li>{{ uncertainty }}</li>{% endfor %}</ul>
+</section>
+{% endif %}
+
+<section class="result-section">
+    <p class="section-kicker">Top 3</p>
+    <div class="opportunity-list">
+        {% for opportunity in opportunities %}
+        <article class="opportunity-card">
+            <span class="rank">Rang {{ opportunity.rank }}</span>
+            <h2>{{ opportunity.title }}</h2>
+            <dl>
+                <dt>Konkretes Problem</dt><dd>{{ opportunity.problem }}</dd>
+                <dt>Empfehlung</dt><dd>{{ opportunity.recommendation }}</dd>
+                <dt>Nutzen</dt><dd>{{ opportunity.benefit }}</dd>
+                <dt>Menschliche Prüfung</dt><dd>{{ opportunity.human_approval }}</dd>
+                <dt>Erster Schritt</dt><dd>{{ opportunity.first_step }}</dd>
+            </dl>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+
+{% if blueprint %}
+<section class="blueprint-card">
+    <p class="section-kicker">Blueprint für Chance 1</p>
+    <h2>{{ opportunities[0].title }}</h2>
+    <dl>
+        <dt>Ziel</dt><dd>{{ blueprint.objective }}</dd>
+        <dt>Auslöser</dt><dd>{{ blueprint.trigger }}</dd>
+        <dt>Benötigte Eingaben</dt>
+        <dd><ul>{% for item in blueprint.required_inputs %}<li>{{ item }}</li>{% endfor %}</ul></dd>
+        <dt>Workflow-Schritte</dt>
+        <dd><ol>{% for step in blueprint.workflow_steps %}<li>{{ step }}</li>{% endfor %}</ol></dd>
+        <dt>Menschlicher Prüfpunkt</dt><dd>{{ blueprint.human_review_point }}</dd>
+        <dt>Ergebnis</dt><dd>{{ blueprint.output }}</dd>
+        <dt>Ausnahmen</dt>
+        <dd>
+            {% if blueprint.exceptions %}
+            <ul>{% for exception in blueprint.exceptions %}<li>{{ exception }}</li>{% endfor %}</ul>
+            {% else %}Keine weiteren Ausnahmen bekannt.{% endif %}
+        </dd>
+    </dl>
+</section>
+{% endif %}
+{% endblock %}

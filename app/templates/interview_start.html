@@ -3,15 +3,24 @@
 {% block title %}Unternehmen beschreiben · AI Start Map{% endblock %}
 
 {% block content %}
-<nav class="phase-list" aria-label="Fortschritt">
-    <span class="phase current" aria-current="step">Unternehmen</span>
-    <span class="phase-arrow" aria-hidden="true">→</span>
-    <span class="phase">Prozess</span>
-    <span class="phase-arrow" aria-hidden="true">→</span>
-    <span class="phase">Details</span>
-    <span class="phase-arrow" aria-hidden="true">→</span>
-    <span class="phase">Ergebnis</span>
-</nav>
+<section class="content-intro">
+    <nav class="phase-list" aria-label="Fortschritt">
+        <span class="phase current" aria-current="step">1&nbsp; Unternehmen</span>
+        <span class="phase-arrow" aria-hidden="true">→</span>
+        <span class="phase">2&nbsp; Prozess</span>
+        <span class="phase-arrow" aria-hidden="true">→</span>
+        <span class="phase">3&nbsp; Details</span>
+        <span class="phase-arrow" aria-hidden="true">→</span>
+        <span class="phase">4&nbsp; Ergebnis</span>
+    </nav>
+
+    <p class="section-kicker">Schritt 1 von 4</p>
+    <h1 class="page-title">Erzähl uns kurz von deinem Unternehmen.</h1>
+    <p class="page-description">
+        Zwei kurze Antworten reichen für den Start. Im nächsten Schritt werden daraus
+        konkrete Geschäftsprozesse erkannt.
+    </p>
+</section>
 
 <form class="interview-form" action="{{ url_for('save_interview', session_id=session_id) }}" method="post">
     {% if error_message %}
@@ -19,17 +28,27 @@
     {% endif %}
 
     {% for question in questions %}
-    <div class="question-block">
-        <label for="{{ question.question_key }}">{{ question.question_text }}</label>
-        <textarea
-            id="{{ question.question_key }}"
-            name="{{ question.question_key }}"
-            rows="7"
-            required
-        >{{ answers[question.question_key] }}</textarea>
+    <div class="question-card">
+        <div class="question-index">{{ "%02d"|format(loop.index) }}</div>
+        <div class="question-content">
+            <label for="{{ question.question_key }}">{{ question.question_text }}</label>
+            <textarea
+                id="{{ question.question_key }}"
+                name="{{ question.question_key }}"
+                rows="6"
+                required
+                placeholder="Beschreibe es so, wie du es im Alltag erklären würdest."
+            >{{ answers[question.question_key] }}</textarea>
+        </div>
     </div>
     {% endfor %}
 
-    <button class="primary-button" type="submit">Angaben speichern</button>
+    <div class="form-footer">
+        <p>Deine Antworten werden für diese Analyse gespeichert.</p>
+        <button class="primary-button" type="submit">
+            Angaben speichern
+            <span aria-hidden="true">→</span>
+        </button>
+    </div>
 </form>
 {% endblock %}

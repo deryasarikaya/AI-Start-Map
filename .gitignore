@@ -9,3 +9,4 @@ htmlcov/
 .postgresql/
 .postgres-data/
 *.log
+data/vector_index/

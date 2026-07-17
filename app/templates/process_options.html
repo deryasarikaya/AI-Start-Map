@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Prozess auswählen · AI Start Map{% endblock %}
+
+{% block content %}
+<nav class="phase-list" aria-label="Fortschritt">
+    <span class="phase">Unternehmen</span><span class="phase-arrow">→</span>
+    <span class="phase current" aria-current="step">Prozess</span><span class="phase-arrow">→</span>
+    <span class="phase">Details</span><span class="phase-arrow">→</span>
+    <span class="phase">Ergebnis</span>
+</nav>
+
+<section class="content-intro">
+    <h1 class="page-title">Welchen Prozess möchtest du genauer untersuchen?</h1>
+</section>
+
+<form class="interview-form" action="{{ url_for('select_process', session_id=session_id) }}" method="post">
+    {% if error_message %}<div class="error-message" role="alert">{{ error_message }}</div>{% endif %}
+
+    <div class="option-list">
+        {% for option in options %}
+        <label class="process-card">
+            <input type="radio" name="process_id" value="{{ option.process_id }}">
+            <span>
+                <strong>{{ option.process_name }}</strong>
+                <span><b>Start:</b> {{ option.start_event }}</span>
+                <span><b>Ende:</b> {{ option.end_event }}</span>
+                <span>{{ option.reason }}</span>
+            </span>
+        </label>
+        {% endfor %}
+    </div>
+
+    <section class="custom-process">
+        <h2>Anderen Prozess beschreiben</h2>
+        <div class="field-group">
+            <label for="custom_process_name">Prozessname</label>
+            <input id="custom_process_name" name="custom_process_name" value="{{ custom_values.get('process_name', '') }}">
+        </div>
+        <div class="field-group">
+            <label for="custom_start_event">Wodurch beginnt der Prozess?</label>
+            <input id="custom_start_event" name="custom_start_event" value="{{ custom_values.get('start_event', '') }}">
+        </div>
+        <div class="field-group">
+            <label for="custom_end_event">Wann ist der Prozess abgeschlossen?</label>
+            <input id="custom_end_event" name="custom_end_event" value="{{ custom_values.get('end_event', '') }}">
+        </div>
+    </section>
+
+    <button class="primary-button" type="submit">Prozess auswählen</button>
+</form>
+{% endblock %}

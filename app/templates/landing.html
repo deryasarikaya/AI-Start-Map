@@ -1,22 +1,68 @@
 {% extends "base.html" %}
 
-{% block title %}AI Start Map{% endblock %}
+{% block title %}AI Start Map · Automatisierungspotenziale erkennen{% endblock %}
 
 {% block content %}
-<section class="hero">
-    <div class="eyebrow">AI Start Map</div>
-    <h1>Finde heraus, welcher Arbeitsprozess sich in deinem Unternehmen wirklich zu automatisieren lohnt.</h1>
-    <p class="lead">
-        Beschreibe einen wiederkehrenden Ablauf aus deinem Arbeitsalltag.
-        AI Start Map hilft dir dabei, den tatsächlichen Prozess zu verstehen,
-        den zentralen Engpass zu erkennen und passende Automatisierungschancen zu finden.
-    </p>
-    <form action="{{ url_for('start_session') }}" method="post">
-        <button class="primary-button" type="submit">Meine Prozessanalyse starten</button>
-    </form>
-    <p class="privacy-note">
-        Du brauchst kein technisches Vorwissen.<br>
-        Bitte verwende keine vertraulichen oder personenbezogenen Daten.
-    </p>
+<section class="hero-layout">
+    <div class="hero-copy">
+        <div class="eyebrow">Prozessdiagnostik für kleine Unternehmen</div>
+        <h1>Finde heraus, welcher Arbeitsprozess sich in deinem Unternehmen wirklich zu automatisieren lohnt.</h1>
+        <p class="lead">
+            Beschreibe einen wiederkehrenden Ablauf aus deinem Arbeitsalltag.
+            AI Start Map hilft dir dabei, den tatsächlichen Prozess zu verstehen,
+            den zentralen Engpass zu erkennen und passende Automatisierungschancen zu finden.
+        </p>
+
+        <div class="hero-actions">
+            <form action="{{ url_for('start_session') }}" method="post">
+                <button class="primary-button" type="submit">
+                    Meine Prozessanalyse starten
+                    <span aria-hidden="true">→</span>
+                </button>
+            </form>
+            <p class="privacy-note">
+                Du brauchst kein technisches Vorwissen.<br>
+                Bitte verwende keine vertraulichen oder personenbezogenen Daten.
+            </p>
+        </div>
+    </div>
+
+    <aside class="result-preview" aria-label="Das erhältst du">
+        <p class="card-kicker">Dein Ergebnis</p>
+
+        <div class="preview-item">
+            <span class="preview-number">01</span>
+            <div>
+                <strong>Dein tatsächlicher Prozess</strong>
+                <p>Verständlich als Ablauf dargestellt.</p>
+            </div>
+        </div>
+
+        <div class="preview-item">
+            <span class="preview-number">02</span>
+            <div>
+                <strong>Der zentrale Engpass</strong>
+                <p>Die Stelle, an der heute Zeit oder Informationen verloren gehen.</p>
+            </div>
+        </div>
+
+        <div class="preview-item">
+            <span class="preview-number">03</span>
+            <div>
+                <strong>Drei passende Chancen</strong>
+                <p>Priorisierte Ansatzpunkte statt allgemeiner Tool-Empfehlungen.</p>
+            </div>
+        </div>
+    </aside>
+</section>
+
+<section class="trust-strip" aria-label="Ablauf">
+    <span>Unternehmen beschreiben</span>
+    <span aria-hidden="true">→</span>
+    <span>Prozess auswählen</span>
+    <span aria-hidden="true">→</span>
+    <span>Details klären</span>
+    <span aria-hidden="true">→</span>
+    <span>Ergebnis erhalten</span>
 </section>
 {% endblock %}

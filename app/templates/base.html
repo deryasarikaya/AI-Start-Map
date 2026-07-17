@@ -8,10 +8,15 @@
 </head>
 <body>
     <header class="site-header">
-        <div class="page-shell">
-            <span class="brand">AI Start Map</span>
+        <div class="page-shell header-inner">
+            <a class="brand" href="{{ url_for('landing') }}" aria-label="AI Start Map Startseite">
+                <span class="brand-mark" aria-hidden="true">A</span>
+                <span>AI Start Map</span>
+            </a>
+            <span class="header-note">Prozessdiagnostik für kleine Unternehmen</span>
         </div>
     </header>
+
     <main class="page-shell page-content">
         {% block content %}{% endblock %}
     </main>
