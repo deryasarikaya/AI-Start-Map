@@ -1,0 +1,11 @@
+alembic>=1.17,<2
+fastapi>=0.139,<1
+httpx2>=2,<3
+Jinja2>=3.1,<4
+psycopg[binary]>=3.2,<4
+pydantic>=2.13,<3
+pytest>=9,<10
+python-dotenv>=1.2,<2
+python-multipart>=0.0.22,<1
+SQLAlchemy>=2.0,<2.1
+uvicorn>=0.51,<1
