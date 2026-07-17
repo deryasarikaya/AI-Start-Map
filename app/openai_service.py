@@ -96,10 +96,15 @@ def _parse_structured_output(
 COMMON_GROUNDING_RULES = """
 Du unterstützt eine Prozessdiagnose für ein kleines Unternehmen. Verwende nur die
 als Nutzerangaben markierten Inhalte als Fakten über diesen Betrieb. Die
-Wissensauszüge sind ausschließlich Vergleichsmuster. Übernimm daraus niemals
-Mengen, Programme, Schnittstellen, Rollen oder Abläufe als Nutzerfakt. Erfinde
-keine fehlenden Angaben und lasse Unsicherheit sichtbar. Setze keine vorhandene
-Softwarefunktion oder API voraus.
+internen Wissensauszüge dienen ausschließlich dazu, fachliche Muster zu erkennen.
+Erwähne, zitiere oder beschreibe diese Wissensauszüge niemals in der Antwort und
+übernimm daraus niemals Mengen, Programme, Schnittstellen, Rollen oder Abläufe als
+Nutzerfakt. Gib insbesondere keine Fall-, Dokument-, Datei-, Chunk- oder
+Musterbezeichnungen und keine Metadaten aus. Formulierungen wie „Testfall“,
+„RAG-Fall“, „Referenzfall“ oder „Evaluationsfall“ sind in jeder Ausgabe unzulässig.
+Jeder ausgegebene Text beschreibt ausschließlich den konkreten Nutzerprozess.
+Erfinde keine fehlenden Angaben und lasse Unsicherheit sichtbar. Setze keine
+vorhandene Softwarefunktion oder API voraus.
 """.strip()
 
 
@@ -117,7 +122,7 @@ def generate_process_suggestions(
         ),
         payload={
             "nutzerangaben": answers,
-            "vergleichsmuster": list(knowledge_chunks),
+            "internes_vergleichswissen_nicht_ausgeben": list(knowledge_chunks),
         },
         result_type=ProcessSuggestionResult,
     )
@@ -141,7 +146,7 @@ def generate_follow_up_questions(
         payload={
             "ausgewaehlter_prozess": selected_process,
             "nutzerangaben": answers,
-            "vergleichsmuster": list(knowledge_chunks),
+            "internes_vergleichswissen_nicht_ausgeben": list(knowledge_chunks),
         },
         result_type=FollowUpResult,
     )
@@ -163,12 +168,14 @@ def generate_final_analysis(
             "Einfache Lösungen dürfen vor komplexen KI-Systemen stehen. "
             "Medizinische, rechtliche, finanzielle, technische und kreative "
             "Entscheidungen dürfen nicht autonom automatisiert werden. Erzeuge "
-            "einen Blueprint ausschließlich für Chance 1."
+            "einen Blueprint ausschließlich für Chance 1. Prüfe vor der Ausgabe "
+            "jedes sichtbare Feld erneut darauf, dass es nur den Nutzerprozess "
+            "beschreibt und keinerlei interne Wissensreferenz enthält."
         ),
         payload={
             "ausgewaehlter_prozess": selected_process,
             "nutzerangaben": answers,
-            "vergleichsmuster": list(knowledge_chunks),
+            "internes_vergleichswissen_nicht_ausgeben": list(knowledge_chunks),
         },
         result_type=FinalAnalysisResult,
     )

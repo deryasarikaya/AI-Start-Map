@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
+from pydantic import ValidationError
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -16,7 +17,7 @@ from app.models import (
     ProcessOption,
 )
 from app.questions import INTRO_QUESTIONS, PROCESS_QUESTIONS
-from app.rag_service import load_curated_chunks
+from app.rag_service import format_chunks_for_prompt, load_curated_chunks
 from app.schemas import (
     AutomationBlueprint,
     AutomationOpportunityResult,
@@ -509,6 +510,51 @@ def test_rag_chunks_are_loaded_only_from_curated_files() -> None:
     assert all("is_primary_evidence" in chunk.metadata for chunk in chunks)
 
 
+def test_model_prompt_context_contains_no_internal_metadata() -> None:
+    prompt_context = "\n".join(format_chunks_for_prompt(load_curated_chunks()))
+    forbidden_markers = (
+        "M-01",
+        "Testfall",
+        "Chunk",
+        "pattern_id",
+        "content_origin",
+        "original_massage_transcript.pdf",
+        "massage_rag_corpus.md",
+    )
+    assert all(
+        marker.casefold() not in prompt_context.casefold()
+        for marker in forbidden_markers
+    )
+
+
+@pytest.mark.parametrize(
+    ("field_name", "marker"),
+    [
+        ("process_summary", "Bekannter Testfall M-01"),
+        ("as_is_steps", "Interner Chunk wurde verwendet"),
+        ("core_bottleneck", "Ableitung aus pattern_id"),
+        ("opportunities", "Quelle content_origin"),
+        ("blueprint", "Aus einem Referenzfall übernommen"),
+    ],
+)
+def test_visible_analysis_fields_reject_internal_references(
+    field_name: str,
+    marker: str,
+) -> None:
+    payload = _final_result().model_dump()
+    if field_name == "as_is_steps":
+        payload[field_name][0] = marker
+    elif field_name == "opportunities":
+        payload[field_name][0]["recommendation"] = marker
+    elif field_name == "blueprint":
+        payload[field_name]["objective"] = marker
+    else:
+        payload[field_name] = marker
+
+    with pytest.raises(ValidationError):
+        FinalAnalysisResult.model_validate(payload)
+
+
 @pytest.mark.parametrize(
     "demo_slug",
     ["massage-salon", "etsy-3d-print", "carpet-cleaning"],
@@ -519,10 +565,16 @@ def test_demo_route_creates_session_and_redirects_to_real_results(
     monkeypatch: pytest.MonkeyPatch,
     demo_slug: str,
 ) -> None:
+    def generate_clean_demo_analysis(**kwargs: object) -> FinalAnalysisResult:
+        model_input = str(kwargs).casefold()
+        for marker in ("m-01", "c-02", "c-10", "testfall", "content_origin"):
+            assert marker not in model_input
+        return _final_result()
+
     monkeypatch.setattr(
         routes,
         "generate_final_analysis",
-        lambda **_kwargs: _final_result(),
+        generate_clean_demo_analysis,
     )
     response = client.get(f"/demo/{demo_slug}", follow_redirects=False)
     assert response.status_code == 303
@@ -538,6 +590,27 @@ def test_demo_route_creates_session_and_redirects_to_real_results(
     result_response = client.get(response.headers["location"])
     assert result_response.status_code == 200
     assert "Kernengpass" in result_response.text
+    visible_text = result_response.text.casefold()
+    for marker in ("m-01", "testfall", "chunk", "pattern_id", "content_origin"):
+        assert marker not in visible_text
+
+
+def test_stored_internal_reference_is_not_rendered(
+    client: TestClient,
+    database_session: Session,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    session_id = _complete_analysis(client, database_session, monkeypatch)
+    analysis = database_session.get(Analysis, session_id)
+    assert analysis is not None
+    analysis.process_summary = "Bekannter Testfall M-01: interner Inhalt"
+    database_session.commit()
+
+    response = client.get(f"/sessions/{session_id}/results")
+
+    assert response.status_code == 409
+    assert "M-01" not in response.text
+    assert "Testfall" not in response.text
 
 
 def test_follow_up_answers_complete_the_analysis(

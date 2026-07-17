@@ -1,15 +1,61 @@
 from __future__ import annotations
 
-from typing import Annotated, Literal
+import re
+from collections.abc import Mapping, Sequence
+from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 NonEmptyText = Annotated[str, Field(min_length=1)]
 
+INTERNAL_REFERENCE_PATTERN = re.compile(
+    r"\b(?:bekannter\s+testfall|testfall|rag[-\s]?fall|referenzfall|"
+    r"evaluationsfall|chunk(?:-id)?|content_origin|pattern_ids?|case_id|"
+    r"document_id|source_url|is_primary_evidence)\b",
+    re.IGNORECASE,
+)
+INTERNAL_IDENTIFIER_PATTERN = re.compile(
+    r"\b(?:EVAL-)?[MCKP]-\d{2}(?:[_-][A-Z0-9_]+)*\b",
+    re.IGNORECASE,
+)
+INTERNAL_FILE_PATTERN = re.compile(
+    r"(?:knowledge[/\\](?:curated|raw|evaluation)|"
+    r"(?:original_[\w-]+|[\w-]+_rag_corpus|evaluation_cases)"
+    r"\.(?:md|pdf|json))",
+    re.IGNORECASE,
+)
+
+
+def contains_internal_reference(value: Any) -> bool:
+    if isinstance(value, str):
+        return any(
+            pattern.search(value) is not None
+            for pattern in (
+                INTERNAL_REFERENCE_PATTERN,
+                INTERNAL_IDENTIFIER_PATTERN,
+                INTERNAL_FILE_PATTERN,
+            )
+        )
+    if isinstance(value, BaseModel):
+        return contains_internal_reference(value.model_dump())
+    if isinstance(value, Mapping):
+        return any(contains_internal_reference(item) for item in value.values())
+    if isinstance(value, Sequence) and not isinstance(value, (str, bytes)):
+        return any(contains_internal_reference(item) for item in value)
+    return False
+
 
 class StrictResultModel(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+    @model_validator(mode="after")
+    def reject_internal_references(self) -> StrictResultModel:
+        if contains_internal_reference(self.model_dump()):
+            raise ValueError(
+                "Interne Wissensreferenzen dürfen nicht ausgegeben werden."
+            )
+        return self
 
 
 class ProcessSuggestion(StrictResultModel):

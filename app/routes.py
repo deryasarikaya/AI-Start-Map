@@ -29,7 +29,7 @@ from app.rag_service import (
     format_chunks_for_prompt,
     retrieve_chunks,
 )
-from app.schemas import FinalAnalysisResult
+from app.schemas import FinalAnalysisResult, contains_internal_reference
 
 
 router = APIRouter()
@@ -788,6 +788,8 @@ def _persist_final_analysis(
     session_id: int,
     result: FinalAnalysisResult,
 ) -> None:
+    if contains_internal_reference(result):
+        raise ValueError("Die Analyse enthält eine interne Wissensreferenz.")
     database_session.add(
         Analysis(
             session_id=session_id,
@@ -932,6 +934,32 @@ def show_results(
         ),
         None,
     )
+    visible_result = {
+        "process_name": process.process_name,
+        "process_summary": analysis.process_summary,
+        "as_is_steps": analysis.as_is_steps,
+        "core_bottleneck": analysis.core_bottleneck,
+        "uncertainties": analysis.uncertainties,
+        "opportunities": [
+            {
+                "title": opportunity.title,
+                "problem": opportunity.problem,
+                "recommendation": opportunity.recommendation,
+                "benefit": opportunity.benefit,
+                "human_approval": opportunity.human_approval,
+                "first_step": opportunity.first_step,
+            }
+            for opportunity in opportunities
+        ],
+        "blueprint": blueprint,
+    }
+    if contains_internal_reference(visible_result):
+        return _render_error(
+            request,
+            "Die Ergebnisse konnten nicht sicher angezeigt werden. Bitte starte "
+            "eine neue Analyse.",
+            status_code=status.HTTP_409_CONFLICT,
+        )
     return templates.TemplateResponse(
         request=request,
         name="results.html",
@@ -947,7 +975,7 @@ def show_results(
 
 def _load_evaluation_case(evaluation_id: str) -> dict[str, object]:
     if not EVALUATION_FILE.is_file():
-        raise RagConfigurationError("Die vorbereiteten Testfälle wurden nicht gefunden.")
+        raise RagConfigurationError("Die vorbereiteten Demo-Daten wurden nicht gefunden.")
     try:
         evaluation_data = json.loads(EVALUATION_FILE.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError) as error:
@@ -963,7 +991,7 @@ def _load_evaluation_case(evaluation_id: str) -> dict[str, object]:
         None,
     )
     if evaluation_case is None:
-        raise RagConfigurationError("Der vorbereitete Testfall ist unvollständig.")
+        raise RagConfigurationError("Die vorbereiteten Demo-Daten sind unvollständig.")
     return evaluation_case
 
 
@@ -986,7 +1014,6 @@ def _create_demo_session(
     bottleneck = str(
         evaluation_case.get("expected_core_bottleneck") or "Unbekannt"
     ).strip()
-    case_id = str(evaluation_case.get("case_id") or "Unbekannt").strip()
     clarification_topics = _list_text(
         evaluation_case.get("required_questions"),
         "Noch zu klären",
@@ -1003,7 +1030,7 @@ def _create_demo_session(
         "process_boundary": "Unbekannt",
         "actual_steps": "Unbekannt",
         "business_object_and_result": (
-            f"Bekannter Testfall {case_id}; weitere Angaben sind unbekannt."
+            "Weitere Angaben zum Gegenstand und Ergebnis sind unbekannt."
         ),
         "roles_systems_and_handoffs": "Unbekannt",
         "volume_time_and_impact": "Unbekannt",
@@ -1014,10 +1041,7 @@ def _create_demo_session(
     database_session.add(analysis_session)
     database_session.flush()
     context_answers = {
-        "business_context": (
-            f"Vorbereiteter Testfall {case_id} zum Prozess „{process_name}“. "
-            "Weitere Unternehmensangaben sind unbekannt."
-        ),
+        "business_context": "Weitere Unternehmensangaben sind unbekannt.",
         "problem_overview": bottleneck,
     }
     database_session.add_all(

@@ -284,15 +284,23 @@ def retrieve_chunks(
 
 
 def format_chunks_for_prompt(chunks: list[KnowledgeChunk]) -> list[str]:
-    return [
-        json.dumps(
-            {
-                "chunk_id": chunk.chunk_id,
-                "chunk_type": chunk.chunk_type,
-                "metadata": chunk.metadata,
-                "content": chunk.content,
-            },
-            ensure_ascii=False,
+    formatted_chunks: list[str] = []
+    for chunk in chunks:
+        yaml_match = YAML_BLOCK.search(chunk.content)
+        content = (
+            chunk.content[yaml_match.end():]
+            if yaml_match is not None
+            else chunk.content
         )
-        for chunk in chunks
-    ]
+        content = re.sub(r"\[([^\]]+)]\(https?://[^)]+\)", r"\1", content)
+        content = re.sub(r"https?://\S+", "", content)
+        content = re.sub(
+            r"\b(?:EVAL-)?[MCKP]-\d{2}(?:[_-][A-Za-z0-9_]+)*\b",
+            "",
+            content,
+            flags=re.IGNORECASE,
+        )
+        cleaned_content = content.strip()
+        if cleaned_content:
+            formatted_chunks.append(cleaned_content)
+    return formatted_chunks
