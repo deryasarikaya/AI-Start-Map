@@ -1,4 +1,10 @@
+import sys
 from pathlib import Path
+
+
+if __package__ in {None, ""}:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
@@ -27,3 +33,9 @@ async def not_found_handler(
         name="error.html",
         status_code=404,
     )
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="127.0.0.1", port=8000)
