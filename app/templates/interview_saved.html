@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Angaben gespeichert · AI Start Map{% endblock %}
+
+{% block content %}
+<section class="saved-intro">
+    <div class="success-mark" aria-hidden="true">✓</div>
+    <h1>Deine Angaben wurden gespeichert.</h1>
+    <p class="lead">
+        Im nächsten Schritt werden daraus konkrete Geschäftsprozesse erkannt,
+        von denen du einen für die weitere Analyse auswählst.
+    </p>
+</section>
+
+<section class="answer-list" aria-label="Gespeicherte Angaben">
+    {% for question in questions %}
+    <article class="answer-card">
+        <h2>{{ question.question_text }}</h2>
+        <p>{{ question.answer_text }}</p>
+    </article>
+    {% endfor %}
+</section>
+{% endblock %}

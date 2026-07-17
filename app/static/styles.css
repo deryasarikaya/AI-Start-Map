@@ -1,0 +1,267 @@
+:root {
+    color-scheme: light;
+    --background: #f6f7f4;
+    --surface: #ffffff;
+    --text: #17231d;
+    --muted: #59665f;
+    --border: #d9dfda;
+    --accent: #176b4d;
+    --accent-hover: #11543c;
+    --accent-soft: #e5f2eb;
+    --error: #9b2c2c;
+    --error-soft: #fff1f1;
+    --shadow: 0 18px 45px rgb(24 45 35 / 8%);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: var(--text);
+    background: var(--background);
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-size: 1rem;
+    line-height: 1.65;
+}
+
+button,
+textarea {
+    font: inherit;
+}
+
+.page-shell {
+    width: min(100% - 2rem, 68rem);
+    margin-inline: auto;
+}
+
+.site-header {
+    border-bottom: 1px solid var(--border);
+    background: rgb(255 255 255 / 88%);
+}
+
+.site-header .page-shell {
+    display: flex;
+    align-items: center;
+    min-height: 4.5rem;
+}
+
+.brand {
+    font-weight: 750;
+    letter-spacing: -0.02em;
+}
+
+.page-content {
+    padding-block: clamp(3.5rem, 8vw, 7rem);
+}
+
+.hero {
+    max-width: 52rem;
+}
+
+.eyebrow {
+    margin-bottom: 1rem;
+    color: var(--accent);
+    font-size: 0.82rem;
+    font-weight: 750;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+h1,
+h2,
+p {
+    margin-top: 0;
+}
+
+h1 {
+    max-width: 50rem;
+    margin-bottom: 1.5rem;
+    font-size: clamp(2.15rem, 5vw, 4.25rem);
+    line-height: 1.08;
+    letter-spacing: -0.045em;
+}
+
+.lead {
+    max-width: 46rem;
+    margin-bottom: 2.25rem;
+    color: var(--muted);
+    font-size: clamp(1.08rem, 2vw, 1.3rem);
+}
+
+.primary-button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 3.35rem;
+    padding: 0.8rem 1.35rem;
+    border: 0;
+    border-radius: 0.7rem;
+    color: #ffffff;
+    background: var(--accent);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.primary-button:hover,
+.primary-button:focus-visible {
+    background: var(--accent-hover);
+}
+
+.primary-button:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid rgb(23 107 77 / 25%);
+    outline-offset: 2px;
+}
+
+.privacy-note {
+    margin-top: 1.5rem;
+    color: var(--muted);
+    font-size: 0.94rem;
+}
+
+.phase-list {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 3rem;
+    overflow-x: auto;
+    color: var(--muted);
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.phase {
+    padding: 0.4rem 0.7rem;
+    border-radius: 999px;
+}
+
+.phase.current {
+    color: var(--accent);
+    background: var(--accent-soft);
+    font-weight: 750;
+}
+
+.phase-arrow {
+    color: #9aa49f;
+}
+
+.interview-form {
+    max-width: 52rem;
+}
+
+.question-block {
+    margin-bottom: 2.4rem;
+}
+
+.question-block label {
+    display: block;
+    margin-bottom: 0.85rem;
+    font-size: clamp(1.08rem, 2vw, 1.25rem);
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+textarea {
+    display: block;
+    width: 100%;
+    min-height: 11rem;
+    resize: vertical;
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    color: var(--text);
+    background: var(--surface);
+    box-shadow: 0 1px 2px rgb(24 45 35 / 4%);
+}
+
+textarea:focus {
+    border-color: var(--accent);
+}
+
+.error-message {
+    margin-bottom: 2rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid #efc3c3;
+    border-radius: 0.65rem;
+    color: var(--error);
+    background: var(--error-soft);
+    font-weight: 650;
+}
+
+.saved-intro {
+    max-width: 52rem;
+    margin-bottom: 3.5rem;
+}
+
+.saved-intro h1,
+.error-page h1 {
+    font-size: clamp(2rem, 4vw, 3.5rem);
+}
+
+.success-mark {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 1.5rem;
+    border-radius: 50%;
+    color: var(--accent);
+    background: var(--accent-soft);
+    font-size: 1.35rem;
+    font-weight: 800;
+}
+
+.answer-list {
+    display: grid;
+    gap: 1.25rem;
+    max-width: 52rem;
+}
+
+.answer-card {
+    padding: clamp(1.25rem, 3vw, 2rem);
+    border: 1px solid var(--border);
+    border-radius: 0.9rem;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+}
+
+.answer-card h2 {
+    margin-bottom: 0.8rem;
+    font-size: 1rem;
+    line-height: 1.45;
+}
+
+.answer-card p {
+    margin-bottom: 0;
+    color: var(--muted);
+    white-space: pre-wrap;
+}
+
+.error-page {
+    max-width: 52rem;
+}
+
+@media (max-width: 42rem) {
+    .page-shell {
+        width: min(100% - 1.25rem, 68rem);
+    }
+
+    .page-content {
+        padding-block: 3rem;
+    }
+
+    .primary-button {
+        width: 100%;
+    }
+
+    .phase-list {
+        margin-right: -0.625rem;
+        padding-right: 0.625rem;
+    }
+}

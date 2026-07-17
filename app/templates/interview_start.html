@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Unternehmen beschreiben · AI Start Map{% endblock %}
+
+{% block content %}
+<nav class="phase-list" aria-label="Fortschritt">
+    <span class="phase current" aria-current="step">Unternehmen</span>
+    <span class="phase-arrow" aria-hidden="true">→</span>
+    <span class="phase">Prozess</span>
+    <span class="phase-arrow" aria-hidden="true">→</span>
+    <span class="phase">Details</span>
+    <span class="phase-arrow" aria-hidden="true">→</span>
+    <span class="phase">Ergebnis</span>
+</nav>
+
+<form class="interview-form" action="{{ url_for('save_interview', session_id=session_id) }}" method="post">
+    {% if error_message %}
+    <div class="error-message" role="alert">{{ error_message }}</div>
+    {% endif %}
+
+    {% for question in questions %}
+    <div class="question-block">
+        <label for="{{ question.question_key }}">{{ question.question_text }}</label>
+        <textarea
+            id="{{ question.question_key }}"
+            name="{{ question.question_key }}"
+            rows="7"
+            required
+        >{{ answers[question.question_key] }}</textarea>
+    </div>
+    {% endfor %}
+
+    <button class="primary-button" type="submit">Angaben speichern</button>
+</form>
+{% endblock %}
