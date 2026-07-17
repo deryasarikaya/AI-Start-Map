@@ -14,7 +14,7 @@
     <h1 class="page-title">Noch wenige offene Punkte.</h1>
 </section>
 
-<form class="interview-form" action="{{ url_for('save_follow_ups', session_id=session_id) }}" method="post">
+<form class="interview-form" action="{{ url_for('save_follow_ups', session_id=session_id) }}" method="post" data-disable-on-submit>
     {% if error_message %}<div class="error-message" role="alert">{{ error_message }}</div>{% endif %}
     {% for question in questions %}
     <div class="question-card">
@@ -29,6 +29,9 @@
         </div>
     </div>
     {% endfor %}
-    <button class="primary-button" type="submit">Analyse erstellen</button>
+    <div class="form-actions">
+        <a class="secondary-button button-link" href="{{ url_for('show_process_details', session_id=session_id) }}">← Zurück zu Details</a>
+        <button class="primary-button" type="submit">Analyse starten</button>
+    </div>
 </form>
 {% endblock %}

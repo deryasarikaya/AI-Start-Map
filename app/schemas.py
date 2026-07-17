@@ -25,6 +25,28 @@ INTERNAL_FILE_PATTERN = re.compile(
     r"\.(?:md|pdf|json))",
     re.IGNORECASE,
 )
+PROHIBITED_CUSTOMER_LANGUAGE_PATTERN = re.compile(
+    r"\b(?:intake(?:-kit)?|audit-track|wip|mapping|lookup|semi-automatisiert|"
+    r"formulardoppie|nachschlageort|übergabevermerkgabel|"
+    r"handschriftenkapazität)\b",
+    re.IGNORECASE,
+)
+FOLLOW_UP_SOLUTION_PATTERN = re.compile(
+    r"\b(?:sollte|sollten|könnte|könnten|würde|würden|empfehlen|"
+    r"automatisier\w*|software|app|schnittstelle|api|zum beispiel|"
+    r"verbindliche regel|nach \w+ tagen)\b",
+    re.IGNORECASE,
+)
+CURRENT_PROCESS_PATTERN = re.compile(
+    r"\b(?:heute|aktuell|derzeit|momentan|bisher|tatsächlich)\b",
+    re.IGNORECASE,
+)
+SUMMARY_META_PATTERN = re.compile(
+    r"^(?:prozessname:|ausgewählter prozess:|der prozess heißt|"
+    r"aus den vorliegenden angaben|auf grundlage der daten|quelle:|"
+    r"die rekonstruktion bleibt unsicher)",
+    re.IGNORECASE,
+)
 
 
 def contains_internal_reference(value: Any) -> bool:
@@ -46,6 +68,20 @@ def contains_internal_reference(value: Any) -> bool:
     return False
 
 
+def contains_prohibited_customer_language(value: Any) -> bool:
+    if isinstance(value, str):
+        return PROHIBITED_CUSTOMER_LANGUAGE_PATTERN.search(value) is not None
+    if isinstance(value, BaseModel):
+        return contains_prohibited_customer_language(value.model_dump())
+    if isinstance(value, Mapping):
+        return any(
+            contains_prohibited_customer_language(item) for item in value.values()
+        )
+    if isinstance(value, Sequence) and not isinstance(value, (str, bytes)):
+        return any(contains_prohibited_customer_language(item) for item in value)
+    return False
+
+
 class StrictResultModel(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
@@ -55,6 +91,24 @@ class StrictResultModel(BaseModel):
             raise ValueError(
                 "Interne Wissensreferenzen dürfen nicht ausgegeben werden."
             )
+        if contains_prohibited_customer_language(self.model_dump()):
+            raise ValueError("Die Ausgabe enthält unverständliche Fachbegriffe.")
+        return self
+
+
+class ProcessBoundaryResult(StrictResultModel):
+    process_name: NonEmptyText
+    start_event: NonEmptyText
+    end_event: NonEmptyText
+
+    @model_validator(mode="after")
+    def reject_general_category(self) -> ProcessBoundaryResult:
+        if self.process_name.casefold() in {
+            "marketing",
+            "organisation",
+            "kundenkommunikation",
+        }:
+            raise ValueError("Die Beschreibung muss ein konkreter Ablauf sein.")
         return self
 
 
@@ -90,6 +144,16 @@ class FollowUpQuestion(StrictResultModel):
         "critical_unknown",
     ]
 
+    @model_validator(mode="after")
+    def validate_current_process_question(self) -> FollowUpQuestion:
+        if not self.question.endswith("?"):
+            raise ValueError("Eine Rückfrage muss als einzelne Frage formuliert sein.")
+        if CURRENT_PROCESS_PATTERN.search(self.question) is None:
+            raise ValueError("Eine Rückfrage muss nach dem heutigen Ablauf fragen.")
+        if FOLLOW_UP_SOLUTION_PATTERN.search(self.question) is not None:
+            raise ValueError("Eine Rückfrage darf keine Lösung oder Regel vorschlagen.")
+        return self
+
 
 class FollowUpResult(StrictResultModel):
     questions: list[FollowUpQuestion] = Field(max_length=3)
@@ -119,7 +183,7 @@ class FinalAnalysisResult(StrictResultModel):
     process_summary: NonEmptyText
     as_is_steps: list[NonEmptyText] = Field(min_length=1)
     core_bottleneck: NonEmptyText
-    uncertainties: list[NonEmptyText]
+    uncertainties: list[NonEmptyText] = Field(max_length=4)
     opportunities: list[AutomationOpportunityResult] = Field(
         min_length=3,
         max_length=3,
@@ -131,4 +195,30 @@ class FinalAnalysisResult(StrictResultModel):
         ranks = sorted(opportunity.rank for opportunity in self.opportunities)
         if ranks != [1, 2, 3]:
             raise ValueError("Die Chancen müssen genau die Ränge 1, 2 und 3 haben.")
+        if SUMMARY_META_PATTERN.search(self.process_summary) is not None:
+            raise ValueError("Die Zusammenfassung darf keine Meta-Einleitung enthalten.")
+        normalized_uncertainties = {
+            uncertainty.casefold().rstrip(".?!") for uncertainty in self.uncertainties
+        }
+        if len(normalized_uncertainties) != len(self.uncertainties):
+            raise ValueError("Unsicherheiten dürfen nicht doppelt vorkommen.")
+        combined_opportunities = " ".join(
+            f"{opportunity.title} {opportunity.recommendation}"
+            for opportunity in self.opportunities
+        ).casefold()
+        manual_markers = ("papierformular", "ringordner", "stempel", "wand-board")
+        useful_markers = (
+            "digital",
+            "automatisch",
+            "automatisiert",
+            "automatisierung",
+            "statusübersicht",
+        )
+        if (
+            sum(marker in combined_opportunities for marker in manual_markers) >= 2
+            and not any(marker in combined_opportunities for marker in useful_markers)
+        ):
+            raise ValueError(
+                "Die Chancen dürfen nicht ausschließlich manuelle Hilfsmittel sein."
+            )
         return self

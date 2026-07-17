@@ -20,33 +20,35 @@
     <div class="option-list">
         {% for option in options %}
         <label class="process-card">
-            <input type="radio" name="process_id" value="{{ option.process_id }}">
+            <input type="radio" name="process_id" value="{{ option.process_id }}" {% if option.process_id == selected_process_id %}checked{% endif %}>
             <span>
                 <strong>{{ option.process_name }}</strong>
-                <span><b>Start:</b> {{ option.start_event }}</span>
-                <span><b>Ende:</b> {{ option.end_event }}</span>
-                <span>{{ option.reason }}</span>
+                <span><b>So beginnt der Ablauf:</b> {{ option.start_event }}</span>
+                <span><b>Dann ist er abgeschlossen:</b> {{ option.end_event }}</span>
+                {% if option.reason %}<span>{{ option.reason }}</span>{% endif %}
             </span>
         </label>
         {% endfor %}
     </div>
-
-    <section class="custom-process">
-        <h2>Anderen Prozess beschreiben</h2>
-        <div class="field-group">
-            <label for="custom_process_name">Prozessname</label>
-            <input id="custom_process_name" name="custom_process_name" value="{{ custom_values.get('process_name', '') }}">
-        </div>
-        <div class="field-group">
-            <label for="custom_start_event">Wodurch beginnt der Prozess?</label>
-            <input id="custom_start_event" name="custom_start_event" value="{{ custom_values.get('start_event', '') }}">
-        </div>
-        <div class="field-group">
-            <label for="custom_end_event">Wann ist der Prozess abgeschlossen?</label>
-            <input id="custom_end_event" name="custom_end_event" value="{{ custom_values.get('end_event', '') }}">
-        </div>
-    </section>
-
-    <button class="primary-button" type="submit">Prozess auswählen</button>
+    <div class="form-actions">
+        <a class="secondary-button button-link" href="{{ url_for('show_interview', session_id=session_id) }}">← Zurück zu Unternehmen</a>
+        <button class="primary-button" type="submit">Ablauf auswählen</button>
+    </div>
 </form>
+
+<section class="custom-process">
+    <h2>Keiner der Vorschläge passt?</h2>
+    <p>Beschreibe kurz, welchen wiederkehrenden Ablauf du untersuchen möchtest.</p>
+    <form action="{{ url_for('recognize_custom_process', session_id=session_id) }}" method="post">
+        <label class="visually-hidden" for="custom_process_description">Eigener wiederkehrender Ablauf</label>
+        <textarea
+            id="custom_process_description"
+            name="custom_process_description"
+            rows="5"
+            required
+            placeholder="Zum Beispiel: Von der Annahme eines Reparaturauftrags bis der Kunde den fertigen Gegenstand abholt."
+        >{{ custom_description }}</textarea>
+        <button class="primary-button" type="submit">Ablauf erkennen</button>
+    </form>
+</section>
 {% endblock %}

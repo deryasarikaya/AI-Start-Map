@@ -186,11 +186,18 @@ def _complete_analysis(
         follow_redirects=False,
     )
     assert response.status_code == 303
-    assert response.headers["location"] == f"/sessions/{session_id}/results"
+    assert response.headers["location"] == f"/sessions/{session_id}/processing"
+    assert client.get(response.headers["location"]).status_code == 200
+    analysis_response = client.post(f"/sessions/{session_id}/analyze")
+    assert analysis_response.status_code == 200
+    assert analysis_response.json() == {
+        "state": "complete",
+        "redirect_url": f"/sessions/{session_id}/results",
+    }
     return session_id
 
 
-def test_saved_intro_answers_cannot_be_overwritten(
+def test_saved_intro_answers_can_be_edited_before_analysis(
     client: TestClient,
     database_session: Session,
 ) -> None:
@@ -212,8 +219,8 @@ def test_saved_intro_answers_cannot_be_overwritten(
         ).all()
     )
     assert stored == {
-        "business_context": "Kleiner regionaler Handwerksbetrieb.",
-        "problem_overview": "Auftragsdaten werden mehrfach übertragen.",
+        "business_context": "Geänderter Betrieb",
+        "problem_overview": "Geändertes Problem",
     }
 
 
@@ -275,7 +282,7 @@ def test_exactly_one_process_option_remains_selected(
         )
     )
     assert len(selected) == 1
-    assert selected[0].option_order == 1
+    assert selected[0].option_order == 2
 
 
 def test_seven_process_questions_are_created_exactly_once(
@@ -350,7 +357,10 @@ def test_dynamic_questions_receive_only_app_assigned_keys(
         "generate_follow_up_questions",
         lambda **_kwargs: FollowUpResult(
             questions=[
-                FollowUpQuestion(question=f"Rückfrage {number}?", issue_type="missing")
+                FollowUpQuestion(
+                    question=f"Was fehlt heute bei Punkt {number}?",
+                    issue_type="missing",
+                )
                 for number in range(1, 4)
             ]
         ),
@@ -482,9 +492,12 @@ def test_failed_analysis_leaves_no_partial_results(
     response = client.post(
         f"/sessions/{session_id}/process-details",
         data=_process_answers(),
+        follow_redirects=False,
     )
+    assert response.headers["location"] == f"/sessions/{session_id}/processing"
+    response = client.post(f"/sessions/{session_id}/analyze")
     assert response.status_code == 500
-    assert "keine Teilergebnisse" in response.text
+    assert "keine Teilergebnisse" in response.json()["message"]
     assert database_session.get(Analysis, session_id) is None
     opportunity_count = database_session.scalar(
         select(func.count())
@@ -578,8 +591,14 @@ def test_demo_route_creates_session_and_redirects_to_real_results(
     )
     response = client.get(f"/demo/{demo_slug}", follow_redirects=False)
     assert response.status_code == 303
+    assert response.headers["location"].endswith("/processing")
     session_id = int(response.headers["location"].split("/")[2])
     assert database_session.get(AnalysisSession, session_id) is not None
+    assert database_session.get(Analysis, session_id) is None
+    processing_response = client.get(response.headers["location"])
+    assert processing_response.status_code == 200
+    analysis_response = client.post(f"/sessions/{session_id}/analyze")
+    assert analysis_response.status_code == 200
     assert database_session.get(Analysis, session_id) is not None
     opportunity_count = database_session.scalar(
         select(func.count())
@@ -587,7 +606,7 @@ def test_demo_route_creates_session_and_redirects_to_real_results(
         .where(AutomationOpportunity.session_id == session_id)
     )
     assert opportunity_count == 3
-    result_response = client.get(response.headers["location"])
+    result_response = client.get(f"/sessions/{session_id}/results")
     assert result_response.status_code == 200
     assert "Kernengpass" in result_response.text
     visible_text = result_response.text.casefold()
@@ -629,11 +648,11 @@ def test_follow_up_answers_complete_the_analysis(
         lambda **_kwargs: FollowUpResult(
             questions=[
                 FollowUpQuestion(
-                    question="Wer prüft die Auftragsangaben?",
+                    question="Wer prüft heute die Auftragsangaben?",
                     issue_type="missing",
                 ),
                 FollowUpQuestion(
-                    question="Wie viele Aufträge entstehen pro Woche?",
+                    question="Wie viele Aufträge entstehen heute pro Woche?",
                     issue_type="critical_unknown",
                 ),
             ]
@@ -661,7 +680,7 @@ def test_follow_up_answers_complete_the_analysis(
         follow_redirects=False,
     )
     assert response.status_code == 303
-    assert response.headers["location"] == f"/sessions/{session_id}/results"
+    assert response.headers["location"] == f"/sessions/{session_id}/processing"
     answers = dict(
         database_session.execute(
             select(InterviewQuestion.question_key, InterviewQuestion.answer_text).where(
@@ -674,6 +693,9 @@ def test_follow_up_answers_complete_the_analysis(
         "follow_up_1": "Die Inhaberin prüft die Angaben.",
         "follow_up_2": "Ich weiß es nicht",
     }
+    assert database_session.get(Analysis, session_id) is None
+    analysis_response = client.post(f"/sessions/{session_id}/analyze")
+    assert analysis_response.status_code == 200
     assert database_session.get(Analysis, session_id) is not None
 
 
@@ -710,7 +732,7 @@ def test_all_workflow_pages_render_without_template_errors(
         lambda **_kwargs: FollowUpResult(
             questions=[
                 FollowUpQuestion(
-                    question="Wer prüft den fertigen Auftrag?",
+                    question="Wer prüft heute den fertigen Auftrag?",
                     issue_type="missing",
                 )
             ]
@@ -732,6 +754,10 @@ def test_all_workflow_pages_render_without_template_errors(
         data={"follow_up_1": "Die Inhaberin prüft den Auftrag."},
         follow_redirects=False,
     )
+    processing = client.get(f"/sessions/{session_id}/processing")
+    assert processing.status_code == 200
+    assert "Deine Analyse wird erstellt." in processing.text
+    client.post(f"/sessions/{session_id}/analyze")
     results = client.get(f"/sessions/{session_id}/results")
     assert results.status_code == 200
     assert "Blueprint für Chance 1" in results.text

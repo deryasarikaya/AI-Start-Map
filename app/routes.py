@@ -4,9 +4,9 @@ import json
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from fastapi.responses import HTMLResponse, RedirectResponse, Response
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
 from app.database import get_db_session
@@ -19,6 +19,7 @@ from app.models import (
 )
 from app.openai_service import (
     AIServiceError,
+    generate_custom_process_boundary,
     generate_final_analysis,
     generate_follow_up_questions,
     generate_process_suggestions,
@@ -29,7 +30,11 @@ from app.rag_service import (
     format_chunks_for_prompt,
     retrieve_chunks,
 )
-from app.schemas import FinalAnalysisResult, contains_internal_reference
+from app.schemas import (
+    FinalAnalysisResult,
+    contains_internal_reference,
+    contains_prohibited_customer_language,
+)
 
 
 router = APIRouter()
@@ -175,8 +180,10 @@ def _next_valid_path(database_session: Session, session_id: int) -> str:
         phase="follow_up",
     )
     if follow_up_questions:
+        if _all_answered(follow_up_questions):
+            return f"/sessions/{session_id}/processing"
         return f"/sessions/{session_id}/follow-ups"
-    return f"/sessions/{session_id}/process-details"
+    return f"/sessions/{session_id}/processing"
 
 
 def _render_error(
@@ -226,6 +233,46 @@ def _ensure_process_questions(
     )
 
 
+def _delete_follow_ups(database_session: Session, session_id: int) -> None:
+    for question in _get_questions(
+        database_session,
+        session_id,
+        phase="follow_up",
+    ):
+        database_session.delete(question)
+
+
+def _acquire_session_write_lock(
+    database_session: Session,
+    session_id: int,
+) -> bool:
+    return bool(
+        database_session.scalar(
+            text("SELECT pg_try_advisory_xact_lock(:session_id)"),
+            params={"session_id": session_id},
+        )
+    )
+
+
+def _process_options_context(
+    *,
+    session_id: int,
+    options: list[ProcessOption],
+    selected_process: ProcessOption | None,
+    error_message: str | None = None,
+    custom_description: str = "",
+) -> dict[str, object]:
+    return {
+        "session_id": session_id,
+        "options": options,
+        "selected_process_id": (
+            selected_process.process_id if selected_process is not None else None
+        ),
+        "error_message": error_message,
+        "custom_description": custom_description,
+    }
+
+
 @router.get("/", response_class=HTMLResponse, name="landing")
 def show_landing(request: Request) -> HTMLResponse:
     return templates.TemplateResponse(request=request, name="landing.html")
@@ -267,9 +314,9 @@ def show_interview(
     database_session: Session = Depends(get_db_session),
 ) -> Response:
     _get_session_or_404(database_session, session_id)
+    if database_session.get(Analysis, session_id) is not None:
+        return _redirect(f"/sessions/{session_id}/results")
     questions = _get_questions(database_session, session_id, phase="context")
-    if _all_answered(questions):
-        return _redirect(_next_valid_path(database_session, session_id))
     return templates.TemplateResponse(
         request=request,
         name="interview_start.html",
@@ -296,35 +343,35 @@ async def save_interview(
     database_session: Session = Depends(get_db_session),
 ) -> Response:
     _get_session_or_404(database_session, session_id)
+    if database_session.get(Analysis, session_id) is not None:
+        return _redirect(f"/sessions/{session_id}/results")
+    if not _acquire_session_write_lock(database_session, session_id):
+        database_session.rollback()
+        return _redirect(f"/sessions/{session_id}/processing")
     questions = _get_questions(database_session, session_id, phase="context")
-    if _all_answered(questions):
-        return _redirect(_next_valid_path(database_session, session_id))
     form = await request.form()
     submitted = {key: str(form.get(key, "")).strip() for key in INTRO_KEYS}
-    effective_answers = {
-        question.question_key: question.answer_text or submitted[question.question_key]
-        for question in questions
-    }
-    if not all(effective_answers.values()):
+    if not all(submitted.values()):
         return templates.TemplateResponse(
             request=request,
             name="interview_start.html",
             context={
                 "session_id": session_id,
                 "questions": questions,
-                "answers": effective_answers,
+                "answers": submitted,
                 "error_message": "Bitte beantworte beide Fragen.",
             },
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
         )
     for question in questions:
-        if question.answer_text is None:
-            question.answer_text = submitted[question.question_key]
+        question.answer_text = submitted[question.question_key]
     try:
         database_session.commit()
     except Exception:
         database_session.rollback()
         raise
+    if _process_options(database_session, session_id):
+        return _redirect(f"/sessions/{session_id}/process-options")
     return _redirect(f"/sessions/{session_id}/saved")
 
 
@@ -417,20 +464,19 @@ def show_process_options(
     database_session: Session = Depends(get_db_session),
 ) -> Response:
     _get_session_or_404(database_session, session_id)
+    if database_session.get(Analysis, session_id) is not None:
+        return _redirect(f"/sessions/{session_id}/results")
     options = _process_options(database_session, session_id)
     if not options:
         return _redirect(f"/sessions/{session_id}/saved")
-    if _selected_process(database_session, session_id) is not None:
-        return _redirect(_next_valid_path(database_session, session_id))
     return templates.TemplateResponse(
         request=request,
         name="process_options.html",
-        context={
-            "session_id": session_id,
-            "options": options,
-            "error_message": None,
-            "custom_values": {},
-        },
+        context=_process_options_context(
+            session_id=session_id,
+            options=options,
+            selected_process=_selected_process(database_session, session_id),
+        ),
     )
 
 
@@ -445,70 +491,173 @@ async def select_process(
     database_session: Session = Depends(get_db_session),
 ) -> Response:
     _get_session_or_404(database_session, session_id)
-    if _selected_process(database_session, session_id) is not None:
-        return _redirect(_next_valid_path(database_session, session_id))
+    if database_session.get(Analysis, session_id) is not None:
+        return _redirect(f"/sessions/{session_id}/results")
+    if not _acquire_session_write_lock(database_session, session_id):
+        database_session.rollback()
+        return _redirect(f"/sessions/{session_id}/processing")
     options = _process_options(database_session, session_id)
     if not options:
         return _redirect(f"/sessions/{session_id}/saved")
     form = await request.form()
-    custom_values = {
-        "process_name": str(form.get("custom_process_name", "")).strip(),
-        "start_event": str(form.get("custom_start_event", "")).strip(),
-        "end_event": str(form.get("custom_end_event", "")).strip(),
-    }
     selected_option: ProcessOption | None = None
-    if any(custom_values.values()):
-        if not all(custom_values.values()):
-            return templates.TemplateResponse(
-                request=request,
-                name="process_options.html",
-                context={
-                    "session_id": session_id,
-                    "options": options,
-                    "error_message": (
-                        "Bitte beschreibe für den eigenen Prozess Name, Beginn und Ende."
-                    ),
-                    "custom_values": custom_values,
-                },
-                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            )
-        selected_option = ProcessOption(
-            session_id=session_id,
-            option_order=max(option.option_order for option in options) + 1,
-            process_name=custom_values["process_name"],
-            start_event=custom_values["start_event"],
-            end_event=custom_values["end_event"],
-            is_selected=True,
+    raw_process_id = str(form.get("process_id", "")).strip()
+    if raw_process_id.isdigit():
+        process_id = int(raw_process_id)
+        selected_option = next(
+            (option for option in options if option.process_id == process_id),
+            None,
         )
-        database_session.add(selected_option)
-    else:
-        raw_process_id = str(form.get("process_id", "")).strip()
-        if raw_process_id.isdigit():
-            process_id = int(raw_process_id)
-            selected_option = next(
-                (option for option in options if option.process_id == process_id),
-                None,
-            )
-        if selected_option is None:
-            return templates.TemplateResponse(
-                request=request,
-                name="process_options.html",
-                context={
-                    "session_id": session_id,
-                    "options": options,
-                    "error_message": "Bitte wähle genau einen Prozess aus.",
-                    "custom_values": custom_values,
-                },
-                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            )
-        selected_option.is_selected = True
+    if selected_option is None:
+        return templates.TemplateResponse(
+            request=request,
+            name="process_options.html",
+            context=_process_options_context(
+                session_id=session_id,
+                options=options,
+                selected_process=_selected_process(database_session, session_id),
+                error_message="Bitte wähle genau einen Ablauf aus.",
+            ),
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+        )
+    previous_selection = _selected_process(database_session, session_id)
     try:
+        selection_changed = (
+            previous_selection is None
+            or previous_selection.process_id != selected_option.process_id
+        )
+        if selection_changed and previous_selection is not None:
+            previous_selection.is_selected = False
+            database_session.flush()
+        selected_option.is_selected = True
+        if selection_changed:
+            _delete_follow_ups(database_session, session_id)
         _ensure_process_questions(database_session, session_id)
         database_session.commit()
     except Exception:
         database_session.rollback()
         raise
     return _redirect(f"/sessions/{session_id}/process-details")
+
+
+@router.post(
+    "/sessions/{session_id}/process-options/custom",
+    response_class=HTMLResponse,
+    name="recognize_custom_process",
+)
+async def recognize_custom_process(
+    request: Request,
+    session_id: int,
+    database_session: Session = Depends(get_db_session),
+) -> Response:
+    _get_session_or_404(database_session, session_id)
+    if database_session.get(Analysis, session_id) is not None:
+        return _redirect(f"/sessions/{session_id}/results")
+    if not _acquire_session_write_lock(database_session, session_id):
+        database_session.rollback()
+        return _redirect(f"/sessions/{session_id}/processing")
+    options = _process_options(database_session, session_id)
+    if not options:
+        return _redirect(f"/sessions/{session_id}/saved")
+    form = await request.form()
+    description = str(form.get("custom_process_description", "")).strip()
+    if not description:
+        return templates.TemplateResponse(
+            request=request,
+            name="process_options.html",
+            context=_process_options_context(
+                session_id=session_id,
+                options=options,
+                selected_process=_selected_process(database_session, session_id),
+                error_message="Bitte beschreibe kurz den Ablauf, den du untersuchen möchtest.",
+            ),
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+        )
+    context_questions = _get_questions(database_session, session_id, phase="context")
+    try:
+        boundary = generate_custom_process_boundary(
+            description=description,
+            context_answers=_answer_payload(context_questions),
+        )
+        raw_custom_id = str(form.get("custom_process_id", "")).strip()
+        custom_option = next(
+            (
+                option
+                for option in options
+                if raw_custom_id.isdigit()
+                and option.process_id == int(raw_custom_id)
+            ),
+            None,
+        )
+        if custom_option is None:
+            custom_option = ProcessOption(
+                session_id=session_id,
+                option_order=max(option.option_order for option in options) + 1,
+                process_name=boundary.process_name,
+                start_event=boundary.start_event,
+                end_event=boundary.end_event,
+                reason=description,
+            )
+            database_session.add(custom_option)
+        else:
+            custom_option.process_name = boundary.process_name
+            custom_option.start_event = boundary.start_event
+            custom_option.end_event = boundary.end_event
+            custom_option.reason = description
+        database_session.commit()
+    except AIServiceError as error:
+        database_session.rollback()
+        return templates.TemplateResponse(
+            request=request,
+            name="process_options.html",
+            context=_process_options_context(
+                session_id=session_id,
+                options=options,
+                selected_process=_selected_process(database_session, session_id),
+                error_message=str(error),
+                custom_description=description,
+            ),
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+        )
+    except Exception:
+        database_session.rollback()
+        raise
+    return _redirect(
+        f"/sessions/{session_id}/process-options/custom/{custom_option.process_id}"
+    )
+
+
+@router.get(
+    "/sessions/{session_id}/process-options/custom/{process_id}",
+    response_class=HTMLResponse,
+    name="confirm_custom_process",
+)
+def confirm_custom_process(
+    request: Request,
+    session_id: int,
+    process_id: int,
+    database_session: Session = Depends(get_db_session),
+) -> Response:
+    _get_session_or_404(database_session, session_id)
+    if database_session.get(Analysis, session_id) is not None:
+        return _redirect(f"/sessions/{session_id}/results")
+    process = database_session.scalar(
+        select(ProcessOption).where(
+            ProcessOption.session_id == session_id,
+            ProcessOption.process_id == process_id,
+        )
+    )
+    if process is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return templates.TemplateResponse(
+        request=request,
+        name="process_confirm.html",
+        context={
+            "session_id": session_id,
+            "process": process,
+            "description": process.reason or "",
+        },
+    )
 
 
 def _process_form_context(
@@ -527,6 +676,9 @@ def _process_form_context(
         or {
             question.question_key: question.answer_text or ""
             for question in questions
+        },
+        "question_help": {
+            question["key"]: question["help"] for question in PROCESS_QUESTIONS
         },
         "error_message": error_message,
     }
@@ -579,6 +731,9 @@ async def save_process_details(
     _get_session_or_404(database_session, session_id)
     if database_session.get(Analysis, session_id) is not None:
         return _redirect(f"/sessions/{session_id}/results")
+    if not _acquire_session_write_lock(database_session, session_id):
+        database_session.rollback()
+        return _redirect(f"/sessions/{session_id}/processing")
     process = _selected_process(database_session, session_id)
     if process is None:
         return _redirect(_next_valid_path(database_session, session_id))
@@ -591,11 +746,7 @@ async def save_process_details(
         )
     form = await request.form()
     submitted = {key: str(form.get(key, "")).strip() for key in PROCESS_KEYS}
-    effective_answers = {
-        question.question_key: question.answer_text or submitted[question.question_key]
-        for question in questions
-    }
-    if not all(effective_answers.values()):
+    if not all(submitted.values()):
         return templates.TemplateResponse(
             request=request,
             name="process_details.html",
@@ -603,15 +754,20 @@ async def save_process_details(
                 session_id=session_id,
                 process=process,
                 questions=questions,
-                answers=effective_answers,
+                answers=submitted,
                 error_message="Bitte beantworte alle sieben Fragen.",
             ),
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
         )
+    answers_changed = any(
+        (question.answer_text or "") != submitted[question.question_key]
+        for question in questions
+    )
     for question in questions:
-        if question.answer_text is None:
-            question.answer_text = submitted[question.question_key]
+        question.answer_text = submitted[question.question_key]
     try:
+        if answers_changed:
+            _delete_follow_ups(database_session, session_id)
         database_session.commit()
     except Exception:
         database_session.rollback()
@@ -677,7 +833,7 @@ def _continue_after_process_answers(
         raise
     if result.questions:
         return _redirect(f"/sessions/{session_id}/follow-ups")
-    return _run_final_analysis(request, session_id, database_session)
+    return _redirect(f"/sessions/{session_id}/processing")
 
 
 def _follow_up_context(
@@ -742,6 +898,9 @@ async def save_follow_ups(
     _get_session_or_404(database_session, session_id)
     if database_session.get(Analysis, session_id) is not None:
         return _redirect(f"/sessions/{session_id}/results")
+    if not _acquire_session_write_lock(database_session, session_id):
+        database_session.rollback()
+        return _redirect(f"/sessions/{session_id}/processing")
     questions = _get_questions(database_session, session_id, phase="follow_up")
     if not questions:
         return _redirect(f"/sessions/{session_id}/process-details")
@@ -754,18 +913,14 @@ async def save_follow_ups(
             if unknown
             else str(form.get(question.question_key, "")).strip()
         )
-    effective_answers = {
-        question.question_key: question.answer_text or submitted[question.question_key]
-        for question in questions
-    }
-    if not all(effective_answers.values()):
+    if not all(submitted.values()):
         return templates.TemplateResponse(
             request=request,
             name="follow_ups.html",
             context=_follow_up_context(
                 session_id=session_id,
                 questions=questions,
-                answers=effective_answers,
+                answers=submitted,
                 error_message=(
                     "Bitte beantworte jede Rückfrage oder wähle „Ich weiß es nicht“ aus."
                 ),
@@ -773,14 +928,13 @@ async def save_follow_ups(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
         )
     for question in questions:
-        if question.answer_text is None:
-            question.answer_text = submitted[question.question_key]
+        question.answer_text = submitted[question.question_key]
     try:
         database_session.commit()
     except Exception:
         database_session.rollback()
         raise
-    return _run_final_analysis(request, session_id, database_session)
+    return _redirect(f"/sessions/{session_id}/processing")
 
 
 def _persist_final_analysis(
@@ -818,16 +972,13 @@ def _persist_final_analysis(
     database_session.commit()
 
 
-def _run_final_analysis(
-    request: Request,
+def _generate_and_persist_final_analysis(
     session_id: int,
     database_session: Session,
-) -> Response:
-    if database_session.get(Analysis, session_id) is not None:
-        return _redirect(f"/sessions/{session_id}/results")
+) -> None:
     process = _selected_process(database_session, session_id)
     if process is None:
-        return _redirect(_next_valid_path(database_session, session_id))
+        raise ValueError("Für die Analyse fehlt der ausgewählte Ablauf.")
     all_questions = _get_questions(database_session, session_id)
     process_questions = [
         question
@@ -842,54 +993,120 @@ def _run_final_analysis(
     if not _all_answered(process_questions) or (
         follow_ups and not _all_answered(follow_ups)
     ):
-        return _redirect(_next_valid_path(database_session, session_id))
-    try:
-        knowledge = _retrieval_context(
-            _query_text(all_questions, process),
-            "analysis",
-        )
-        result = generate_final_analysis(
-            answers=_answer_payload(all_questions),
-            selected_process=_process_payload(process),
-            knowledge_chunks=knowledge,
-        )
-        _persist_final_analysis(database_session, session_id, result)
-    except (AIServiceError, RagConfigurationError) as error:
-        database_session.rollback()
-        retry_path = (
-            f"/sessions/{session_id}/follow-ups"
-            if follow_ups
-            else f"/sessions/{session_id}/process-details"
-        )
-        return _render_error(
-            request,
-            str(error),
-            retry_path=retry_path,
-        )
-    except Exception:
-        database_session.rollback()
-        return _render_error(
-            request,
-            "Die Ergebnisse konnten nicht vollständig gespeichert werden. "
-            "Es wurden keine Teilergebnisse übernommen.",
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            retry_path=(
-                f"/sessions/{session_id}/follow-ups"
-                if follow_ups
-                else f"/sessions/{session_id}/process-details"
-            ),
-        )
-    return _redirect(f"/sessions/{session_id}/results")
+        raise ValueError("Bitte vervollständige zuerst die offenen Angaben.")
+    knowledge = _retrieval_context(
+        _query_text(all_questions, process),
+        "analysis",
+    )
+    result = generate_final_analysis(
+        answers=_answer_payload(all_questions),
+        selected_process=_process_payload(process),
+        knowledge_chunks=knowledge,
+    )
+    _persist_final_analysis(database_session, session_id, result)
 
 
-@router.post("/sessions/{session_id}/analyze", name="analyze_session")
-def analyze_session(
+@router.get(
+    "/sessions/{session_id}/processing",
+    response_class=HTMLResponse,
+    name="show_processing",
+)
+def show_processing(
     request: Request,
     session_id: int,
     database_session: Session = Depends(get_db_session),
 ) -> Response:
     _get_session_or_404(database_session, session_id)
-    return _run_final_analysis(request, session_id, database_session)
+    if database_session.get(Analysis, session_id) is not None:
+        return _redirect(f"/sessions/{session_id}/results")
+    next_path = _next_valid_path(database_session, session_id)
+    if next_path != f"/sessions/{session_id}/processing":
+        return _redirect(next_path)
+    return templates.TemplateResponse(
+        request=request,
+        name="processing.html",
+        context={"session_id": session_id},
+    )
+
+
+@router.get(
+    "/sessions/{session_id}/analysis-status",
+    name="analysis_status",
+)
+def analysis_status(
+    session_id: int,
+    database_session: Session = Depends(get_db_session),
+) -> JSONResponse:
+    _get_session_or_404(database_session, session_id)
+    complete = database_session.get(Analysis, session_id) is not None
+    return JSONResponse(
+        {
+            "state": "complete" if complete else "pending",
+            "redirect_url": (
+                f"/sessions/{session_id}/results" if complete else None
+            ),
+        }
+    )
+
+
+@router.post("/sessions/{session_id}/analyze", name="analyze_session")
+def analyze_session(
+    session_id: int,
+    database_session: Session = Depends(get_db_session),
+) -> JSONResponse:
+    _get_session_or_404(database_session, session_id)
+    results_path = f"/sessions/{session_id}/results"
+    if database_session.get(Analysis, session_id) is not None:
+        return JSONResponse({"state": "complete", "redirect_url": results_path})
+    next_path = _next_valid_path(database_session, session_id)
+    if next_path != f"/sessions/{session_id}/processing":
+        database_session.rollback()
+        return JSONResponse(
+            {
+                "state": "error",
+                "message": "Bitte vervollständige zuerst die offenen Angaben.",
+                "redirect_url": next_path,
+            },
+            status_code=status.HTTP_409_CONFLICT,
+        )
+    lock_acquired = _acquire_session_write_lock(database_session, session_id)
+    if not lock_acquired:
+        database_session.rollback()
+        return JSONResponse(
+            {"state": "processing", "redirect_url": None},
+            status_code=status.HTTP_409_CONFLICT,
+        )
+    if database_session.get(Analysis, session_id) is not None:
+        database_session.rollback()
+        return JSONResponse({"state": "complete", "redirect_url": results_path})
+    try:
+        _generate_and_persist_final_analysis(session_id, database_session)
+    except (AIServiceError, RagConfigurationError) as error:
+        database_session.rollback()
+        return JSONResponse(
+            {"state": "error", "message": str(error), "redirect_url": None},
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+        )
+    except ValueError as error:
+        database_session.rollback()
+        return JSONResponse(
+            {"state": "error", "message": str(error), "redirect_url": None},
+            status_code=status.HTTP_409_CONFLICT,
+        )
+    except Exception:
+        database_session.rollback()
+        return JSONResponse(
+            {
+                "state": "error",
+                "message": (
+                    "Die Ergebnisse konnten nicht vollständig erstellt werden. "
+                    "Es wurden keine Teilergebnisse übernommen."
+                ),
+                "redirect_url": None,
+            },
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+    return JSONResponse({"state": "complete", "redirect_url": results_path})
 
 
 @router.get(
@@ -953,13 +1170,35 @@ def show_results(
         ],
         "blueprint": blueprint,
     }
-    if contains_internal_reference(visible_result):
+    summary_start = analysis.process_summary.strip().casefold()
+    process_name = process.process_name.strip().casefold()
+    summary_repeats_title = summary_start.startswith(
+        (
+            process_name,
+            "prozessname:",
+            "ausgewählter prozess:",
+            "der prozess heißt",
+            "aus den vorliegenden angaben",
+            "auf grundlage der daten",
+            "quelle:",
+            "die rekonstruktion bleibt unsicher",
+        )
+    )
+    if (
+        contains_internal_reference(visible_result)
+        or contains_prohibited_customer_language(visible_result)
+        or summary_repeats_title
+    ):
         return _render_error(
             request,
             "Die Ergebnisse konnten nicht sicher angezeigt werden. Bitte starte "
             "eine neue Analyse.",
             status_code=status.HTTP_409_CONFLICT,
         )
+    opportunity_categories = {
+        opportunity.rank: _opportunity_category(opportunity)
+        for opportunity in opportunities
+    }
     return templates.TemplateResponse(
         request=request,
         name="results.html",
@@ -968,9 +1207,36 @@ def show_results(
             "process": process,
             "analysis": analysis,
             "opportunities": opportunities,
+            "opportunity_categories": opportunity_categories,
             "blueprint": blueprint,
         },
     )
+
+
+def _opportunity_category(opportunity: AutomationOpportunity) -> str:
+    opportunity_text = (
+        f"{opportunity.title} {opportunity.recommendation} "
+        f"{opportunity.benefit}"
+    ).casefold()
+    automation_markers = (
+        "automatisch",
+        "automatisiert",
+        "automatisierung",
+        "benachrichtigung auslösen",
+        "selbstständig übertragen",
+    )
+    digital_markers = (
+        "digital",
+        "zentrale auftragskarte",
+        "statusübersicht",
+        "zentraler auftragsstatus",
+        "gemeinsame strukturierte erfassung",
+    )
+    if any(marker in opportunity_text for marker in automation_markers):
+        return "Automatisierung"
+    if any(marker in opportunity_text for marker in digital_markers):
+        return "Einfache Digitalisierung"
+    return "Prozessstandardisierung"
 
 
 def _load_evaluation_case(evaluation_id: str) -> dict[str, object]:
@@ -980,7 +1246,7 @@ def _load_evaluation_case(evaluation_id: str) -> dict[str, object]:
         evaluation_data = json.loads(EVALUATION_FILE.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError) as error:
         raise RagConfigurationError(
-            "Die vorbereiteten Testfälle konnten nicht gelesen werden."
+            "Die vorbereiteten Demo-Daten konnten nicht gelesen werden."
         ) from error
     evaluation_case = next(
         (
@@ -1107,4 +1373,4 @@ def run_demo(
     except Exception:
         database_session.rollback()
         raise
-    return _run_final_analysis(request, session_id, database_session)
+    return _redirect(f"/sessions/{session_id}/processing")

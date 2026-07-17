@@ -26,6 +26,10 @@ PROCESS_QUESTIONS = [
         "order": 1,
         "phase": "process",
         "text": "Wodurch beginnt dieser Prozess, und wann ist er wirklich abgeschlossen?",
+        "help": (
+            "Nenne den konkreten Auslöser und den Punkt, an dem für diesen "
+            "Auftrag oder Fall nichts mehr zu tun ist."
+        ),
     },
     {
         "key": "actual_steps",
@@ -34,6 +38,9 @@ PROCESS_QUESTIONS = [
         "text": (
             "Wie läuft der Prozess heute tatsächlich Schritt für Schritt ab? "
             "Beschreibe auch Wartezeiten, Rückfragen, Nacharbeit und Umwege."
+        ),
+        "help": (
+            "Beschreibe den heutigen Alltag, auch wenn er anders läuft als geplant."
         ),
     },
     {
@@ -46,6 +53,10 @@ PROCESS_QUESTIONS = [
             "Welche Informationen oder Unterlagen werden benötigt, und welches "
             "Ergebnis muss am Ende vorliegen?"
         ),
+        "help": (
+            "Mit einem einzelnen Durchlauf ist ein konkreter Auftrag, Fall oder "
+            "Vorgang vom Anfang bis zum fertigen Ergebnis gemeint."
+        ),
     },
     {
         "key": "roles_systems_and_handoffs",
@@ -56,6 +67,10 @@ PROCESS_QUESTIONS = [
             "werden verwendet, und welche Informationen werden kopiert, erneut "
             "eingegeben oder weitergegeben?"
         ),
+        "help": (
+            "Nenne nur Hilfsmittel und Übergaben, die heute tatsächlich verwendet "
+            "werden."
+        ),
     },
     {
         "key": "volume_time_and_impact",
@@ -64,6 +79,9 @@ PROCESS_QUESTIONS = [
         "text": (
             "Wie häufig läuft der Prozess, wie viel Zeit kostet er ungefähr und "
             "welche Folgen entstehen bei Fehlern oder Verzögerungen?"
+        ),
+        "help": (
+            "Ungefähre Angaben reichen. Wenn du etwas nicht weißt, schreibe das dazu."
         ),
     },
     {
@@ -74,6 +92,10 @@ PROCESS_QUESTIONS = [
             "Welche Entscheidungen folgen festen Regeln, wo braucht es Erfahrung, "
             "und was passiert, wenn der normale Ablauf nicht funktioniert?"
         ),
+        "help": (
+            "Feste Regeln sind Entscheidungen, die heute immer nach denselben "
+            "Vorgaben getroffen werden."
+        ),
     },
     {
         "key": "approval_and_success",
@@ -83,6 +105,10 @@ PROCESS_QUESTIONS = [
             "Was darf niemals ohne menschliche Prüfung entschieden, versendet, "
             "bestätigt oder geändert werden? Woran würdest du erkennen, dass der "
             "Prozess verbessert wurde?"
+        ),
+        "help": (
+            "Mit menschlicher Prüfung ist ein Punkt gemeint, an dem eine Person "
+            "bewusst kontrolliert oder freigibt."
         ),
     },
 ]

@@ -20,5 +20,18 @@
     <main class="page-shell page-content">
         {% block content %}{% endblock %}
     </main>
+    <script>
+        document.querySelectorAll("form[data-disable-on-submit]").forEach((form) => {
+            form.addEventListener("submit", () => {
+                const button = form.querySelector("button[type='submit']");
+                if (button) {
+                    button.disabled = true;
+                    button.setAttribute("aria-disabled", "true");
+                    button.textContent = "Analyse wird gestartet …";
+                }
+            });
+        });
+    </script>
+    {% block scripts %}{% endblock %}
 </body>
 </html>

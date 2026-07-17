@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Analyse wird erstellt · AI Start Map{% endblock %}
+
+{% block content %}
+<nav class="phase-list" aria-label="Fortschritt">
+    <span class="phase">Unternehmen</span><span class="phase-arrow">→</span>
+    <span class="phase">Prozess</span><span class="phase-arrow">→</span>
+    <span class="phase">Details</span><span class="phase-arrow">→</span>
+    <span class="phase current" aria-current="step">Ergebnis</span>
+</nav>
+
+<section
+    class="processing-card"
+    data-analyze-url="{{ url_for('analyze_session', session_id=session_id) }}"
+    data-status-url="{{ url_for('analysis_status', session_id=session_id) }}"
+>
+    <div class="processing-indicator" aria-hidden="true"><span></span><span></span><span></span></div>
+    <h1 class="page-title">Deine Analyse wird erstellt.</h1>
+    <p class="page-description">
+        Wir rekonstruieren gerade deinen Ablauf, prüfen mögliche Engpässe und priorisieren
+        passende Automatisierungschancen. Das kann einen Moment dauern.
+    </p>
+    <ol class="processing-steps" aria-live="polite">
+        <li class="active">Dein Ablauf wird strukturiert.</li>
+        <li>Der zentrale Engpass wird geprüft.</li>
+        <li>Passende Automatisierungschancen werden priorisiert.</li>
+        <li>Dein Ergebnis wird vorbereitet.</li>
+    </ol>
+    <div class="error-message processing-error" role="alert" hidden></div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    (() => {
+        const card = document.querySelector(".processing-card");
+        const steps = Array.from(document.querySelectorAll(".processing-steps li"));
+        const errorBox = document.querySelector(".processing-error");
+        let currentStep = 0;
+        const stepTimer = window.setInterval(() => {
+            steps[currentStep].classList.remove("active");
+            currentStep = Math.min(currentStep + 1, steps.length - 1);
+            steps[currentStep].classList.add("active");
+            if (currentStep === steps.length - 1) window.clearInterval(stepTimer);
+        }, 2400);
+
+        const showError = (message) => {
+            window.clearInterval(stepTimer);
+            errorBox.textContent = message;
+            errorBox.hidden = false;
+        };
+
+        const checkStatus = async () => {
+            const response = await fetch(card.dataset.statusUrl, {headers: {"Accept": "application/json"}});
+            if (!response.ok) throw new Error("Der Stand der Analyse konnte nicht geprüft werden.");
+            return response.json();
+        };
+
+        const waitForCompletion = async () => {
+            for (let attempt = 0; attempt < 90; attempt += 1) {
+                const status = await checkStatus();
+                if (status.state === "complete") {
+                    window.location.assign(status.redirect_url);
+                    return true;
+                }
+                await new Promise((resolve) => window.setTimeout(resolve, 1000));
+            }
+            return false;
+        };
+
+        const startAnalysis = async () => {
+            try {
+                const initialStatus = await checkStatus();
+                if (initialStatus.state === "complete") {
+                    window.location.assign(initialStatus.redirect_url);
+                    return;
+                }
+                const response = await fetch(card.dataset.analyzeUrl, {
+                    method: "POST",
+                    headers: {"Accept": "application/json"},
+                });
+                const result = await response.json();
+                if (result.state === "complete") {
+                    window.location.assign(result.redirect_url);
+                    return;
+                }
+                if (result.state === "processing" && await waitForCompletion()) return;
+                showError(result.message || "Die Analyse konnte nicht abgeschlossen werden. Bitte gehe zum letzten Schritt zurück und versuche es erneut.");
+            } catch (_error) {
+                showError("Die Analyse konnte nicht abgeschlossen werden. Bitte versuche es erneut.");
+            }
+        };
+
+        startAnalysis();
+    })();
+</script>
+{% endblock %}

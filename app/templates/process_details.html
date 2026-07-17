@@ -22,10 +22,14 @@
         <span class="question-index">{{ "%02d"|format(loop.index) }}</span>
         <div class="question-content">
             <label for="{{ question.question_key }}">{{ question.question_text }}</label>
+            <p class="field-help">{{ question_help[question.question_key] }}</p>
             <textarea id="{{ question.question_key }}" name="{{ question.question_key }}" rows="6" required>{{ answers[question.question_key] }}</textarea>
         </div>
     </div>
     {% endfor %}
-    <button class="primary-button" type="submit">Details speichern</button>
+    <div class="form-actions">
+        <a class="secondary-button button-link" href="{{ url_for('show_process_options', session_id=session_id) }}">← Zurück zur Auswahl</a>
+        <button class="primary-button" type="submit">Details speichern</button>
+    </div>
 </form>
 {% endblock %}

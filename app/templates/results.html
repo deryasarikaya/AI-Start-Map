@@ -38,7 +38,10 @@
     <div class="opportunity-list">
         {% for opportunity in opportunities %}
         <article class="opportunity-card">
-            <span class="rank">Rang {{ opportunity.rank }}</span>
+            <div class="opportunity-heading">
+                <span class="rank">Rang {{ opportunity.rank }}</span>
+                <span class="opportunity-type">{{ opportunity_categories[opportunity.rank] }}</span>
+            </div>
             <h2>{{ opportunity.title }}</h2>
             <dl>
                 <dt>Konkretes Problem</dt><dd>{{ opportunity.problem }}</dd>
