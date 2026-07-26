@@ -1,0 +1,47 @@
+case_id,sector,physical_intake,repair,field_service,small_batch_production,lost_ticket,shelf_location,third_party_pickup,supplemental_price,no_laptop_or_paper,smartphone_only,dirty_noisy_mobile,needs_standardization,source_strength
+RB03-C01,Schuhreparatur,1,1,0,1,0,1,0,0,0,0,0,0,high
+RB03-C02,Textilreinigung,1,1,0,0,1,1,0,0,0,0,0,0,high
+RB03-C03,Textilreinigung,1,1,0,0,0,0,0,0,1,0,0,1,medium
+RB03-C04,Textilreinigung,1,1,0,0,0,1,0,0,1,0,0,1,high
+RB03-C05,Trommelbau und -reparatur,1,1,0,1,0,0,1,0,1,0,0,1,high
+RB03-C06,Kfz-Werkstatt,1,1,0,0,0,0,0,1,1,0,0,1,high
+RB03-C07,Kfz-Werkstatt,1,1,0,0,0,1,0,0,1,0,0,1,medium
+RB03-C08,Powersports-Werkstatt,1,1,0,0,0,1,0,0,0,0,1,0,high
+RB03-C09,Fahrzeugteile/Werkstatt,1,1,0,0,1,1,0,0,1,0,1,1,high
+RB03-C10,Computerreparatur,1,1,0,0,0,0,0,0,0,0,0,0,medium
+RB03-C11,Hausgerätereparatur,1,1,1,0,0,0,0,0,0,0,0,0,high
+RB03-C12,Schmuckreparatur,1,1,0,0,0,0,0,0,0,0,0,0,medium
+RB03-C13,Flottenwartung,1,1,0,0,0,0,0,0,1,0,1,1,high
+RB03-C14,Nähmaschinenreparatur,1,1,0,0,0,1,0,0,0,0,1,0,high
+RB03-C15,Nähmaschinenreparatur,1,1,0,0,1,1,0,0,1,0,0,1,medium
+RB03-C16,Möbelrestaurierung,1,1,0,1,0,0,0,1,1,0,1,1,high
+RB03-C17,Polsterei/Katzenmöbel,1,1,0,1,0,1,0,0,0,1,1,0,medium
+RB03-C18,Kfz-Reparatur,1,1,0,0,0,0,0,1,0,0,0,0,medium
+RB03-C19,Elektroservice,0,0,1,0,0,1,0,1,1,0,1,1,high
+RB03-C20,SHK/HVAC,0,0,1,0,0,0,0,0,1,0,0,1,high
+RB03-C21,Zaunbau,0,0,1,1,0,0,0,0,0,0,0,0,high
+RB03-C22,Handwerker-/Hausmeisterbetrieb,0,0,1,0,0,0,0,0,1,1,0,1,high
+RB03-C23,Handwerker/Landschaftspflege,0,0,1,0,0,0,0,0,0,0,0,0,high
+RB03-C24,Brunnen-/Wassertechnik,0,0,1,0,0,0,0,0,0,0,0,0,high
+RB03-C25,Hausreparaturservice,0,0,1,0,0,0,0,0,0,0,0,0,medium
+RB03-C26,HVAC-Reparatur,0,1,1,0,0,1,0,0,1,1,1,1,medium
+RB03-C27,Bauunternehmen,0,0,1,1,0,0,1,0,1,0,0,1,medium
+RB03-C28,Teppichreinigung,0,0,1,0,0,0,0,0,1,0,0,1,high
+RB03-C29,Schädlingsbekämpfung,0,0,1,0,0,0,0,0,0,0,0,0,medium
+RB03-C30,Teppichreinigung,0,0,1,0,0,0,0,0,0,0,0,0,medium
+RB03-C31,Tischlerei,0,0,0,1,0,0,0,0,1,0,0,1,high
+RB03-C32,Etikettendruck,0,0,0,1,0,0,0,0,0,0,0,1,high
+RB03-C33,Kabelkonfektionierung,0,0,0,1,0,0,0,0,0,0,0,0,high
+RB03-C34,Individueller Möbelbau,0,0,0,1,0,0,0,0,1,0,0,1,high
+RB03-C35,Textildruck,0,0,0,1,0,0,0,0,0,0,0,0,high
+RB03-C36,Druckerei,0,0,0,1,0,0,0,0,0,0,1,0,high
+RB03-C37,Pflanzenverkauf,0,0,0,1,0,1,0,0,1,0,0,1,low
+RB03-C38,Handgefertigte Produkte,0,0,0,1,0,0,0,0,1,0,0,1,medium
+RB03-C39,Handgefertigter Schmuck,0,0,0,1,0,0,1,0,1,0,0,1,medium
+RB03-C40,Austernzucht und -distribution,0,0,1,1,0,0,0,0,0,0,0,0,high
+RB03-C41,Fenster- und Türenfertigung,0,0,0,1,0,0,0,0,0,1,0,0,medium
+RB03-C42,Kfz-Reparatur,1,1,0,0,0,0,0,0,1,0,1,1,high
+RB03-C43,Kleinmotoren-Reparatur,1,1,0,0,0,0,0,0,1,1,1,1,high
+RB03-C44,"Druck, Stickerei und Werbetechnik",0,0,0,1,0,0,0,0,1,0,1,1,high
+RB03-C45,Mobile Kfz- und Flottenreparatur,0,1,1,0,0,0,0,0,1,0,1,1,high
+RB03-C46,Druckproduktion,0,0,0,1,0,0,0,0,0,0,1,0,high

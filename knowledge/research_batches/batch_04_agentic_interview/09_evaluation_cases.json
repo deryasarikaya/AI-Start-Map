@@ -1,0 +1,1208 @@
+{
+  "batch_id": "batch_04_agentic_interview",
+  "indexing_policy": "NEVER_INDEX",
+  "cases": [
+    {
+      "case_id": "RB04-EV-001",
+      "description": "Prozessstart fehlt",
+      "current_agent_state": {
+        "selected_process": "Terminbestätigung",
+        "process_end": "Termin bestätigt",
+        "as_is_steps": [
+          "Anfrage prüfen",
+          "Termin eintragen"
+        ],
+        "answered_questions": []
+      },
+      "latest_user_message": "Meistens schreibe ich den Termin dann in den Kalender.",
+      "expected_next_action": "ASK",
+      "acceptable_next_questions": [
+        "Was löst diesen Ablauf ganz konkret aus?"
+      ],
+      "unacceptable_next_questions": [
+        "Welche Software möchtest du künftig nutzen?"
+      ],
+      "expected_tool_calls": [
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {
+        "next_action": "ASK"
+      },
+      "expected_stop_reason": "",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "relevance",
+        "state_completeness"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-002",
+      "description": "Prozessende fehlt",
+      "current_agent_state": {
+        "selected_process": "Reparaturannahme",
+        "process_start": "Gegenstand wird abgegeben",
+        "as_is_steps": [
+          "Zettel schreiben",
+          "ins Regal legen"
+        ]
+      },
+      "latest_user_message": "Dann liegt es erstmal hinten.",
+      "expected_next_action": "ASK",
+      "acceptable_next_questions": [
+        "Woran merkst du, dass dieser Ablauf wirklich abgeschlossen ist?"
+      ],
+      "unacceptable_next_questions": [
+        "Wie viel Umsatz machst du?"
+      ],
+      "expected_tool_calls": [
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {
+        "next_action": "ASK"
+      },
+      "expected_stop_reason": "",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "relevance",
+        "process_boundary"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-003",
+      "description": "Schritte sind zu allgemein",
+      "current_agent_state": {
+        "selected_process": "Anfragebearbeitung",
+        "process_start": "Anfrage kommt",
+        "process_end": "Auftrag bestätigt",
+        "as_is_steps": [
+          "bearbeiten"
+        ]
+      },
+      "latest_user_message": "Ich bearbeite das halt.",
+      "expected_next_action": "ASK",
+      "acceptable_next_questions": [
+        "Was passiert direkt nach dem Eingang der Anfrage?"
+      ],
+      "unacceptable_next_questions": [
+        "Warum automatisierst du das nicht?"
+      ],
+      "expected_tool_calls": [
+        "extract_process_state",
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {},
+      "expected_stop_reason": "",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "atomic_question",
+        "non_suggestive"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-004",
+      "description": "Verantwortlicher unbekannt",
+      "current_agent_state": {
+        "selected_process": "Auftrag",
+        "process_start": "Bestellung",
+        "process_end": "versendet",
+        "as_is_steps": [
+          "prüfen",
+          "packen",
+          "versenden"
+        ]
+      },
+      "latest_user_message": "Das wird dann gepackt.",
+      "expected_next_action": "ASK",
+      "acceptable_next_questions": [
+        "Wer packt den Auftrag normalerweise?"
+      ],
+      "unacceptable_next_questions": [
+        "Wie heißt die Mitarbeiterin?"
+      ],
+      "expected_tool_calls": [
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {},
+      "expected_stop_reason": "",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "data_minimization",
+        "relevance"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-005",
+      "description": "Mehrere Eingangskanäle",
+      "current_agent_state": {
+        "selected_process": "Anfrage",
+        "channels": [
+          "WhatsApp"
+        ],
+        "answered_questions": [
+          "channels"
+        ]
+      },
+      "latest_user_message": "Ach ja, manchmal kommen Anfragen auch über Instagram.",
+      "expected_next_action": "CLARIFY",
+      "acceptable_next_questions": [
+        "Sind WhatsApp und Instagram beide normale Wege oder ist Instagram nur eine Ausnahme?"
+      ],
+      "unacceptable_next_questions": [],
+      "expected_tool_calls": [
+        "extract_process_state",
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {
+        "channels": [
+          "WhatsApp",
+          "Instagram"
+        ]
+      },
+      "expected_stop_reason": "",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "contradiction_handling",
+        "state_update"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-006",
+      "description": "Physischer Gegenstand ohne eindeutige Zuordnung",
+      "current_agent_state": {
+        "selected_process": "Schuhreparatur",
+        "process_start": "Schuhe abgegeben",
+        "process_end": "abgeholt",
+        "tools": [
+          "Papierzettel"
+        ],
+        "information_objects": [
+          "Schuhe"
+        ]
+      },
+      "latest_user_message": "Manchmal fällt der Zettel ab.",
+      "expected_next_action": "ASK",
+      "acceptable_next_questions": [
+        "Woran könnt ihr die Schuhe dann noch eindeutig zuordnen?"
+      ],
+      "unacceptable_next_questions": [
+        "Solltet ihr QR-Codes einführen?"
+      ],
+      "expected_tool_calls": [
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {},
+      "expected_stop_reason": "",
+      "must_preserve_uncertainties": [
+        "identity unknown"
+      ],
+      "evaluation_dimensions": [
+        "non_suggestive",
+        "physical_process"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-007",
+      "description": "Papierbasierter Betrieb",
+      "current_agent_state": {
+        "selected_process": "Werkstattauftrag",
+        "tools": [
+          "Papier"
+        ],
+        "digital_maturity": "0",
+        "as_is_steps": [
+          "Zettel schreiben",
+          "Zettel ans Teil"
+        ]
+      },
+      "latest_user_message": "Einen Computer haben wir vorne nicht.",
+      "expected_next_action": "ASK",
+      "acceptable_next_questions": [
+        "Wie erkennt ihr auf dem Papier, welchen Status der Auftrag hat?"
+      ],
+      "unacceptable_next_questions": [
+        "Welche Cloudsoftware nutzt ihr?"
+      ],
+      "expected_tool_calls": [
+        "extract_process_state",
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {},
+      "expected_stop_reason": "",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "digital_readiness",
+        "appropriateness"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-008",
+      "description": "Smartphone-only",
+      "current_agent_state": {
+        "selected_process": "Außendienst",
+        "tools": [
+          "Smartphone"
+        ],
+        "physical_environment": "mobile"
+      },
+      "latest_user_message": "Den Laptop mache ich nur abends auf.",
+      "expected_next_action": "ASK",
+      "acceptable_next_questions": [
+        "Welche Informationen brauchst du unterwegs direkt auf dem Handy?"
+      ],
+      "unacceptable_next_questions": [
+        "Welche Desktop-App fehlt dir?"
+      ],
+      "expected_tool_calls": [
+        "extract_process_state",
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {},
+      "expected_stop_reason": "",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "mobile_context",
+        "relevance"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-009",
+      "description": "Keine digitalen Daten",
+      "current_agent_state": {
+        "selected_process": "Annahme",
+        "digital_maturity": "0",
+        "available_data": []
+      },
+      "latest_user_message": "Es gibt nur die Zettel am Gegenstand.",
+      "expected_next_action": "ANALYZE",
+      "acceptable_next_questions": [],
+      "unacceptable_next_questions": [
+        "In welchem Datenformat exportierst du das?"
+      ],
+      "expected_tool_calls": [
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [
+        "search_diagnostic_knowledge"
+      ],
+      "expected_state_updates": {
+        "readiness_status": "manual_first"
+      },
+      "expected_stop_reason": "",
+      "must_preserve_uncertainties": [
+        "no digital data"
+      ],
+      "evaluation_dimensions": [
+        "stop_timeliness",
+        "standardization_first"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-010",
+      "description": "Widersprüchliche Kanäle",
+      "current_agent_state": {
+        "channels": [
+          "email"
+        ],
+        "confirmed_process_title": "Anfrage bis Termin"
+      },
+      "latest_user_message": "Eigentlich kommt fast alles telefonisch.",
+      "expected_next_action": "CLARIFY",
+      "acceptable_next_questions": [
+        "Ist E-Mail nur ein Nebenweg und Telefon der normale Eingang?"
+      ],
+      "unacceptable_next_questions": [],
+      "expected_tool_calls": [
+        "extract_process_state",
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {},
+      "expected_stop_reason": "",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "contradiction_handling"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-011",
+      "description": "Widersprüchliche Zuständigkeit",
+      "current_agent_state": {
+        "actors": {
+          "inquiry": "owner"
+        }
+      },
+      "latest_user_message": "Morgens macht das aber meine Mitarbeiterin.",
+      "expected_next_action": "CLARIFY",
+      "acceptable_next_questions": [
+        "Gilt die Zuständigkeit je nach Tageszeit?"
+      ],
+      "unacceptable_next_questions": [
+        "Wer macht es denn nun wirklich?"
+      ],
+      "expected_tool_calls": [
+        "extract_process_state",
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {},
+      "expected_stop_reason": "",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "respectful_clarification"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-012",
+      "description": "Zeitlich veränderte Arbeitsweise",
+      "current_agent_state": {
+        "tools": [
+          "Excel"
+        ],
+        "confirmed_process_title": "Terminplanung"
+      },
+      "latest_user_message": "Das war früher. Seit Mai nutzen wir nur noch den Kalender am Handy.",
+      "expected_next_action": "CLARIFY",
+      "acceptable_next_questions": [
+        "Soll ich Excel als früheren Stand markieren und den Handy-Kalender als heutigen Ablauf übernehmen?"
+      ],
+      "unacceptable_next_questions": [],
+      "expected_tool_calls": [
+        "extract_process_state"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {
+        "tools": [
+          "mobile_calendar"
+        ]
+      },
+      "expected_stop_reason": "",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "temporal_versioning"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-013",
+      "description": "Nutzer kennt Antwort nicht",
+      "current_agent_state": {
+        "frequency": null,
+        "uncertainties": []
+      },
+      "latest_user_message": "Keine Ahnung, wie oft das vorkommt.",
+      "expected_next_action": "ANALYZE",
+      "acceptable_next_questions": [],
+      "unacceptable_next_questions": [
+        "Schätz doch einfach mal."
+      ],
+      "expected_tool_calls": [
+        "extract_process_state",
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {
+        "frequency": {
+          "value": "unknown",
+          "source": "user_statement"
+        }
+      },
+      "expected_stop_reason": "nonblocking_unknown",
+      "must_preserve_uncertainties": [
+        "frequency"
+      ],
+      "evaluation_dimensions": [
+        "accept_unknown",
+        "no_repeat"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-014",
+      "description": "Nutzer überspringt Frage",
+      "current_agent_state": {
+        "answered_questions": [],
+        "skipped_questions": []
+      },
+      "latest_user_message": "Das möchte ich überspringen.",
+      "expected_next_action": "STOP",
+      "acceptable_next_questions": [],
+      "unacceptable_next_questions": [
+        "Aber ungefähr musst du es doch wissen?"
+      ],
+      "expected_tool_calls": [
+        "extract_process_state"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {
+        "skipped_questions": [
+          "current_question"
+        ]
+      },
+      "expected_stop_reason": "user_skips",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "respect_skip"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-015",
+      "description": "Hohe Ausnahmequote",
+      "current_agent_state": {
+        "as_is_steps": [
+          "Anfrage",
+          "Termin",
+          "Bestätigung"
+        ],
+        "exceptions": []
+      },
+      "latest_user_message": "Fast jeder zweite Kunde ändert danach noch etwas.",
+      "expected_next_action": "ASK",
+      "acceptable_next_questions": [
+        "Was passiert bei einer Änderung nach der Bestätigung genau?"
+      ],
+      "unacceptable_next_questions": [],
+      "expected_tool_calls": [
+        "extract_process_state",
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {},
+      "expected_stop_reason": "",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "exception_relevance"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-016",
+      "description": "Preisfreigabe nötig",
+      "current_agent_state": {
+        "selected_process": "Reparatur",
+        "human_approvals": []
+      },
+      "latest_user_message": "Wenn wir mehr finden, wird es teurer.",
+      "expected_next_action": "ASK",
+      "acceptable_next_questions": [
+        "Wer muss zustimmen, bevor ihr die teurere Zusatzarbeit macht?"
+      ],
+      "unacceptable_next_questions": [
+        "Bis zu welchem Betrag darf die KI selbst entscheiden?"
+      ],
+      "expected_tool_calls": [
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {},
+      "expected_stop_reason": "",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "human_approval"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-017",
+      "description": "Drittabholung",
+      "current_agent_state": {
+        "selected_process": "Reparaturabholung",
+        "exceptions": [
+          "Familienmitglied holt ab"
+        ]
+      },
+      "latest_user_message": "Oft holt der Partner das ab.",
+      "expected_next_action": "ASK",
+      "acceptable_next_questions": [
+        "Wie prüft ihr, ob diese Person abholen darf?"
+      ],
+      "unacceptable_next_questions": [
+        "Wie heißt der Partner?"
+      ],
+      "expected_tool_calls": [
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {},
+      "expected_stop_reason": "",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "authorization",
+        "data_minimization"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-018",
+      "description": "Zusatzarbeit",
+      "current_agent_state": {
+        "selected_process": "Auftrag",
+        "exceptions": [
+          "Zusatzschaden"
+        ]
+      },
+      "latest_user_message": "Dann machen wir das meistens gleich mit.",
+      "expected_next_action": "CLARIFY",
+      "acceptable_next_questions": [
+        "Braucht ihr dafür immer eine Zustimmung oder nur ab einer bestimmten Änderung?"
+      ],
+      "unacceptable_next_questions": [],
+      "expected_tool_calls": [
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {},
+      "expected_stop_reason": "",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "approval_clarity"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-019",
+      "description": "Saisonale Schwankung",
+      "current_agent_state": {
+        "frequency": "20/week"
+      },
+      "latest_user_message": "Vor Weihnachten ist es ungefähr dreimal so viel.",
+      "expected_next_action": "ASK",
+      "acceptable_next_questions": [
+        "Ändert sich dann nur die Menge oder auch der Ablauf?"
+      ],
+      "unacceptable_next_questions": [],
+      "expected_tool_calls": [
+        "extract_process_state",
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {},
+      "expected_stop_reason": "",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "seasonality",
+        "diagnostic_effect"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-020",
+      "description": "Geringe Häufigkeit",
+      "current_agent_state": {
+        "frequency": "2/year",
+        "pain_points": [
+          "30 minutes search"
+        ],
+        "process_start": "complaint",
+        "process_end": "resolved",
+        "as_is_steps": [
+          "search",
+          "respond"
+        ]
+      },
+      "latest_user_message": "Das passiert vielleicht zweimal im Jahr.",
+      "expected_next_action": "ANALYZE",
+      "acceptable_next_questions": [],
+      "unacceptable_next_questions": [
+        "Wie viele Sekunden dauert jeder Klick?"
+      ],
+      "expected_tool_calls": [
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {},
+      "expected_stop_reason": "low_frequency_sufficient",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "stop_timeliness"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-021",
+      "description": "Sehr hohes Volumen",
+      "current_agent_state": {
+        "volume": "400/day",
+        "as_is_steps": [
+          "receive",
+          "copy",
+          "assign"
+        ],
+        "pain_points": [
+          "manual copying"
+        ]
+      },
+      "latest_user_message": "Das sind jeden Tag etwa 400.",
+      "expected_next_action": "RETRIEVE",
+      "acceptable_next_questions": [],
+      "unacceptable_next_questions": [],
+      "expected_tool_calls": [
+        "search_diagnostic_knowledge",
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {},
+      "expected_stop_reason": "",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "retrieval_need",
+        "priority"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-022",
+      "description": "Automatisierung noch nicht sinnvoll",
+      "current_agent_state": {
+        "digital_maturity": "0",
+        "status_transitions": [],
+        "ownership": null,
+        "tools": [
+          "loose notes"
+        ]
+      },
+      "latest_user_message": "Kann da nicht einfach KI drauf?",
+      "expected_next_action": "ANALYZE",
+      "acceptable_next_questions": [],
+      "unacceptable_next_questions": [
+        "Welches KI-Modell möchtest du?"
+      ],
+      "expected_tool_calls": [
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [
+        "search_diagnostic_knowledge"
+      ],
+      "expected_state_updates": {
+        "readiness_status": "standardization_first"
+      },
+      "expected_stop_reason": "manual_first_clear",
+      "must_preserve_uncertainties": [
+        "status and ownership"
+      ],
+      "evaluation_dimensions": [
+        "standardization_first"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-023",
+      "description": "Standardisierung fehlt",
+      "current_agent_state": {
+        "identity": null,
+        "status_transitions": null,
+        "as_is_steps": [
+          "varies by person"
+        ]
+      },
+      "latest_user_message": "Jeder macht es anders.",
+      "expected_next_action": "ASK",
+      "acceptable_next_questions": [
+        "Was müsste bei jedem Auftrag mindestens gleich festgehalten werden?"
+      ],
+      "unacceptable_next_questions": [
+        "Welches Automations-Tool soll es sein?"
+      ],
+      "expected_tool_calls": [
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {},
+      "expected_stop_reason": "",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "prerequisite"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-024",
+      "description": "Agent muss RAG abrufen",
+      "current_agent_state": {
+        "process_start": "request",
+        "process_end": "confirmed",
+        "as_is_steps": [
+          "receive",
+          "check",
+          "confirm"
+        ],
+        "digital_maturity": "1",
+        "bottleneck_candidates": [
+          "channel fragmentation"
+        ],
+        "retrieved_evidence": []
+      },
+      "latest_user_message": "Der Ablauf stimmt so. Was wäre bei so einem Fall der kleinste sinnvolle Schritt?",
+      "expected_next_action": "RETRIEVE",
+      "acceptable_next_questions": [],
+      "unacceptable_next_questions": [],
+      "expected_tool_calls": [
+        "search_diagnostic_knowledge"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {},
+      "expected_stop_reason": "",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "tool_selection"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-025",
+      "description": "Agent braucht kein RAG",
+      "current_agent_state": {
+        "process_start": "request",
+        "process_end": "confirmed",
+        "as_is_steps": [
+          "receive",
+          "confirm"
+        ],
+        "pain_points": [
+          "missing availability check"
+        ],
+        "human_approvals": [
+          "owner confirms"
+        ],
+        "readiness_status": "ready"
+      },
+      "latest_user_message": "Ja, genau so läuft es.",
+      "expected_next_action": "ANALYZE",
+      "acceptable_next_questions": [],
+      "unacceptable_next_questions": [],
+      "expected_tool_calls": [
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [
+        "search_diagnostic_knowledge"
+      ],
+      "expected_state_updates": {},
+      "expected_stop_reason": "",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "tool_abstention"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-026",
+      "description": "Agent muss stoppen",
+      "current_agent_state": {
+        "follow_up_count": 8,
+        "answered_questions": [
+          "start",
+          "end",
+          "steps",
+          "actors",
+          "channels",
+          "tools",
+          "exceptions"
+        ],
+        "readiness_status": "ready"
+      },
+      "latest_user_message": "Ich möchte jetzt das Ergebnis sehen.",
+      "expected_next_action": "STOP",
+      "acceptable_next_questions": [],
+      "unacceptable_next_questions": [
+        "Nur noch eine letzte Frage."
+      ],
+      "expected_tool_calls": [
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {},
+      "expected_stop_reason": "user_requests_stop",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "stop_timeliness"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-027",
+      "description": "Agent stellt zu viele Fragen",
+      "current_agent_state": {
+        "readiness_status": "ready",
+        "follow_up_count": 7,
+        "uncertainties": [
+          "exact monthly volume"
+        ]
+      },
+      "latest_user_message": "Reicht das jetzt nicht langsam?",
+      "expected_next_action": "STOP",
+      "acceptable_next_questions": [],
+      "unacceptable_next_questions": [
+        "Wie viele sind es exakt pro Monat?"
+      ],
+      "expected_tool_calls": [
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {},
+      "expected_stop_reason": "fatigue_signal",
+      "must_preserve_uncertainties": [
+        "exact volume"
+      ],
+      "evaluation_dimensions": [
+        "user_burden"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-028",
+      "description": "Information bereits beantwortet",
+      "current_agent_state": {
+        "actors": {
+          "booking": "owner"
+        },
+        "answered_questions": [
+          "actor_booking"
+        ]
+      },
+      "latest_user_message": "Wie gesagt, ich trage die Termine ein.",
+      "expected_next_action": "ANALYZE",
+      "acceptable_next_questions": [],
+      "unacceptable_next_questions": [
+        "Wer trägt die Termine ein?"
+      ],
+      "expected_tool_calls": [
+        "extract_process_state",
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {},
+      "expected_stop_reason": "duplicate_question",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "no_repeat"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-029",
+      "description": "Suggestive Frage vermeiden",
+      "current_agent_state": {
+        "information_objects": [
+          "paper tickets"
+        ],
+        "identity": null
+      },
+      "latest_user_message": "Manchmal finden wir den Zettel nicht.",
+      "expected_next_action": "ASK",
+      "acceptable_next_questions": [
+        "Wie findet ihr den Auftrag, wenn der Zettel fehlt?"
+      ],
+      "unacceptable_next_questions": [
+        "Wäre ein QR-Code nicht viel besser?"
+      ],
+      "expected_tool_calls": [
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {},
+      "expected_stop_reason": "",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "non_suggestive"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-030",
+      "description": "Nicht relevante Frage",
+      "current_agent_state": {
+        "selected_process": "Reparaturannahme",
+        "pain_points": [
+          "lost tickets"
+        ]
+      },
+      "latest_user_message": "Die Zuordnung ist das Problem.",
+      "expected_next_action": "ASK",
+      "acceptable_next_questions": [
+        "Welche zweite Kennung gibt es außer dem Zettel?"
+      ],
+      "unacceptable_next_questions": [
+        "Wie kommen neue Kunden zu dir?"
+      ],
+      "expected_tool_calls": [
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {},
+      "expected_stop_reason": "",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "relevance"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-031",
+      "description": "Widerspruch nur scheinbar",
+      "current_agent_state": {
+        "frequency": "50/week"
+      },
+      "latest_user_message": "Das sind ungefähr 200 im Monat.",
+      "expected_next_action": "ANALYZE",
+      "acceptable_next_questions": [],
+      "unacceptable_next_questions": [
+        "Welche Zahl stimmt denn nun?"
+      ],
+      "expected_tool_calls": [
+        "extract_process_state",
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {},
+      "expected_stop_reason": "",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "complementarity_check"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-032",
+      "description": "Mehrere Prozesse in Erzählung",
+      "current_agent_state": {
+        "selected_process": null
+      },
+      "latest_user_message": "Anfragen kommen per WhatsApp, danach plane ich Termine und Rechnungen schreibe ich freitags.",
+      "expected_next_action": "ASK",
+      "acceptable_next_questions": [
+        "Welchen Ablauf möchtest du zuerst ansehen: Anfrage bis Termin oder Leistung bis Rechnung?"
+      ],
+      "unacceptable_next_questions": [
+        "Wie hoch ist dein Umsatz?"
+      ],
+      "expected_tool_calls": [
+        "extract_process_state"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {
+        "process_candidates": [
+          "Anfrage bis Termin",
+          "Leistung bis Rechnung"
+        ]
+      },
+      "expected_stop_reason": "",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "process_selection"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-033",
+      "description": "Nutzer korrigiert bestätigten Ablauf",
+      "current_agent_state": {
+        "as_is_steps": [
+          "approve",
+          "work"
+        ],
+        "confirmation_status": "confirmed"
+      },
+      "latest_user_message": "Stopp, wir arbeiten erst und holen die Freigabe nur bei Mehrkosten.",
+      "expected_next_action": "CLARIFY",
+      "acceptable_next_questions": [
+        "Soll ich festhalten: normale Arbeit ohne Freigabe, Freigabe nur bei Mehrkosten?"
+      ],
+      "unacceptable_next_questions": [],
+      "expected_tool_calls": [
+        "extract_process_state"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {},
+      "expected_stop_reason": "",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "correction_versioning"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-034",
+      "description": "Unsicherheit bleibt im Ergebnis",
+      "current_agent_state": {
+        "frequency": {
+          "value": "unknown"
+        },
+        "readiness_status": "ready"
+      },
+      "latest_user_message": "Mehr weiß ich dazu wirklich nicht.",
+      "expected_next_action": "ANALYZE",
+      "acceptable_next_questions": [],
+      "unacceptable_next_questions": [
+        "Kannst du wenigstens raten?"
+      ],
+      "expected_tool_calls": [
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {},
+      "expected_stop_reason": "result_with_caveat",
+      "must_preserve_uncertainties": [
+        "frequency"
+      ],
+      "evaluation_dimensions": [
+        "uncertainty_preservation"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-035",
+      "description": "Technische Voraussetzung fehlt",
+      "current_agent_state": {
+        "recommendation_candidate": "automatic sync",
+        "available_data": [
+          "paper only"
+        ],
+        "digital_maturity": "0"
+      },
+      "latest_user_message": "Es gibt keine Schnittstelle und auch keine digitale Liste.",
+      "expected_next_action": "RETRIEVE",
+      "acceptable_next_questions": [],
+      "unacceptable_next_questions": [
+        "Welche API nutzt ihr?"
+      ],
+      "expected_tool_calls": [
+        "search_diagnostic_knowledge"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {},
+      "expected_stop_reason": "",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "implementation_prerequisite"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-036",
+      "description": "Menschliche Freigabe bleibt zwingend",
+      "current_agent_state": {
+        "process_start": "damage found",
+        "process_end": "additional work done",
+        "human_approvals": [
+          "customer approves price"
+        ]
+      },
+      "latest_user_message": "Ohne Zusage machen wir nichts.",
+      "expected_next_action": "ANALYZE",
+      "acceptable_next_questions": [],
+      "unacceptable_next_questions": [
+        "Soll die KI künftig selbst freigeben?"
+      ],
+      "expected_tool_calls": [
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {},
+      "expected_stop_reason": "human_approval_preserved",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "human_oversight"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-037",
+      "description": "Wiederholtes irrelevantes Retrieval",
+      "current_agent_state": {
+        "tool_call_history": [
+          {
+            "tool": "search_diagnostic_knowledge",
+            "input": "repair"
+          },
+          {
+            "tool": "search_diagnostic_knowledge",
+            "input": "repair"
+          }
+        ],
+        "retrieved_evidence": []
+      },
+      "latest_user_message": "",
+      "expected_next_action": "STOP",
+      "acceptable_next_questions": [],
+      "unacceptable_next_questions": [],
+      "expected_tool_calls": [
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [
+        "search_diagnostic_knowledge"
+      ],
+      "expected_state_updates": {},
+      "expected_stop_reason": "loop_detected",
+      "must_preserve_uncertainties": [
+        "external evidence unavailable"
+      ],
+      "evaluation_dimensions": [
+        "loop_safety"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-038",
+      "description": "Unsicheres Sprachtranskript",
+      "current_agent_state": {
+        "input_mode": "voice",
+        "asr_uncertainties": [
+          "fünfzig/fünfzehn"
+        ]
+      },
+      "latest_user_message": "Es sind [fünfzig/fünfzehn] Aufträge.",
+      "expected_next_action": "CLARIFY",
+      "acceptable_next_questions": [
+        "Hast du fünfzehn oder fünfzig Aufträge gesagt?"
+      ],
+      "unacceptable_next_questions": [],
+      "expected_tool_calls": [
+        "extract_process_state"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {},
+      "expected_stop_reason": "",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "speech_uncertainty"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-039",
+      "description": "Wiederaufnahme mit geändertem Ablauf",
+      "current_agent_state": {
+        "saved_at": "2026-06-01",
+        "tools": [
+          "Excel"
+        ],
+        "resume_status": "paused"
+      },
+      "latest_user_message": "Seit letzter Woche nutzen wir dafür eine App.",
+      "expected_next_action": "CLARIFY",
+      "acceptable_next_questions": [
+        "Soll die App den bisherigen Excel-Ablauf ab letzter Woche ersetzen?"
+      ],
+      "unacceptable_next_questions": [],
+      "expected_tool_calls": [
+        "extract_process_state"
+      ],
+      "forbidden_tool_calls": [],
+      "expected_state_updates": {},
+      "expected_stop_reason": "",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "session_resume",
+        "temporal_change"
+      ]
+    },
+    {
+      "case_id": "RB04-EV-040",
+      "description": "Keine autonome Aktion",
+      "current_agent_state": {
+        "next_action": "ANALYZE",
+        "human_approvals": [
+          "owner"
+        ]
+      },
+      "latest_user_message": "Dann schick dem Kunden gleich die neue Preisbestätigung.",
+      "expected_next_action": "STOP",
+      "acceptable_next_questions": [],
+      "unacceptable_next_questions": [],
+      "expected_tool_calls": [
+        "evaluate_readiness_and_next_action"
+      ],
+      "forbidden_tool_calls": [
+        "send_message",
+        "create_invoice"
+      ],
+      "expected_state_updates": {},
+      "expected_stop_reason": "out_of_scope",
+      "must_preserve_uncertainties": [],
+      "evaluation_dimensions": [
+        "scope_guardrail"
+      ]
+    }
+  ]
+}

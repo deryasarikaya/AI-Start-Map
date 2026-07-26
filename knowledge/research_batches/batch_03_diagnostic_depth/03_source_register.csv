@@ -1,0 +1,47 @@
+case_id,sector,country,company_size,source_type,source_strength,primary_evidence,source_url
+RB03-C01,Schuhreparatur,DE,small_unknown,company_process_page,high,True,https://www.shoedoc.de/
+RB03-C02,Textilreinigung,US,micro_unknown,employee_discussion,high,True,https://www.reddit.com/r/drycleaning/comments/1949xsb/help_lost_dry_cleaning_ticket_am_i_sol/
+RB03-C03,Textilreinigung,US,micro_unknown,customer_observation,medium,False,https://www.reddit.com/r/drycleaning/comments/1neu1t0/why_do_a_lot_of_small_dry_cleaning_business_still/
+RB03-C04,Textilreinigung,US,micro_unknown,owner_discussion,high,True,https://www.reddit.com/r/drycleaning/comments/a0o0as/dry_clean_owners_how_do_you_deal_with_customers/
+RB03-C05,Trommelbau und -reparatur,US,micro,owner_post,high,True,https://www.reddit.com/r/smallbusiness/comments/o45ejx/how_do_you_deal_with_customers_not_picking_up/
+RB03-C06,Kfz-Werkstatt,US,micro_unknown,operator_post,high,True,https://www.reddit.com/r/smallbusiness/comments/2j50a3/invoicing_system_for_car_repair_shop/
+RB03-C07,Kfz-Werkstatt,US,micro_unknown,family_report,medium,False,https://www.reddit.com/r/smallbusiness/comments/gygz9z/simple_invoicing_software_for_auto_repair_shop/
+RB03-C08,Powersports-Werkstatt,US,small_unknown,employee_post,high,True,https://www.reddit.com/r/partscounter/comments/zea282/service_schedulework_order_organization/
+RB03-C09,Fahrzeugteile/Werkstatt,US,small_unknown,employee_discussion,high,True,https://www.reddit.com/r/partscounter/comments/1kyioc1/special_orders/
+RB03-C10,Computerreparatur,US,micro,former_owner_comment,medium,True,https://www.reddit.com/r/smallbusiness/comments/1uviuvj/one_bad_review_from_a_customer_who_was_never_in/
+RB03-C11,Hausgerätereparatur,US,micro,owner_post,high,True,https://www.reddit.com/r/smallbusiness/comments/1637zuw/what_do_i_do_with_too_much_business/
+RB03-C12,Schmuckreparatur,US,small_unknown,employee_story,medium,True,https://www.reddit.com/r/TalesFromRetail/comments/6r582h/in_which_the_customer_doesnt_pick_up_her_item_for/
+RB03-C13,Flottenwartung,unknown,small_unknown,employee_post,high,True,https://www.reddit.com/r/MechanicAdvice/comments/1r86f4/id_like_your_advice_on_how_to_improve_how_our/
+RB03-C14,Nähmaschinenreparatur,US,small_independent_store,technician_story,high,True,https://www.reddit.com/r/TalesFromRetail/comments/vylv44/how_dare_you_finish_my_machine_repair_quickly/
+RB03-C15,Nähmaschinenreparatur,US,small_unknown,customer_report,medium,False,https://www.reddit.com/r/sewinghelp/comments/1pwqtrf/singer_repair_shop_has_my_machine_since_march/
+RB03-C16,Möbelrestaurierung,US,micro,owner_post,high,True,https://www.reddit.com/r/smallbusiness/comments/14lgjmj/i_stuck_at_the_business_part_of_my_business_how/
+RB03-C17,Polsterei/Katzenmöbel,unknown,micro,owner_post,medium,True,https://www.reddit.com/r/furniturerestoration/comments/1t14f05/i_made_a_time_tracker_for_my_cattree_upholstery/
+RB03-C18,Kfz-Reparatur,US,small_unknown,customer_report,medium,False,https://www.reddit.com/r/MechanicAdvice/comments/1bvu92k/mechanic_did_work_without_my_authorization/
+RB03-C19,Elektroservice,CA,small_unknown,operator_post,high,True,https://www.reddit.com/r/smallbusiness/comments/1b8h7kb/electrical_contracting/
+RB03-C20,SHK/HVAC,US,small_6,owner_post,high,True,https://www.reddit.com/r/smallbusiness/comments/113psbe/hvac_company_has_grown_quickly_but_i_am/
+RB03-C21,Zaunbau,US,small_unknown,owner_post,high,True,https://www.reddit.com/r/smallbusiness/comments/15cxem4/customers_not_paying_when_job_is_completed/
+RB03-C22,Handwerker-/Hausmeisterbetrieb,US,small_8,manager_post,high,True,https://www.reddit.com/r/smallbusiness/comments/1phv2xp/need_advice_as_the_manager_of_a_small_handyman/
+RB03-C23,Handwerker/Landschaftspflege,US,micro_with_helpers,owner_post,high,True,https://www.reddit.com/r/smallbusiness/comments/1m38230/is_it_worth_purchasing_a_software_for_my_company/
+RB03-C24,Brunnen-/Wassertechnik,US,small_unknown,operator_post,high,True,https://www.reddit.com/r/smallbusiness/comments/hbf6g1/what_scheduling_software_do_you_use_to_schedule/
+RB03-C25,Hausreparaturservice,US,micro,owner_comment,medium,True,https://www.reddit.com/r/smallbusiness/comments/p5drdh/software_for_small_maintenanceservice_company/
+RB03-C26,HVAC-Reparatur,US,micro,owner_post,medium,True,https://www.reddit.com/r/smallbusiness/comments/1rrjp22/how_do_you_handle_paperwork_and_invoicing_when/
+RB03-C27,Bauunternehmen,US,small_unknown,family_employee_comment,medium,True,https://www.reddit.com/r/smallbusiness/comments/1epn7eo/i_cannot_believe_people_still_do_this/
+RB03-C28,Teppichreinigung,US,solo,owner_post,high,True,https://www.reddit.com/r/smallbusiness/comments/etpa15/looking_to_expand_my_one_man_business_dont_know/
+RB03-C29,Schädlingsbekämpfung,US,small_9,vendor_case_study,medium,True,https://www.getjobber.com/academy/pest-control/parker-eco-pest-control/
+RB03-C30,Teppichreinigung,US,micro_unknown,owner_post,medium,True,https://www.reddit.com/r/CarpetCleaning/comments/1k0wuie/house_call_pro/
+RB03-C31,Tischlerei,DE,small_14,public_program_case,high,True,https://www.digitalzentrum-magdeburg.de/praxisbeispiele/prozesse-als-grundlage-der-digitalisierung-im-tischlereihandwerk/
+RB03-C32,Etikettendruck,DE,small_25,public_program_case,high,True,https://www.digitalzentrum-zukunftskultur.de/praxisbeispiele/wie-kuenstliche-intelligenz-ein-kleines-druckunternehmen-voranbringen-kann-14157/
+RB03-C33,Kabelkonfektionierung,DE,small_25,public_program_case,high,True,https://mittelstand-digital-ruhr-owl.de/kabelkonfektionierung-konfigurator-beschleunigt-den-vertriebsprozess/
+RB03-C34,Individueller Möbelbau,US,small_unknown,owner_post,high,True,https://www.reddit.com/r/smallbusiness/comments/17050bx/business_is_failing_struggling_to_get_out_of_this/
+RB03-C35,Textildruck,US,micro,owner_post,high,True,https://www.reddit.com/r/smallbusiness/comments/1qh8hv9/custom_apparel_customer_placed_huge_order_then/
+RB03-C36,Druckerei,unknown,small_unknown,print_employee_discussion,high,True,https://www.reddit.com/r/CommercialPrinting/comments/1l21gqv/ticketless_print_shop/
+RB03-C37,Pflanzenverkauf,unknown,micro,family_solution_report,low,False,https://www.reddit.com/r/smallbusiness/comments/1s19mjg/promote_your_business_week_of_march_23_2026/
+RB03-C38,Handgefertigte Produkte,unknown,micro,owner_post,medium,True,https://www.reddit.com/r/smallbusiness/comments/8zxy73/scaling_a_handmade_business_not_sure_in_which/
+RB03-C39,Handgefertigter Schmuck,unknown,solo,owner_post,medium,True,https://www.reddit.com/r/smallbusiness/comments/1pumohp/opening_a_small_jewelry_business_felt_like_a/
+RB03-C40,Austernzucht und -distribution,US,small_unknown,operations_post,high,True,https://www.reddit.com/r/smallbusiness/comments/1fz1sdj/looking_for_new_inventory_management_softwareerp/
+RB03-C41,Fenster- und Türenfertigung,unknown,small_unknown,solution_author_report,medium,False,https://www.reddit.com/r/smallbusiness/comments/1pncop7/i_built_a_whatsapp_ai_system_that_runs_business/
+RB03-C42,Kfz-Reparatur,US,micro_unknown,owner_post,high,True,https://www.reddit.com/r/smallbusiness/comments/1g2jgm9/auto_repair_shop_what_more_can_i_do_seeking_raw/
+RB03-C43,Kleinmotoren-Reparatur,US,micro,owner_post,high,True,https://www.reddit.com/r/smallbusiness/comments/1ank4bq/i_own_a_small_engine_repair_shop_it_is_a_very/
+RB03-C44,"Druck, Stickerei und Werbetechnik",unknown,small_unknown,operator_post,high,True,https://www.reddit.com/r/CommercialPrinting/comments/1ozhvsq/shop_order_management/
+RB03-C45,Mobile Kfz- und Flottenreparatur,US,small_unknown,owner_post,high,True,https://www.reddit.com/r/smallbusiness/comments/1lk5955/any_recommendations_for_managing_a_growing/
+RB03-C46,Druckproduktion,unknown,small_unknown,employee_post,high,True,https://www.reddit.com/r/CommercialPrinting/comments/187q2wd/workflow/
