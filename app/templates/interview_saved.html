@@ -1,43 +1,14 @@
 {% extends "base.html" %}
-
-{% block title %}Angaben gespeichert · AI Start Map{% endblock %}
-
+{% block title %}Abläufe werden erkannt · AI Start Map{% endblock %}
 {% block content %}
-<section class="saved-layout">
-    <div class="saved-intro">
-        <div class="success-mark" aria-hidden="true">✓</div>
-        <p class="section-kicker">Schritt 1 abgeschlossen</p>
-        <h1 class="page-title">Deine Angaben wurden gespeichert.</h1>
-        <p class="page-description">
-            Als Nächstes erkennt AI Start Map daraus konkrete Geschäftsprozesse,
-            von denen du einen für die weitere Analyse auswählst.
-        </p>
-
-        <div class="next-step-box">
-            <span class="next-step-label">Als Nächstes</span>
-            <strong>Konkrete Prozesse aus deinen Angaben erkennen</strong>
-        </div>
-
-        <form action="{{ url_for('generate_process_options', session_id=session_id) }}" method="post">
-            <button class="primary-button" type="submit">Konkrete Prozesse erkennen</button>
-        </form>
-    </div>
-
-    <section class="answer-list" aria-label="Gespeicherte Angaben">
-        <div class="answer-list-header">
-            <p class="card-kicker">Deine Angaben</p>
-            <span>{{ questions|length }} Antworten</span>
-        </div>
-
-        {% for question in questions %}
-        <article class="answer-card">
-            <span class="answer-number">{{ "%02d"|format(loop.index) }}</span>
-            <div>
-                <h2>{{ question.question_text }}</h2>
-                <p>{{ question.answer_text }}</p>
-            </div>
-        </article>
-        {% endfor %}
-    </section>
+<section class="processing-card compact-processing">
+    <div class="processing-indicator" aria-hidden="true"><span></span><span></span><span></span></div>
+    <p class="section-kicker">Deine Erzählung ist angekommen</p>
+    <h1 class="page-title">Wir erkennen gerade die Abläufe dahinter</h1>
+    <p class="page-description">Gleich kannst du auswählen, welchen Ablauf wir zuerst genauer ansehen.</p>
+    <form id="generate-options" action="{{ url_for('generate_process_options_public') }}" method="post" data-disable-on-submit>
+        <button class="primary-button" type="submit">Abläufe jetzt erkennen</button>
+    </form>
 </section>
 {% endblock %}
+{% block scripts %}<script>window.setTimeout(() => document.querySelector("#generate-options")?.requestSubmit(), 250);</script>{% endblock %}

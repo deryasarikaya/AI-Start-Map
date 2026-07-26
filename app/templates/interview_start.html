@@ -1,54 +1,40 @@
 {% extends "base.html" %}
 
-{% block title %}Unternehmen beschreiben · AI Start Map{% endblock %}
+{% block title %}Erzähl von deinem Arbeitsalltag · AI Start Map{% endblock %}
 
 {% block content %}
-<section class="content-intro">
-    <nav class="phase-list" aria-label="Fortschritt">
-        <span class="phase current" aria-current="step">1&nbsp; Unternehmen</span>
-        <span class="phase-arrow" aria-hidden="true">→</span>
-        <span class="phase">2&nbsp; Prozess</span>
-        <span class="phase-arrow" aria-hidden="true">→</span>
-        <span class="phase">3&nbsp; Details</span>
-        <span class="phase-arrow" aria-hidden="true">→</span>
-        <span class="phase">4&nbsp; Ergebnis</span>
-    </nav>
-
-    <p class="section-kicker">Schritt 1 von 4</p>
-    <h1 class="page-title">Erzähl uns kurz von deinem Unternehmen.</h1>
-    <p class="page-description">
-        Zwei kurze Antworten reichen für den Start. Im nächsten Schritt werden daraus
-        konkrete Geschäftsprozesse erkannt.
-    </p>
+<nav class="journey-progress" aria-label="Fortschritt">
+    <span class="current">Erzählt ●</span><span>Ablauf verstanden ○</span><span>Details klären ○</span><span>Ergebnis ○</span>
+</nav>
+<section class="content-intro narrow-intro">
+    <p class="section-kicker">Du erzählst</p>
+    <h1 class="page-title">Was beschäftigt dich gerade in deinem Betrieb?</h1>
+    <p class="page-description">Erzähl einfach, was dich Zeit kostet, immer wieder schiefläuft oder ständig an dir hängen bleibt.</p>
 </section>
 
-<form class="interview-form" action="{{ url_for('save_interview', session_id=session_id) }}" method="post">
-    {% if error_message %}
-    <div class="error-message" role="alert">{{ error_message }}</div>
-    {% endif %}
-
-    {% for question in questions %}
-    <div class="question-card">
-        <div class="question-index">{{ "%02d"|format(loop.index) }}</div>
-        <div class="question-content">
-            <label for="{{ question.question_key }}">{{ question.question_text }}</label>
-            <textarea
-                id="{{ question.question_key }}"
-                name="{{ question.question_key }}"
-                rows="6"
-                required
-                placeholder="Beschreibe es so, wie du es im Alltag erklären würdest."
-            >{{ answers[question.question_key] }}</textarea>
+<form class="narration-form" action="{{ url_for('save_interview_public') }}" method="post" data-disable-on-submit data-submitting-label="Wir erkennen deine Abläufe …" data-voice-input data-voice-target="free_description">
+    {% if error_message %}<div class="error-message" role="alert">{{ error_message }}</div>{% endif %}
+    <div class="privacy-banner">Bitte nenne keine vollständigen Namen oder vertraulichen Daten von Kunden und Mitarbeitenden.</div>
+    <section class="voice-card" aria-labelledby="voice-title">
+        <div class="voice-orb" aria-hidden="true"><span>●</span></div>
+        <div>
+            <h2 id="voice-title">Sprich einfach drauflos</h2>
+            <p class="voice-status" data-voice-status aria-live="polite">Tippe auf das Mikrofon und erzähl einfach drauflos.</p>
+            <p class="voice-support" data-voice-support></p>
         </div>
-    </div>
-    {% endfor %}
+        <div class="voice-actions">
+            <button class="microphone-button" type="button" data-voice-start><span aria-hidden="true">●</span> Aufnahme starten</button>
+            <button class="secondary-button" type="button" data-voice-stop hidden>Aufnahme beenden</button>
+            <button class="secondary-button" type="button" data-voice-retry hidden>Noch einmal versuchen</button>
+            <button class="text-button" type="button" data-voice-write>Lieber schreiben</button>
+        </div>
+    </section>
 
-    <div class="form-footer">
-        <p>Deine Antworten werden für diese Analyse gespeichert.</p>
-        <button class="primary-button" type="submit">
-            Angaben speichern
-            <span aria-hidden="true">→</span>
-        </button>
+    <div class="text-entry-card">
+        <label for="free_description">Deine Beschreibung</label>
+        <textarea id="free_description" name="free_description" rows="9" required placeholder="Meine Kunden schreiben mir über WhatsApp, rufen an oder kommen direkt vorbei. Ich weiß oft nicht mehr, wem ich schon geantwortet habe und welcher Auftrag gerade wo liegt.">{{ answers.get('problem_overview', '') }}</textarea>
+        <div class="thought-prompts" aria-label="Gedankenstützen"><span>Woran verlierst du Zeit?</span><span>Wo musst du oft suchen oder nachfragen?</span><span>Was wird immer wieder vergessen?</span><span>Was bleibt ständig an dir hängen?</span></div>
     </div>
+    <div class="sticky-action"><button class="primary-button" type="submit">Weiter <span aria-hidden="true">→</span></button></div>
 </form>
 {% endblock %}

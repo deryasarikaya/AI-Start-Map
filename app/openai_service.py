@@ -16,6 +16,7 @@ from app.schemas import (
     FollowUpResult,
     ProcessBoundaryResult,
     ProcessSuggestionResult,
+    ProcessUnderstandingResult,
 )
 
 
@@ -250,6 +251,32 @@ def generate_custom_process_boundary(
     )
 
 
+def generate_process_understanding(
+    *,
+    answers: dict[str, str],
+    selected_process: dict[str, str],
+) -> ProcessUnderstandingResult:
+    return _parse_structured_output(
+        system_prompt=(
+            COMMON_GROUNDING_RULES
+            + "\n\nRekonstruiere ausschließlich aus den Nutzerangaben den heute "
+            "tatsächlich ausgeführten Ablauf. Erzeuge zwei bis sieben kurze, "
+            "konkrete Prozessaktionen in zeitlicher Reihenfolge. as_is_steps darf "
+            "nur Handlungen enthalten, niemals Empfehlungen, fehlende Angaben oder "
+            "Formulierungen wie unbekannt. Trenne bestätigte Fakten, schwierige "
+            "Stellen und offene Punkte. problem_step_indexes enthält nullbasierte "
+            "Positionen der Schritte, an denen laut Nutzerangabe gesucht, gewartet, "
+            "nachgefragt oder Information verloren wird. Erfinde keine Zwischenschritte. "
+            "Empfehle noch keine Lösung."
+        ),
+        payload={
+            "nutzerangaben": answers,
+            "ausgewaehlter_ablauf": selected_process,
+        },
+        result_type=ProcessUnderstandingResult,
+    )
+
+
 def generate_follow_up_questions(
     *,
     answers: dict[str, str],
@@ -259,14 +286,15 @@ def generate_follow_up_questions(
     result = _parse_structured_output(
         system_prompt=(
             COMMON_GROUNDING_RULES
-            + "\n\nErzeuge null bis höchstens drei entscheidende Rückfragen zum "
+            + "\n\nErzeuge null bis höchstens vier entscheidende Rückfragen zum "
             "heutigen tatsächlichen Ablauf. Jede Rückfrage muss unmittelbar auf "
             "einer belegten Nutzerangabe oder einer darin erkennbaren Lücke beruhen. "
             "Wiederhole keine beantwortete Frage und behandle je Frage genau ein "
             "Thema. Schlage weder eine Lösung noch eine neue Geschäftsregel vor. "
             "Erfinde keine Gefahr, keine Kontrollmaßnahme und kein Sicherheitsrisiko. "
             "Setze keine Fotos, Identitätsprüfung, Software oder Automatisierung "
-            "voraus. Frage offen danach, was heute passiert. Wenn die Informationen "
+            "voraus. Frage offen danach, was heute passiert. Meist sind zwei bis "
+            "drei Fragen ausreichend. Wenn die Informationen "
             "ausreichen, gib eine leere Liste zurück."
         ),
         payload={
@@ -291,6 +319,7 @@ def generate_final_analysis(
     answers: dict[str, str],
     selected_process: dict[str, str],
     knowledge_chunks: Sequence[str],
+    agent_state: dict[str, object] | None = None,
 ) -> FinalAnalysisResult:
     result = _parse_structured_output(
         system_prompt=(
@@ -301,8 +330,9 @@ def generate_final_analysis(
             "sind nur logisch zwingende Verbindungen zwischen belegten Schritten; "
             "kennzeichne fehlende Details stattdessen als Unsicherheit. D. "
             "RECOMMENDATIONS gehören nur in Chancen und Blueprint.\n\n"
-            "Rekonstruiere den Ist-Ablauf, benenne den Kernengpass und "
-            "erzeuge exakt drei prozessbezogene Automatisierungschancen mit den "
+            "Rekonstruiere den Ist-Ablauf, benenne Symptom, Ursache und Auswirkung "
+            "des Kernengpasses getrennt und erzeuge exakt drei realistische "
+            "Startpunkte mit den "
             "Rängen 1, 2 und 3. Keine generischen CRM- oder Chatbot-Empfehlungen, "
             "keine erfundenen Geld- oder Zeitwerte und keine erfundenen APIs. "
             "In process_summary und as_is_steps dürfen nur USER FACTS und logisch "
@@ -313,9 +343,13 @@ def generate_final_analysis(
             "Ablauf oder zur Bewertung einer Empfehlung; gib höchstens vier aus. "
             "Eine Unsicherheit darf keine erst vorgeschlagene Software, Dokumentation, "
             "Kontrolle oder andere Lösung als bestehenden Ablauf voraussetzen. "
-            "Einfache Prozessstandardisierung darf vor einer komplexen Lösung stehen, "
-            "aber die drei Chancen sollen nachvollziehbar zwischen Standardisierung, "
-            "einfacher Digitalisierung und Automatisierung unterscheiden. Wenn "
+            "Ordnung und Standardisierung darf ausdrücklich vor Digitalisierung "
+            "oder Automatisierung stehen. Ordne jeden Startpunkt genau einer der "
+            "vorgegebenen Kategorien zu und nenne Voraussetzung, Mini-Test, Aufwand "
+            "sowie ein konkretes Akzeptanzrisiko ohne Prozentwert. Erzeuge außerdem "
+            "einen kurzen Soll-Ablauf, der nur die nächste realistische Reifestufe "
+            "abbildet. Markiere belegte Problemstellen im Ist-Ablauf über ihre "
+            "nullbasierten Schrittpositionen. Wenn "
             "physische Gegenstände bearbeitet werden, prüfe insbesondere eine zentrale "
             "digitale Auftragskarte, eindeutige Zuordnung, Status und Ablageort, eine "
             "Benachrichtigung nach menschlicher Fertigmeldung sowie dokumentierte "
@@ -333,12 +367,24 @@ def generate_final_analysis(
             "A_USER_FACTS": {
                 "ausgewaehlter_ablauf": selected_process,
                 "antworten": answers,
+                "bestaetigte_fakten": (agent_state or {}).get(
+                    "confirmed_user_facts", []
+                ),
             },
             "B_RETRIEVED_PATTERNS_INTERNAL_ONLY": list(knowledge_chunks),
-            "C_ALLOWED_INFERENCES": (
-                "Nur logisch zwingende Verbindungen; unbekannte Details bleiben "
-                "Unsicherheiten."
-            ),
+            "C_ALLOWED_INFERENCES": {
+                "regel": (
+                    "Nur logisch zwingende Verbindungen; unbekannte Details bleiben "
+                    "Unsicherheiten."
+                ),
+                "fachliche_ableitungen": (agent_state or {}).get(
+                    "professional_inferences", []
+                ),
+                "offene_unsicherheiten": (agent_state or {}).get(
+                    "uncertainties", []
+                ),
+                "widersprueche": (agent_state or {}).get("contradictions", []),
+            },
             "D_RECOMMENDATIONS": (
                 "Nur in opportunities und blueprint; nie im bestehenden Ablauf."
             ),

@@ -10,3 +10,7 @@ htmlcov/
 .postgres-data/
 *.log
 data/vector_index/
+data/vector_index_test/
+data/vector_index_backup_pre_batch04/
+data/agent_pattern_index/
+data/agent_pattern_index_test/

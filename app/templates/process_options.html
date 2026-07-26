@@ -1,54 +1,40 @@
 {% extends "base.html" %}
-
-{% block title %}Prozess auswählen · AI Start Map{% endblock %}
-
+{% block title %}Ablauf auswählen · AI Start Map{% endblock %}
 {% block content %}
-<nav class="phase-list" aria-label="Fortschritt">
-    <span class="phase">Unternehmen</span><span class="phase-arrow">→</span>
-    <span class="phase current" aria-current="step">Prozess</span><span class="phase-arrow">→</span>
-    <span class="phase">Details</span><span class="phase-arrow">→</span>
-    <span class="phase">Ergebnis</span>
-</nav>
-
+<nav class="journey-progress" aria-label="Fortschritt"><span class="done">Erzählt ✓</span><span class="current">Ablauf verstanden ●</span><span>Details klären ○</span><span>Ergebnis ○</span></nav>
 <section class="content-intro">
-    <h1 class="page-title">Welchen Prozess möchtest du genauer untersuchen?</h1>
+    <p class="section-kicker">Ein Ablauf nach dem anderen</p>
+    <h1 class="page-title">Welchen Ablauf sollen wir zuerst genauer ansehen?</h1>
+    <p class="page-description">Aus deiner Erzählung haben wir diese Abläufe erkannt. Wähle den aus, der dich gerade am meisten Zeit oder Nerven kostet.</p>
+    <p class="supporting-copy">Wir schauen uns zuerst einen Ablauf genauer an, damit das Ergebnis konkret bleibt.</p>
 </section>
 
-<form class="interview-form" action="{{ url_for('select_process', session_id=session_id) }}" method="post">
-    {% if error_message %}<div class="error-message" role="alert">{{ error_message }}</div>{% endif %}
+{% if error_message %}<div class="error-message" role="alert">{{ error_message }}</div>{% endif %}
+<div class="option-list">
+    {% for option in options %}
+    <article class="process-card">
+        <div>
+            <h2>{{ option.process_name }}</h2>
+            <dl class="boundary-list"><div><dt>Start</dt><dd>{{ option.start_event }}</dd></div><div><dt>Ende</dt><dd>{{ option.end_event }}</dd></div></dl>
+            {% if option.reason %}<p class="recognition-reason"><strong>Darum haben wir ihn erkannt:</strong> {{ option.reason }}</p>{% endif %}
+        </div>
+        <form action="{{ url_for('select_process_public') }}" method="post" data-disable-on-submit data-submitting-label="Ablauf wird vorbereitet …">
+            <input type="hidden" name="process_id" value="{{ option.process_id }}">
+            <input type="hidden" name="prepare_summary" value="yes">
+            <button class="primary-button" type="submit">Diesen Ablauf ansehen</button>
+        </form>
+    </article>
+    {% endfor %}
+</div>
 
-    <div class="option-list">
-        {% for option in options %}
-        <label class="process-card">
-            <input type="radio" name="process_id" value="{{ option.process_id }}" {% if option.process_id == selected_process_id %}checked{% endif %}>
-            <span>
-                <strong>{{ option.process_name }}</strong>
-                <span><b>So beginnt der Ablauf:</b> {{ option.start_event }}</span>
-                <span><b>Dann ist er abgeschlossen:</b> {{ option.end_event }}</span>
-                {% if option.reason %}<span>{{ option.reason }}</span>{% endif %}
-            </span>
-        </label>
-        {% endfor %}
-    </div>
-    <div class="form-actions">
-        <a class="secondary-button button-link" href="{{ url_for('show_interview', session_id=session_id) }}">← Zurück zu Unternehmen</a>
-        <button class="primary-button" type="submit">Ablauf auswählen</button>
-    </div>
-</form>
-
-<section class="custom-process">
-    <h2>Keiner der Vorschläge passt?</h2>
-    <p>Beschreibe kurz, welchen wiederkehrenden Ablauf du untersuchen möchtest.</p>
-    <form action="{{ url_for('recognize_custom_process', session_id=session_id) }}" method="post">
-        <label class="visually-hidden" for="custom_process_description">Eigener wiederkehrender Ablauf</label>
-        <textarea
-            id="custom_process_description"
-            name="custom_process_description"
-            rows="5"
-            required
-            placeholder="Zum Beispiel: Von der Annahme eines Reparaturauftrags bis der Kunde den fertigen Gegenstand abholt."
-        >{{ custom_description }}</textarea>
-        <button class="primary-button" type="submit">Ablauf erkennen</button>
+<details class="custom-process">
+    <summary>Nichts Passendes dabei?</summary>
+    <p>Beschreibe den anderen Ablauf so, wie du ihn aus deinem Alltag kennst.</p>
+    <form action="{{ url_for('recognize_custom_process_public') }}" method="post" data-voice-input data-voice-target="custom_process_description" data-disable-on-submit>
+        <label for="custom_process_description">Anderen Ablauf beschreiben</label>
+        <textarea id="custom_process_description" name="custom_process_description" rows="5" required>{{ custom_description }}</textarea>
+        <div class="form-actions"><button class="secondary-button" type="button" data-voice-start>Antwort einsprechen</button><button class="primary-button" type="submit">Einen anderen Ablauf beschreiben</button></div>
+        <p data-voice-status aria-live="polite"></p><button type="button" data-voice-stop hidden>Aufnahme beenden</button><button type="button" data-voice-retry hidden>Noch einmal versuchen</button><button type="button" data-voice-write hidden>Lieber schreiben</button><span data-voice-support></span>
     </form>
-</section>
+</details>
 {% endblock %}

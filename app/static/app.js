@@ -1,0 +1,97 @@
+(() => {
+    "use strict";
+
+    const setHidden = (element, hidden) => { if (element) element.hidden = hidden; };
+
+    document.querySelectorAll("form[data-disable-on-submit]").forEach((form) => {
+        form.addEventListener("submit", () => {
+            if (form.dataset.submitted === "true") return;
+            form.dataset.submitted = "true";
+            form.querySelectorAll("button[type='submit']").forEach((button) => {
+                button.disabled = true;
+                button.setAttribute("aria-disabled", "true");
+                if (form.dataset.submittingLabel) button.textContent = form.dataset.submittingLabel;
+            });
+        });
+    });
+
+    document.querySelectorAll("[data-voice-input]").forEach((container) => {
+        const target = document.getElementById(container.dataset.voiceTarget);
+        const status = container.querySelector("[data-voice-status]");
+        const support = container.querySelector("[data-voice-support]");
+        const start = container.querySelector("[data-voice-start]");
+        const stop = container.querySelector("[data-voice-stop]");
+        const retry = container.querySelector("[data-voice-retry]");
+        const write = container.querySelector("[data-voice-write]");
+        const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null;
+        let finalText = "";
+
+        const update = (state, message) => {
+            container.dataset.voiceState = state;
+            if (status) status.textContent = message;
+            setHidden(start, state === "recording");
+            setHidden(stop, state !== "recording");
+            setHidden(retry, state !== "error" && state !== "done");
+        };
+
+        if (!Recognition) {
+            if (support) support.textContent = "Dein Browser unterstützt die Spracheingabe hier nicht. Du kannst direkt losschreiben.";
+            if (start) start.disabled = true;
+            update("error", "Spracheingabe ist in diesem Browser nicht verfügbar. Deine Texteingabe funktioniert weiterhin.");
+        } else {
+            recognition = new Recognition();
+            recognition.lang = "de-DE";
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.onstart = () => {
+                finalText = target?.value.trim() || "";
+                update("recording", "Ich höre zu …");
+            };
+            recognition.onresult = (event) => {
+                let interim = "";
+                for (let index = event.resultIndex; index < event.results.length; index += 1) {
+                    const transcript = event.results[index][0].transcript.trim();
+                    if (event.results[index].isFinal) finalText = `${finalText} ${transcript}`.trim();
+                    else interim += ` ${transcript}`;
+                }
+                if (target) target.value = `${finalText}${interim}`.trim();
+            };
+            recognition.onend = () => update("done", "Das haben wir verstanden. Du kannst den Text direkt bearbeiten.");
+            recognition.onerror = () => update("error", "Das hat gerade nicht geklappt. Du kannst es erneut versuchen oder einfach schreiben.");
+        }
+
+        start?.addEventListener("click", () => {
+            if (!recognition) return target?.focus();
+            try { recognition.start(); } catch (_error) { update("error", "Das hat gerade nicht geklappt. Du kannst es erneut versuchen oder einfach schreiben."); }
+        });
+        stop?.addEventListener("click", () => { update("processing", "Wir bringen deine Erzählung gerade in Text."); recognition?.stop(); });
+        retry?.addEventListener("click", () => start?.click());
+        write?.addEventListener("click", () => target?.focus());
+    });
+
+    document.querySelectorAll("[data-step-editor]").forEach((editor) => {
+        const list = editor.querySelector("[data-step-list]");
+        const renumber = () => list?.querySelectorAll(".step-editor").forEach((row, index) => {
+            const number = row.querySelector("span");
+            const input = row.querySelector("input");
+            if (number) number.textContent = String(index + 1);
+            if (input) input.setAttribute("aria-label", `Schritt ${index + 1}`);
+        });
+        editor.querySelector("[data-add-step]")?.addEventListener("click", () => {
+            if (!list || list.children.length >= 7) return;
+            const row = document.createElement("div");
+            row.className = "step-editor";
+            row.innerHTML = '<span></span><input name="steps" required placeholder="Was passiert als Nächstes?" aria-label="Neuer Schritt"><button type="button" aria-label="Schritt entfernen" data-remove-step>×</button>';
+            list.append(row);
+            renumber();
+            row.querySelector("input")?.focus();
+        });
+        list?.addEventListener("click", (event) => {
+            const button = event.target.closest("[data-remove-step]");
+            if (!button || list.children.length <= 2) return;
+            button.closest(".step-editor")?.remove();
+            renumber();
+        });
+    });
+})();

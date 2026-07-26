@@ -1,6 +1,12 @@
 from __future__ import annotations
 
 import json
+import base64
+import hashlib
+import hmac
+import os
+import secrets
+from datetime import date
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
@@ -9,6 +15,14 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
+from app.agent_config import AGENT_HEURISTICS
+from app.agent_service import (
+    ProcessState,
+    evaluate_readiness_and_next_action,
+    extract_process_state,
+    normalized_question_similarity,
+    search_diagnostic_knowledge,
+)
 from app.database import get_db_session
 from app.models import (
     Analysis,
@@ -22,14 +36,11 @@ from app.openai_service import (
     generate_custom_process_boundary,
     generate_final_analysis,
     generate_follow_up_questions,
+    generate_process_understanding,
     generate_process_suggestions,
 )
 from app.questions import INTRO_QUESTIONS, PROCESS_QUESTIONS
-from app.rag_service import (
-    RagConfigurationError,
-    format_chunks_for_prompt,
-    retrieve_chunks,
-)
+from app.rag_service import RagConfigurationError
 from app.schemas import (
     FinalAnalysisResult,
     contains_internal_reference,
@@ -48,6 +59,64 @@ DEMO_EVALUATION_IDS = {
     "etsy-3d-print": "EVAL-C-02",
     "carpet-cleaning": "EVAL-C-10",
 }
+SESSION_COOKIE = "ai_start_map_session"
+SESSION_SIGNING_KEY = (
+    os.getenv("SESSION_SIGNING_KEY", "").encode("utf-8") or secrets.token_bytes(32)
+)
+
+
+def _session_cookie_value(session_id: int) -> str:
+    payload = str(session_id).encode("ascii")
+    signature = hmac.new(SESSION_SIGNING_KEY, payload, hashlib.sha256).digest()
+    return base64.urlsafe_b64encode(payload + b"." + signature).decode("ascii")
+
+
+def _session_id_from_cookie(request: Request) -> int:
+    encoded = request.cookies.get(SESSION_COOKIE, "")
+    try:
+        raw = base64.urlsafe_b64decode(encoded.encode("ascii"))
+        payload, signature = raw.split(b".", 1)
+        expected = hmac.new(SESSION_SIGNING_KEY, payload, hashlib.sha256).digest()
+        if not hmac.compare_digest(signature, expected):
+            raise ValueError
+        return int(payload.decode("ascii"))
+    except (ValueError, UnicodeError, TypeError):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND) from None
+
+
+def _set_session_cookie(response: Response, request: Request, session_id: int) -> None:
+    response.set_cookie(
+        SESSION_COOKIE,
+        _session_cookie_value(session_id),
+        httponly=True,
+        samesite="lax",
+        secure=request.url.scheme == "https",
+    )
+
+
+def _publicize_redirect(response: Response, session_id: int) -> Response:
+    if not isinstance(response, RedirectResponse):
+        return response
+    location = response.headers.get("location", "")
+    prefix = f"/sessions/{session_id}"
+    if not location.startswith(prefix):
+        return response
+    suffix = location[len(prefix):]
+    public_paths = {
+        "/interview": "/interview",
+        "/saved": "/saved",
+        "/process-options": "/process-options",
+        "/process-details": "/process-details",
+        "/follow-ups": "/follow-ups",
+        "/processing": "/processing",
+        "/results": "/results",
+        "/report": "/report",
+    }
+    if suffix.startswith("/process-options/custom/"):
+        response.headers["location"] = "/process-options/custom/confirm"
+    elif suffix in public_paths:
+        response.headers["location"] = public_paths[suffix]
+    return response
 
 
 def _get_session_or_404(
@@ -146,6 +215,40 @@ def _query_text(
     return "\n\n".join(parts)
 
 
+def _diagnostic_agent_state(
+    database_session: Session,
+    session_id: int,
+    process: ProcessOption,
+) -> ProcessState:
+    questions = _get_questions(database_session, session_id)
+    answers = {
+        question.question_key: question.answer_text or "" for question in questions
+    }
+    question_records = [
+        {
+            "question_key": question.question_key,
+            "question_text": question.question_text,
+            "answer_text": question.answer_text or "",
+        }
+        for question in questions
+    ]
+    return extract_process_state(
+        answers=answers,
+        selected_process=_process_payload(process),
+        questions=question_records,
+    )
+
+
+def _is_repeated_follow_up(
+    question_text: str,
+    existing_questions: list[InterviewQuestion],
+) -> bool:
+    return any(
+        normalized_question_similarity(question_text, existing.question_text) >= 0.8
+        for existing in existing_questions
+    )
+
+
 def _redirect(path: str) -> RedirectResponse:
     return RedirectResponse(path, status_code=status.HTTP_303_SEE_OTHER)
 
@@ -207,7 +310,10 @@ def _render_error(
 
 
 def _retrieval_context(query: str, phase: str) -> list[str]:
-    return format_chunks_for_prompt(retrieve_chunks(query, phase=phase))
+    return [
+        evidence.content
+        for evidence in search_diagnostic_knowledge(query, phase=phase)
+    ]
 
 
 def _ensure_process_questions(
@@ -303,6 +409,18 @@ def start_session(database_session: Session = Depends(get_db_session)) -> Redire
     return _redirect(f"/sessions/{analysis_session.session_id}/interview")
 
 
+@router.post("/begin", name="begin_journey")
+def begin_journey(
+    request: Request,
+    database_session: Session = Depends(get_db_session),
+) -> Response:
+    response = start_session(database_session)
+    session_id = int(response.headers["location"].split("/")[2])
+    public_response = _redirect("/interview")
+    _set_session_cookie(public_response, request, session_id)
+    return public_response
+
+
 @router.get(
     "/sessions/{session_id}/interview",
     response_class=HTMLResponse,
@@ -350,7 +468,12 @@ async def save_interview(
         return _redirect(f"/sessions/{session_id}/processing")
     questions = _get_questions(database_session, session_id, phase="context")
     form = await request.form()
-    submitted = {key: str(form.get(key, "")).strip() for key in INTRO_KEYS}
+    free_description = str(form.get("free_description", "")).strip()
+    submitted = (
+        {key: free_description for key in INTRO_KEYS}
+        if free_description
+        else {key: str(form.get(key, "")).strip() for key in INTRO_KEYS}
+    )
     if not all(submitted.values()):
         return templates.TemplateResponse(
             request=request,
@@ -359,7 +482,7 @@ async def save_interview(
                 "session_id": session_id,
                 "questions": questions,
                 "answers": submitted,
-                "error_message": "Bitte beantworte beide Fragen.",
+                "error_message": "Bitte erzähl uns kurz, was dich im Alltag beschäftigt.",
             },
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
         )
@@ -533,7 +656,57 @@ async def select_process(
         if selection_changed:
             _delete_follow_ups(database_session, session_id)
         _ensure_process_questions(database_session, session_id)
+        if str(form.get("prepare_summary", "")) == "yes":
+            database_session.flush()
+            context_questions = _get_questions(database_session, session_id, phase="context")
+            understanding = generate_process_understanding(
+                answers=_answer_payload(context_questions),
+                selected_process=_process_payload(selected_option),
+            )
+            selected_option.process_name = understanding.process_name
+            selected_option.start_event = understanding.start_event
+            selected_option.end_event = understanding.end_event
+            process_answers = {
+                "process_boundary": json.dumps(
+                    {
+                        "process_name": understanding.process_name,
+                        "start_event": understanding.start_event,
+                        "end_event": understanding.end_event,
+                    },
+                    ensure_ascii=False,
+                ),
+                "actual_steps": json.dumps(understanding.as_is_steps, ensure_ascii=False),
+                "business_object_and_result": json.dumps(understanding.confirmed_facts, ensure_ascii=False),
+                "roles_systems_and_handoffs": json.dumps(
+                    {
+                        "difficult_points": understanding.difficult_points,
+                        "problem_step_indexes": understanding.problem_step_indexes,
+                    },
+                    ensure_ascii=False,
+                ),
+                "volume_time_and_impact": json.dumps(understanding.open_points, ensure_ascii=False),
+                "rules_and_exceptions": "Noch keine Korrektur ergänzt.",
+                "approval_and_success": "Noch nicht aus der freien Beschreibung geklärt.",
+            }
+            for question in _get_questions(database_session, session_id, phase="process"):
+                question.answer_text = process_answers[question.question_key]
         database_session.commit()
+    except AIServiceError:
+        database_session.rollback()
+        return templates.TemplateResponse(
+            request=request,
+            name="process_options.html",
+            context=_process_options_context(
+                session_id=session_id,
+                options=options,
+                selected_process=previous_selection,
+                error_message=(
+                    "Wir konnten den Ablauf gerade nicht sicher ordnen. "
+                    "Deine Erzählung ist gespeichert – bitte versuche es noch einmal."
+                ),
+            ),
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+        )
     except Exception:
         database_session.rollback()
         raise
@@ -668,15 +841,62 @@ def _process_form_context(
     answers: dict[str, str] | None = None,
     error_message: str | None = None,
 ) -> dict[str, object]:
+    answer_map = {
+        question.question_key: question.answer_text or "" for question in questions
+    }
+
+    def parsed_json(key: str, fallback: object) -> object:
+        value = answer_map.get(key, "")
+        if not value:
+            return fallback
+        try:
+            return json.loads(value)
+        except json.JSONDecodeError:
+            return fallback
+
+    boundary = parsed_json("process_boundary", {})
+    stored_steps = parsed_json("actual_steps", [])
+    stored_facts = parsed_json("business_object_and_result", [])
+    difficulty_data = parsed_json("roles_systems_and_handoffs", {})
+    stored_open_points = parsed_json("volume_time_and_impact", [])
+    steps = (
+        [str(step) for step in stored_steps]
+        if isinstance(stored_steps, list) and stored_steps
+        else [process.start_event, process.end_event]
+    )
+    facts = [str(item) for item in stored_facts] if isinstance(stored_facts, list) else []
+    difficult_points = (
+        [str(item) for item in difficulty_data.get("difficult_points", [])]
+        if isinstance(difficulty_data, dict)
+        else []
+    )
+    problem_indexes = (
+        [int(index) for index in difficulty_data.get("problem_step_indexes", []) if isinstance(index, int)]
+        if isinstance(difficulty_data, dict)
+        else []
+    )
+    open_points = (
+        [str(item) for item in stored_open_points]
+        if isinstance(stored_open_points, list)
+        else []
+    )
     return {
         "session_id": session_id,
         "process": process,
         "questions": questions,
-        "answers": answers
-        or {
-            question.question_key: question.answer_text or ""
-            for question in questions
-        },
+        "answers": answers or answer_map,
+        "process_title": (
+            str(boundary.get("process_name", process.process_name))
+            if isinstance(boundary, dict)
+            else process.process_name
+        ),
+        "start_event": process.start_event,
+        "end_event": process.end_event,
+        "steps": steps,
+        "confirmed_facts": facts,
+        "difficult_points": difficult_points,
+        "problem_step_indexes": problem_indexes,
+        "open_points": open_points,
         "question_help": {
             question["key"]: question["help"] for question in PROCESS_QUESTIONS
         },
@@ -745,6 +965,45 @@ async def save_process_details(
             status_code=status.HTTP_409_CONFLICT,
         )
     form = await request.form()
+    if str(form.get("summary_confirmed", "")) == "yes":
+        process_title = str(form.get("process_title", "")).strip()
+        start_event = str(form.get("start_event", "")).strip()
+        end_event = str(form.get("end_event", "")).strip()
+        steps = [str(step).strip() for step in form.getlist("steps") if str(step).strip()]
+        correction = str(form.get("correction", "")).strip()
+        if not process_title or not start_event or not end_event or len(steps) < 2:
+            return templates.TemplateResponse(
+                request=request,
+                name="process_details.html",
+                context=_process_form_context(
+                    session_id=session_id,
+                    process=process,
+                    questions=questions,
+                    error_message="Bitte lass mindestens zwei konkrete Ablaufschritte stehen.",
+                ),
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            )
+        process.process_name = process_title
+        process.start_event = start_event
+        process.end_event = end_event
+        updates = {
+            "process_boundary": json.dumps(
+                {"process_name": process_title, "start_event": start_event, "end_event": end_event},
+                ensure_ascii=False,
+            ),
+            "actual_steps": json.dumps(steps, ensure_ascii=False),
+            "rules_and_exceptions": correction or "Keine zusätzliche Korrektur angegeben.",
+        }
+        for question in questions:
+            if question.question_key in updates:
+                question.answer_text = updates[question.question_key]
+        _delete_follow_ups(database_session, session_id)
+        try:
+            database_session.commit()
+        except Exception:
+            database_session.rollback()
+            raise
+        return _continue_after_process_answers(request, session_id, database_session)
     submitted = {key: str(form.get(key, "")).strip() for key in PROCESS_KEYS}
     if not all(submitted.values()):
         return templates.TemplateResponse(
@@ -789,35 +1048,57 @@ def _continue_after_process_answers(
         session_id,
         phase="follow_up",
     )
-    if existing_follow_ups:
+    if existing_follow_ups and not _all_answered(existing_follow_ups):
         return _redirect(f"/sessions/{session_id}/follow-ups")
+    if existing_follow_ups:
+        return _redirect(f"/sessions/{session_id}/processing")
     process = _selected_process(database_session, session_id)
     if process is None:
         return _redirect(_next_valid_path(database_session, session_id))
+    agent_state = _diagnostic_agent_state(database_session, session_id, process)
+    decision = evaluate_readiness_and_next_action(agent_state)
+    if decision.next_action in {"ANALYZE", "STOP"}:
+        return _redirect(f"/sessions/{session_id}/processing")
+    remaining_budget = (
+        AGENT_HEURISTICS.maximum_visible_follow_ups - len(existing_follow_ups)
+    )
+    if remaining_budget <= 0:
+        return _redirect(f"/sessions/{session_id}/processing")
     all_questions = _get_questions(database_session, session_id)
     try:
-        knowledge = _retrieval_context(
-            _query_text(all_questions, process),
-            "follow_up",
-        )
+        query = _query_text(all_questions, process)
+        if decision.next_action == "RETRIEVE":
+            agent_state.rag_evidence = search_diagnostic_knowledge(
+                query, phase="follow_up"
+            )
+            decision = evaluate_readiness_and_next_action(agent_state)
+            if decision.next_action in {"ANALYZE", "STOP", "RETRIEVE"}:
+                return _redirect(f"/sessions/{session_id}/processing")
+            knowledge = [evidence.content for evidence in agent_state.rag_evidence]
+        else:
+            knowledge = _retrieval_context(query, "follow_up")
         result = generate_follow_up_questions(
             answers=_answer_payload(all_questions),
             selected_process=_process_payload(process),
             knowledge_chunks=knowledge,
         )
+        candidate_texts = [
+            follow_up.question
+            for follow_up in result.questions
+            if not _is_repeated_follow_up(follow_up.question, existing_follow_ups)
+        ]
+        candidate_texts = candidate_texts[:remaining_budget]
+        next_order = len(existing_follow_ups) + 1
         database_session.add_all(
             [
                 InterviewQuestion(
                     session_id=session_id,
                     question_phase="follow_up",
-                    question_order=question_order,
-                    question_key=f"follow_up_{question_order}",
-                    question_text=follow_up.question,
+                    question_order=next_order + offset,
+                    question_key=f"follow_up_{next_order + offset}",
+                    question_text=question_text,
                 )
-                for question_order, follow_up in enumerate(
-                    result.questions,
-                    start=1,
-                )
+                for offset, question_text in enumerate(candidate_texts)
             ]
         )
         database_session.commit()
@@ -831,7 +1112,7 @@ def _continue_after_process_answers(
     except Exception:
         database_session.rollback()
         raise
-    if result.questions:
+    if candidate_texts:
         return _redirect(f"/sessions/{session_id}/follow-ups")
     return _redirect(f"/sessions/{session_id}/processing")
 
@@ -843,6 +1124,11 @@ def _follow_up_context(
     answers: dict[str, str] | None = None,
     error_message: str | None = None,
 ) -> dict[str, object]:
+    current_question = next(
+        (question for question in questions if not (question.answer_text or "").strip()),
+        None,
+    )
+    unanswered_count = sum(not (question.answer_text or "").strip() for question in questions)
     return {
         "session_id": session_id,
         "questions": questions,
@@ -852,6 +1138,9 @@ def _follow_up_context(
             for question in questions
         },
         "error_message": error_message,
+        "current_question": current_question,
+        "is_last_question": unanswered_count == 1,
+        "answered_count": len(questions) - unanswered_count,
     }
 
 
@@ -878,6 +1167,8 @@ def show_follow_ups(
     questions = _get_questions(database_session, session_id, phase="follow_up")
     if not questions:
         return _redirect(f"/sessions/{session_id}/process-details")
+    if _all_answered(questions):
+        return _redirect(f"/sessions/{session_id}/processing")
     return templates.TemplateResponse(
         request=request,
         name="follow_ups.html",
@@ -905,15 +1196,19 @@ async def save_follow_ups(
     if not questions:
         return _redirect(f"/sessions/{session_id}/process-details")
     form = await request.form()
-    submitted: dict[str, str] = {}
+    submitted: dict[str, str] = {
+        question.question_key: question.answer_text or "" for question in questions
+    }
     for question in questions:
         unknown = str(form.get(f"unknown_{question.question_key}", "")) == "yes"
-        submitted[question.question_key] = (
-            "Ich weiß es nicht"
-            if unknown
-            else str(form.get(question.question_key, "")).strip()
-        )
-    if not all(submitted.values()):
+        supplied_answer = str(form.get(question.question_key, "")).strip()
+        if unknown or supplied_answer:
+            submitted[question.question_key] = "Ich weiß es gerade nicht" if unknown else supplied_answer
+    current_question = next(
+        (question for question in questions if not (question.answer_text or "").strip()),
+        None,
+    )
+    if current_question is not None and not submitted[current_question.question_key]:
         return templates.TemplateResponse(
             request=request,
             name="follow_ups.html",
@@ -922,7 +1217,7 @@ async def save_follow_ups(
                 questions=questions,
                 answers=submitted,
                 error_message=(
-                    "Bitte beantworte jede Rückfrage oder wähle „Ich weiß es nicht“ aus."
+                    "Bitte antworte kurz oder wähle „Weiß ich gerade nicht“ aus."
                 ),
             ),
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
@@ -934,7 +1229,24 @@ async def save_follow_ups(
     except Exception:
         database_session.rollback()
         raise
-    return _redirect(f"/sessions/{session_id}/processing")
+    remaining = [
+        question for question in questions if not (question.answer_text or "").strip()
+    ]
+    answered_follow_ups = len(questions) - len(remaining)
+    if remaining and answered_follow_ups >= AGENT_HEURISTICS.normal_follow_up_minimum:
+        process = _selected_process(database_session, session_id)
+        if process is not None:
+            decision = evaluate_readiness_and_next_action(
+                _diagnostic_agent_state(database_session, session_id, process)
+            )
+            if decision.next_action not in {"ASK", "CLARIFY"}:
+                for question in remaining:
+                    database_session.delete(question)
+                database_session.commit()
+                remaining = []
+    if remaining:
+        return _redirect(f"/sessions/{session_id}/follow-ups")
+    return _continue_after_process_answers(request, session_id, database_session)
 
 
 def _persist_final_analysis(
@@ -948,9 +1260,20 @@ def _persist_final_analysis(
         Analysis(
             session_id=session_id,
             process_summary=result.process_summary,
-            as_is_steps=result.as_is_steps,
+            as_is_steps={
+                "steps": result.as_is_steps,
+                "problem_step_indexes": result.as_is_problem_step_indexes,
+                "to_be_steps": result.to_be_steps or result.blueprint.workflow_steps,
+            },
             core_bottleneck=result.core_bottleneck,
-            uncertainties=result.uncertainties,
+            uncertainties={
+                "items": result.uncertainties,
+                "bottleneck": {
+                    "symptom": result.bottleneck_symptom,
+                    "cause": result.bottleneck_cause or result.core_bottleneck,
+                    "effect": result.bottleneck_effect,
+                },
+            },
         )
     )
     for opportunity in result.opportunities:
@@ -964,9 +1287,14 @@ def _persist_final_analysis(
                 benefit=opportunity.benefit,
                 human_approval=opportunity.human_approval,
                 first_step=opportunity.first_step,
-                blueprint_json=(
-                    result.blueprint.model_dump() if opportunity.rank == 1 else None
-                ),
+                blueprint_json={
+                    "category": opportunity.category,
+                    "prerequisite": opportunity.prerequisite,
+                    "mini_test": opportunity.mini_test,
+                    "effort": opportunity.effort,
+                    "acceptance_risk": opportunity.acceptance_risk,
+                    "blueprint": result.blueprint.model_dump() if opportunity.rank == 1 else None,
+                },
             )
         )
     database_session.commit()
@@ -1002,6 +1330,9 @@ def _generate_and_persist_final_analysis(
         answers=_answer_payload(all_questions),
         selected_process=_process_payload(process),
         knowledge_chunks=knowledge,
+        agent_state=_diagnostic_agent_state(
+            database_session, session_id, process
+        ).model_dump(),
     )
     _persist_final_analysis(database_session, session_id, result)
 
@@ -1143,14 +1474,8 @@ def show_results(
             "Die Ergebnisse sind unvollständig.",
             status_code=status.HTTP_409_CONFLICT,
         )
-    blueprint = next(
-        (
-            opportunity.blueprint_json
-            for opportunity in opportunities
-            if opportunity.rank == 1
-        ),
-        None,
-    )
+    result_view = _result_view(analysis, opportunities)
+    blueprint = result_view["blueprint"]
     visible_result = {
         "process_name": process.process_name,
         "process_summary": analysis.process_summary,
@@ -1209,8 +1534,258 @@ def show_results(
             "opportunities": opportunities,
             "opportunity_categories": opportunity_categories,
             "blueprint": blueprint,
+            "result": result_view,
         },
     )
+
+
+def _result_view(
+    analysis: Analysis,
+    opportunities: list[AutomationOpportunity],
+) -> dict[str, object]:
+    step_data = analysis.as_is_steps
+    if isinstance(step_data, dict):
+        as_is_steps = [str(item) for item in step_data.get("steps", [])]
+        problem_indexes = [
+            int(index)
+            for index in step_data.get("problem_step_indexes", [])
+            if isinstance(index, int)
+        ]
+        to_be_steps = [str(item) for item in step_data.get("to_be_steps", [])]
+    else:
+        as_is_steps = [str(item) for item in step_data]
+        problem_indexes = []
+        to_be_steps = []
+
+    uncertainty_data = analysis.uncertainties
+    if isinstance(uncertainty_data, dict):
+        uncertainties = [str(item) for item in uncertainty_data.get("items", [])]
+        raw_bottleneck = uncertainty_data.get("bottleneck", {})
+        bottleneck = raw_bottleneck if isinstance(raw_bottleneck, dict) else {}
+    else:
+        uncertainties = [str(item) for item in uncertainty_data]
+        bottleneck = {}
+
+    opportunity_views: list[dict[str, object]] = []
+    blueprint: dict[str, object] | None = None
+    for opportunity in opportunities:
+        stored_meta = opportunity.blueprint_json
+        if isinstance(stored_meta, dict) and "category" in stored_meta:
+            meta = stored_meta
+            if opportunity.rank == 1 and isinstance(meta.get("blueprint"), dict):
+                blueprint = meta["blueprint"]
+        else:
+            meta = {}
+            if opportunity.rank == 1 and isinstance(stored_meta, dict):
+                blueprint = stored_meta
+        opportunity_views.append(
+            {
+                "rank": opportunity.rank,
+                "title": opportunity.title,
+                "problem": opportunity.problem,
+                "recommendation": opportunity.recommendation,
+                "benefit": opportunity.benefit,
+                "human_approval": opportunity.human_approval,
+                "first_step": opportunity.first_step,
+                "category": meta.get("category") or _opportunity_category(opportunity),
+                "prerequisite": meta.get("prerequisite") or opportunity.first_step,
+                "mini_test": meta.get("mini_test") or [opportunity.first_step],
+                "effort": meta.get("effort") or ("niedrig" if opportunity.rank == 1 else "mittel"),
+                "acceptance_risk": meta.get("acceptance_risk") or "Im kleinen Test mit den beteiligten Personen prüfen.",
+            }
+        )
+    if not to_be_steps and blueprint:
+        to_be_steps = [str(item) for item in blueprint.get("workflow_steps", [])]
+    first = opportunity_views[0]
+    return {
+        "as_is_steps": as_is_steps,
+        "problem_step_indexes": problem_indexes,
+        "to_be_steps": to_be_steps,
+        "uncertainties": uncertainties,
+        "bottleneck": {
+            "symptom": bottleneck.get("symptom") or first["problem"],
+            "cause": bottleneck.get("cause") or analysis.core_bottleneck,
+            "effect": bottleneck.get("effect") or first["benefit"],
+        },
+        "opportunities": opportunity_views,
+        "blueprint": blueprint,
+    }
+
+
+@router.get(
+    "/sessions/{session_id}/report",
+    response_class=HTMLResponse,
+    name="show_report",
+)
+def show_report(
+    request: Request,
+    session_id: int,
+    database_session: Session = Depends(get_db_session),
+) -> Response:
+    _get_session_or_404(database_session, session_id)
+    analysis = database_session.get(Analysis, session_id)
+    process = _selected_process(database_session, session_id)
+    opportunities = list(
+        database_session.scalars(
+            select(AutomationOpportunity)
+            .where(AutomationOpportunity.session_id == session_id)
+            .order_by(AutomationOpportunity.rank)
+        )
+    )
+    if analysis is None or process is None or len(opportunities) != 3:
+        return _redirect(_next_valid_path(database_session, session_id))
+    result = _result_view(analysis, opportunities)
+    if contains_internal_reference(result):
+        return _render_error(request, "Der Bericht konnte nicht sicher angezeigt werden.", status_code=status.HTTP_409_CONFLICT)
+    return templates.TemplateResponse(
+        request=request,
+        name="report.html",
+        context={
+            "process": process,
+            "analysis": analysis,
+            "result": result,
+            "analysis_date": date.today().strftime("%d.%m.%Y"),
+        },
+    )
+
+
+@router.post("/sessions/{session_id}/another-process", name="analyze_another_process")
+def analyze_another_process(
+    session_id: int,
+    database_session: Session = Depends(get_db_session),
+) -> Response:
+    _get_session_or_404(database_session, session_id)
+    if not _acquire_session_write_lock(database_session, session_id):
+        database_session.rollback()
+        return _redirect(f"/sessions/{session_id}/results")
+    analysis = database_session.get(Analysis, session_id)
+    if analysis is not None:
+        database_session.delete(analysis)
+    selected = _selected_process(database_session, session_id)
+    if selected is not None:
+        selected.is_selected = False
+    _delete_follow_ups(database_session, session_id)
+    database_session.commit()
+    return _redirect(f"/sessions/{session_id}/process-options")
+
+
+@router.get("/interview", response_class=HTMLResponse, name="show_interview_public")
+def show_interview_public(request: Request, database_session: Session = Depends(get_db_session)) -> Response:
+    session_id = _session_id_from_cookie(request)
+    return _publicize_redirect(show_interview(request, session_id, database_session), session_id)
+
+
+@router.post("/interview", response_class=HTMLResponse, name="save_interview_public")
+async def save_interview_public(request: Request, database_session: Session = Depends(get_db_session)) -> Response:
+    session_id = _session_id_from_cookie(request)
+    return _publicize_redirect(await save_interview(request, session_id, database_session), session_id)
+
+
+@router.get("/saved", response_class=HTMLResponse, name="show_saved_public")
+def show_saved_public(request: Request, database_session: Session = Depends(get_db_session)) -> Response:
+    session_id = _session_id_from_cookie(request)
+    return _publicize_redirect(show_saved_interview(request, session_id, database_session), session_id)
+
+
+@router.post("/process-options/generate", name="generate_process_options_public")
+def generate_process_options_public(request: Request, database_session: Session = Depends(get_db_session)) -> Response:
+    session_id = _session_id_from_cookie(request)
+    return _publicize_redirect(create_process_options(request, session_id, database_session), session_id)
+
+
+@router.get("/process-options", response_class=HTMLResponse, name="show_process_options_public")
+def show_process_options_public(request: Request, database_session: Session = Depends(get_db_session)) -> Response:
+    session_id = _session_id_from_cookie(request)
+    return _publicize_redirect(show_process_options(request, session_id, database_session), session_id)
+
+
+@router.post("/process-options", response_class=HTMLResponse, name="select_process_public")
+async def select_process_public(request: Request, database_session: Session = Depends(get_db_session)) -> Response:
+    session_id = _session_id_from_cookie(request)
+    return _publicize_redirect(await select_process(request, session_id, database_session), session_id)
+
+
+@router.post("/process-options/custom", response_class=HTMLResponse, name="recognize_custom_process_public")
+async def recognize_custom_process_public(request: Request, database_session: Session = Depends(get_db_session)) -> Response:
+    session_id = _session_id_from_cookie(request)
+    return _publicize_redirect(await recognize_custom_process(request, session_id, database_session), session_id)
+
+
+@router.get("/process-options/custom/confirm", response_class=HTMLResponse, name="confirm_custom_process_public")
+def confirm_custom_process_public(request: Request, database_session: Session = Depends(get_db_session)) -> Response:
+    session_id = _session_id_from_cookie(request)
+    options = _process_options(database_session, session_id)
+    if not options:
+        return _redirect("/process-options")
+    return confirm_custom_process(request, session_id, options[-1].process_id, database_session)
+
+
+@router.get("/process-details", response_class=HTMLResponse, name="show_process_details_public")
+def show_process_details_public(request: Request, database_session: Session = Depends(get_db_session)) -> Response:
+    session_id = _session_id_from_cookie(request)
+    return _publicize_redirect(show_process_details(request, session_id, database_session), session_id)
+
+
+@router.post("/process-details", response_class=HTMLResponse, name="save_process_details_public")
+async def save_process_details_public(request: Request, database_session: Session = Depends(get_db_session)) -> Response:
+    session_id = _session_id_from_cookie(request)
+    return _publicize_redirect(await save_process_details(request, session_id, database_session), session_id)
+
+
+@router.get("/follow-ups", response_class=HTMLResponse, name="show_follow_ups_public")
+def show_follow_ups_public(request: Request, database_session: Session = Depends(get_db_session)) -> Response:
+    session_id = _session_id_from_cookie(request)
+    return _publicize_redirect(show_follow_ups(request, session_id, database_session), session_id)
+
+
+@router.post("/follow-ups", response_class=HTMLResponse, name="save_follow_ups_public")
+async def save_follow_ups_public(request: Request, database_session: Session = Depends(get_db_session)) -> Response:
+    session_id = _session_id_from_cookie(request)
+    return _publicize_redirect(await save_follow_ups(request, session_id, database_session), session_id)
+
+
+@router.get("/processing", response_class=HTMLResponse, name="show_processing_public")
+def show_processing_public(request: Request, database_session: Session = Depends(get_db_session)) -> Response:
+    session_id = _session_id_from_cookie(request)
+    return _publicize_redirect(show_processing(request, session_id, database_session), session_id)
+
+
+@router.get("/analysis-status", name="analysis_status_public")
+def analysis_status_public(request: Request, database_session: Session = Depends(get_db_session)) -> JSONResponse:
+    session_id = _session_id_from_cookie(request)
+    response = analysis_status(session_id, database_session)
+    payload = json.loads(response.body)
+    if payload.get("redirect_url"):
+        payload["redirect_url"] = "/results"
+    return JSONResponse(payload, status_code=response.status_code)
+
+
+@router.post("/analyze", name="analyze_session_public")
+def analyze_session_public(request: Request, database_session: Session = Depends(get_db_session)) -> JSONResponse:
+    session_id = _session_id_from_cookie(request)
+    response = analyze_session(session_id, database_session)
+    payload = json.loads(response.body)
+    if payload.get("redirect_url"):
+        payload["redirect_url"] = _publicize_redirect(_redirect(payload["redirect_url"]), session_id).headers["location"]
+    return JSONResponse(payload, status_code=response.status_code)
+
+
+@router.get("/results", response_class=HTMLResponse, name="show_results_public")
+def show_results_public(request: Request, database_session: Session = Depends(get_db_session)) -> Response:
+    session_id = _session_id_from_cookie(request)
+    return _publicize_redirect(show_results(request, session_id, database_session), session_id)
+
+
+@router.get("/report", response_class=HTMLResponse, name="show_report_public")
+def show_report_public(request: Request, database_session: Session = Depends(get_db_session)) -> Response:
+    session_id = _session_id_from_cookie(request)
+    return _publicize_redirect(show_report(request, session_id, database_session), session_id)
+
+
+@router.post("/another-process", name="analyze_another_process_public")
+def analyze_another_process_public(request: Request, database_session: Session = Depends(get_db_session)) -> Response:
+    session_id = _session_id_from_cookie(request)
+    return _publicize_redirect(analyze_another_process(session_id, database_session), session_id)
 
 
 def _opportunity_category(opportunity: AutomationOpportunity) -> str:
@@ -1233,10 +1808,10 @@ def _opportunity_category(opportunity: AutomationOpportunity) -> str:
         "gemeinsame strukturierte erfassung",
     )
     if any(marker in opportunity_text for marker in automation_markers):
-        return "Automatisierung"
+        return "regelbasierte Automatisierung"
     if any(marker in opportunity_text for marker in digital_markers):
-        return "Einfache Digitalisierung"
-    return "Prozessstandardisierung"
+        return "einfache Digitalisierung"
+    return "Ordnung und Standardisierung"
 
 
 def _load_evaluation_case(evaluation_id: str) -> dict[str, object]:
@@ -1373,4 +1948,6 @@ def run_demo(
     except Exception:
         database_session.rollback()
         raise
-    return _redirect(f"/sessions/{session_id}/processing")
+    response = _redirect("/processing")
+    _set_session_cookie(response, request, session_id)
+    return response

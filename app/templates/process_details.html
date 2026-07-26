@@ -1,35 +1,48 @@
 {% extends "base.html" %}
-
-{% block title %}Prozess beschreiben · AI Start Map{% endblock %}
-
+{% block title %}Ablauf prüfen · AI Start Map{% endblock %}
 {% block content %}
-<nav class="phase-list" aria-label="Fortschritt">
-    <span class="phase">Unternehmen</span><span class="phase-arrow">→</span>
-    <span class="phase">Prozess</span><span class="phase-arrow">→</span>
-    <span class="phase current" aria-current="step">Details</span><span class="phase-arrow">→</span>
-    <span class="phase">Ergebnis</span>
-</nav>
-
+<nav class="journey-progress" aria-label="Fortschritt"><span class="done">Erzählt ✓</span><span class="current">Ablauf verstanden ●</span><span>Details klären ○</span><span>Ergebnis ○</span></nav>
 <section class="content-intro">
-    <p class="section-kicker">{{ process.process_name }}</p>
-    <h1 class="page-title">Beschreibe den tatsächlichen Ablauf.</h1>
+    <p class="section-kicker">Dein heutiger Ablauf</p>
+    <h1 class="page-title">So haben wir deinen Ablauf verstanden</h1>
+    <p class="page-description">Schau kurz drüber. Du kannst alles ändern oder ergänzen, bevor wir weitermachen.</p>
 </section>
 
-<form class="interview-form" action="{{ url_for('save_process_details', session_id=session_id) }}" method="post">
-    {% if error_message %}<div class="error-message" role="alert">{{ error_message }}</div>{% endif %}
-    {% for question in questions %}
-    <div class="question-card">
-        <span class="question-index">{{ "%02d"|format(loop.index) }}</span>
-        <div class="question-content">
-            <label for="{{ question.question_key }}">{{ question.question_text }}</label>
-            <p class="field-help">{{ question_help[question.question_key] }}</p>
-            <textarea id="{{ question.question_key }}" name="{{ question.question_key }}" rows="6" required>{{ answers[question.question_key] }}</textarea>
-        </div>
+{% if error_message %}<div class="error-message" role="alert">{{ error_message }}</div>{% endif %}
+<form class="summary-form" action="{{ url_for('save_process_details_public') }}" method="post" data-disable-on-submit data-submitting-label="Danke – wir ordnen das gerade ein …" data-step-editor>
+    <input type="hidden" name="summary_confirmed" value="yes">
+    <section class="summary-card">
+        <label for="process_title">Name des Ablaufs</label>
+        <input id="process_title" name="process_title" value="{{ process_title }}" required>
+        <div class="boundary-grid"><div><label for="start_event">Start</label><input id="start_event" name="start_event" value="{{ start_event }}" required></div><div><label for="end_event">Ende</label><input id="end_event" name="end_event" value="{{ end_event }}" required></div></div>
+    </section>
+
+    <section class="diagram-card process-diagram" data-problem-indexes="{{ problem_step_indexes|tojson|forceescape }}">
+        <div class="section-heading"><div><p class="section-kicker">Ist-Ablauf</p><h2>Schritt für Schritt</h2></div><span class="diagram-legend"><i></i> schwierige Stelle</span></div>
+        <script type="application/json" data-diagram-steps>{{ steps|tojson }}</script>
+        <div class="mermaid-output" data-mermaid-output aria-label="Visualisierung des Ist-Ablaufs"></div>
+        <ol class="process-fallback" data-diagram-fallback>{% for step in steps %}<li class="{% if loop.index0 in problem_step_indexes %}problem{% endif %}">{{ step }}</li>{% endfor %}</ol>
+        <p class="diagram-note">Falls die grafische Ansicht nicht geladen werden kann, bleibt diese Liste vollständig sichtbar.</p>
+    </section>
+
+    <section class="summary-card edit-steps">
+        <div class="section-heading"><div><p class="section-kicker">Korrektur</p><h2>Die Schritte bearbeiten</h2></div><button class="secondary-button" type="button" data-add-step>Schritt ergänzen</button></div>
+        <div class="step-editor-list" data-step-list>{% for step in steps %}<div class="step-editor"><span>{{ loop.index }}</span><label class="visually-hidden" for="step-{{ loop.index }}">Schritt {{ loop.index }}</label><input id="step-{{ loop.index }}" name="steps" value="{{ step }}" required><button type="button" aria-label="Schritt entfernen" data-remove-step>×</button></div>{% endfor %}</div>
+    </section>
+
+    <div class="summary-columns">
+        <section class="summary-card"><p class="section-kicker">Bestätigte Angaben</p><ul>{% for fact in confirmed_facts %}<li>{{ fact }}</li>{% else %}<li>Deine freie Beschreibung ist die Grundlage dieser Zusammenfassung.</li>{% endfor %}</ul></section>
+        <section class="summary-card problem-summary"><p class="section-kicker">Erkannte schwierige Stellen</p><ul>{% for point in difficult_points %}<li>{{ point }}</li>{% else %}<li>Es wurde noch keine schwierige Stelle eindeutig zugeordnet.</li>{% endfor %}</ul></section>
+        <section class="summary-card"><p class="section-kicker">Offene Punkte</p><ul>{% for point in open_points %}<li>{{ point }}</li>{% else %}<li>Aus deiner bisherigen Beschreibung ergibt sich hier noch kein offener Punkt.</li>{% endfor %}</ul></section>
     </div>
-    {% endfor %}
-    <div class="form-actions">
-        <a class="secondary-button button-link" href="{{ url_for('show_process_options', session_id=session_id) }}">← Zurück zur Auswahl</a>
-        <button class="primary-button" type="submit">Details speichern</button>
-    </div>
+
+    <section class="summary-card" data-voice-input data-voice-target="correction">
+        <label for="correction">Möchtest du noch etwas korrigieren oder ergänzen?</label>
+        <textarea id="correction" name="correction" rows="4" placeholder="Zum Beispiel: Vor der Bearbeitung ruft meistens noch jemand zurück."></textarea>
+        <div class="form-actions"><button class="secondary-button" type="button" data-voice-start>Freie Korrektur einsprechen</button><button class="text-button" type="button" data-voice-write>Freie Korrektur schreiben</button><button type="button" data-voice-stop hidden>Aufnahme beenden</button><button type="button" data-voice-retry hidden>Noch einmal versuchen</button></div>
+        <p data-voice-status aria-live="polite">Du kannst sprechen oder schreiben.</p><span data-voice-support></span>
+    </section>
+    <div class="confirmation-bar"><div><strong>Passt der Ablauf so zu deinem Alltag?</strong><span>Änderungen in den Feldern werden direkt übernommen.</span></div><button class="primary-button" type="submit">Ja, so läuft es</button></div>
 </form>
 {% endblock %}
+{% block scripts %}<script type="module" src="{{ url_for('static', path='/diagrams.js') }}"></script>{% endblock %}

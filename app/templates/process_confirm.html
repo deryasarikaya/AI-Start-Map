@@ -21,20 +21,21 @@
         <dt>So beginnt der Ablauf</dt><dd>{{ process.start_event }}</dd>
         <dt>Hier ist der Ablauf abgeschlossen</dt><dd>{{ process.end_event }}</dd>
     </dl>
-    <form action="{{ url_for('select_process', session_id=session_id) }}" method="post">
+    <form action="{{ url_for('select_process_public') }}" method="post">
         <input type="hidden" name="process_id" value="{{ process.process_id }}">
+        <input type="hidden" name="prepare_summary" value="yes">
         <button class="primary-button" type="submit">Ja, diesen Ablauf untersuchen</button>
     </form>
 </section>
 
 <section class="custom-process">
     <h2>Beschreibung bearbeiten</h2>
-    <form action="{{ url_for('recognize_custom_process', session_id=session_id) }}" method="post">
+    <form action="{{ url_for('recognize_custom_process_public') }}" method="post">
         <input type="hidden" name="custom_process_id" value="{{ process.process_id }}">
         <label class="visually-hidden" for="custom_process_description">Eigener wiederkehrender Ablauf</label>
         <textarea id="custom_process_description" name="custom_process_description" rows="5" required>{{ description }}</textarea>
         <div class="form-actions">
-            <a class="secondary-button button-link" href="{{ url_for('show_process_options', session_id=session_id) }}">← Zurück zu den Vorschlägen</a>
+            <a class="secondary-button button-link" href="{{ url_for('show_process_options_public') }}">← Zurück zu den Vorschlägen</a>
             <button class="primary-button" type="submit">Beschreibung erneut prüfen</button>
         </div>
     </form>

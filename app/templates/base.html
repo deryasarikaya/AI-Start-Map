@@ -10,28 +10,17 @@
     <header class="site-header">
         <div class="page-shell header-inner">
             <a class="brand" href="{{ url_for('landing') }}" aria-label="AI Start Map Startseite">
-                <span class="brand-mark" aria-hidden="true">A</span>
-                <span>AI Start Map</span>
+                <span class="brand-mark" aria-hidden="true">AI</span>
+                <span>AI START MAP</span>
             </a>
-            <span class="header-note">Prozessdiagnostik für kleine Unternehmen</span>
+            <span class="header-note">Klarheit für deinen nächsten Schritt</span>
         </div>
     </header>
 
     <main class="page-shell page-content">
         {% block content %}{% endblock %}
     </main>
-    <script>
-        document.querySelectorAll("form[data-disable-on-submit]").forEach((form) => {
-            form.addEventListener("submit", () => {
-                const button = form.querySelector("button[type='submit']");
-                if (button) {
-                    button.disabled = true;
-                    button.setAttribute("aria-disabled", "true");
-                    button.textContent = "Analyse wird gestartet …";
-                }
-            });
-        });
-    </script>
+    <script src="{{ url_for('static', path='/app.js') }}" defer></script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

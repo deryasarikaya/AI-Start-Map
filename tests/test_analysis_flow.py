@@ -431,7 +431,7 @@ def test_opportunity_ranks_are_one_two_and_three(
     assert ranks == [1, 2, 3]
 
 
-def test_blueprint_is_stored_only_for_rank_one(
+def test_blueprint_and_presentation_metadata_are_stored(
     client: TestClient,
     database_session: Session,
     monkeypatch: pytest.MonkeyPatch,
@@ -445,9 +445,10 @@ def test_blueprint_is_stored_only_for_rank_one(
             ).where(AutomationOpportunity.session_id == session_id)
         ).all()
     )
-    assert blueprints[1] is not None
-    assert blueprints[2] is None
-    assert blueprints[3] is None
+    assert blueprints[1]["blueprint"] is not None
+    assert blueprints[2]["blueprint"] is None
+    assert blueprints[3]["blueprint"] is None
+    assert all(value["category"] for value in blueprints.values())
 
 
 def test_failed_analysis_leaves_no_partial_results(
@@ -544,6 +545,7 @@ def test_model_prompt_context_contains_no_internal_metadata() -> None:
     ("field_name", "marker"),
     [
         ("process_summary", "Bekannter Testfall M-01"),
+        ("process_summary", "Interner Fall RB03-C01-01"),
         ("as_is_steps", "Interner Chunk wurde verwendet"),
         ("core_bottleneck", "Ableitung aus pattern_id"),
         ("opportunities", "Quelle content_origin"),
@@ -592,7 +594,9 @@ def test_demo_route_creates_session_and_redirects_to_real_results(
     response = client.get(f"/demo/{demo_slug}", follow_redirects=False)
     assert response.status_code == 303
     assert response.headers["location"].endswith("/processing")
-    session_id = int(response.headers["location"].split("/")[2])
+    assert response.headers["location"] == "/processing"
+    session_id = database_session.scalar(select(func.max(AnalysisSession.session_id)))
+    assert session_id is not None
     assert database_session.get(AnalysisSession, session_id) is not None
     assert database_session.get(Analysis, session_id) is None
     processing_response = client.get(response.headers["location"])
@@ -608,7 +612,7 @@ def test_demo_route_creates_session_and_redirects_to_real_results(
     assert opportunity_count == 3
     result_response = client.get(f"/sessions/{session_id}/results")
     assert result_response.status_code == 200
-    assert "Kernengpass" in result_response.text
+    assert "Größter Engpass" in result_response.text
     visible_text = result_response.text.casefold()
     for marker in ("m-01", "testfall", "chunk", "pattern_id", "content_origin"):
         assert marker not in visible_text
@@ -691,7 +695,7 @@ def test_follow_up_answers_complete_the_analysis(
     )
     assert answers == {
         "follow_up_1": "Die Inhaberin prüft die Angaben.",
-        "follow_up_2": "Ich weiß es nicht",
+        "follow_up_2": "Ich weiß es gerade nicht",
     }
     assert database_session.get(Analysis, session_id) is None
     analysis_response = client.post(f"/sessions/{session_id}/analyze")
@@ -756,8 +760,8 @@ def test_all_workflow_pages_render_without_template_errors(
     )
     processing = client.get(f"/sessions/{session_id}/processing")
     assert processing.status_code == 200
-    assert "Deine Analyse wird erstellt." in processing.text
+    assert "Wir bringen deinen Ablauf gerade in ein klares Bild" in processing.text
     client.post(f"/sessions/{session_id}/analyze")
     results = client.get(f"/sessions/{session_id}/results")
     assert results.status_code == 200
-    assert "Blueprint für Chance 1" in results.text
+    assert "Kompakter Umsetzungsplan" in results.text

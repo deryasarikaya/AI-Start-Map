@@ -16,7 +16,8 @@ INTERNAL_REFERENCE_PATTERN = re.compile(
     re.IGNORECASE,
 )
 INTERNAL_IDENTIFIER_PATTERN = re.compile(
-    r"\b(?:EVAL-)?[MCKP]-\d{2}(?:[_-][A-Z0-9_]+)*\b",
+    r"\b(?:(?:EVAL-)?[MCKP]-\d{2}(?:[_-][A-Z0-9_]+)*|"
+    r"RB(?:02|03|04)-[A-Z0-9]+(?:-[A-Z0-9]+)*)\b",
     re.IGNORECASE,
 )
 INTERNAL_FILE_PATTERN = re.compile(
@@ -45,6 +46,11 @@ SUMMARY_META_PATTERN = re.compile(
     r"^(?:prozessname:|ausgewählter prozess:|der prozess heißt|"
     r"aus den vorliegenden angaben|auf grundlage der daten|quelle:|"
     r"die rekonstruktion bleibt unsicher)",
+    re.IGNORECASE,
+)
+AS_IS_META_PATTERN = re.compile(
+    r"\b(?:unbekannt|nicht beschrieben|detaillierte schritte fehlen|"
+    r"laut prozessname|bekannte einschränkung)\b",
     re.IGNORECASE,
 )
 
@@ -133,6 +139,25 @@ class ProcessSuggestionResult(StrictResultModel):
     suggestions: list[ProcessSuggestion] = Field(min_length=1, max_length=3)
 
 
+class ProcessUnderstandingResult(StrictResultModel):
+    process_name: NonEmptyText
+    start_event: NonEmptyText
+    end_event: NonEmptyText
+    as_is_steps: list[NonEmptyText] = Field(min_length=2, max_length=7)
+    confirmed_facts: list[NonEmptyText] = Field(max_length=6)
+    difficult_points: list[NonEmptyText] = Field(max_length=4)
+    problem_step_indexes: list[int] = Field(default_factory=list, max_length=4)
+    open_points: list[NonEmptyText] = Field(max_length=4)
+
+    @model_validator(mode="after")
+    def validate_problem_step_indexes(self) -> ProcessUnderstandingResult:
+        if len(set(self.problem_step_indexes)) != len(self.problem_step_indexes):
+            raise ValueError("Problemstellen dürfen nicht doppelt markiert werden.")
+        if any(index < 0 or index >= len(self.as_is_steps) for index in self.problem_step_indexes):
+            raise ValueError("Eine markierte Problemstelle liegt außerhalb des Ablaufs.")
+        return self
+
+
 class FollowUpQuestion(StrictResultModel):
     question: NonEmptyText
     issue_type: Literal[
@@ -156,7 +181,14 @@ class FollowUpQuestion(StrictResultModel):
 
 
 class FollowUpResult(StrictResultModel):
-    questions: list[FollowUpQuestion] = Field(max_length=3)
+    questions: list[FollowUpQuestion] = Field(max_length=4)
+
+    @model_validator(mode="after")
+    def validate_unique_questions(self) -> FollowUpResult:
+        normalized = {question.question.casefold().rstrip(" ?!.") for question in self.questions}
+        if len(normalized) != len(self.questions):
+            raise ValueError("Rückfragen dürfen nicht doppelt vorkommen.")
+        return self
 
 
 class AutomationOpportunityResult(StrictResultModel):
@@ -167,6 +199,16 @@ class AutomationOpportunityResult(StrictResultModel):
     benefit: NonEmptyText
     human_approval: NonEmptyText
     first_step: NonEmptyText
+    category: Literal[
+        "Ordnung und Standardisierung",
+        "einfache Digitalisierung",
+        "regelbasierte Automatisierung",
+        "KI-Unterstützung",
+    ] = "einfache Digitalisierung"
+    prerequisite: str = ""
+    mini_test: list[NonEmptyText] = Field(default_factory=list, max_length=5)
+    effort: Literal["niedrig", "mittel", "hoch"] = "mittel"
+    acceptance_risk: str = ""
 
 
 class AutomationBlueprint(StrictResultModel):
@@ -183,6 +225,11 @@ class FinalAnalysisResult(StrictResultModel):
     process_summary: NonEmptyText
     as_is_steps: list[NonEmptyText] = Field(min_length=1)
     core_bottleneck: NonEmptyText
+    bottleneck_symptom: str = ""
+    bottleneck_cause: str = ""
+    bottleneck_effect: str = ""
+    as_is_problem_step_indexes: list[int] = Field(default_factory=list, max_length=4)
+    to_be_steps: list[NonEmptyText] = Field(default_factory=list, max_length=7)
     uncertainties: list[NonEmptyText] = Field(max_length=4)
     opportunities: list[AutomationOpportunityResult] = Field(
         min_length=3,
@@ -197,11 +244,15 @@ class FinalAnalysisResult(StrictResultModel):
             raise ValueError("Die Chancen müssen genau die Ränge 1, 2 und 3 haben.")
         if SUMMARY_META_PATTERN.search(self.process_summary) is not None:
             raise ValueError("Die Zusammenfassung darf keine Meta-Einleitung enthalten.")
+        if any(AS_IS_META_PATTERN.search(step) is not None for step in self.as_is_steps):
+            raise ValueError("Der Ist-Ablauf darf keine Meta- oder Fehlangaben enthalten.")
         normalized_uncertainties = {
             uncertainty.casefold().rstrip(".?!") for uncertainty in self.uncertainties
         }
         if len(normalized_uncertainties) != len(self.uncertainties):
             raise ValueError("Unsicherheiten dürfen nicht doppelt vorkommen.")
+        if any(index < 0 or index >= len(self.as_is_steps) for index in self.as_is_problem_step_indexes):
+            raise ValueError("Eine markierte Problemstelle liegt außerhalb des Ist-Ablaufs.")
         combined_opportunities = " ".join(
             f"{opportunity.title} {opportunity.recommendation}"
             for opportunity in self.opportunities

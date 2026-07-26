@@ -361,7 +361,7 @@ def _run_quality_case(
     assert response.headers["location"] == f"/sessions/{session_id}/processing"
     processing = client.get(response.headers["location"])
     assert processing.status_code == 200
-    assert "Deine Analyse wird erstellt." in processing.text
+    assert "Wir bringen deinen Ablauf gerade in ein klares Bild" in processing.text
     status_before = client.get(f"/sessions/{session_id}/analysis-status").json()
     assert status_before["state"] == "pending"
     analyze = client.post(f"/sessions/{session_id}/analyze")
@@ -395,7 +395,7 @@ def test_custom_process_uses_one_description_and_confirmation(
         ),
     )
     options_page = client.get(f"/sessions/{session_id}/process-options")
-    assert "Keiner der Vorschläge passt?" in options_page.text
+    assert "Nichts Passendes dabei?" in options_page.text
     assert "custom_process_name" not in options_page.text
     assert "custom_start_event" not in options_page.text
     assert "custom_end_event" not in options_page.text
@@ -546,8 +546,8 @@ def test_shoe_repair_quality_flow_contains_only_grounded_current_steps(
     ):
         assert forbidden not in lower_text
     assert "Zentrale digitale Auftragskarte" in result_text
-    assert "menschlichen Fertigmeldung" in result_text
-    assert "Einfache Digitalisierung" in result_text
+    assert "Kunden nach Fertigmeldung benachrichtigen" in result_text
+    assert "einfache Digitalisierung" in result_text
     assert "Automatisierung" in result_text
     assert database_session.scalar(
         select(func.count())
@@ -607,9 +607,9 @@ def test_carpentry_quality_flow_keeps_technical_approval_human(
             ).where(AutomationOpportunity.session_id == session_id)
         ).all()
     )
-    assert blueprints[1] is not None
-    assert blueprints[2] is None
-    assert blueprints[3] is None
+    assert blueprints[1]["blueprint"] is not None
+    assert blueprints[2]["blueprint"] is None
+    assert blueprints[3]["blueprint"] is None
 
 
 def test_unmentioned_shoe_repair_controls_are_rejected_as_current_facts() -> None:
@@ -781,12 +781,11 @@ def test_detail_help_and_back_navigation_are_visible(
         ),
     )
     selection_page = client.get(f"/sessions/{session_id}/process-options")
-    assert "Zurück zu Unternehmen" in selection_page.text
+    assert "Welchen Ablauf sollen wir zuerst genauer ansehen?" in selection_page.text
     details_page = client.get(f"/sessions/{session_id}/process-details")
-    assert "Zurück zur Auswahl" in details_page.text
-    assert "Mit einem einzelnen Durchlauf" in details_page.text
-    assert "Feste Regeln sind Entscheidungen" in details_page.text
-    assert "Mit menschlicher Prüfung" in details_page.text
+    assert "So haben wir deinen Ablauf verstanden" in details_page.text
+    assert "Die Schritte bearbeiten" in details_page.text
+    assert "Falls die grafische Ansicht nicht geladen werden kann" in details_page.text
 
 
 def test_process_answers_can_be_edited_without_duplicate_questions(
@@ -833,7 +832,8 @@ def test_process_answers_can_be_edited_without_duplicate_questions(
         follow_redirects=False,
     )
     follow_up_page = client.get(f"/sessions/{session_id}/follow-ups")
-    assert "Zurück zu Details" in follow_up_page.text
+    assert "Eine Sache möchten wir noch verstehen" in follow_up_page.text
+    assert "Weiß ich gerade nicht" in follow_up_page.text
     edited_answers = dict(first_answers)
     edited_answers["actual_steps"] = "Heute wird der Ablauf bewusst neu beschrieben."
     response = client.post(

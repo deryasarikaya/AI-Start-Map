@@ -1,80 +1,61 @@
 {% extends "base.html" %}
-
-{% block title %}Deine Prozessanalyse · AI Start Map{% endblock %}
-
+{% block title %}Dein sinnvollster Startpunkt · AI Start Map{% endblock %}
 {% block content %}
-<nav class="phase-list" aria-label="Fortschritt">
-    <span class="phase">Unternehmen</span><span class="phase-arrow">→</span>
-    <span class="phase">Prozess</span><span class="phase-arrow">→</span>
-    <span class="phase">Details</span><span class="phase-arrow">→</span>
-    <span class="phase current" aria-current="step">Ergebnis</span>
-</nav>
+<nav class="journey-progress" aria-label="Fortschritt"><span class="done">Erzählt ✓</span><span class="done">Ablauf verstanden ✓</span><span class="done">Details klären ✓</span><span class="current">Ergebnis ●</span></nav>
+
+<section class="result-hero">
+    <p class="section-kicker">Deine Auswertung für {{ process.process_name }}</p>
+    <h1 class="page-title">Jetzt ist klar, wo du am sinnvollsten anfangen kannst</h1>
+    <p class="lead">Wir haben deinen Ablauf geordnet, die schwierigsten Stellen geprüft und drei realistische nächste Schritte abgeleitet.</p>
+</section>
+
+<section class="bottleneck-panel">
+    <p class="section-kicker">Größter Engpass</p>
+    <h2>{{ result.bottleneck.cause }}</h2>
+    <div class="bottleneck-grid"><div><span>Heute sichtbar</span><p>{{ result.bottleneck.symptom }}</p></div><div><span>Ursache</span><p>{{ result.bottleneck.cause }}</p></div><div><span>Folge</span><p>{{ result.bottleneck.effect }}</p></div></div>
+</section>
+
+{% set primary = result.opportunities[0] %}
+<section class="primary-recommendation" id="first-step">
+    <div class="recommendation-top"><div><p class="section-kicker">Rang 1 · {{ primary.category }}</p><h2>Damit solltest du anfangen</h2></div><span class="effort-badge">Aufwand {{ primary.effort }}</span></div>
+    <h3>{{ primary.title }}</h3>
+    <p class="recommendation-copy">{{ primary.recommendation }}</p>
+    <div class="explanation-grid"><div><strong>Warum das jetzt passt</strong><p>{{ primary.benefit }}</p></div><div><strong>Voraussetzung</strong><p>{{ primary.prerequisite }}</p></div><div><strong>Was ein Mensch entscheidet</strong><p>{{ primary.human_approval }}</p></div></div>
+    <div class="mini-test"><p class="section-kicker">Kleiner Test statt Komplettumbau</p><h3>So kannst du anfangen</h3><ol>{% for step in primary.mini_test %}<li>{{ step }}</li>{% endfor %}</ol></div>
+</section>
+
+<section class="diagram-card process-diagram" data-problem-indexes="{{ result.problem_step_indexes|tojson|forceescape }}">
+    <p class="section-kicker">Bestätigter Ist-Prozess</p><h2>So läuft es heute</h2>
+    <script type="application/json" data-diagram-steps>{{ result.as_is_steps|tojson }}</script><div class="mermaid-output" data-mermaid-output></div>
+    <ol class="process-fallback" data-diagram-fallback>{% for step in result.as_is_steps %}<li class="{% if loop.index0 in result.problem_step_indexes %}problem{% endif %}">{{ step }}</li>{% endfor %}</ol>
+</section>
+
+<section class="diagram-card target-card process-diagram" data-problem-indexes="[]">
+    <p class="section-kicker">Nächste realistische Reifestufe</p><h2>So könnte der nächste, einfachere Ablauf aussehen</h2>
+    <script type="application/json" data-diagram-steps>{{ result.to_be_steps|tojson }}</script><div class="mermaid-output" data-mermaid-output></div>
+    <ol class="process-fallback" data-diagram-fallback>{% for step in result.to_be_steps %}<li>{{ step }}</li>{% endfor %}</ol>
+    <p>Kein vollautomatischer Idealprozess: Entscheidungen und Ausnahmen bleiben dort bei einem Menschen, wo sie heute Erfahrung brauchen.</p>
+</section>
 
 <section class="result-section">
-    <p class="section-kicker">Prozess</p>
-    <h1 class="page-title">{{ process.process_name }}</h1>
-    <p class="lead">{{ analysis.process_summary }}</p>
-
-    <h2>Ist-Prozess</h2>
-    <ol class="step-list">
-        {% for step in analysis.as_is_steps %}<li>{{ step }}</li>{% endfor %}
-    </ol>
+    <p class="section-kicker">Zwei weitere Möglichkeiten</p>
+    <div class="secondary-opportunities">{% for opportunity in result.opportunities[1:] %}<article class="opportunity-card"><div class="opportunity-heading"><span>Rang {{ opportunity.rank }}</span><span>{{ opportunity.category }}</span></div><h2>{{ opportunity.title }}</h2><p>{{ opportunity.benefit }}</p><dl><dt>Voraussetzung</dt><dd>{{ opportunity.prerequisite }}</dd><dt>Menschliche Freigabe</dt><dd>{{ opportunity.human_approval }}</dd><dt>Aufwand</dt><dd>{{ opportunity.effort }}</dd><dt>Akzeptanzrisiko</dt><dd>{{ opportunity.acceptance_risk }}</dd></dl></article>{% endfor %}</div>
 </section>
 
-<section class="bottleneck-card">
-    <p class="section-kicker">Kernengpass</p>
-    <h2>{{ analysis.core_bottleneck }}</h2>
+<details class="why-not-card"><summary>Warum nicht sofort automatisieren?</summary><p>Eine Automatisierung kann nur mit Informationen arbeiten, die zuverlässig vorhanden sind. Wenn Auftrag, Gegenstand oder Status noch nicht eindeutig erfasst werden, würde ein neues System das bestehende Chaos nur digital abbilden.</p></details>
+
+<section class="result-section open-points">
+    <h2>Das ist noch nicht ganz klar</h2>
+    {% if result.uncertainties %}<ul>{% for uncertainty in result.uncertainties %}<li>{{ uncertainty }}</li>{% endfor %}</ul>{% else %}<p>Aus deinen bisherigen Angaben ist kein entscheidender offener Punkt übrig geblieben.</p>{% endif %}
 </section>
 
-{% if analysis.uncertainties %}
-<section class="result-section">
-    <h2>Unsicherheiten</h2>
-    <ul>{% for uncertainty in analysis.uncertainties %}<li>{{ uncertainty }}</li>{% endfor %}</ul>
-</section>
-{% endif %}
+{% if result.blueprint %}<details class="blueprint-card" id="blueprint"><summary>Meinen ersten Schritt genauer ansehen</summary><div class="blueprint-content"><h2>Kompakter Umsetzungsplan</h2><dl><dt>Ziel</dt><dd>{{ result.blueprint.objective }}</dd><dt>Auslöser</dt><dd>{{ result.blueprint.trigger }}</dd><dt>Benötigte Angaben</dt><dd><ul>{% for item in result.blueprint.required_inputs %}<li>{{ item }}</li>{% endfor %}</ul></dd><dt>Schritte</dt><dd><ol>{% for step in result.blueprint.workflow_steps %}<li>{{ step }}</li>{% endfor %}</ol></dd><dt>Menschlicher Prüfpunkt</dt><dd>{{ result.blueprint.human_review_point }}</dd><dt>Ergebnis</dt><dd>{{ result.blueprint.output }}</dd></dl></div></details>{% endif %}
 
-<section class="result-section">
-    <p class="section-kicker">Top 3</p>
-    <div class="opportunity-list">
-        {% for opportunity in opportunities %}
-        <article class="opportunity-card">
-            <div class="opportunity-heading">
-                <span class="rank">Rang {{ opportunity.rank }}</span>
-                <span class="opportunity-type">{{ opportunity_categories[opportunity.rank] }}</span>
-            </div>
-            <h2>{{ opportunity.title }}</h2>
-            <dl>
-                <dt>Konkretes Problem</dt><dd>{{ opportunity.problem }}</dd>
-                <dt>Empfehlung</dt><dd>{{ opportunity.recommendation }}</dd>
-                <dt>Nutzen</dt><dd>{{ opportunity.benefit }}</dd>
-                <dt>Menschliche Prüfung</dt><dd>{{ opportunity.human_approval }}</dd>
-                <dt>Erster Schritt</dt><dd>{{ opportunity.first_step }}</dd>
-            </dl>
-        </article>
-        {% endfor %}
-    </div>
+<section class="result-actions">
+    <div><h2>Du musst nicht alles auf einmal verändern.</h2><p>Beginne mit dem kleinsten Schritt, der deinen Alltag bereits einfacher und übersichtlicher macht.</p></div>
+    <div class="action-stack"><a class="primary-button button-link" href="#blueprint">Meinen ersten Schritt genauer ansehen</a><a class="secondary-button button-link" href="{{ url_for('show_report_public') }}" target="_blank">Ergebnis als PDF speichern</a><form action="{{ url_for('analyze_another_process_public') }}" method="post"><button class="secondary-button" type="submit">Einen anderen Ablauf untersuchen</button></form></div>
 </section>
 
-{% if blueprint %}
-<section class="blueprint-card">
-    <p class="section-kicker">Blueprint für Chance 1</p>
-    <h2>{{ opportunities[0].title }}</h2>
-    <dl>
-        <dt>Ziel</dt><dd>{{ blueprint.objective }}</dd>
-        <dt>Auslöser</dt><dd>{{ blueprint.trigger }}</dd>
-        <dt>Benötigte Eingaben</dt>
-        <dd><ul>{% for item in blueprint.required_inputs %}<li>{{ item }}</li>{% endfor %}</ul></dd>
-        <dt>Workflow-Schritte</dt>
-        <dd><ol>{% for step in blueprint.workflow_steps %}<li>{{ step }}</li>{% endfor %}</ol></dd>
-        <dt>Menschlicher Prüfpunkt</dt><dd>{{ blueprint.human_review_point }}</dd>
-        <dt>Ergebnis</dt><dd>{{ blueprint.output }}</dd>
-        <dt>Ausnahmen</dt>
-        <dd>
-            {% if blueprint.exceptions %}
-            <ul>{% for exception in blueprint.exceptions %}<li>{{ exception }}</li>{% endfor %}</ul>
-            {% else %}Keine weiteren Ausnahmen bekannt.{% endif %}
-        </dd>
-    </dl>
-</section>
-{% endif %}
+<section class="contact-cta"><div><p class="section-kicker">Persönliche Unterstützung</p><h2>Du möchtest Unterstützung bei der Umsetzung?</h2><p>Wenn du deine Auswertung gemeinsam besprechen und daraus einen konkreten Umsetzungsplan machen möchtest, kannst du dich direkt an Derya wenden.</p><p class="contact-note">Lade deine Auswertung vorher als PDF herunter und hänge sie anschließend an deine E-Mail an.</p></div><a class="primary-button button-link" href="mailto:deryaxsarikaya@gmail.com?subject=Unterst%C3%BCtzung%20bei%20meiner%20AI-Start-Map-Auswertung">Auswertung mit Derya besprechen</a></section>
 {% endblock %}
+{% block scripts %}<script type="module" src="{{ url_for('static', path='/diagrams.js') }}"></script>{% endblock %}

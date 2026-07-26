@@ -20,7 +20,8 @@ def test_landing_page_returns_200(client: TestClient) -> None:
     response = client.get("/")
 
     assert response.status_code == 200
-    assert "Meine Prozessanalyse starten" in response.text
+    assert "Jetzt einfach erzählen" in response.text
+    assert "Was läuft in deinem Betrieb immer wieder unnötig kompliziert?" in response.text
     assert "business_context" not in response.text
 
 
@@ -108,7 +109,7 @@ def test_empty_answers_are_rejected(
     )
 
     assert response.status_code == 422
-    assert "Bitte beantworte beide Fragen." in response.text
+    assert "Bitte erzähl uns kurz, was dich im Alltag beschäftigt." in response.text
     answers = list(
         database_session.scalars(
             select(InterviewQuestion.answer_text).where(
@@ -151,7 +152,7 @@ def test_unknown_session_returns_controlled_404(client: TestClient) -> None:
     response = client.get("/sessions/999999/interview")
 
     assert response.status_code == 404
-    assert "Diese Analyse wurde nicht gefunden." in response.text
+    assert "Das hat gerade nicht geklappt" in response.text
 
 
 def test_saved_page_shows_questions_and_answers(client: TestClient) -> None:
@@ -167,12 +168,9 @@ def test_saved_page_shows_questions_and_answers(client: TestClient) -> None:
     response = client.get(f"/sessions/{session_id}/saved")
 
     assert response.status_code == 200
-    assert "Deine Angaben wurden gespeichert." in response.text
-    assert "Was macht dein Unternehmen?" in response.text
-    assert "Ein regionaler Reparaturbetrieb." in response.text
-    assert "Welche wiederkehrenden Abläufe" in response.text
-    assert "Anfragen müssen mehrfach übertragen werden." in response.text
-    assert "Weiter" not in response.text
+    assert "Deine Erzählung ist angekommen" in response.text
+    assert "Wir erkennen gerade die Abläufe dahinter" in response.text
+    assert "Abläufe jetzt erkennen" in response.text
 
 
 def test_only_one_process_option_can_be_selected_per_session(
