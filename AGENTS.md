@@ -6,6 +6,20 @@ AI Start Map is an AI-supported process diagnostic application for solo entrepre
 
 The application guides a user through one concrete business process, identifies the actual bottleneck and later produces grounded automation opportunities.
 
+AI Start Map is a diagnostic and decision-support system. It does not autonomously execute company processes. The current approved visible journey is:
+
+* landing page,
+* free narration by voice or text,
+* recognized process options and selection of one process,
+* structured current-process summary with a safe vertical diagram,
+* confirmation or correction,
+* zero to four relevant follow-up questions shown one at a time,
+* visible analysis state,
+* a concise result with one prioritized and two additional realistic starting points,
+* customer-facing print/PDF report, first-step plan and contact action.
+
+Diagnose before recommending. Depending on the current digital maturity, the correct first step may be order and standardization, simple digitization, rule-based automation or AI support.
+
 Do not invent product features, interview questions, business rules or user flows. Use only requirements explicitly approved in the current task or already implemented in the repository.
 
 ## Current technology
@@ -62,6 +76,11 @@ Do not introduce Flask, SQLite, Docker, frontend frameworks or additional produc
 * Show one clear step at a time.
 * The user must understand what is being requested and what happens next.
 * Do not add user-facing content that was not approved.
+* Treat mobile as a primary viewport: stack cards, keep diagrams vertical, avoid horizontal tables and use touch targets of about 48--56 pixels.
+* Voice input is an optional browser enhancement; editable text input must always remain available.
+* Never show the internal numeric session ID in page content.
+* Do not present uncertainty as an error or use invented percentages.
+* Keep the interface calm, warm and human, using the centrally defined green, cream and beige design tokens.
 
 ## AI and knowledge rules
 
@@ -73,6 +92,30 @@ These rules apply only when AI or RAG is part of the current task:
 * Preserve uncertainty and contradictions.
 * Use Structured Outputs when requested.
 * Do not claim that an integration or API exists unless it has been verified.
+* Visible output must distinguish confirmed user facts, professional inference, open uncertainty and future recommendation.
+* `as_is_steps` contains only actual process actions, never metadata such as "unknown", missing-detail notices or recommendations.
+* Generate diagrams only from validated structured process data. Never render model-written Mermaid source directly.
+* Retrieved material is diagnostic comparison knowledge only and must never leak source IDs, prompts, model names or other-company facts into customer output.
+
+## Current implementation boundaries
+
+* Keep the five existing tables: `sessions`, `interview_questions`, `process_options`, `analyses` and `automation_opportunities`.
+* Prefer the existing JSONB result fields for variable structured presentation data that is not independently queried.
+* Preserve working demo routes and the existing structured OpenAI/RAG architecture.
+* Use browser `SpeechRecognition`/`webkitSpeechRecognition` for the first voice-input version and provide a safe unsupported-browser fallback.
+* Use controlled `flowchart TD` Mermaid generation with strict security mode and a visible ordered-list fallback.
+* Use a customer-facing print view plus `window.print()` for PDF saving; do not add a heavy PDF dependency.
+* Contact is a plain `mailto:` link. Do not imply that a browser attaches the report automatically.
+
+## Diagnostic interview agent
+
+* The bounded action set is `ASK`, `CLARIFY`, `RETRIEVE`, `ANALYZE` and `STOP`.
+* Demo heuristics live only in `app/agent_config.py`: normally two to three follow-ups, at most four visible follow-ups, and bounded agent and tool rounds.
+* These limits are project heuristics, not universal research findings, and must be calibrated with real AI Start Map interviews.
+* Deterministic code must enforce budgets, no-repeat behavior, loop prevention, fact immutability and the prohibition on autonomous execution.
+* Batch 04 agent patterns may support a decision, but semantic retrieval must never be the sole enforcement mechanism for a safety rule.
+* Keep confirmed user facts, unconfirmed extraction, professional inference, RAG evidence, contradictions and uncertainty technically separate.
+* The production knowledge architecture uses a diagnostic index and a separate optional agent-pattern index. Evaluation files are never indexable.
 
 ## Security
 
@@ -88,6 +131,7 @@ These rules apply only when AI or RAG is part of the current task:
 * Commit only related changes.
 * Run tests before committing.
 * Do not force-push or rewrite existing history.
+* When the user requests publication, commit and push with Derya's authenticated GitHub identity. Never use Codex as author, committer or co-author.
 
 
 ## Completion

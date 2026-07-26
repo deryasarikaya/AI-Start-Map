@@ -1,20 +1,30 @@
 # AI Start Map V2
 
-AI Start Map unterstützt Solo-Unternehmer und kleine Unternehmen dabei, einen konkreten Geschäftsprozess zu beschreiben, den tatsächlichen Engpass zu erkennen und drei passende Automatisierungschancen zu erhalten.
+AI Start Map unterstützt Solo-Selbstständige und kleine Betriebe dabei, einen konkreten Arbeitsablauf zu verstehen, den größten Engpass zu erkennen und drei realistische nächste Schritte abzuwägen. Die Anwendung diagnostiziert und bereitet Entscheidungen vor; sie führt keine Unternehmensprozesse autonom aus.
 
-## Aktueller Ablauf
+## Nutzerreise
 
 ```text
-Landingpage
-→ zwei Einstiegsfragen
-→ Prozessvorschläge
-→ Prozessauswahl
-→ sieben Prozessfragen
-→ bis zu drei Rückfragen
-→ Ist-Prozess und Kernengpass
-→ drei priorisierte Automatisierungschancen
-→ Blueprint für Chance 1
+Freie Beschreibung per Sprache oder Text
+→ konkrete Prozessoption auswählen
+→ verstandenen Ist-Ablauf prüfen und korrigieren
+→ höchstens vier relevante Rückfragen
+→ Engpass und drei priorisierte Startpunkte
+→ Umsetzungsplan und druckbarer Kundenbericht
 ```
+
+Die Oberfläche ist mobile-first aufgebaut. Spracheingabe nutzt die Spracherkennung des Browsers, wenn sie verfügbar ist; das Transkript bleibt editierbar und die Texteingabe funktioniert immer als Fallback. Prozessdiagramme werden aus validierten Schrittdaten erzeugt und besitzen eine sichtbare Listenansicht als Fallback.
+
+Die Ergebnisse unterscheiden den sichtbaren Engpass, seine Ursache und Auswirkung. Der beste Startpunkt kann je nach Reifegrad Ordnung und Standardisierung, einfache Digitalisierung, regelbasierte Automatisierung oder KI-Unterstützung sein. Der Kundenbericht lässt sich über den Browser-Druckdialog als PDF speichern.
+
+## Technologie
+
+- FastAPI und Jinja2
+- HTML, CSS und JavaScript
+- PostgreSQL, SQLAlchemy und Alembic
+- OpenAI Structured Outputs
+- FAISS-basiertes RAG
+- pytest
 
 ## Voraussetzungen
 
@@ -22,28 +32,25 @@ Landingpage
 - PostgreSQL
 - eine lokale `.env` mit `DATABASE_URL`, `TEST_DATABASE_URL`, `OPENAI_API_KEY` und `OPENAI_MODEL`
 
-Die erwarteten Variablen stehen in `.env.example`. Die lokale `.env` wird nicht versioniert.
+Die erwarteten Variablen stehen in `.env.example`. `SESSION_SIGNING_KEY` ist optional und sorgt dafür, dass signierte Sitzungscookies über App-Neustarts hinweg gültig bleiben. Die lokale `.env` wird nicht versioniert.
 
 ## Installation und Start
-
-Virtuelle Umgebung aktivieren und Pakete installieren:
 
 ```powershell
 .venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
-```
-
-Datenbankschema migrieren, Wissensindex bauen und Anwendung starten:
-
-```powershell
 alembic upgrade head
-python scripts/build_index.py
+python scripts/build_index.py --target test
+python scripts/compare_indexes.py
+python scripts/build_index.py --target promote
 uvicorn app.main:app --reload
 ```
 
 Danach ist die Anwendung unter `http://127.0.0.1:8000` erreichbar.
 
-Der Index wird ausschließlich aus `knowledge/curated/*.md` aufgebaut. Dateien aus `knowledge/raw/` und `knowledge/evaluation/` sind nicht Teil des FAISS-Indexes. Ein unveränderter Index wird nicht erneut erzeugt.
+Die Anwendung verwendet zwei getrennte FAISS-Indizes. Der Diagnoseindex enthält 634 freigegebene Chunks aus `knowledge/curated/` sowie den RAG-Korpora von Batch 02 und Batch 03. Der optionale Agent-Pattern-Index enthält 205 Patterns aus Batch 04. Raw-Dateien, Reports, Quellenregister, Coverage-Matrizen und sämtliche 79 Evaluationen werden nicht indexiert.
+
+`scripts/build_index.py` schreibt standardmäßig nur separate Testindizes. Eine Übernahme in die produktiven Verzeichnisse erfolgt erst mit `--target promote`; dabei wird der vorherige Diagnoseindex gesichert.
 
 ## Demo-Routen
 
@@ -53,12 +60,14 @@ http://127.0.0.1:8000/demo/etsy-3d-print
 http://127.0.0.1:8000/demo/carpet-cleaning
 ```
 
-Jeder Aufruf erzeugt eine echte Datenbanksession. Die Ergebnisse werden durch dieselbe aktuelle RAG- und Analysepipeline wie im normalen Ablauf generiert und anschließend in PostgreSQL gespeichert. Die Evaluationsdatei liefert nur vorhandene Testinformationen; fehlende Angaben bleiben unbekannt.
+Die Demos nutzen dieselbe Analyse- und Ergebnispipeline wie die normale Reise. Fehlende Angaben bleiben als Unsicherheit sichtbar.
 
 ## Tests
 
-Die automatisierten OpenAI- und Embedding-Aufrufe werden gemockt. PostgreSQL-spezifische Regeln laufen gegen die in `TEST_DATABASE_URL` konfigurierte Testdatenbank.
-
 ```powershell
-pytest
+pytest -q
 ```
+
+OpenAI- und Embedding-Aufrufe werden in den automatisierten Tests gemockt. PostgreSQL-spezifische Regeln laufen gegen die in `TEST_DATABASE_URL` konfigurierte Testdatenbank.
+
+Die erste Demo nutzt zentral konfigurierte Interviewheuristiken: normalerweise zwei bis drei und maximal vier sichtbare Rückfragen sowie begrenzte Agenten- und Werkzeugrunden. Diese Werte müssen nach echten Interviews kalibriert werden.

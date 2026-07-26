@@ -5,14 +5,31 @@
 - `raw/`: unveränderte Ausgangsquellen zur Kontrolle und Nachvollziehbarkeit.
 - `curated/`: semantisch getrennte RAG-Chunks mit stabilen IDs und Metadaten.
 - `evaluation/`: erwartete Ergebnisse und verbotene Empfehlungen für Tests. Nicht indexieren.
+- `research_batches/`: getrennte Forschungsstände, die vor einer Übernahme geprüft, bereinigt und freigegeben werden müssen.
 
-## Dateien für den ersten FAISS-Index
+## Research-Batches
 
-Nur diese Dateien indexieren:
+- `batch_02_analog_reality/`: 162 fallbezogene Chunks im produktiven Diagnoseindex.
+- `batch_03_diagnostic_depth/`: 361 Chunks im produktiven Diagnoseindex; 49 Pattern-Katalogeinträge, 12 Legal Guardrails und 14 Evaluationen bleiben getrennte Prüf- und Dokumentationsdateien.
+- `batch_04_agentic_interview/`: 205 Entscheidungs-, Frage-, Klärungs-, Stop-, Tool- und Guardrail-Patterns im separaten Agent-Pattern-Index sowie 40 niemals indexierte Evaluationen.
+
+Die Research-Dateien werden über explizite Allow-Lists geladen. Evaluationsdateien sind immer getrennt und mit `NEVER_INDEX` zu behandeln.
+
+## Produktive FAISS-Indizes
+
+Diagnoseindex mit 634 Chunks:
 
 - `curated/ten_cases_rag_corpus.md`
 - `curated/massage_rag_corpus.md`
 - `curated/additional_kmu_rag_corpus.md`
+- `research_batches/batch_02_analog_reality/02_rag_corpus.jsonl`
+- `research_batches/batch_03_diagnostic_depth/02_rag_corpus.jsonl`
+
+Separater Agent-Pattern-Index mit 205 Patterns:
+
+- Batch 04, Dateien `02` bis `06` sowie `08`
+
+Nicht indexieren: `raw/`, `evaluation/`, alle Batch-Evaluationen, Reports, Spezifikationen, Quellenregister, Coverage-Matrizen, Merge-Gates, Batch-03-Pattern-Katalog und Legal-Guardrail-Datei sowie das Batch-04-State-Schema.
 
 ## Chunk-Typen
 
