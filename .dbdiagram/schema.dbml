@@ -1,0 +1,85 @@
+Table alembic_version {
+  version_num varchar(32) [not null]
+
+  indexes {
+    version_num [pk, name: 'alembic_version_pkc']
+  }
+
+  Note: 'Alembic migration bookkeeping table; not an application model'
+}
+
+Table sessions {
+  session_id integer [increment]
+
+  indexes {
+    session_id [pk, name: 'pk_sessions']
+  }
+}
+
+Table interview_questions {
+  question_id integer [increment]
+  session_id integer [not null]
+  question_phase text [not null]
+  question_order integer [not null]
+  question_key text [not null]
+  question_text text [not null]
+  answer_text text
+
+  indexes {
+    question_id [pk, name: 'pk_interview_questions']
+    (session_id, question_key) [unique, name: 'uq_interview_questions_session_key']
+    (session_id, question_phase, question_order) [unique, name: 'uq_interview_questions_session_phase_order']
+  }
+}
+
+Table process_options {
+  process_id integer [increment]
+  session_id integer [not null]
+  option_order integer [not null]
+  process_name text [not null]
+  start_event text [not null]
+  end_event text [not null]
+  reason text
+  is_selected boolean [not null, default: false]
+
+  indexes {
+    process_id [pk, name: 'pk_process_options']
+    (session_id, option_order) [unique, name: 'uq_process_options_session_order']
+    session_id [name: 'uq_process_options_selected_session', note: 'PostgreSQL partial UNIQUE index WHERE is_selected = true']
+  }
+}
+
+Table analyses {
+  session_id integer
+  process_summary text [not null]
+  as_is_steps jsonb [not null]
+  core_bottleneck text [not null]
+  uncertainties jsonb [not null]
+
+  indexes {
+    session_id [pk, name: 'pk_analyses']
+  }
+}
+
+Table automation_opportunities {
+  opportunity_id integer [increment]
+  session_id integer [not null]
+  rank integer [not null]
+  title text [not null]
+  problem text [not null]
+  recommendation text [not null]
+  benefit text [not null]
+  human_approval text [not null]
+  first_step text [not null]
+  blueprint_json jsonb
+
+  indexes {
+    opportunity_id [pk, name: 'pk_automation_opportunities']
+    (session_id, rank) [unique, name: 'uq_automation_opportunities_session_rank']
+  }
+}
+
+Ref fk_interview_questions_session_id_sessions: interview_questions.session_id > sessions.session_id [delete: cascade]
+Ref fk_process_options_session_id_sessions: process_options.session_id > sessions.session_id [delete: cascade]
+Ref fk_analyses_session_id_sessions: analyses.session_id - sessions.session_id [delete: cascade]
+Ref fk_automation_opportunities_session_id_analyses: automation_opportunities.session_id > analyses.session_id [delete: cascade]

@@ -1,0 +1,112 @@
+{
+  "version": "2.0.0",
+  "darkMode": true,
+  "gridEnabling": false,
+  "currentViewName": null,
+  "defaultView": {
+    "detailLevel": "All",
+    "tablePositions": [
+      {
+        "name": "alembic_version",
+        "schemaName": "public",
+        "x": 12,
+        "y": 180
+      },
+      {
+        "name": "sessions",
+        "schemaName": "public",
+        "x": 12,
+        "y": 12
+      },
+      {
+        "name": "interview_questions",
+        "schemaName": "public",
+        "x": 453.1650390625,
+        "y": 12
+      },
+      {
+        "name": "process_options",
+        "schemaName": "public",
+        "x": 453.1650390625,
+        "y": 314
+      },
+      {
+        "name": "analyses",
+        "schemaName": "public",
+        "x": 453.1650390625,
+        "y": 648
+      },
+      {
+        "name": "automation_opportunities",
+        "schemaName": "public",
+        "x": 940.888671875,
+        "y": 12
+      }
+    ],
+    "tableGroupCollapseStates": [],
+    "stickyNoteLayouts": [],
+    "referencePaths": [
+      {
+        "firstFieldNames": [
+          "session_id"
+        ],
+        "firstTableName": "interview_questions",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "session_id"
+        ],
+        "secondTableName": "sessions",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "session_id"
+        ],
+        "firstTableName": "process_options",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "session_id"
+        ],
+        "secondTableName": "sessions",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "session_id"
+        ],
+        "firstTableName": "analyses",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "session_id"
+        ],
+        "secondTableName": "sessions",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "session_id"
+        ],
+        "firstTableName": "automation_opportunities",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "session_id"
+        ],
+        "secondTableName": "analyses",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      }
+    ]
+  },
+  "views": {}
+}
