@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Eine Sache noch · AI Start Map{% endblock %}
 {% block content %}
-<nav class="journey-progress" aria-label="Fortschritt"><span class="done">Erzählt ✓</span><span class="done">Ablauf verstanden ✓</span><span class="current">Details klären ●</span><span>Ergebnis ○</span></nav>
+<nav class="journey-progress" aria-label="Fortschritt"><span class="done">Erzählen ✓</span><span class="current">Verstehen ●</span><span>Ergebnis ○</span></nav>
 <section class="content-intro">
     <p class="section-kicker">{{ 'Noch eine letzte Sache' if is_last_question else 'Ein wichtiges Detail' }}</p>
     <h1 class="page-title">Eine Sache möchten wir noch verstehen</h1>
@@ -9,11 +9,11 @@
 </section>
 
 {% if current_question %}
-<form class="single-question-form" action="{{ url_for('save_follow_ups_public') }}" method="post" data-disable-on-submit data-submitting-label="Danke – wir ordnen das gerade ein …" data-voice-input data-voice-target="{{ current_question.question_key }}">
+<form class="single-question-form" action="{{ url_for('save_follow_ups_public') }}" method="post" data-disable-on-submit data-submitting-label="Wir prüfen die nächste Aktion …" data-processing-title="Wir prüfen, ob noch etwas Entscheidendes fehlt." data-processing-copy="Danach erscheint entweder eine wirklich relevante Frage oder direkt dein Ergebnis." data-voice-input data-voice-target="{{ current_question.question_key }}">
     {% if error_message %}<div class="error-message" role="alert">{{ error_message }}</div>{% endif %}
     <section class="question-focus-card">
         <label for="{{ current_question.question_key }}">{{ current_question.question_text }}</label>
-        <p class="question-reason">Das hilft uns zu erkennen, an welcher Stelle die Ursache der schwierigen Situation liegt.</p>
+        {% if question_reason %}<p class="question-reason">{{ question_reason }}</p>{% endif %}
         <textarea id="{{ current_question.question_key }}" name="{{ current_question.question_key }}" rows="6" placeholder="Erzähl, wie es heute tatsächlich läuft.">{{ answers[current_question.question_key] }}</textarea>
         <div class="voice-actions"><button class="secondary-button" type="button" data-voice-start>Antwort einsprechen</button><button class="text-button" type="button" data-voice-write>Lieber schreiben</button><button class="secondary-button" type="button" data-voice-stop hidden>Aufnahme beenden</button><button class="secondary-button" type="button" data-voice-retry hidden>Noch einmal versuchen</button></div>
         <p data-voice-status aria-live="polite">Du kannst sprechen oder schreiben.</p><span data-voice-support></span>

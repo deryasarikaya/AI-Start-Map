@@ -193,8 +193,9 @@ def test_unknown_answer_is_preserved_and_not_reasked() -> None:
 
 
 def test_central_demo_heuristics_are_bounded() -> None:
-    assert AGENT_HEURISTICS.normal_follow_up_minimum == 2
-    assert AGENT_HEURISTICS.normal_follow_up_maximum == 3
+    assert AGENT_HEURISTICS.normal_follow_up_minimum == 0
+    assert AGENT_HEURISTICS.normal_follow_up_maximum == 2
+    assert AGENT_HEURISTICS.complex_follow_up_maximum == 3
     assert AGENT_HEURISTICS.maximum_visible_follow_ups == 4
     assert AGENT_HEURISTICS.maximum_agent_rounds > 4
     assert AGENT_HEURISTICS.maximum_tool_rounds > 0

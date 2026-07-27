@@ -380,7 +380,7 @@ def test_dynamic_questions_receive_only_app_assigned_keys(
             .order_by(InterviewQuestion.question_order)
         )
     )
-    assert keys == ["follow_up_1", "follow_up_2", "follow_up_3"]
+    assert keys == ["follow_up_1", "follow_up_2"]
 
 
 def test_at_most_three_follow_up_questions_are_stored(
@@ -398,7 +398,7 @@ def test_at_most_three_follow_up_questions_are_stored(
         .select_from(InterviewQuestion)
         .where(InterviewQuestion.question_phase == "follow_up")
     )
-    assert count == 3
+    assert count == 2
 
 
 def test_final_analysis_stores_exactly_three_opportunities(
@@ -612,7 +612,7 @@ def test_demo_route_creates_session_and_redirects_to_real_results(
     assert opportunity_count == 3
     result_response = client.get(f"/sessions/{session_id}/results")
     assert result_response.status_code == 200
-    assert "Größter Engpass" in result_response.text
+    assert "Dein eigentliches Problem" in result_response.text
     visible_text = result_response.text.casefold()
     for marker in ("m-01", "testfall", "chunk", "pattern_id", "content_origin"):
         assert marker not in visible_text
@@ -693,10 +693,7 @@ def test_follow_up_answers_complete_the_analysis(
             )
         ).all()
     )
-    assert answers == {
-        "follow_up_1": "Die Inhaberin prüft die Angaben.",
-        "follow_up_2": "Ich weiß es gerade nicht",
-    }
+    assert answers == {"follow_up_1": "Die Inhaberin prüft die Angaben."}
     assert database_session.get(Analysis, session_id) is None
     analysis_response = client.post(f"/sessions/{session_id}/analyze")
     assert analysis_response.status_code == 200
@@ -764,4 +761,4 @@ def test_all_workflow_pages_render_without_template_errors(
     client.post(f"/sessions/{session_id}/analyze")
     results = client.get(f"/sessions/{session_id}/results")
     assert results.status_code == 200
-    assert "Kompakter Umsetzungsplan" in results.text
+    assert "Diese Woche ausprobieren" in results.text

@@ -1,61 +1,71 @@
 {% extends "base.html" %}
-{% block title %}Dein sinnvollster Startpunkt · AI Start Map{% endblock %}
+{% block title %}Dein klarer Start · AI Start Map{% endblock %}
 {% block content %}
-<nav class="journey-progress" aria-label="Fortschritt"><span class="done">Erzählt ✓</span><span class="done">Ablauf verstanden ✓</span><span class="done">Details klären ✓</span><span class="current">Ergebnis ●</span></nav>
+<nav class="journey-progress" aria-label="Fortschritt"><span class="done">Erzählen ✓</span><span class="done">Verstehen ✓</span><span class="current">Ergebnis ●</span></nav>
 
-<section class="result-hero">
-    <p class="section-kicker">Deine Auswertung für {{ process.process_name }}</p>
-    <h1 class="page-title">Jetzt ist klar, wo du am sinnvollsten anfangen kannst</h1>
-    <p class="lead">Wir haben deinen Ablauf geordnet, die schwierigsten Stellen geprüft und drei realistische nächste Schritte abgeleitet.</p>
+<section class="result-intro">
+    <p class="section-kicker">DEINE AUSWERTUNG · {{ process.process_name }}</p>
+    <h1 class="page-title">Das ist jetzt dein sinnvollster Anfang.</h1>
 </section>
 
-<section class="bottleneck-panel">
-    <p class="section-kicker">Größter Engpass</p>
-    <h2>{{ result.bottleneck.cause }}</h2>
-    <div class="bottleneck-grid"><div><span>Heute sichtbar</span><p>{{ result.bottleneck.symptom }}</p></div><div><span>Ursache</span><p>{{ result.bottleneck.cause }}</p></div><div><span>Folge</span><p>{{ result.bottleneck.effect }}</p></div></div>
+<div class="core-result">
+    <section class="core-problem">
+        <p class="result-number">1</p><div><p class="section-kicker">Dein eigentliches Problem</p><h2>{{ result.core_problem }}</h2></div>
+    </section>
+
+    <section class="core-first-change">
+        <p class="result-number">2</p><div><p class="section-kicker">Das solltest du zuerst ändern</p><h2>{{ result.first_change }}</h2></div>
+    </section>
+
+    <section class="ai-support-panel">
+        <div class="core-heading"><p class="result-number">3</p><div><p class="section-kicker">So kann KI dir konkret helfen</p><h2>{{ result.ai_support }}</h2></div></div>
+        <div class="ai-support-grid">
+            <article><span>Eingabe</span><p>{{ result.ai_input }}</p></article>
+            <article><span>KI-Aufgabe</span><p>{{ result.ai_task }}</p></article>
+            <article><span>Ergebnis</span><p>{{ result.ai_output }}</p></article>
+            <article class="human-card"><span>Menschliche Kontrolle</span><p>{{ result.human_check }}</p></article>
+        </div>
+    </section>
+
+    <section class="weekly-test-panel">
+        <p class="result-number">4</p><div><p class="section-kicker">Das kannst du diese Woche testen</p><ol>{% for step in result.weekly_test[:3] %}<li>{{ step }}</li>{% endfor %}</ol><p class="success-marker"><strong>Woran du es merkst:</strong> {{ result.weekly_test_success }}</p></div>
+    </section>
+
+    <section class="later-panel">
+        <p class="result-number">5</p><div><p class="section-kicker">Später kannst du automatisieren</p><p>{{ result.later_automation }}</p></div>
+    </section>
+</div>
+
+<section class="result-next-actions">
+    <details class="start-plan" id="startplan">
+        <summary>Zeig mir, wie ich anfangen kann <span aria-hidden="true">↓</span></summary>
+        <div class="start-plan-content">
+            <h2>Diese Woche ausprobieren</h2>
+            <ol>{% for step in result.start_plan_steps[:5] %}<li>{{ step }}</li>{% endfor %}</ol>
+            <div class="start-plan-grid">
+                <section><h3>Was du brauchst</h3><ul>{% for item in result.required_prerequisites %}<li>{{ item }}</li>{% endfor %}</ul></section>
+                <section><h3>Woran du merkst, dass es funktioniert</h3><p>{{ result.weekly_test_success }}</p></section>
+                <section><h3>Was ein Mensch weiterhin entscheidet</h3><ul>{% for item in result.human_decisions %}<li>{{ item }}</li>{% endfor %}</ul></section>
+            </div>
+        </div>
+    </details>
+    <div class="secondary-result-actions">
+        <a class="secondary-button button-link" href="{{ url_for('show_report_public') }}" target="_blank">Ergebnis als PDF speichern</a>
+        <form action="{{ url_for('analyze_another_process_public') }}" method="post" data-disable-on-submit><button class="text-button" type="submit">Einen anderen Ablauf ansehen</button></form>
+    </div>
 </section>
 
-{% set primary = result.opportunities[0] %}
-<section class="primary-recommendation" id="first-step">
-    <div class="recommendation-top"><div><p class="section-kicker">Rang 1 · {{ primary.category }}</p><h2>Damit solltest du anfangen</h2></div><span class="effort-badge">Aufwand {{ primary.effort }}</span></div>
-    <h3>{{ primary.title }}</h3>
-    <p class="recommendation-copy">{{ primary.recommendation }}</p>
-    <div class="explanation-grid"><div><strong>Warum das jetzt passt</strong><p>{{ primary.benefit }}</p></div><div><strong>Voraussetzung</strong><p>{{ primary.prerequisite }}</p></div><div><strong>Was ein Mensch entscheidet</strong><p>{{ primary.human_approval }}</p></div></div>
-    <div class="mini-test"><p class="section-kicker">Kleiner Test statt Komplettumbau</p><h3>So kannst du anfangen</h3><ol>{% for step in primary.mini_test %}<li>{{ step }}</li>{% endfor %}</ol></div>
+<section class="result-details" aria-labelledby="details-title">
+    <h2 id="details-title">Wenn du genauer hinschauen möchtest</h2>
+    <details><summary>Warum dieser Schritt?</summary><p>{{ result.why_this_first }}</p></details>
+    <details><summary>So läuft es heute</summary><p>{{ result.current_process_summary }}</p><ol class="process-strip compact">{% for step in result.as_is_steps[:5] %}<li class="{% if loop.index0 in result.problem_step_indexes %}problem{% endif %}"><span>{{ loop.index }}</span><p>{{ step }}</p></li>{% endfor %}</ol></details>
+    <details><summary>Weitere Voraussetzungen</summary><ul>{% for item in result.required_prerequisites %}<li>{{ item }}</li>{% endfor %}{% for item in result.optional_details.get('additional_prerequisites', []) %}<li>{{ item }}</li>{% endfor %}</ul></details>
+    <details><summary>Offene Unsicherheiten</summary>{% if result.uncertainties %}<ul>{% for item in result.uncertainties %}<li>{{ item }}</li>{% endfor %}</ul>{% else %}<p>Für den ersten Test ist keine weitere Angabe zwingend nötig.</p>{% endif %}</details>
+    <details><summary>Spätere Möglichkeiten</summary><ul>{% for opportunity in result.opportunities[1:] %}<li><strong>{{ opportunity.title }}:</strong> {{ opportunity.benefit }}</li>{% endfor %}{% for item in result.optional_details.get('later_possibilities', []) %}<li>{{ item }}</li>{% endfor %}</ul></details>
 </section>
 
-<section class="diagram-card process-diagram" data-problem-indexes="{{ result.problem_step_indexes|tojson|forceescape }}">
-    <p class="section-kicker">Bestätigter Ist-Prozess</p><h2>So läuft es heute</h2>
-    <script type="application/json" data-diagram-steps>{{ result.as_is_steps|tojson }}</script><div class="mermaid-output" data-mermaid-output></div>
-    <ol class="process-fallback" data-diagram-fallback>{% for step in result.as_is_steps %}<li class="{% if loop.index0 in result.problem_step_indexes %}problem{% endif %}">{{ step }}</li>{% endfor %}</ol>
+<section class="contact-cta">
+    <div><p class="section-kicker">GEMEINSAM UMSETZEN</p><h2>Du möchtest das gemeinsam umsetzen?</h2><p>Lade deine Auswertung als PDF herunter und sende sie an Derya. So könnt ihr direkt auf deinem konkreten Ergebnis aufbauen.</p><p class="contact-note">Hänge die heruntergeladene PDF anschließend an deine E-Mail an.</p></div>
+    <a class="primary-button button-link" href="mailto:deryaxsarikaya@gmail.com?subject=Unterst%C3%BCtzung%20bei%20meiner%20AI-Start-Map-Auswertung">Auswertung mit Derya besprechen</a>
 </section>
-
-<section class="diagram-card target-card process-diagram" data-problem-indexes="[]">
-    <p class="section-kicker">Nächste realistische Reifestufe</p><h2>So könnte der nächste, einfachere Ablauf aussehen</h2>
-    <script type="application/json" data-diagram-steps>{{ result.to_be_steps|tojson }}</script><div class="mermaid-output" data-mermaid-output></div>
-    <ol class="process-fallback" data-diagram-fallback>{% for step in result.to_be_steps %}<li>{{ step }}</li>{% endfor %}</ol>
-    <p>Kein vollautomatischer Idealprozess: Entscheidungen und Ausnahmen bleiben dort bei einem Menschen, wo sie heute Erfahrung brauchen.</p>
-</section>
-
-<section class="result-section">
-    <p class="section-kicker">Zwei weitere Möglichkeiten</p>
-    <div class="secondary-opportunities">{% for opportunity in result.opportunities[1:] %}<article class="opportunity-card"><div class="opportunity-heading"><span>Rang {{ opportunity.rank }}</span><span>{{ opportunity.category }}</span></div><h2>{{ opportunity.title }}</h2><p>{{ opportunity.benefit }}</p><dl><dt>Voraussetzung</dt><dd>{{ opportunity.prerequisite }}</dd><dt>Menschliche Freigabe</dt><dd>{{ opportunity.human_approval }}</dd><dt>Aufwand</dt><dd>{{ opportunity.effort }}</dd><dt>Akzeptanzrisiko</dt><dd>{{ opportunity.acceptance_risk }}</dd></dl></article>{% endfor %}</div>
-</section>
-
-<details class="why-not-card"><summary>Warum nicht sofort automatisieren?</summary><p>Eine Automatisierung kann nur mit Informationen arbeiten, die zuverlässig vorhanden sind. Wenn Auftrag, Gegenstand oder Status noch nicht eindeutig erfasst werden, würde ein neues System das bestehende Chaos nur digital abbilden.</p></details>
-
-<section class="result-section open-points">
-    <h2>Das ist noch nicht ganz klar</h2>
-    {% if result.uncertainties %}<ul>{% for uncertainty in result.uncertainties %}<li>{{ uncertainty }}</li>{% endfor %}</ul>{% else %}<p>Aus deinen bisherigen Angaben ist kein entscheidender offener Punkt übrig geblieben.</p>{% endif %}
-</section>
-
-{% if result.blueprint %}<details class="blueprint-card" id="blueprint"><summary>Meinen ersten Schritt genauer ansehen</summary><div class="blueprint-content"><h2>Kompakter Umsetzungsplan</h2><dl><dt>Ziel</dt><dd>{{ result.blueprint.objective }}</dd><dt>Auslöser</dt><dd>{{ result.blueprint.trigger }}</dd><dt>Benötigte Angaben</dt><dd><ul>{% for item in result.blueprint.required_inputs %}<li>{{ item }}</li>{% endfor %}</ul></dd><dt>Schritte</dt><dd><ol>{% for step in result.blueprint.workflow_steps %}<li>{{ step }}</li>{% endfor %}</ol></dd><dt>Menschlicher Prüfpunkt</dt><dd>{{ result.blueprint.human_review_point }}</dd><dt>Ergebnis</dt><dd>{{ result.blueprint.output }}</dd></dl></div></details>{% endif %}
-
-<section class="result-actions">
-    <div><h2>Du musst nicht alles auf einmal verändern.</h2><p>Beginne mit dem kleinsten Schritt, der deinen Alltag bereits einfacher und übersichtlicher macht.</p></div>
-    <div class="action-stack"><a class="primary-button button-link" href="#blueprint">Meinen ersten Schritt genauer ansehen</a><a class="secondary-button button-link" href="{{ url_for('show_report_public') }}" target="_blank">Ergebnis als PDF speichern</a><form action="{{ url_for('analyze_another_process_public') }}" method="post"><button class="secondary-button" type="submit">Einen anderen Ablauf untersuchen</button></form></div>
-</section>
-
-<section class="contact-cta"><div><p class="section-kicker">Persönliche Unterstützung</p><h2>Du möchtest Unterstützung bei der Umsetzung?</h2><p>Wenn du deine Auswertung gemeinsam besprechen und daraus einen konkreten Umsetzungsplan machen möchtest, kannst du dich direkt an Derya wenden.</p><p class="contact-note">Lade deine Auswertung vorher als PDF herunter und hänge sie anschließend an deine E-Mail an.</p></div><a class="primary-button button-link" href="mailto:deryaxsarikaya@gmail.com?subject=Unterst%C3%BCtzung%20bei%20meiner%20AI-Start-Map-Auswertung">Auswertung mit Derya besprechen</a></section>
 {% endblock %}
-{% block scripts %}<script type="module" src="{{ url_for('static', path='/diagrams.js') }}"></script>{% endblock %}

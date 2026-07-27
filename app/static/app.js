@@ -4,14 +4,30 @@
     const setHidden = (element, hidden) => { if (element) element.hidden = hidden; };
 
     document.querySelectorAll("form[data-disable-on-submit]").forEach((form) => {
-        form.addEventListener("submit", () => {
-            if (form.dataset.submitted === "true") return;
+        form.addEventListener("submit", (event) => {
+            if (form.dataset.submitted === "true") {
+                event.preventDefault();
+                return;
+            }
             form.dataset.submitted = "true";
             form.querySelectorAll("button[type='submit']").forEach((button) => {
                 button.disabled = true;
                 button.setAttribute("aria-disabled", "true");
                 if (form.dataset.submittingLabel) button.textContent = form.dataset.submittingLabel;
             });
+            const layer = document.querySelector("[data-processing-layer]");
+            if (layer) {
+                const title = layer.querySelector("[data-processing-title]");
+                const copy = layer.querySelector("[data-processing-copy]");
+                if (title && form.dataset.processingTitle) {
+                    title.textContent = form.dataset.processingTitle;
+                }
+                if (copy && form.dataset.processingCopy) {
+                    copy.textContent = form.dataset.processingCopy;
+                }
+                layer.hidden = false;
+                document.body.classList.add("is-processing");
+            }
         });
     });
 
@@ -79,7 +95,7 @@
             if (input) input.setAttribute("aria-label", `Schritt ${index + 1}`);
         });
         editor.querySelector("[data-add-step]")?.addEventListener("click", () => {
-            if (!list || list.children.length >= 7) return;
+            if (!list || list.children.length >= 5) return;
             const row = document.createElement("div");
             row.className = "step-editor";
             row.innerHTML = '<span></span><input name="steps" required placeholder="Was passiert als Nächstes?" aria-label="Neuer Schritt"><button type="button" aria-label="Schritt entfernen" data-remove-step>×</button>';
@@ -92,6 +108,17 @@
             if (!button || list.children.length <= 2) return;
             button.closest(".step-editor")?.remove();
             renumber();
+        });
+    });
+
+    document.querySelectorAll("[data-show-correction]").forEach((button) => {
+        button.addEventListener("click", () => {
+            const panel = document.querySelector("[data-correction-panel]");
+            if (!panel) return;
+            panel.hidden = false;
+            button.hidden = true;
+            panel.querySelector("input, textarea")?.focus();
+            panel.scrollIntoView({ behavior: "smooth", block: "start" });
         });
     });
 })();

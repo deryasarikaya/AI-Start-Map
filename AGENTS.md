@@ -11,11 +11,11 @@ AI Start Map is a diagnostic and decision-support system. It does not autonomous
 * landing page,
 * free narration by voice or text,
 * recognized process options and selection of one process,
-* structured current-process summary with a safe vertical diagram,
+* short current-process summary with a safe vertical HTML process line,
 * confirmation or correction,
 * zero to four relevant follow-up questions shown one at a time,
 * visible analysis state,
-* a concise result with one prioritized and two additional realistic starting points,
+* a concise result ordered as problem, first change, concrete AI support, weekly test and later automation,
 * customer-facing print/PDF report, first-step plan and contact action.
 
 Diagnose before recommending. Depending on the current digital maturity, the correct first step may be order and standardization, simple digitization, rule-based automation or AI support.
@@ -80,7 +80,7 @@ Do not introduce Flask, SQLite, Docker, frontend frameworks or additional produc
 * Voice input is an optional browser enhancement; editable text input must always remain available.
 * Never show the internal numeric session ID in page content.
 * Do not present uncertainty as an error or use invented percentages.
-* Keep the interface calm, warm and human, using the centrally defined green, cream and beige design tokens.
+* Keep the interface warm and human, with clear contrast and the central green, cream, yellow, coral and blue design tokens.
 
 ## AI and knowledge rules
 
@@ -94,7 +94,7 @@ These rules apply only when AI or RAG is part of the current task:
 * Do not claim that an integration or API exists unless it has been verified.
 * Visible output must distinguish confirmed user facts, professional inference, open uncertainty and future recommendation.
 * `as_is_steps` contains only actual process actions, never metadata such as "unknown", missing-detail notices or recommendations.
-* Generate diagrams only from validated structured process data. Never render model-written Mermaid source directly.
+* Generate visible process views only from validated structured process data. Use the vertical HTML/CSS process line for customer-facing screens and print.
 * Retrieved material is diagnostic comparison knowledge only and must never leak source IDs, prompts, model names or other-company facts into customer output.
 
 ## Current implementation boundaries
@@ -103,14 +103,14 @@ These rules apply only when AI or RAG is part of the current task:
 * Prefer the existing JSONB result fields for variable structured presentation data that is not independently queried.
 * Preserve working demo routes and the existing structured OpenAI/RAG architecture.
 * Use browser `SpeechRecognition`/`webkitSpeechRecognition` for the first voice-input version and provide a safe unsupported-browser fallback.
-* Use controlled `flowchart TD` Mermaid generation with strict security mode and a visible ordered-list fallback.
-* Use a customer-facing print view plus `window.print()` for PDF saving; do not add a heavy PDF dependency.
+* Use a readable vertical HTML/CSS process line; never render model-written diagram source directly.
+* Use a customer-facing print view of normally three pages plus `window.print()` for PDF saving; do not add a heavy PDF dependency.
 * Contact is a plain `mailto:` link. Do not imply that a browser attaches the report automatically.
 
 ## Diagnostic interview agent
 
 * The bounded action set is `ASK`, `CLARIFY`, `RETRIEVE`, `ANALYZE` and `STOP`.
-* Demo heuristics live only in `app/agent_config.py`: normally two to three follow-ups, at most four visible follow-ups, and bounded agent and tool rounds.
+* Demo heuristics live only in `app/agent_config.py`: prefer zero to two follow-ups, allow three only for genuinely complex cases, keep four as the technical visible maximum, and bound agent and tool rounds.
 * These limits are project heuristics, not universal research findings, and must be calibrated with real AI Start Map interviews.
 * Deterministic code must enforce budgets, no-repeat behavior, loop prevention, fact immutability and the prohibition on autonomous execution.
 * Batch 04 agent patterns may support a decision, but semantic retrieval must never be the sole enforcement mechanism for a safety rule.

@@ -1,94 +1,66 @@
 {% extends "base.html" %}
 
-{% block title %}AI Start Map · Deinen Arbeitsablauf verstehen{% endblock %}
+{% block title %}AI Start Map · Dein klarer erster Schritt{% endblock %}
 
 {% block content %}
-<section class="hero-layout landing-section">
+<section class="hero-layout landing-section landing-hero">
     <div class="hero-copy">
-        <p class="eyebrow">Prozessdiagnostik für kleine Betriebe</p>
-        <h1>Was läuft in deinem Betrieb immer wieder unnötig kompliziert?</h1>
-        <p class="lead">Erzähl uns, was dich im Alltag aufhält, nervt oder durcheinanderbringt. AI Start Map erkennt den Ablauf dahinter, zeigt dir den größten Engpass und schlägt drei realistische nächste Schritte vor.</p>
+        <p class="eyebrow">WENIGER CHAOS. EIN KLARER START.</p>
+        <h1>Du weißt, dass es einfacher gehen müsste. Aber nicht, wo du anfangen sollst.</h1>
+        <p class="lead">Erzähl einfach, was dich Zeit, Nerven oder Überblick kostet. AI Start Map findet heraus, wo es wirklich hakt – und welcher kleine Schritt zuerst sinnvoll ist.</p>
         <form action="{{ url_for('begin_journey') }}" method="post" data-disable-on-submit data-submitting-label="Einen Moment …">
-            <button class="primary-button" type="submit">Jetzt einfach erzählen <span aria-hidden="true">→</span></button>
+            <button class="primary-button hero-button" type="submit">Einfach erzählen <span aria-hidden="true">→</span></button>
         </form>
         <p class="micro-copy">Per Sprache oder Text · keine Vorbereitung nötig</p>
-        <p class="trust-sentence">Du musst deinen Betrieb nicht komplett verändern. Wir finden zuerst den Schritt, der wirklich zu deinem Alltag passt.</p>
+        <p class="trust-sentence">Kein neues Riesensystem. Kein kompletter Umbau.</p>
     </div>
+    <div class="hero-path" aria-label="Vom heutigen Durcheinander zum klaren nächsten Schritt">
+        <div><span>Jetzt</span><strong>Ordnen</strong><small>Was gehört wohin?</small></div>
+        <i aria-hidden="true">→</i>
+        <div><span>Danach</span><strong>Mit KI unterstützen</strong><small>Angaben erkennen und vorbereiten</small></div>
+        <i aria-hidden="true">→</i>
+        <div><span>Später</span><strong>Automatisieren</strong><small>Erst wenn die Grundlage stimmt</small></div>
+    </div>
+    <a class="scroll-cue" href="#wiedererkennen">Kommt dir das bekannt vor? <span aria-hidden="true">↓</span></a>
+</section>
 
-    <div class="clarity-visual" aria-label="Vom Durcheinander zu drei realistischen Startpunkten">
-        <div class="chaos-cloud">
-            <span>WhatsApp</span><span>Telefon</span><span>E-Mail</span><span>Zettel</span>
-            <span>Kalender</span><span>Regal</span><span>Gedächtnis</span>
-        </div>
-        <div class="visual-arrow" aria-hidden="true">↓</div>
-        <div class="visual-stage"><strong>Geordneter Ablauf</strong><span>Alles in einer verständlichen Reihenfolge</span></div>
-        <div class="visual-arrow" aria-hidden="true">↓</div>
-        <div class="visual-stage problem-stage"><strong>Sichtbarer Engpass</strong><span>Die Stelle, an der es heute wirklich hakt</span></div>
-        <div class="visual-arrow" aria-hidden="true">↓</div>
-        <div class="start-points"><span>Startpunkt 1</span><span>Startpunkt 2</span><span>Startpunkt 3</span></div>
+<section class="landing-section recognition-section" id="wiedererkennen" aria-labelledby="recognition-title">
+    <p class="section-kicker">DEIN ALLTAG</p>
+    <h2 id="recognition-title" class="section-title">Du hältst mehr zusammen, als irgendwo festgehalten ist.</h2>
+    <ul class="recognition-list">
+        <li>Nachrichten kommen über WhatsApp, Telefon und E-Mail.</li>
+        <li>Zettel, Termine und Aufträge liegen überall.</li>
+        <li>Ohne dich kennt niemand den aktuellen Stand.</li>
+        <li>Du suchst, erinnerst, erklärst und fragst nach.</li>
+        <li>Du weißt, KI könnte helfen – aber nicht wobei zuerst.</li>
+        <li>Du willst etwas verbessern, ohne alles umzustellen.</li>
+    </ul>
+</section>
+
+<section class="landing-section" aria-labelledby="steps-title">
+    <p class="section-kicker">SO FUNKTIONIERT ES</p>
+    <h2 id="steps-title" class="section-title">Drei einfache Schritte. Kein Beratungsbericht zum Durcharbeiten.</h2>
+    <div class="simple-steps">
+        <article><span>1</span><div><h3>Du erzählst</h3><p>Sprich oder schreib, was dich im Alltag ausbremst.</p></div></article>
+        <article><span>2</span><div><h3>Wir verstehen</h3><p>Die App erkennt den Ablauf und fragt nur, wenn etwas das Ergebnis wirklich verändert.</p></div></article>
+        <article><span>3</span><div><h3>Du weißt, was zuerst kommt</h3><p>Du siehst das Problem, den ersten Schritt, konkrete KI-Hilfe und einen Test für diese Woche.</p></div></article>
     </div>
 </section>
 
-<section class="landing-section" aria-labelledby="everyday-title">
-    <p class="section-kicker">Dein Alltag</p>
-    <h2 id="everyday-title" class="section-title">Kommt dir das bekannt vor?</h2>
-    <div class="card-grid four-cards">
-        <article class="soft-card"><span class="card-icon" aria-hidden="true">↗</span><h3>Alles kommt über verschiedene Wege</h3><p>Kunden rufen an, schreiben über WhatsApp oder schicken eine E-Mail. Irgendwo geht eine Anfrage unter oder wird doppelt beantwortet.</p></article>
-        <article class="soft-card"><span class="card-icon" aria-hidden="true">⌁</span><h3>Informationen liegen überall</h3><p>Ein Teil steht auf Zetteln, ein Teil im Handy und vieles ist nur in deinem Kopf.</p></article>
-        <article class="soft-card"><span class="card-icon" aria-hidden="true">◎</span><h3>Du bist für alles die Zentrale</h3><p>Kunden und Mitarbeitende fragen immer wieder dich, weil sonst niemand den aktuellen Stand kennt.</p></article>
-        <article class="soft-card"><span class="card-icon" aria-hidden="true">◇</span><h3>Du weißt, dass es einfacher gehen könnte</h3><p>Du hast von KI und Automatisierung gehört, aber keine Ahnung, womit du bei dir anfangen sollst.</p></article>
-    </div>
-</section>
-
-<section class="landing-section relief-section">
-    <div>
-        <p class="section-kicker">Erst verstehen, dann verändern</p>
-        <h2 class="section-title">Dein Betrieb läuft. Aber vieles läuft nur, weil du ständig alles zusammenhältst.</h2>
-    </div>
-    <div class="relief-copy">
-        <p>Du kennst deine Kunden, deine Abläufe und die vielen kleinen Ausnahmen. Genau deshalb fühlt sich jede Veränderung riskant an. Ein neues System darf nicht noch mehr Arbeit machen oder das durcheinanderbringen, was heute wenigstens irgendwie funktioniert.</p>
-        <p class="turning-point">AI Start Map verändert zunächst nichts. Die App hört zu, bringt deinen Ablauf in eine klare Struktur und zeigt dir, welcher kleine nächste Schritt wirklich sinnvoll sein könnte.</p>
-        <ul class="check-list"><li>Du musst nicht alles perfekt erklären.</li><li>Du musst nicht sofort alles digitalisieren.</li><li>Du behältst die Kontrolle.</li></ul>
-    </div>
-</section>
-
-<section class="landing-section" aria-labelledby="how-title">
-    <p class="section-kicker">So funktioniert es</p>
-    <h2 id="how-title" class="section-title">Drei ruhige Schritte zu mehr Klarheit</h2>
-    <div class="card-grid three-cards numbered-cards">
-        <article class="soft-card"><span>1</span><h3>Du erzählst</h3><p>Beschreibe, was dich gerade am meisten beschäftigt. Du kannst sprechen oder schreiben.</p></article>
-        <article class="soft-card"><span>2</span><h3>Die App versteht den Ablauf</h3><p>AI Start Map erkennt die einzelnen Schritte, beteiligte Personen, Informationswege und Stellen, an denen gesucht, gewartet oder nachgefragt wird.</p></article>
-        <article class="soft-card"><span>3</span><h3>Du bekommst einen realistischen Startpunkt</h3><p>Die App zeigt dir den größten Engpass und drei Möglichkeiten, die zu deinem heutigen Betrieb passen.</p></article>
-    </div>
-</section>
-
-<section class="landing-section comparison-section">
-    <p class="section-kicker">Keine allgemeinen KI-Tipps</p>
-    <h2 class="section-title">Nicht noch mehr Ideen. Erst einmal verstehen, was bei dir wirklich passiert.</h2>
+<section class="landing-section comparison-section" aria-labelledby="comparison-title">
+    <p class="section-kicker">ALLGEMEINE KI ODER AI START MAP?</p>
+    <h2 id="comparison-title" class="section-title">Nicht noch mehr Ideen. Ein sinnvoller Anfang für deinen Betrieb.</h2>
     <div class="comparison-grid">
-        <article class="comparison-card muted-card"><p class="card-kicker">Allgemeine KI-Antwort</p><blockquote>„Nutze ein CRM, automatisiere deine E-Mails und führe einen Chatbot ein.“</blockquote></article>
-        <article class="comparison-card"><p class="card-kicker">AI Start Map</p><blockquote>„Deine Anfragen kommen über mehrere Kanäle. Bevor etwas automatisiert wird, brauchst du zunächst eine gemeinsame Übersicht und einen klaren Status.“</blockquote></article>
+        <article class="comparison-card muted-card"><p class="card-kicker">Allgemeiner KI-Tipp</p><blockquote>„Nutze ein CRM, automatisiere deine E-Mails und führe einen Chatbot ein.“</blockquote></article>
+        <article class="comparison-card"><p class="card-kicker">AI Start Map</p><blockquote>„Erfasse zuerst Auftrag und Ablageort gemeinsam. Danach kann KI gesprochene Angaben ordnen und fehlende Informationen markieren.“</blockquote></article>
     </div>
-    <p class="centered-statement">Die App empfiehlt dir nicht einfach ein Tool. Sie findet heraus, welches Problem du zuerst lösen solltest.</p>
-</section>
-
-<section class="landing-section" aria-labelledby="examples-title">
-    <p class="section-kicker">Mögliche Beispiele</p>
-    <h2 id="examples-title" class="section-title">So unterschiedlich kann ein sinnvoller Anfang aussehen</h2>
-    <div class="card-grid four-cards compact-cards">
-        <article class="soft-card"><h3>Schuhmacher</h3><p>Zum Beispiel zuerst Auftrag, Gegenstand und Ablageort eindeutig verbinden.</p></article>
-        <article class="soft-card"><h3>Friseursalon</h3><p>Zum Beispiel erst verstehen, über welche Wege Termine und Änderungen eingehen.</p></article>
-        <article class="soft-card"><h3>Handwerksbetrieb</h3><p>Zum Beispiel aktuelle Maße, Änderungen und Freigaben klar zusammenführen.</p></article>
-        <article class="soft-card"><h3>Coach oder Trainer</h3><p>Zum Beispiel Anfragen, Termine und Vorbereitung übersichtlich voneinander abgrenzen.</p></article>
-    </div>
-    <div class="trust-row"><span>Keine automatische Umstellung</span><span>Keine erfundenen Versprechen</span><span>Kleine Schritte statt Komplettumbau</span></div>
 </section>
 
 <section class="landing-section final-cta">
-    <h2 class="section-title">Du musst noch nicht wissen, welche Lösung du brauchst.</h2>
-    <p>Erzähl einfach, was dich gerade am meisten Zeit und Nerven kostet. Wir helfen dir, das Problem zu ordnen und den sinnvollsten ersten Schritt zu erkennen.</p>
+    <p class="section-kicker">DU MUSST DIE LÖSUNG NOCH NICHT KENNEN</p>
+    <h2 class="section-title">Erzähl, was dich aufhält. Wir finden den klaren ersten Schritt.</h2>
     <form action="{{ url_for('begin_journey') }}" method="post" data-disable-on-submit data-submitting-label="Einen Moment …">
-        <button class="primary-button" type="submit">Jetzt meinen Ablauf ansehen <span aria-hidden="true">→</span></button>
+        <button class="primary-button" type="submit">Einfach erzählen <span aria-hidden="true">→</span></button>
     </form>
 </section>
 {% endblock %}

@@ -20,8 +20,8 @@ def test_landing_page_returns_200(client: TestClient) -> None:
     response = client.get("/")
 
     assert response.status_code == 200
-    assert "Jetzt einfach erzählen" in response.text
-    assert "Was läuft in deinem Betrieb immer wieder unnötig kompliziert?" in response.text
+    assert "Einfach erzählen" in response.text
+    assert "Du weißt, dass es einfacher gehen müsste" in response.text
     assert "business_context" not in response.text
 
 
@@ -168,9 +168,10 @@ def test_saved_page_shows_questions_and_answers(client: TestClient) -> None:
     response = client.get(f"/sessions/{session_id}/saved")
 
     assert response.status_code == 200
-    assert "Deine Erzählung ist angekommen" in response.text
-    assert "Wir erkennen gerade die Abläufe dahinter" in response.text
-    assert "Abläufe jetzt erkennen" in response.text
+    assert "Wir erkennen die wichtigsten Abläufe" in response.text
+    assert "Gleich kannst du auswählen" in response.text
+    assert "Abläufe jetzt erkennen" not in response.text
+    assert "requestSubmit" in response.text
 
 
 def test_only_one_process_option_can_be_selected_per_session(

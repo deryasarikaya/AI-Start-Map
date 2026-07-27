@@ -1,21 +1,32 @@
 # AI Start Map V2
 
-AI Start Map unterstützt Solo-Selbstständige und kleine Betriebe dabei, einen konkreten Arbeitsablauf zu verstehen, den größten Engpass zu erkennen und drei realistische nächste Schritte abzuwägen. Die Anwendung diagnostiziert und bereitet Entscheidungen vor; sie führt keine Unternehmensprozesse autonom aus.
+AI Start Map hilft Solo-Selbstständigen und kleinen Betrieben, aus einem unübersichtlichen Arbeitsalltag einen klaren ersten Schritt abzuleiten. Die Anwendung erkennt einen konkreten Prozess, fragt nur nach entscheidungsrelevanten Lücken und zeigt:
+
+```text
+eigentliches Problem
+→ erster Schritt
+→ konkrete KI-Unterstützung
+→ Test für diese Woche
+→ spätere Automatisierung
+```
+
+AI Start Map diagnostiziert und unterstützt Entscheidungen. Die Anwendung führt keine Unternehmensprozesse autonom aus und trifft keine automatischen Preis-, Vertrags-, Zahlungs- oder Freigabeentscheidungen.
 
 ## Nutzerreise
 
 ```text
-Freie Beschreibung per Sprache oder Text
-→ konkrete Prozessoption auswählen
-→ verstandenen Ist-Ablauf prüfen und korrigieren
-→ höchstens vier relevante Rückfragen
-→ Engpass und drei priorisierte Startpunkte
-→ Umsetzungsplan und druckbarer Kundenbericht
+Erzählung per Sprache oder Text
+→ einen erkannten Ablauf auswählen
+→ kurze Ist-Zusammenfassung bestätigen oder korrigieren
+→ null bis wenige relevante Rückfragen
+→ sichtbare Verarbeitung
+→ klares Sofortergebnis
+→ optional Startplan, Details, PDF und Kontakt
 ```
 
-Die Oberfläche ist mobile-first aufgebaut. Spracheingabe nutzt die Spracherkennung des Browsers, wenn sie verfügbar ist; das Transkript bleibt editierbar und die Texteingabe funktioniert immer als Fallback. Prozessdiagramme werden aus validierten Schrittdaten erzeugt und besitzen eine sichtbare Listenansicht als Fallback.
+Die Oberfläche ist mobile-first. Browser-Spracherkennung wird genutzt, wenn sie verfügbar ist; das Transkript bleibt editierbar und Texteingabe funktioniert immer. Prozessdarstellungen sind kurze vertikale HTML-/CSS-Listen, damit Labels auf kleinen Bildschirmen und im Druck lesbar bleiben.
 
-Die Ergebnisse unterscheiden den sichtbaren Engpass, seine Ursache und Auswirkung. Der beste Startpunkt kann je nach Reifegrad Ordnung und Standardisierung, einfache Digitalisierung, regelbasierte Automatisierung oder KI-Unterstützung sein. Der Kundenbericht lässt sich über den Browser-Druckdialog als PDF speichern.
+Das Ergebnis beschreibt KI konkret über Eingabe, KI-Aufgabe, Ergebnis und menschliche Kontrolle. Ist zunächst Ordnung oder Standardisierung nötig, wird KI nicht erzwungen: Die App nennt dann ehrlich die Voraussetzung, ab der KI sinnvoll unterstützen kann.
 
 ## Technologie
 
@@ -23,16 +34,16 @@ Die Ergebnisse unterscheiden den sichtbaren Engpass, seine Ursache und Auswirkun
 - HTML, CSS und JavaScript
 - PostgreSQL, SQLAlchemy und Alembic
 - OpenAI Structured Outputs
-- FAISS-basiertes RAG
+- zwei getrennte FAISS-Indizes
 - pytest
 
 ## Voraussetzungen
 
 - Python
 - PostgreSQL
-- eine lokale `.env` mit `DATABASE_URL`, `TEST_DATABASE_URL`, `OPENAI_API_KEY` und `OPENAI_MODEL`
+- lokale `.env` mit `DATABASE_URL`, `TEST_DATABASE_URL`, `OPENAI_API_KEY` und `OPENAI_MODEL`
 
-Die erwarteten Variablen stehen in `.env.example`. `SESSION_SIGNING_KEY` ist optional und sorgt dafür, dass signierte Sitzungscookies über App-Neustarts hinweg gültig bleiben. Die lokale `.env` wird nicht versioniert.
+Die erwarteten Variablen stehen in `.env.example`. `SESSION_SIGNING_KEY` kann für über Neustarts stabile signierte Sitzungscookies gesetzt werden. `.env` wird nicht versioniert.
 
 ## Installation und Start
 
@@ -40,17 +51,24 @@ Die erwarteten Variablen stehen in `.env.example`. `SESSION_SIGNING_KEY` ist opt
 .venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
 alembic upgrade head
-python scripts/build_index.py --target test
-python scripts/compare_indexes.py
-python scripts/build_index.py --target promote
 uvicorn app.main:app --reload
 ```
 
-Danach ist die Anwendung unter `http://127.0.0.1:8000` erreichbar.
+Danach läuft die Anwendung unter `http://127.0.0.1:8000`.
 
-Die Anwendung verwendet zwei getrennte FAISS-Indizes. Der Diagnoseindex enthält 634 freigegebene Chunks aus `knowledge/curated/` sowie den RAG-Korpora von Batch 02 und Batch 03. Der optionale Agent-Pattern-Index enthält 205 Patterns aus Batch 04. Raw-Dateien, Reports, Quellenregister, Coverage-Matrizen und sämtliche 79 Evaluationen werden nicht indexiert.
+Die vorhandenen produktiven Indizes müssen für den normalen Start nicht neu gebaut werden. Falls sich der freigegebene Korpus später technisch ändert, schreiben die vorhandenen Build-Prozesse zunächst getrennte Testindizes; Vergleich und Promotion bleiben eigene bewusste Schritte.
 
-`scripts/build_index.py` schreibt standardmäßig nur separate Testindizes. Eine Übernahme in die produktiven Verzeichnisse erfolgt erst mit `--target promote`; dabei wird der vorherige Diagnoseindex gesichert.
+## Wissen und Agent
+
+- Diagnoseindex: 634 freigegebene Chunks aus `knowledge/curated/`, Batch 02 und Batch 03.
+- Agent-Pattern-Index: 205 optionale Patterns aus Batch 04.
+- Evaluationen: 79 getrennte Fälle, die niemals indexiert werden.
+- Agentenaktionen: `ASK`, `CLARIFY`, `RETRIEVE`, `ANALYZE`, `STOP`.
+- Werkzeuge: `extract_process_state`, `search_diagnostic_knowledge`, `evaluate_readiness_and_next_action`.
+
+Sicherheitsregeln, Budgets, No-Repeat und Schleifenabbruch hängen nicht von semantischem Retrieval ab. RAG-Evidenz bleibt getrennt von Nutzerfakten.
+
+Die zentralen Demoheuristiken bevorzugen null bis zwei sichtbare Rückfragen, erlauben drei nur in komplexen Fällen und begrenzen die sichtbare Zahl technisch auf vier. Agenten- und Werkzeugrunden sind ebenfalls begrenzt. Diese Werte müssen anhand echter Interviews kalibriert werden.
 
 ## Demo-Routen
 
@@ -60,7 +78,11 @@ http://127.0.0.1:8000/demo/etsy-3d-print
 http://127.0.0.1:8000/demo/carpet-cleaning
 ```
 
-Die Demos nutzen dieselbe Analyse- und Ergebnispipeline wie die normale Reise. Fehlende Angaben bleiben als Unsicherheit sichtbar.
+Die Demos nutzen dieselbe Analyse- und Ergebnispipeline wie die normale Reise. Fehlende Angaben bleiben Unsicherheiten.
+
+## PDF und Kontakt
+
+Die kundenverständliche Druckansicht ist im Normalfall auf drei A4-Seiten strukturiert und wird über den Browser-Druckdialog (`window.print()`) als PDF gespeichert. Interne IDs, Prompts, Modellnamen, Logs, Scores und fremde Unternehmensdaten werden nicht ausgegeben. Der Kontakt zu Derya erfolgt über einen Mailto-Link; die gespeicherte PDF muss anschließend selbst angehängt werden.
 
 ## Tests
 
@@ -68,6 +90,4 @@ Die Demos nutzen dieselbe Analyse- und Ergebnispipeline wie die normale Reise. F
 pytest -q
 ```
 
-OpenAI- und Embedding-Aufrufe werden in den automatisierten Tests gemockt. PostgreSQL-spezifische Regeln laufen gegen die in `TEST_DATABASE_URL` konfigurierte Testdatenbank.
-
-Die erste Demo nutzt zentral konfigurierte Interviewheuristiken: normalerweise zwei bis drei und maximal vier sichtbare Rückfragen sowie begrenzte Agenten- und Werkzeugrunden. Diese Werte müssen nach echten Interviews kalibriert werden.
+OpenAI- und Embedding-Aufrufe werden in automatisierten Tests gemockt. PostgreSQL-spezifische Prüfungen verwenden die in `TEST_DATABASE_URL` konfigurierte Testdatenbank.

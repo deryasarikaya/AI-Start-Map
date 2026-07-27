@@ -1,113 +1,87 @@
 # AI Start Map V2 – sichtbare Nutzerreise
 
-_Stand: 2026-07-22_
-
-## Bestehender Ausgangspunkt
-
-Das Repository enthält einen funktionierenden FastAPI-/Jinja2-Fluss mit PostgreSQL-Persistenz, fünf Tabellen, strukturierten OpenAI-Ausgaben, FAISS-RAG, drei Demo-Routen und automatisierten Tests. Der bisher sichtbare Ablauf besteht aus Landingpage, zwei Einstiegsfragen, Prozessvorschlägen, sieben Pflichtfragen, bis zu drei gleichzeitig sichtbaren Rückfragen, Analyse-Ladeansicht und Ergebnis mit drei Chancen sowie Blueprint.
-
-Weiterverwendet werden die bestehenden Routenfamilien für Start, Interview, Prozessoptionen, Prozessdetails, Rückfragen, Analyse-Status, Analyse und Ergebnis sowie `/demo/{demo_slug}`. Die sichtbaren Seiten und einzelne Handler werden innerhalb dieser Architektur neu zugeschnitten.
+_Stand: 26.07.2026_
 
 ## Zielreise
 
 ```text
 Landingpage
-→ freie Beschreibung per Sprache oder Text
-→ erkannte Prozessoptionen
-→ Auswahl eines Ablaufs
-→ strukturierte Zusammenfassung und kontrolliertes Ist-Diagramm
-→ Bestätigung oder Korrektur
-→ höchstens vier dynamische Rückfragen, einzeln angezeigt
-→ sichtbarer Analyse- und Fehlerzustand
-→ priorisiertes Ergebnis mit Ist- und nächstem Soll-Ablauf
-→ erster Schritt / Druck-PDF / weiterer Ablauf / Kontakt
+→ freie Erzählung per Sprache oder Text
+→ automatische Prozesserkennung
+→ einen von höchstens drei Abläufen auswählen
+→ kurze Zusammenfassung bestätigen oder korrigieren
+→ nur entscheidungsrelevante Rückfrage(n)
+→ sichtbare Verarbeitung
+→ Kernoutput
+→ optional Startplan, Details, PDF, weiterer Ablauf oder Kontakt
 ```
 
-Die interne numerische Session-ID wird nie als Seiteninhalt gezeigt. Bestehende Angaben bleiben bei Analysefehlern erhalten. Mehrfaches Absenden wird in Oberfläche und Backend begrenzt.
+Die Fortschrittsanzeige hat überall drei Zustände: `Erzählen → Verstehen → Ergebnis`. Rückfragen gehören zu „Verstehen“. Die interne numerische Session-ID erscheint weder in URLs der öffentlichen Reise noch im Seiteninhalt.
 
 ## Minimal-Change-Plan
 
-1. Vorhandene FastAPI-Routen und Tabellen weiterverwenden; keine Migration und keine neue Produktionsabhängigkeit.
-2. Bestehende Interview-Datensätze für freie Beschreibung, strukturierte Prozessdaten, Korrekturen und dynamische Rückfragen verwenden.
-3. Strukturierte Schemas nur um die für Darstellung und Priorisierung nötigen Felder erweitern; Fakten, Ableitungen, Unsicherheiten und Empfehlungen getrennt halten.
-4. Templates und das zentrale Stylesheet mobile-first neu gestalten; gemeinsame kleine JavaScript-Helfer für Sprache, Diagramme und Submit-Schutz ergänzen.
-5. Ergebnisse in den vorhandenen JSONB-Feldern speichern und für Webansicht sowie Druckansicht normalisieren.
-6. Bestehende Demo- und Analyse-Endpunkte erhalten; die sichtbare Reise ohne feste Sieben-Fragen-Seite führen.
-7. Erst nach bestandenen Tests und Startprüfung die öffentliche README auf den tatsächlich funktionierenden Stand bringen.
+Die vorhandenen FastAPI-Routen, fünf PostgreSQL-Tabellen, JSONB-Ergebnisfelder, Structured Outputs, RAG-Services und signierten Sitzungscookies bleiben erhalten. Es ist keine Migration erforderlich. Die sichtbaren Templates, zentrale Styles, Analysefelder und Agentenheuristiken wurden innerhalb dieser Architektur angepasst.
 
-## Seiten und Verhalten
+## Landingpage
 
-### Landingpage
+Die Seite besteht aus fünf scanbaren Bereichen: Hero, Wiedererkennung, drei Schritte, Abgrenzung zu allgemeiner KI und Schluss-CTA. Der Hero ist die stärkste visuelle Ebene; der folgende Abschnitt wird bereits am unteren Viewportrand angedeutet. Das Versprechen lautet: Alltag erzählen, eigentliches Problem verstehen, ersten Schritt erkennen und konkrete KI-Unterstützung sehen.
 
-Lange, klar gegliederte Startseite mit dem freigegebenen Hero, Chaos-zu-Klarheit-Visual, vier Alltagssituationen, psychologischer Entlastung, drei Funktionsschritten, Chatbot-Abgrenzung, vier möglichen Branchenbeispielen, Vertrauensaussagen und zwei Start-CTAs.
+## Erzählen und Processing
 
-### Freie Beschreibung
+Browser-Spracherkennung (`SpeechRecognition`/`webkitSpeechRecognition`) nutzt Deutsch als Standardsprache. Das Transkript bleibt editierbar und ein großes Textfeld funktioniert immer als Fallback. Beim Absenden werden Schaltflächen sofort deaktiviert und der gemeinsame Processing-Layer angezeigt.
 
-Ein großes editierbares Textfeld ist die Datenquelle. Browser-Spracherkennung (`SpeechRecognition` oder `webkitSpeechRecognition`) ergänzt es mit Deutsch als Standardsprache. Sichtbare Zustände: `idle`, `recording`, `processing`, `done`, `error`. Wenn die API fehlt oder eine Berechtigung scheitert, bleibt die Texteingabe vollständig bedienbar. Vor der Eingabe steht der Hinweis, keine vollständigen Namen oder vertraulichen Kundendaten zu nennen.
+Nach der Erzählung lädt eine automatische Verarbeitungsansicht die Prozesserkennung ohne weitere Schaltfläche. Bei der finalen Analyse fragt die Seite den echten Serverstatus ab und leitet nach Abschluss automatisch zum Ergebnis weiter. Es gibt keine künstlichen Prozentangaben. Fehler erhalten die Eingaben und bieten Retry beziehungsweise Rückkehr zur Korrektur.
 
-### Prozesswahl und Verständnis
+Ein späterer `MediaRecorder`- und Transkriptionsweg ist nicht umgesetzt und bleibt eine mögliche Erweiterung.
 
-Die KI erzeugt bis zu drei konkrete Optionen mit Start, Ende und Begründung. Nach Auswahl zeigt die App einen aus strukturierten Daten gebildeten Ist-Ablauf mit fünf bis sieben Hauptschritten, bestätigten Fakten, schwierigen Stellen und offenen Punkten. Nutzer können Titel und Schritte bearbeiten, Schritte ergänzen und eine freie Korrektur sprechen oder schreiben. Empfehlungen erscheinen hier noch nicht.
+## Prozesswahl und Bestätigung
 
-### Diagramme
+Die App zeigt höchstens drei Prozesse und markiert die wahrscheinlich relevanteste Option. Jede Karte enthält standardmäßig nur Name, kurzen Problemsatz und die Hauptaktion. Start und Ende sind unter „Details anzeigen“ eingeklappt.
 
-Das Backend liefert ausschließlich validierte strukturierte Prozessdaten. JavaScript kürzt und bereinigt Labels und erzeugt daraus kontrolliert `flowchart TD`; Modell-Ausgaben werden nie als Mermaid-Quelltext übernommen. Mermaid läuft im strikten Sicherheitsmodus. Eine vollständige vertikale Listenansicht ist bereits im HTML vorhanden und bleibt bei Lade- oder Renderfehlern sichtbar.
+Die Bestätigung zeigt höchstens fünf kurze Ist-Schritte als responsive vertikale HTML-/CSS-Prozessleiste. Der Nutzer wählt „Ja, passt“ oder öffnet „Etwas stimmt nicht“. Erst dann erscheinen Sprach-/Textkorrektur und einzelne editierbare Schritte. Mermaid wird in der sichtbaren Nutzerreise und im Bericht nicht mehr verwendet; Lesbarkeit und sichere Zeilenumbrüche haben Vorrang.
 
-### Rückfragen
+## Rückfragen und Agent
 
-Die KI erzeugt meist zwei bis drei, höchstens vier konkrete Fragen. Die Oberfläche zeigt nur die erste noch unbeantwortete Frage. Nach jeder Antwort folgt ein kurzer Verarbeitungszustand; danach erscheint die nächste Frage oder direkt die Analyse. Sprache und Text sind möglich, ebenso „Weiß ich gerade nicht“. Fehlende Angaben bleiben als Unsicherheit erhalten.
+Der Agent darf `ASK`, `CLARIFY`, `RETRIEVE`, `ANALYZE` oder `STOP` wählen. Eine Frage ist nur zulässig, wenn sie Kernproblem, ersten Schritt, konkrete KI-Hilfe, Wochen-Test, spätere Automatisierung, eine zwingende Freigabe, eine kritische Voraussetzung oder die Entscheidung über den aktuellen KI-Einsatz ändern kann.
 
-Die nächste Aktion wird durch einen begrenzten Diagnostic Interview Agent als `ASK`, `CLARIFY`, `RETRIEVE`, `ANALYZE` oder `STOP` bestimmt. Harte Grenzen, No-Repeat, Schutz bestätigter Fakten und Schleifenabbruch sind deterministisch. RAG-Evidenz bleibt vom Nutzer-State getrennt. Die Demoheuristiken stehen zentral in `app/agent_config.py` und müssen anhand echter Interviews kalibriert werden.
+- Null Rückfragen sind ausdrücklich möglich.
+- Normal sind null bis zwei Fragen.
+- Drei Fragen sind komplexen Fällen vorbehalten.
+- Vier bleiben die technische sichtbare Obergrenze.
+- Beantwortete, bestätigte, korrigierte, aus der Erzählung bekannte und bewusst übersprungene Informationen werden nicht erneut gefragt.
+- „Das habe ich doch schon gesagt“ führt zur erneuten State-Prüfung, nicht zur Rechtfertigung oder Wiederholung.
+- „Weiß ich nicht“ bleibt als Unsicherheit erhalten.
 
-### Ergebnis und erster Schritt
+Die zentralen, später zu kalibrierenden Heuristiken liegen ausschließlich in `app/agent_config.py`. Agenten- und Tool-Runden bleiben begrenzt. Nutzerfakten, Extraktionen, Ableitungen, RAG-Evidenz, Widersprüche und Unsicherheiten bleiben technisch getrennt.
 
-Die Reihenfolge ist: kurze Einordnung, größter Engpass mit Symptom/Ursache/Auswirkung, priorisierter Startpunkt, Mini-Test, bestätigter Ist-Ablauf, nächster realistischer Soll-Ablauf, zwei kleinere Alternativen, Voraussetzungen und echte offene Punkte. Der Blueprint für Rang 1 wird als kompakter Umsetzungsplan auf derselben Seite aufklappbar dargestellt.
+## Kernoutput
 
-### Druck/PDF und Kontakt
+Der erste Ergebnisbildschirm folgt verbindlich dieser Reihenfolge:
 
-Eine eigene druckoptimierte Kundenansicht enthält Branding, Datum, Derya Sarikaya, `deryaxsarikaya@gmail.com`, alle freigegebenen Analysebereiche und robuste Diagramm-Fallbacks. Der Nutzer öffnet mit `window.print()` den Browser-Druckdialog und speichert die Ansicht dort als PDF. Interne IDs, Wissensquellen, Prompts, Modellnamen, Logs und Scores werden nicht ausgegeben. Kontakt erfolgt ausschließlich über den freigegebenen `mailto:`-Link; die Seite weist korrekt darauf hin, die gespeicherte PDF anschließend selbst anzuhängen.
+1. Dein eigentliches Problem.
+2. Das solltest du zuerst ändern.
+3. So kann KI dir konkret helfen: Eingabe, KI-Aufgabe, Ergebnis und menschliche Kontrolle.
+4. Das kannst du diese Woche testen: höchstens drei Schritte und ein beobachtbares Erfolgskriterium.
+5. Später kannst du automatisieren: genau ein realistischer Ausbau nach erfüllter Voraussetzung.
 
-## Mobile und Browsergrenzen
+Ist KI heute noch nicht sinnvoll, sagt das Ergebnis ausdrücklich, dass KI noch nicht der erste Schritt ist, und nennt die Voraussetzung für eine spätere konkrete Unterstützung. Tieferer Diagnosekontext, heutiger Ablauf, Unsicherheiten und spätere Möglichkeiten sind standardmäßig geschlossen.
 
-Die Layouts starten einspaltig, Buttons sind mindestens 48 Pixel hoch, Diagramme verlaufen vertikal und Tabellen werden nicht verwendet. Desktop-Erweiterungen setzen erst ab größeren Viewports ein. CSS wird bei schmalen Viewports und die HTML-Struktur mit automatisierten Tests geprüft.
+## Startplan, PDF und Kontakt
 
-Browser-Spracherkennung ist keine einheitlich unterstützte Webplattform-Funktion. Chromium-basierte Browser bieten sie häufig an; Firefox und manche Safari-/iOS-Versionen können sie nicht oder nur eingeschränkt bereitstellen. Die App erkennt das zur Laufzeit und zeigt dann die Texteingabe ohne Fehler. Ein späterer `MediaRecorder`-Upload mit serverseitiger Transkription kann an dieselbe UI-Zustandslogik angeschlossen werden; Upload-Endpunkt, Dateigrenzen, Einwilligung, Löschkonzept und Transkriptionsanbieter sind bewusst noch offen.
+„Zeig mir, wie ich anfangen kann“ öffnet drei bis fünf Schritte, notwendige Dinge, Erfolgskriterium und menschliche Entscheidungen. Preise, Verträge, Zahlungen, Qualität, Ausnahmen und unklare Zuordnungen bleiben beim Menschen.
 
-## Datenbankentscheidung
+Die Druckansicht besteht im Normalfall aus genau drei A4-Seiten:
 
-Es ist keine Migration erforderlich. Die fünf vorhandenen Tabellen decken Sitzung, Fragen/Antworten, Prozessoptionen und Ergebnis ab. Variable, nicht separat verwaltete Darstellungsdaten werden in den vorhandenen JSONB-Ergebnisfeldern gespeichert. Es werden keine Zukunftsfelder oder Account-Funktionen ergänzt.
+1. Kernproblem, erster Schritt, konkrete KI-Hilfe und Wochen-Test.
+2. Heutiger Ablauf, schwierige Stellen und kurze Begründung.
+3. Startplan, Voraussetzungen, menschliche Entscheidungen, Erfolgskriterium, spätere Automatisierung und Kontakt.
 
-## Wissens- und Agentenfluss
+Die PDF wird über `window.print()` gespeichert. Der Mailto-Link behauptet nicht, die PDF automatisch anzuhängen.
 
-Der Diagnoseindex enthält 634 Chunks aus dem kuratierten Bestand sowie Batch 02 und Batch 03. Batch 04 wird getrennt verwendet: sicherheitskritische Regeln liegen in Code und Prompt, 205 optionale Patterns liegen in einem separaten Index, das State-Schema und die Forschungsdokumente bleiben Dokumentation und 40 Evaluationen bleiben außerhalb jedes Indexes. Die Analyse erhält nur bestätigte Nutzerfakten, getrennte fachliche Ableitungen und offene Unsicherheiten; Retrieval-Inhalte werden niemals als Nutzerfakten gespeichert.
+## Daten- und Wissensgrenzen
 
-## Geänderte Dateien
+Der Diagnoseindex mit 634 Chunks und der Agent-Pattern-Index mit 205 Patterns bleiben getrennt. Alle 79 Evaluationen bleiben außerhalb jedes Indexes. RAG-Evidenz ist nur Vergleichswissen und wird niemals als Nutzerfakt gespeichert oder sichtbar ausgegeben. In dieser Überarbeitung wurden weder Research-Batches noch Indizes neu gebaut.
 
-### Anwendung
+## Abnahme
 
-- `app/routes.py`: öffentliche cookie-basierte Reise ohne fortlaufende Session-ID in der URL, strukturierte Zusammenfassung, einzelne Rückfragen, Ergebnisnormalisierung, Druckansicht und weiterer Ablauf.
-- `app/schemas.py`: validierte Prozesszusammenfassung, maximal vier eindeutige Rückfragen und zusätzliche getrennte Ergebnisfelder.
-- `app/openai_service.py`: strukturierte Rekonstruktion vor den Rückfragen sowie Diagnose- und Reifegradregeln für die drei Startpunkte.
-- `app/static/app.js`: Submit-Schutz, Spracheingabezustände und Schrittbearbeitung.
-- `app/static/diagrams.js`: kontrollierte vertikale Mermaid-Erzeugung aus strukturierten Daten mit striktem Sicherheitsmodus.
-- `app/static/styles.css`: freigegebenes Designsystem, mobile-first Layout, große Touch-Flächen und Druckregeln.
-- `app/templates/*.html`: vollständige sichtbare Reise; neu ist `report.html`.
-- `.env.example`: optionaler `SESSION_SIGNING_KEY` für über Neustarts stabile signierte Sitzungscookies.
-
-### Tests und Dokumentation
-
-- `tests/test_interview_flow.py`, `tests/test_analysis_flow.py`, `tests/test_quality_pass.py`: bestehende Prüfungen auf die neue sichtbare Reise abgestimmt.
-- `tests/test_ux_journey.py`: vollständiger öffentlicher Ablauf, Spracheingabe-Fallback, sichere Diagramme, Ergebnis, Bericht, Session-Schutz und responsive Grundregeln.
-- `AGENTS.md`, `TODO.md`, `UX_FLOW.md`, `README.md`: Produktregeln, Umsetzungsstand, technische Entscheidungen und öffentliche Projektübersicht.
-
-## Ausgeführte Prüfungen
-
-- `pytest -q`: 69 Tests bestanden.
-- 40 von 40 Batch-04-Aktionsorakeln bestanden; alle 79 Evaluationen wurden als nicht indexierbar verifiziert.
-- Diagnoseindex: 634 Chunks; Agent-Pattern-Index: 205 Patterns; alter 111er-Index gesichert.
-- `alembic upgrade head`: erfolgreich; keine neue Migration und keine Schemaänderung.
-- Python-Kompilierung der geänderten Module: erfolgreich.
-- Lokaler Uvicorn-Start und HTTP-Aufruf der Landingpage: Status 200, neuer Hero vorhanden.
-- Mobile Regeln automatisiert geprüft: Breakpoint, fehlender horizontaler Seitenlauf, vertikale Karten/Diagramme, große Buttons und keine Tabellen.
-
-Eine echte visuelle Browserprüfung auf emulierten Android-/iPhone-Viewports konnte in dieser Arbeitsumgebung nicht ausgeführt werden, weil die bereitgestellte Browser-Steuerung keine lokale Node-Laufzeit starten konnte. Das ist keine behauptete Gerätefreigabe; vor Produktivfreigabe bleibt eine manuelle Prüfung in Chrome/Android und Safari/iPhone sinnvoll.
+Automatisiert geprüft werden Kernoutput, Agentenlimits, Null-Rückfragen, No-Repeat, Schuhmacher, Massagesalon, Betrieb ohne digitale Grundlage, menschliche Preis-/Terminfreigabe, Processing-Verträge, responsive CSS-Grundregeln, drei Berichtseiten und das Fehlen interner IDs. Eine echte Gerätefreigabe bleibt erst nach visueller Prüfung in Chrome, Android und iPhone/Safari vollständig.

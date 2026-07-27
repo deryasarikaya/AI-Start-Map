@@ -1,48 +1,55 @@
 {% extends "base.html" %}
 {% block title %}Ablauf prüfen · AI Start Map{% endblock %}
 {% block content %}
-<nav class="journey-progress" aria-label="Fortschritt"><span class="done">Erzählt ✓</span><span class="current">Ablauf verstanden ●</span><span>Details klären ○</span><span>Ergebnis ○</span></nav>
-<section class="content-intro">
-    <p class="section-kicker">Dein heutiger Ablauf</p>
-    <h1 class="page-title">So haben wir deinen Ablauf verstanden</h1>
-    <p class="page-description">Schau kurz drüber. Du kannst alles ändern oder ergänzen, bevor wir weitermachen.</p>
+<nav class="journey-progress" aria-label="Fortschritt"><span class="done">Erzählen ✓</span><span class="current">Verstehen ●</span><span>Ergebnis ○</span></nav>
+<section class="content-intro compact-intro">
+    <p class="section-kicker">SO LÄUFT ES HEUTE</p>
+    <h1 class="page-title">Haben wir deinen Ablauf ungefähr richtig verstanden?</h1>
+    <p class="page-description">Es geht nur um die grobe Realität. Details klären wir nur, wenn sie deine Empfehlung verändern.</p>
 </section>
 
 {% if error_message %}<div class="error-message" role="alert">{{ error_message }}</div>{% endif %}
-<form class="summary-form" action="{{ url_for('save_process_details_public') }}" method="post" data-disable-on-submit data-submitting-label="Danke – wir ordnen das gerade ein …" data-step-editor>
+<form class="summary-form compact-summary" action="{{ url_for('save_process_details_public') }}" method="post" data-disable-on-submit data-submitting-label="Wir prüfen den nächsten Schritt …" data-processing-title="Wir prüfen, ob noch etwas Entscheidendes fehlt." data-processing-copy="Danach folgt höchstens eine relevante Rückfrage oder direkt dein Ergebnis." data-step-editor>
     <input type="hidden" name="summary_confirmed" value="yes">
-    <section class="summary-card">
-        <label for="process_title">Name des Ablaufs</label>
-        <input id="process_title" name="process_title" value="{{ process_title }}" required>
-        <div class="boundary-grid"><div><label for="start_event">Start</label><input id="start_event" name="start_event" value="{{ start_event }}" required></div><div><label for="end_event">Ende</label><input id="end_event" name="end_event" value="{{ end_event }}" required></div></div>
+    <input type="hidden" name="process_title" value="{{ process_title }}">
+    <input type="hidden" name="start_event" value="{{ start_event }}">
+    <input type="hidden" name="end_event" value="{{ end_event }}">
+
+    <section class="process-summary-panel" aria-labelledby="today-title">
+        <div class="process-summary-heading">
+            <div><p class="section-kicker">DEIN ABLAUF</p><h2 id="today-title">{{ process_title }}</h2></div>
+            <span>{{ steps|length }} Schritte</span>
+        </div>
+        <ol class="process-strip">
+            {% for step in steps %}
+            <li class="{% if loop.index0 in problem_step_indexes %}problem{% endif %}"><span>{{ loop.index }}</span><p>{{ step }}</p></li>
+            {% endfor %}
+        </ol>
     </section>
 
-    <section class="diagram-card process-diagram" data-problem-indexes="{{ problem_step_indexes|tojson|forceescape }}">
-        <div class="section-heading"><div><p class="section-kicker">Ist-Ablauf</p><h2>Schritt für Schritt</h2></div><span class="diagram-legend"><i></i> schwierige Stelle</span></div>
-        <script type="application/json" data-diagram-steps>{{ steps|tojson }}</script>
-        <div class="mermaid-output" data-mermaid-output aria-label="Visualisierung des Ist-Ablaufs"></div>
-        <ol class="process-fallback" data-diagram-fallback>{% for step in steps %}<li class="{% if loop.index0 in problem_step_indexes %}problem{% endif %}">{{ step }}</li>{% endfor %}</ol>
-        <p class="diagram-note">Falls die grafische Ansicht nicht geladen werden kann, bleibt diese Liste vollständig sichtbar.</p>
-    </section>
-
-    <section class="summary-card edit-steps">
-        <div class="section-heading"><div><p class="section-kicker">Korrektur</p><h2>Die Schritte bearbeiten</h2></div><button class="secondary-button" type="button" data-add-step>Schritt ergänzen</button></div>
-        <div class="step-editor-list" data-step-list>{% for step in steps %}<div class="step-editor"><span>{{ loop.index }}</span><label class="visually-hidden" for="step-{{ loop.index }}">Schritt {{ loop.index }}</label><input id="step-{{ loop.index }}" name="steps" value="{{ step }}" required><button type="button" aria-label="Schritt entfernen" data-remove-step>×</button></div>{% endfor %}</div>
-    </section>
-
-    <div class="summary-columns">
-        <section class="summary-card"><p class="section-kicker">Bestätigte Angaben</p><ul>{% for fact in confirmed_facts %}<li>{{ fact }}</li>{% else %}<li>Deine freie Beschreibung ist die Grundlage dieser Zusammenfassung.</li>{% endfor %}</ul></section>
-        <section class="summary-card problem-summary"><p class="section-kicker">Erkannte schwierige Stellen</p><ul>{% for point in difficult_points %}<li>{{ point }}</li>{% else %}<li>Es wurde noch keine schwierige Stelle eindeutig zugeordnet.</li>{% endfor %}</ul></section>
-        <section class="summary-card"><p class="section-kicker">Offene Punkte</p><ul>{% for point in open_points %}<li>{{ point }}</li>{% else %}<li>Aus deiner bisherigen Beschreibung ergibt sich hier noch kein offener Punkt.</li>{% endfor %}</ul></section>
+    <div class="confirmation-choice">
+        <div><strong>Stimmt das ungefähr?</strong><span>Du bestätigst den heutigen Ablauf, noch keine Lösung.</span></div>
+        <div class="confirmation-actions">
+            <button class="primary-button" type="submit">Ja, passt</button>
+            <button class="secondary-button" type="button" data-show-correction>Etwas stimmt nicht</button>
+        </div>
     </div>
 
-    <section class="summary-card" data-voice-input data-voice-target="correction">
-        <label for="correction">Möchtest du noch etwas korrigieren oder ergänzen?</label>
-        <textarea id="correction" name="correction" rows="4" placeholder="Zum Beispiel: Vor der Bearbeitung ruft meistens noch jemand zurück."></textarea>
-        <div class="form-actions"><button class="secondary-button" type="button" data-voice-start>Freie Korrektur einsprechen</button><button class="text-button" type="button" data-voice-write>Freie Korrektur schreiben</button><button type="button" data-voice-stop hidden>Aufnahme beenden</button><button type="button" data-voice-retry hidden>Noch einmal versuchen</button></div>
-        <p data-voice-status aria-live="polite">Du kannst sprechen oder schreiben.</p><span data-voice-support></span>
+    <section class="correction-panel" data-correction-panel hidden>
+        <div class="section-heading"><div><p class="section-kicker">KORREKTUR</p><h2>Was sollen wir ändern?</h2></div></div>
+        <div class="step-editor-list" data-step-list>
+            {% for step in steps %}
+            <div class="step-editor"><span>{{ loop.index }}</span><label class="visually-hidden" for="step-{{ loop.index }}">Schritt {{ loop.index }}</label><input id="step-{{ loop.index }}" name="steps" value="{{ step }}" required><button type="button" aria-label="Schritt entfernen" data-remove-step>×</button></div>
+            {% endfor %}
+        </div>
+        <button class="text-button" type="button" data-add-step>Schritt ergänzen</button>
+        <div class="correction-entry" data-voice-input data-voice-target="correction">
+            <label for="correction">Oder beschreibe die Korrektur kurz</label>
+            <textarea id="correction" name="correction" rows="4" placeholder="Zum Beispiel: Vor der Bearbeitung rufen wir meistens noch einmal zurück."></textarea>
+            <div class="voice-actions"><button class="secondary-button" type="button" data-voice-start>Korrektur einsprechen</button><button class="text-button" type="button" data-voice-write>Schreiben</button><button class="secondary-button" type="button" data-voice-stop hidden>Aufnahme beenden</button><button class="secondary-button" type="button" data-voice-retry hidden>Noch einmal versuchen</button></div>
+            <p data-voice-status aria-live="polite">Du kannst sprechen oder schreiben.</p><span data-voice-support></span>
+        </div>
+        <button class="primary-button" type="submit">Korrektur übernehmen</button>
     </section>
-    <div class="confirmation-bar"><div><strong>Passt der Ablauf so zu deinem Alltag?</strong><span>Änderungen in den Feldern werden direkt übernommen.</span></div><button class="primary-button" type="submit">Ja, so läuft es</button></div>
 </form>
 {% endblock %}
-{% block scripts %}<script type="module" src="{{ url_for('static', path='/diagrams.js') }}"></script>{% endblock %}

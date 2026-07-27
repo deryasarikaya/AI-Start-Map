@@ -545,10 +545,10 @@ def test_shoe_repair_quality_flow_contains_only_grounded_current_steps(
         "mapping",
     ):
         assert forbidden not in lower_text
-    assert "Zentrale digitale Auftragskarte" in result_text
+    assert "Auftragsangaben, Zuordnung und Bearbeitungsstand" in result_text
     assert "Kunden nach Fertigmeldung benachrichtigen" in result_text
-    assert "einfache Digitalisierung" in result_text
-    assert "Automatisierung" in result_text
+    assert "So kann KI dir konkret helfen" in result_text
+    assert "Später kannst du automatisieren" in result_text
     assert database_session.scalar(
         select(func.count())
         .select_from(AutomationOpportunity)
@@ -783,9 +783,9 @@ def test_detail_help_and_back_navigation_are_visible(
     selection_page = client.get(f"/sessions/{session_id}/process-options")
     assert "Welchen Ablauf sollen wir zuerst genauer ansehen?" in selection_page.text
     details_page = client.get(f"/sessions/{session_id}/process-details")
-    assert "So haben wir deinen Ablauf verstanden" in details_page.text
-    assert "Die Schritte bearbeiten" in details_page.text
-    assert "Falls die grafische Ansicht nicht geladen werden kann" in details_page.text
+    assert "Haben wir deinen Ablauf ungefähr richtig verstanden?" in details_page.text
+    assert "Was sollen wir ändern?" in details_page.text
+    assert "data-diagram-steps" not in details_page.text
 
 
 def test_process_answers_can_be_edited_without_duplicate_questions(

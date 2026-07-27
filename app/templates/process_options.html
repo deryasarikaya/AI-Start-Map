@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Ablauf auswählen · AI Start Map{% endblock %}
 {% block content %}
-<nav class="journey-progress" aria-label="Fortschritt"><span class="done">Erzählt ✓</span><span class="current">Ablauf verstanden ●</span><span>Details klären ○</span><span>Ergebnis ○</span></nav>
+<nav class="journey-progress" aria-label="Fortschritt"><span class="done">Erzählen ✓</span><span class="current">Verstehen ●</span><span>Ergebnis ○</span></nav>
 <section class="content-intro">
     <p class="section-kicker">Ein Ablauf nach dem anderen</p>
     <h1 class="page-title">Welchen Ablauf sollen wir zuerst genauer ansehen?</h1>
@@ -12,16 +12,17 @@
 {% if error_message %}<div class="error-message" role="alert">{{ error_message }}</div>{% endif %}
 <div class="option-list">
     {% for option in options %}
-    <article class="process-card">
+    <article class="process-card {% if loop.first %}recommended-process{% endif %}">
         <div>
+            {% if loop.first %}<span class="recommendation-label">Wahrscheinlich am wichtigsten</span>{% endif %}
             <h2>{{ option.process_name }}</h2>
-            <dl class="boundary-list"><div><dt>Start</dt><dd>{{ option.start_event }}</dd></div><div><dt>Ende</dt><dd>{{ option.end_event }}</dd></div></dl>
-            {% if option.reason %}<p class="recognition-reason"><strong>Darum haben wir ihn erkannt:</strong> {{ option.reason }}</p>{% endif %}
+            {% if option.reason %}<p class="recognition-reason">{{ option.reason }}</p>{% endif %}
+            <details class="process-option-details"><summary>Details anzeigen</summary><dl class="boundary-list"><div><dt>Start</dt><dd>{{ option.start_event }}</dd></div><div><dt>Ende</dt><dd>{{ option.end_event }}</dd></div></dl></details>
         </div>
-        <form action="{{ url_for('select_process_public') }}" method="post" data-disable-on-submit data-submitting-label="Ablauf wird vorbereitet …">
+        <form action="{{ url_for('select_process_public') }}" method="post" data-disable-on-submit data-submitting-label="Ablauf wird vorbereitet …" data-processing-title="Wir ordnen diesen Ablauf." data-processing-copy="Wir fassen die wichtigsten Schritte kurz für dich zusammen.">
             <input type="hidden" name="process_id" value="{{ option.process_id }}">
             <input type="hidden" name="prepare_summary" value="yes">
-            <button class="primary-button" type="submit">Diesen Ablauf ansehen</button>
+            <button class="primary-button" type="submit">Diesen Ablauf nehmen</button>
         </form>
     </article>
     {% endfor %}

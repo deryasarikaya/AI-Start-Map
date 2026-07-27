@@ -143,7 +143,7 @@ class ProcessUnderstandingResult(StrictResultModel):
     process_name: NonEmptyText
     start_event: NonEmptyText
     end_event: NonEmptyText
-    as_is_steps: list[NonEmptyText] = Field(min_length=2, max_length=7)
+    as_is_steps: list[NonEmptyText] = Field(min_length=2, max_length=5)
     confirmed_facts: list[NonEmptyText] = Field(max_length=6)
     difficult_points: list[NonEmptyText] = Field(max_length=4)
     problem_step_indexes: list[int] = Field(default_factory=list, max_length=4)
@@ -215,13 +215,36 @@ class AutomationBlueprint(StrictResultModel):
     objective: NonEmptyText
     trigger: NonEmptyText
     required_inputs: list[NonEmptyText]
-    workflow_steps: list[NonEmptyText] = Field(min_length=1)
+    workflow_steps: list[NonEmptyText] = Field(min_length=3, max_length=5)
     human_review_point: NonEmptyText
     output: NonEmptyText
     exceptions: list[NonEmptyText]
 
 
+class OptionalAnalysisDetails(StrictResultModel):
+    current_difficulties: list[NonEmptyText] = Field(default_factory=list, max_length=4)
+    additional_prerequisites: list[NonEmptyText] = Field(
+        default_factory=list, max_length=4
+    )
+    later_possibilities: list[NonEmptyText] = Field(default_factory=list, max_length=3)
+
+
 class FinalAnalysisResult(StrictResultModel):
+    core_problem: NonEmptyText
+    first_change: NonEmptyText
+    ai_support: NonEmptyText
+    ai_input: NonEmptyText
+    ai_task: NonEmptyText
+    ai_output: NonEmptyText
+    human_check: NonEmptyText
+    weekly_test: list[NonEmptyText] = Field(min_length=1, max_length=3)
+    weekly_test_success: NonEmptyText
+    later_automation: NonEmptyText
+    why_this_first: NonEmptyText
+    required_prerequisites: list[NonEmptyText] = Field(min_length=1, max_length=4)
+    human_decisions: list[NonEmptyText] = Field(min_length=1, max_length=5)
+    current_process_summary: NonEmptyText
+    optional_details: OptionalAnalysisDetails
     process_summary: NonEmptyText
     as_is_steps: list[NonEmptyText] = Field(min_length=1)
     core_bottleneck: NonEmptyText
@@ -236,6 +259,100 @@ class FinalAnalysisResult(StrictResultModel):
         max_length=3,
     )
     blueprint: AutomationBlueprint
+
+    @model_validator(mode="before")
+    @classmethod
+    def fill_legacy_core_output(cls, value: Any) -> Any:
+        """Keep stored/test payloads readable while the API schema requires new fields."""
+
+        if not isinstance(value, Mapping):
+            return value
+        payload = dict(value)
+        opportunities = payload.get("opportunities")
+        primary_value = (
+            opportunities[0]
+            if isinstance(opportunities, list) and opportunities
+            else {}
+        )
+        primary = (
+            primary_value.model_dump()
+            if isinstance(primary_value, BaseModel)
+            else primary_value
+            if isinstance(primary_value, Mapping)
+            else {}
+        )
+        blueprint = payload.get("blueprint")
+        blueprint_data = (
+            blueprint.model_dump()
+            if isinstance(blueprint, BaseModel)
+            else blueprint
+            if isinstance(blueprint, Mapping)
+            else {}
+        )
+        process_summary = str(
+            payload.get("process_summary") or "Der Ablauf wurde geordnet."
+        )
+        core_problem = str(
+            payload.get("core_bottleneck")
+            or primary.get("problem")
+            or "Der aktuelle Ablauf ist nicht eindeutig verbunden."
+        )
+        first_change = str(
+            primary.get("recommendation")
+            or primary.get("first_step")
+            or "Die wichtigsten Angaben einheitlich erfassen."
+        )
+        human_check = str(
+            primary.get("human_approval")
+            or blueprint_data.get("human_review_point")
+            or "Ein Mensch prüft und bestätigt das Ergebnis."
+        )
+        mini_test = primary.get("mini_test")
+        if not isinstance(mini_test, list) or not mini_test:
+            mini_test = [str(primary.get("first_step") or first_change)]
+        required_inputs = blueprint_data.get("required_inputs")
+        input_text = (
+            ", ".join(str(item) for item in required_inputs)
+            if isinstance(required_inputs, list) and required_inputs
+            else "Die bereits vorhandenen Auftragsangaben"
+        )
+        payload.setdefault("core_problem", core_problem)
+        payload.setdefault("first_change", first_change)
+        payload.setdefault(
+            "ai_support",
+            "KI kann die eingegebenen Angaben ordnen und fehlende Angaben markieren.",
+        )
+        payload.setdefault("ai_input", input_text)
+        payload.setdefault("ai_task", "Die KI erkennt und ordnet die relevanten Angaben.")
+        payload.setdefault(
+            "ai_output", str(blueprint_data.get("output") or "Ein prüfbarer Entwurf")
+        )
+        payload.setdefault("human_check", human_check)
+        payload.setdefault("weekly_test", mini_test[:3])
+        payload.setdefault(
+            "weekly_test_success",
+            "Die neuen Vorgänge sind vollständig und ohne zusätzliche Suche auffindbar.",
+        )
+        payload.setdefault(
+            "later_automation",
+            "Nach einem erfolgreichen Test kann der nächste bestätigte Schritt vorbereitet werden.",
+        )
+        payload.setdefault("why_this_first", str(primary.get("benefit") or first_change))
+        payload.setdefault(
+            "required_prerequisites",
+            [str(primary.get("prerequisite") or "Einheitliche Angaben")],
+        )
+        payload.setdefault("human_decisions", [human_check])
+        payload.setdefault("current_process_summary", process_summary)
+        payload.setdefault(
+            "optional_details",
+            {
+                "current_difficulties": [],
+                "additional_prerequisites": [],
+                "later_possibilities": [],
+            },
+        )
+        return payload
 
     @model_validator(mode="after")
     def validate_unique_ranks(self) -> FinalAnalysisResult:
@@ -272,4 +389,11 @@ class FinalAnalysisResult(StrictResultModel):
             raise ValueError(
                 "Die Chancen dürfen nicht ausschließlich manuelle Hilfsmittel sein."
             )
+        generic_ai_phrases = (
+            "ki kann deinen prozess optimieren",
+            "ki kann den prozess optimieren",
+            "ki kann dabei helfen",
+        )
+        if any(phrase in self.ai_support.casefold() for phrase in generic_ai_phrases):
+            raise ValueError("Die KI-Unterstützung muss konkret beschrieben werden.")
         return self

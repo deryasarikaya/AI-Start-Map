@@ -151,10 +151,10 @@ def test_landing_voice_fallback_and_mobile_assets(client: TestClient) -> None:
     landing = client.get("/")
     assert landing.status_code == 200
     for text in (
-        "Was läuft in deinem Betrieb immer wieder unnötig kompliziert?",
-        "Kommt dir das bekannt vor?",
+        "Du weißt, dass es einfacher gehen müsste",
+        "Nachrichten kommen über WhatsApp, Telefon und E-Mail.",
         "Nicht noch mehr Ideen",
-        "Jetzt meinen Ablauf ansehen",
+        "Einfach erzählen",
     ):
         assert text in landing.text
     assert "RAG" not in landing.text
@@ -178,9 +178,9 @@ def test_landing_voice_fallback_and_mobile_assets(client: TestClient) -> None:
         assert state in script
 
     styles = client.get("/static/styles.css").text
-    assert "--green-dark: #2F4A3A" in styles
+    assert "--ink: #183b32" in styles
     assert "@media (max-width: 42.99rem)" in styles
-    assert "min-height: 3.25rem" in styles
+    assert "min-height: 3.35rem" in styles
     assert "overflow-x: hidden" in styles
     assert "table" not in styles
 
@@ -202,7 +202,7 @@ def test_complete_public_journey_and_customer_report(
     generated = client.post("/process-options/generate", follow_redirects=False)
     assert generated.headers["location"] == "/process-options"
     options_page = client.get("/process-options")
-    assert "Diesen Ablauf ansehen" in options_page.text
+    assert "Diesen Ablauf nehmen" in options_page.text
     assert "Einen anderen Ablauf beschreiben" in options_page.text
     assert "/sessions/" not in options_page.text
 
@@ -217,30 +217,17 @@ def test_complete_public_journey_and_customer_report(
     )
     assert selected.headers["location"] == "/process-details"
     summary = client.get("/process-details")
-    assert "So haben wir deinen Ablauf verstanden" in summary.text
-    assert "process-fallback" in summary.text
-    assert "data-diagram-steps" in summary.text
-    assert "Freie Korrektur einsprechen" in summary.text
-    assert "Damit solltest du anfangen" not in summary.text
+    assert "Haben wir deinen Ablauf ungefähr richtig verstanden?" in summary.text
+    assert "process-strip" in summary.text
+    assert "data-diagram-steps" not in summary.text
+    assert "Korrektur einsprechen" in summary.text
+    assert "Dein eigentliches Problem" not in summary.text
 
-    diagram_script = client.get("/static/diagrams.js").text
-    assert 'securityLevel: "strict"' in diagram_script
-    assert "flowchart TD" in diagram_script
-    assert "cleanLabel" in diagram_script
-
-    follow_ups = FollowUpResult(
-        questions=[
-            FollowUpQuestion(
-                question="Wie wird heute festgehalten, an welchem Ort ein Auftrag liegt?",
-                issue_type="missing",
-            ),
-            FollowUpQuestion(
-                question="Wer bestätigt heute, dass ein Auftrag fertig ist?",
-                issue_type="critical_unknown",
-            ),
-        ]
+    monkeypatch.setattr(
+        routes,
+        "generate_follow_up_questions",
+        lambda **_kwargs: FollowUpResult(questions=[]),
     )
-    monkeypatch.setattr(routes, "generate_follow_up_questions", lambda **_kwargs: follow_ups)
     confirmed = client.post(
         "/process-details",
         data={
@@ -253,28 +240,8 @@ def test_complete_public_journey_and_customer_report(
         },
         follow_redirects=False,
     )
-    assert confirmed.headers["location"] == "/follow-ups"
-
-    first_question = client.get("/follow-ups")
-    assert follow_ups.questions[0].question in first_question.text
-    assert follow_ups.questions[1].question not in first_question.text
-    assert "Antwort einsprechen" in first_question.text
-    assert "Weiß ich gerade nicht" in first_question.text
-    answered = client.post(
-        "/follow-ups",
-        data={"follow_up_1": "Der Ort steht heute auf dem Auftragszettel."},
-        follow_redirects=False,
-    )
-    assert answered.headers["location"] == "/follow-ups"
-    second_question = client.get("/follow-ups")
-    assert follow_ups.questions[1].question in second_question.text
-    finished = client.post(
-        "/follow-ups",
-        data={"unknown_follow_up_2": "yes"},
-        follow_redirects=False,
-    )
-    assert finished.headers["location"] == "/processing"
-    processing = client.get("/processing")
+    assert confirmed.headers["location"] == "/processing"
+    processing = client.get(confirmed.headers["location"])
     assert "Wir bringen deinen Ablauf gerade in ein klares Bild" in processing.text
     assert "Deine Angaben sind gespeichert" in processing.text
     assert "data-retry-analysis" in processing.text
@@ -285,15 +252,15 @@ def test_complete_public_journey_and_customer_report(
     assert analyzed.json()["redirect_url"] == "/results"
     results = client.get("/results")
     for text in (
-        "Jetzt ist klar, wo du am sinnvollsten anfangen kannst",
-        "Heute sichtbar",
-        "Ursache",
-        "Folge",
-        "Damit solltest du anfangen",
+        "Das ist jetzt dein sinnvollster Anfang",
+        "Dein eigentliches Problem",
+        "Das solltest du zuerst ändern",
+        "So kann KI dir konkret helfen",
+        "Menschliche Kontrolle",
+        "Das kannst du diese Woche testen",
+        "Später kannst du automatisieren",
         "So läuft es heute",
-        "So könnte der nächste, einfachere Ablauf aussehen",
-        "Zwei weitere Möglichkeiten",
-        "Das ist noch nicht ganz klar",
+        "Offene Unsicherheiten",
         "Ergebnis als PDF speichern",
         "Auswertung mit Derya besprechen",
     ):
@@ -307,10 +274,10 @@ def test_complete_public_journey_and_customer_report(
         "AI START MAP",
         "Derya Sarikaya",
         "deryaxsarikaya@gmail.com",
-        "Bestätigter Ist-Prozess",
-        "Größter Engpass",
-        "Hauptempfehlung",
-        "Nächster realistischer Soll-Prozess",
+        "DEIN EIGENTLICHES PROBLEM",
+        "SO KANN KI DIR KONKRET HELFEN",
+        "DEIN HEUTIGER ABLAUF",
+        "DEIN STARTPLAN",
         "Drucken / als PDF speichern",
     ):
         assert text in report.text

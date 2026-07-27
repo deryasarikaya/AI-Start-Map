@@ -21,6 +21,7 @@ from app.agent_service import (
     evaluate_readiness_and_next_action,
     extract_process_state,
     normalized_question_similarity,
+    question_can_change_core_output,
     search_diagnostic_knowledge,
 )
 from app.database import get_db_session
@@ -247,6 +248,36 @@ def _is_repeated_follow_up(
         normalized_question_similarity(question_text, existing.question_text) >= 0.8
         for existing in existing_questions
     )
+
+
+def _question_reason(question_text: str) -> str:
+    normalized = question_text.casefold()
+    reasons = (
+        (
+            ("regal", "ablage", "platz"),
+            "So erkennen wir, ob die Suche durch die Zuordnung zum Ablageplatz entsteht.",
+        ),
+        (
+            ("preis", "freigabe", "bestätig", "entscheid"),
+            "So bleibt klar, welche Entscheidung zwingend bei einem Menschen bleibt.",
+        ),
+        (
+            ("daten", "angaben", "erfasst", "notiert"),
+            "So erkennen wir, ob KI schon mit verlässlichen Angaben arbeiten kann.",
+        ),
+        (
+            ("wer ", "zuständig"),
+            "So erkennen wir, an welcher Übergabe der aktuelle Stand verloren geht.",
+        ),
+        (
+            ("ausnahme", "abweich", "anders"),
+            "So bleibt der erste Test auch bei den häufigsten Ausnahmen realistisch.",
+        ),
+    )
+    for markers, reason in reasons:
+        if any(marker in normalized for marker in markers):
+            return reason
+    return ""
 
 
 def _redirect(path: str) -> RedirectResponse:
@@ -892,7 +923,7 @@ def _process_form_context(
         ),
         "start_event": process.start_event,
         "end_event": process.end_event,
-        "steps": steps,
+        "steps": steps[:5],
         "confirmed_facts": facts,
         "difficult_points": difficult_points,
         "problem_step_indexes": problem_indexes,
@@ -1086,8 +1117,14 @@ def _continue_after_process_answers(
             follow_up.question
             for follow_up in result.questions
             if not _is_repeated_follow_up(follow_up.question, existing_follow_ups)
+            and question_can_change_core_output(follow_up.question, agent_state)
         ]
-        candidate_texts = candidate_texts[:remaining_budget]
+        preferred_limit = (
+            AGENT_HEURISTICS.complex_follow_up_maximum
+            if decision.next_action == "CLARIFY"
+            else AGENT_HEURISTICS.normal_follow_up_maximum
+        )
+        candidate_texts = candidate_texts[: min(remaining_budget, preferred_limit)]
         next_order = len(existing_follow_ups) + 1
         database_session.add_all(
             [
@@ -1141,6 +1178,11 @@ def _follow_up_context(
         "current_question": current_question,
         "is_last_question": unanswered_count == 1,
         "answered_count": len(questions) - unanswered_count,
+        "question_reason": (
+            _question_reason(current_question.question_text)
+            if current_question is not None
+            else ""
+        ),
     }
 
 
@@ -1272,6 +1314,23 @@ def _persist_final_analysis(
                     "symptom": result.bottleneck_symptom,
                     "cause": result.bottleneck_cause or result.core_bottleneck,
                     "effect": result.bottleneck_effect,
+                },
+                "core_output": {
+                    "core_problem": result.core_problem,
+                    "first_change": result.first_change,
+                    "ai_support": result.ai_support,
+                    "ai_input": result.ai_input,
+                    "ai_task": result.ai_task,
+                    "ai_output": result.ai_output,
+                    "human_check": result.human_check,
+                    "weekly_test": result.weekly_test,
+                    "weekly_test_success": result.weekly_test_success,
+                    "later_automation": result.later_automation,
+                    "why_this_first": result.why_this_first,
+                    "required_prerequisites": result.required_prerequisites,
+                    "human_decisions": result.human_decisions,
+                    "current_process_summary": result.current_process_summary,
+                    "optional_details": result.optional_details.model_dump(),
                 },
             },
         )
@@ -1478,22 +1537,13 @@ def show_results(
     blueprint = result_view["blueprint"]
     visible_result = {
         "process_name": process.process_name,
-        "process_summary": analysis.process_summary,
-        "as_is_steps": analysis.as_is_steps,
-        "core_bottleneck": analysis.core_bottleneck,
-        "uncertainties": analysis.uncertainties,
-        "opportunities": [
-            {
-                "title": opportunity.title,
-                "problem": opportunity.problem,
-                "recommendation": opportunity.recommendation,
-                "benefit": opportunity.benefit,
-                "human_approval": opportunity.human_approval,
-                "first_step": opportunity.first_step,
-            }
-            for opportunity in opportunities
-        ],
-        "blueprint": blueprint,
+        "result": result_view,
+        "stored_analysis": {
+            "process_summary": analysis.process_summary,
+            "as_is_steps": analysis.as_is_steps,
+            "core_bottleneck": analysis.core_bottleneck,
+            "uncertainties": analysis.uncertainties,
+        },
     }
     summary_start = analysis.process_summary.strip().casefold()
     process_name = process.process_name.strip().casefold()
@@ -1562,9 +1612,12 @@ def _result_view(
         uncertainties = [str(item) for item in uncertainty_data.get("items", [])]
         raw_bottleneck = uncertainty_data.get("bottleneck", {})
         bottleneck = raw_bottleneck if isinstance(raw_bottleneck, dict) else {}
+        raw_core_output = uncertainty_data.get("core_output", {})
+        core_output = raw_core_output if isinstance(raw_core_output, dict) else {}
     else:
         uncertainties = [str(item) for item in uncertainty_data]
         bottleneck = {}
+        core_output = {}
 
     opportunity_views: list[dict[str, object]] = []
     blueprint: dict[str, object] | None = None
@@ -1597,6 +1650,12 @@ def _result_view(
     if not to_be_steps and blueprint:
         to_be_steps = [str(item) for item in blueprint.get("workflow_steps", [])]
     first = opportunity_views[0]
+    blueprint_steps = (
+        [str(item) for item in blueprint.get("workflow_steps", [])]
+        if isinstance(blueprint, dict)
+        else []
+    )
+    primary_mini_test = [str(item) for item in first["mini_test"]][:3]
     return {
         "as_is_steps": as_is_steps,
         "problem_step_indexes": problem_indexes,
@@ -1609,6 +1668,31 @@ def _result_view(
         },
         "opportunities": opportunity_views,
         "blueprint": blueprint,
+        "core_problem": core_output.get("core_problem") or analysis.core_bottleneck,
+        "first_change": core_output.get("first_change") or first["recommendation"],
+        "ai_support": core_output.get("ai_support") or (
+            "KI kann eingegebene Angaben ordnen und fehlende Angaben markieren."
+        ),
+        "ai_input": core_output.get("ai_input") or "Vorhandene Auftragsangaben",
+        "ai_task": core_output.get("ai_task") or "Angaben erkennen und ordnen",
+        "ai_output": core_output.get("ai_output") or "Ein prüfbarer Entwurf",
+        "human_check": core_output.get("human_check") or first["human_approval"],
+        "weekly_test": core_output.get("weekly_test") or primary_mini_test,
+        "weekly_test_success": core_output.get("weekly_test_success") or (
+            "Neue Vorgänge sind vollständig und ohne zusätzliche Suche auffindbar."
+        ),
+        "later_automation": core_output.get("later_automation") or (
+            to_be_steps[-1] if to_be_steps else first["recommendation"]
+        ),
+        "why_this_first": core_output.get("why_this_first") or first["benefit"],
+        "required_prerequisites": core_output.get("required_prerequisites")
+        or [first["prerequisite"]],
+        "human_decisions": core_output.get("human_decisions")
+        or [first["human_approval"]],
+        "current_process_summary": core_output.get("current_process_summary")
+        or analysis.process_summary,
+        "optional_details": core_output.get("optional_details") or {},
+        "start_plan_steps": blueprint_steps or primary_mini_test,
     }
 
 

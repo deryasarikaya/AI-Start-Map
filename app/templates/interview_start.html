@@ -4,7 +4,7 @@
 
 {% block content %}
 <nav class="journey-progress" aria-label="Fortschritt">
-    <span class="current">Erzählt ●</span><span>Ablauf verstanden ○</span><span>Details klären ○</span><span>Ergebnis ○</span>
+    <span class="current">Erzählen ●</span><span>Verstehen ○</span><span>Ergebnis ○</span>
 </nav>
 <section class="content-intro narrow-intro">
     <p class="section-kicker">Du erzählst</p>
@@ -12,7 +12,7 @@
     <p class="page-description">Erzähl einfach, was dich Zeit kostet, immer wieder schiefläuft oder ständig an dir hängen bleibt.</p>
 </section>
 
-<form class="narration-form" action="{{ url_for('save_interview_public') }}" method="post" data-disable-on-submit data-submitting-label="Wir erkennen deine Abläufe …" data-voice-input data-voice-target="free_description">
+<form class="narration-form" action="{{ url_for('save_interview_public') }}" method="post" data-disable-on-submit data-submitting-label="Wir ordnen deine Erzählung …" data-processing-title="Wir ordnen deine Erzählung." data-processing-copy="Wir erkennen die wichtigsten Abläufe. Gleich geht es automatisch weiter." data-voice-input data-voice-target="free_description">
     {% if error_message %}<div class="error-message" role="alert">{{ error_message }}</div>{% endif %}
     <div class="privacy-banner">Bitte nenne keine vollständigen Namen oder vertraulichen Daten von Kunden und Mitarbeitenden.</div>
     <section class="voice-card" aria-labelledby="voice-title">
@@ -35,6 +35,6 @@
         <textarea id="free_description" name="free_description" rows="9" required placeholder="Meine Kunden schreiben mir über WhatsApp, rufen an oder kommen direkt vorbei. Ich weiß oft nicht mehr, wem ich schon geantwortet habe und welcher Auftrag gerade wo liegt.">{{ answers.get('problem_overview', '') }}</textarea>
         <div class="thought-prompts" aria-label="Gedankenstützen"><span>Woran verlierst du Zeit?</span><span>Wo musst du oft suchen oder nachfragen?</span><span>Was wird immer wieder vergessen?</span><span>Was bleibt ständig an dir hängen?</span></div>
     </div>
-    <div class="sticky-action"><button class="primary-button" type="submit">Weiter <span aria-hidden="true">→</span></button></div>
+    <div class="sticky-action"><button class="primary-button" type="submit">Erzählung übernehmen <span aria-hidden="true">→</span></button></div>
 </form>
 {% endblock %}

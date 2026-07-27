@@ -217,9 +217,11 @@ def generate_process_suggestions(
     return _parse_structured_output(
         system_prompt=(
             COMMON_GROUNDING_RULES
-            + "\n\nErzeuge ein bis drei konkrete End-to-End-Prozesse. Jeder hat "
+            + "\n\nErzeuge ein bis drei konkrete End-to-End-Prozesse und sortiere "
+            "den wahrscheinlich relevantesten zuerst. Jeder hat "
             "einen klaren Beginn und ein klares Ende. Allgemeine Kategorien wie "
             "Marketing, Organisation oder Kundenkommunikation sind unzulässig. "
+            "reason ist genau ein kurzer Satz zum erkennbaren Alltagsproblem. "
             "Empfehle in diesem Schritt noch keine Automatisierung."
         ),
         payload={
@@ -260,7 +262,8 @@ def generate_process_understanding(
         system_prompt=(
             COMMON_GROUNDING_RULES
             + "\n\nRekonstruiere ausschließlich aus den Nutzerangaben den heute "
-            "tatsächlich ausgeführten Ablauf. Erzeuge zwei bis sieben kurze, "
+            "tatsächlich ausgeführten Ablauf. Erzeuge möglichst vier bis fünf, "
+            "mindestens aber zwei und niemals mehr als fünf kurze, "
             "konkrete Prozessaktionen in zeitlicher Reihenfolge. as_is_steps darf "
             "nur Handlungen enthalten, niemals Empfehlungen, fehlende Angaben oder "
             "Formulierungen wie unbekannt. Trenne bestätigte Fakten, schwierige "
@@ -286,16 +289,23 @@ def generate_follow_up_questions(
     result = _parse_structured_output(
         system_prompt=(
             COMMON_GROUNDING_RULES
-            + "\n\nErzeuge null bis höchstens vier entscheidende Rückfragen zum "
-            "heutigen tatsächlichen Ablauf. Jede Rückfrage muss unmittelbar auf "
-            "einer belegten Nutzerangabe oder einer darin erkennbaren Lücke beruhen. "
+            + "\n\nErzeuge bevorzugt null, normalerweise höchstens zwei und nur bei "
+            "einem wirklich komplexen Widerspruch drei entscheidende Rückfragen zum "
+            "heutigen tatsächlichen Ablauf. Die technische Obergrenze ist vier. "
+            "Jede Rückfrage muss unmittelbar auf einer belegten Nutzerangabe oder "
+            "einer darin erkennbaren Lücke beruhen und mindestens eines dieser "
+            "Ergebnisfelder verändern können: core_problem, first_change, ai_support, "
+            "weekly_test, later_automation, zwingende menschliche Freigabe, kritische "
+            "Voraussetzung oder die Entscheidung, ob KI heute sinnvoll ist. "
             "Wiederhole keine beantwortete Frage und behandle je Frage genau ein "
-            "Thema. Schlage weder eine Lösung noch eine neue Geschäftsregel vor. "
+            "Thema. Frage nichts erneut, was in Ursprungserzählung, bestätigtem "
+            "Ablauf oder Korrektur bereits eindeutig steht. Fragen, die den Ablauf "
+            "nur ausführlicher machen, aber keine Entscheidung verändern, entfallen. "
+            "Schlage weder eine Lösung noch eine neue Geschäftsregel vor. "
             "Erfinde keine Gefahr, keine Kontrollmaßnahme und kein Sicherheitsrisiko. "
             "Setze keine Fotos, Identitätsprüfung, Software oder Automatisierung "
-            "voraus. Frage offen danach, was heute passiert. Meist sind zwei bis "
-            "drei Fragen ausreichend. Wenn die Informationen "
-            "ausreichen, gib eine leere Liste zurück."
+            "voraus. Frage offen danach, was heute passiert. Wenn die fünf Kernfelder "
+            "sicher erzeugt werden können, gib eine leere Liste zurück."
         ),
         payload={
             "A_USER_FACTS": {
@@ -331,8 +341,19 @@ def generate_final_analysis(
             "kennzeichne fehlende Details stattdessen als Unsicherheit. D. "
             "RECOMMENDATIONS gehören nur in Chancen und Blueprint.\n\n"
             "Rekonstruiere den Ist-Ablauf, benenne Symptom, Ursache und Auswirkung "
-            "des Kernengpasses getrennt und erzeuge exakt drei realistische "
-            "Startpunkte mit den "
+            "des Kernengpasses getrennt. Erzeuge zuerst den verbindlichen Kernoutput: "
+            "core_problem ist genau ein verständlicher Satz zum eigentlichen Problem; "
+            "first_change ist genau eine kleine, konkrete priorisierte Maßnahme; "
+            "ai_support beschreibt einen konkreten KI-Einsatz und wird zusätzlich in "
+            "ai_input, ai_task, ai_output und human_check zerlegt; weekly_test enthält "
+            "höchstens drei klar ausführbare Schritte für diese Woche und "
+            "weekly_test_success ein beobachtbares Erfolgskriterium; later_automation "
+            "nennt genau einen realistischen Ausbau nach erfüllter Voraussetzung. "
+            "Wenn KI heute noch nicht sinnvoll ist, sage ausdrücklich: ‚KI ist heute "
+            "noch nicht der erste Schritt.‘ und beschreibe, wobei sie nach einheitlicher "
+            "Datenerfassung konkret unterstützen kann. Keine generischen Aussagen wie "
+            "‚KI kann deinen Prozess optimieren‘. Erzeuge zusätzlich für die interne "
+            "Vertiefung exakt drei realistische Startpunkte mit den "
             "Rängen 1, 2 und 3. Keine generischen CRM- oder Chatbot-Empfehlungen, "
             "keine erfundenen Geld- oder Zeitwerte und keine erfundenen APIs. "
             "In process_summary und as_is_steps dürfen nur USER FACTS und logisch "
@@ -357,7 +378,12 @@ def generate_final_analysis(
             "Ergänzung und niemals ungefragt Pflicht oder Kernlösung. "
             "Medizinische, rechtliche, finanzielle, technische und kreative "
             "Entscheidungen dürfen nicht autonom automatisiert werden. Erzeuge "
-            "einen Blueprint ausschließlich für Chance 1. Prüfe vor der Ausgabe "
+            "einen Blueprint ausschließlich für Chance 1 mit drei bis fünf konkreten "
+            "Schritten. required_prerequisites und human_decisions enthalten nur "
+            "wirklich notwendige Grundlagen und menschliche Entscheidungen. "
+            "current_process_summary fasst den bestätigten heutigen Ablauf kurz "
+            "zusammen; optional_details bündelt nur vertiefende Informationen. "
+            "Prüfe vor der Ausgabe "
             "jedes sichtbare Feld erneut darauf, dass es nur den Nutzerprozess "
             "beschreibt und keinerlei interne Wissensreferenz enthält. Beginne die "
             "Zusammenfassung direkt mit dem Ablauf und wiederhole weder den Titel "

@@ -3,12 +3,10 @@
 {% block content %}
 <section class="processing-card compact-processing">
     <div class="processing-indicator" aria-hidden="true"><span></span><span></span><span></span></div>
-    <p class="section-kicker">Deine Erzählung ist angekommen</p>
-    <h1 class="page-title">Wir erkennen gerade die Abläufe dahinter</h1>
+    <p class="section-kicker">VERSTEHEN</p>
+    <h1 class="page-title">Wir erkennen die wichtigsten Abläufe.</h1>
     <p class="page-description">Gleich kannst du auswählen, welchen Ablauf wir zuerst genauer ansehen.</p>
-    <form id="generate-options" action="{{ url_for('generate_process_options_public') }}" method="post" data-disable-on-submit>
-        <button class="primary-button" type="submit">Abläufe jetzt erkennen</button>
-    </form>
+    <form id="generate-options" action="{{ url_for('generate_process_options_public') }}" method="post" aria-hidden="true"></form>
 </section>
 {% endblock %}
 {% block scripts %}<script>window.setTimeout(() => document.querySelector("#generate-options")?.requestSubmit(), 250);</script>{% endblock %}

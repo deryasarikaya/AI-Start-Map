@@ -367,6 +367,98 @@ def _answered_gaps(state: ProcessState) -> set[str]:
     }
 
 
+def _state_text(state: ProcessState) -> str:
+    records = [
+        *([state.selected_process] if state.selected_process else []),
+        *([state.process_start] if state.process_start else []),
+        *([state.process_end] if state.process_end else []),
+        *state.as_is_steps,
+        *state.actors,
+        *state.channels,
+        *state.tools,
+        *state.information_objects,
+        *state.status_transitions,
+        *state.exceptions,
+        *state.confirmed_user_facts,
+        *state.unconfirmed_extractions,
+        *state.pain_points,
+        *state.bottleneck_candidates,
+        *state.available_data,
+        *state.human_approvals,
+        *state.constraints,
+    ]
+    return " ".join(record.value for record in records).casefold()
+
+
+def question_can_change_core_output(question_text: str, state: ProcessState) -> bool:
+    """Reject already answered and purely descriptive questions deterministically."""
+
+    normalized = question_text.casefold()
+    previous_questions = [*state.answered_questions, *state.skipped_questions]
+    if any(
+        normalized_question_similarity(question_text, record.question_text) >= 0.72
+        for record in previous_questions
+    ):
+        return False
+    if any(
+        marker in normalized
+        for marker in (
+            "wie groß ist der laden",
+            "wie hoch ist der umsatz",
+            "welches budget",
+        )
+    ):
+        return False
+    state_text = _state_text(state)
+    if (
+        any(
+            marker in normalized
+            for marker in ("liegedauer", "wie lange", "stunden", "tage")
+        )
+        and "regal" in state_text
+        and any(marker in state_text for marker in ("such", "find", "zettel"))
+    ):
+        return False
+    if (
+        any(
+            marker in normalized
+            for marker in ("regalreihenfolge", "feste reihenfolge", "regalordnung")
+        )
+        and "regal" in state_text
+        and any(marker in state_text for marker in ("frei", "irgendwo", "beliebig"))
+    ):
+        return False
+    gap = _question_gap(question_text)
+    if gap != "other" and gap in _answered_gaps(state):
+        return False
+    known_topic_markers = (
+        (
+            ("kanal", "whatsapp", "telefon", "e-mail"),
+            ("whatsapp", "telefon", "e-mail"),
+        ),
+        (("regal", "ablage", "ort"), ("regal", "ablage", "regalplatz")),
+    )
+    if any(
+        any(marker in normalized for marker in question_markers)
+        and any(marker in state_text for marker in fact_markers)
+        for question_markers, fact_markers in known_topic_markers
+    ):
+        return False
+    known_gaps = {
+        "actors": bool(state.actors),
+        "channels": bool(state.channels),
+        "tools": bool(state.tools),
+        "frequency": state.frequency is not None,
+        "human_approvals": bool(state.human_approvals),
+        "available_data": bool(state.available_data),
+        "exceptions": bool(state.exceptions),
+        "process_start": state.process_start is not None,
+        "process_end": state.process_end is not None,
+        "as_is_steps": len(state.as_is_steps) >= 2,
+    }
+    return not known_gaps.get(gap, False)
+
+
 def evaluate_readiness_and_next_action(
     state: ProcessState,
     *,
@@ -391,6 +483,29 @@ def evaluate_readiness_and_next_action(
             remaining_uncertainties=remaining,
             analysis_allowed=state.process_start is not None and state.process_end is not None,
             stop_reason="user_requests_stop",
+        )
+    if any(
+        marker in message
+        for marker in (
+            "das habe ich doch schon gesagt",
+            "das hab ich doch schon gesagt",
+            "wie schon gesagt",
+        )
+    ):
+        core_ready = (
+            state.process_start is not None
+            and state.process_end is not None
+            and len(state.as_is_steps) >= 2
+        )
+        return NextActionDecision(
+            next_action="ANALYZE" if core_ready else "ASK",
+            reasoning=(
+                "Vorhandene Angaben werden erneut verwendet; die Frage wird nicht "
+                "wiederholt."
+            ),
+            remaining_uncertainties=remaining,
+            analysis_allowed=core_ready,
+            stop_reason="no_repeat_recheck" if core_ready else "",
         )
     if state.follow_up_count >= AGENT_HEURISTICS.maximum_visible_follow_ups:
         return NextActionDecision(
@@ -458,24 +573,70 @@ def evaluate_readiness_and_next_action(
                 remaining_uncertainties=remaining,
                 analysis_allowed=False,
             )
-    optional_gaps = (
-        ("actors", not state.actors),
-        ("status_transitions", not state.status_transitions),
-        ("human_approvals", not state.human_approvals),
-        ("available_data", not state.available_data),
-        ("exceptions", not state.exceptions),
+    state_text = _state_text(state)
+    high_stakes = any(
+        marker in state_text
+        for marker in (
+            "preis",
+            "angebot",
+            "vertrag",
+            "zahlung",
+            "bezahlen",
+            "freigabe",
+            "qualität",
+        )
     )
-    if state.follow_up_count < AGENT_HEURISTICS.normal_follow_up_maximum:
-        for gap, missing in optional_gaps:
-            if missing and gap not in answered:
-                return NextActionDecision(
-                    next_action="ASK",
-                    reasoning="Die Antwort kann Engpass oder Startpunkt noch verändern.",
-                    information_gap=gap,
-                    possible_next_question=templates.get(gap, ""),
-                    remaining_uncertainties=remaining,
-                    analysis_allowed=True,
-                )
+    if (
+        state.follow_up_count < AGENT_HEURISTICS.normal_follow_up_maximum
+        and high_stakes
+        and not state.human_approvals
+        and "human_approvals" not in answered
+    ):
+        return NextActionDecision(
+            next_action="ASK",
+            reasoning=(
+                "Die Antwort entscheidet, welche Freigabe zwingend beim Menschen "
+                "bleibt."
+            ),
+            information_gap="human_approvals",
+            possible_next_question=templates.get("human_approvals", ""),
+            remaining_uncertainties=remaining,
+            analysis_allowed=True,
+        )
+    if (
+        state.follow_up_count < AGENT_HEURISTICS.normal_follow_up_maximum
+        and state.digital_maturity is not None
+        and state.digital_maturity.value == "unknown"
+        and not state.available_data
+        and "available_data" not in answered
+    ):
+        return NextActionDecision(
+            next_action="ASK",
+            reasoning=(
+                "Die Antwort entscheidet, ob KI schon mit verlässlichen Angaben "
+                "arbeiten kann."
+            ),
+            information_gap="available_data",
+            possible_next_question=templates.get("available_data", ""),
+            remaining_uncertainties=remaining,
+            analysis_allowed=True,
+        )
+    if (
+        state.follow_up_count < AGENT_HEURISTICS.normal_follow_up_maximum
+        and not state.bottleneck_candidates
+        and "pain_points" not in answered
+    ):
+        return NextActionDecision(
+            next_action="ASK",
+            reasoning=(
+                "Die Antwort entscheidet, welches Problem im Sofortergebnis "
+                "priorisiert wird."
+            ),
+            information_gap="pain_points",
+            possible_next_question=templates.get("pain_points", ""),
+            remaining_uncertainties=remaining,
+            analysis_allowed=True,
+        )
     if not state.rag_evidence and state.bottleneck_candidates:
         return NextActionDecision(
             next_action="RETRIEVE",
