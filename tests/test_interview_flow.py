@@ -20,8 +20,8 @@ def test_landing_page_returns_200(client: TestClient) -> None:
     response = client.get("/")
 
     assert response.status_code == 200
-    assert "Einfach erzählen" in response.text
-    assert "Du weißt, dass es einfacher gehen müsste" in response.text
+    assert "Mein Problem erzählen" in response.text
+    assert "Dein Betrieb läuft. Aber vieles läuft nur" in response.text
     assert "business_context" not in response.text
 
 

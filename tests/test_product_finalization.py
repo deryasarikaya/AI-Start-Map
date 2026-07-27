@@ -237,8 +237,8 @@ def test_process_summary_and_report_use_safe_vertical_structures() -> None:
 
 def test_landing_processing_and_mobile_contract(client: TestClient) -> None:
     landing = client.get("/").text
-    assert "WENIGER CHAOS. EIN KLARER START." in landing
-    assert "Du weißt, dass es einfacher gehen müsste. Aber nicht, wo du anfangen sollst." in landing
+    assert "FÜR SELBSTSTÄNDIGE UND KLEINE BETRIEBE" in landing
+    assert "Dein Betrieb läuft. Aber vieles läuft nur, weil du ständig alles zusammenhältst." in landing
     assert landing.count('<section class="landing-section') <= 5
     base = (ROOT / "app/templates/base.html").read_text(encoding="utf-8")
     app_js = (ROOT / "app/static/app.js").read_text(encoding="utf-8")

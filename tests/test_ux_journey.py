@@ -151,10 +151,11 @@ def test_landing_voice_fallback_and_mobile_assets(client: TestClient) -> None:
     landing = client.get("/")
     assert landing.status_code == 200
     for text in (
-        "Du weißt, dass es einfacher gehen müsste",
+        "FÜR SELBSTSTÄNDIGE UND KLEINE BETRIEBE",
+        "Dein Betrieb läuft. Aber vieles läuft nur",
         "Nachrichten kommen über WhatsApp, Telefon und E-Mail.",
         "Nicht noch mehr Ideen",
-        "Einfach erzählen",
+        "Mein Problem erzählen",
     ):
         assert text in landing.text
     assert "RAG" not in landing.text
