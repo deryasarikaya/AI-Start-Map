@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import contextvars
 import json
+import logging
 import os
 import re
 from collections.abc import Sequence
 from pathlib import Path
+from time import perf_counter
 from typing import TypeVar
 
 from dotenv import load_dotenv
@@ -12,6 +15,7 @@ from openai import OpenAI, OpenAIError
 from pydantic import BaseModel, ValidationError
 
 from app.schemas import (
+    AS_IS_META_PATTERN,
     FinalAnalysisResult,
     FollowUpResult,
     ProcessBoundaryResult,
@@ -28,6 +32,98 @@ class AIServiceError(RuntimeError):
 
 
 StructuredResult = TypeVar("StructuredResult", bound=BaseModel)
+logger = logging.getLogger(__name__)
+OPENAI_REQUEST_TIMEOUT_SECONDS = 26.0
+OPENAI_RETRIEVAL_TIMEOUT_SECONDS = 6.0
+_openai_call_count: contextvars.ContextVar[int] = contextvars.ContextVar(
+    "openai_call_count",
+    default=0,
+)
+
+
+def reset_openai_call_count() -> None:
+    _openai_call_count.set(0)
+
+
+def get_openai_call_count() -> int:
+    return _openai_call_count.get()
+
+
+def _record_openai_call() -> int:
+    call_count = _openai_call_count.get() + 1
+    _openai_call_count.set(call_count)
+    return call_count
+
+
+def _validation_error_fields(error: ValidationError) -> list[str]:
+    return [
+        ".".join(str(part) for part in item.get("loc", ())) or "<root>"
+        for item in error.errors(include_input=False)
+    ]
+
+
+CUSTOMER_LANGUAGE_REPLACEMENTS = {
+    "intake-kit": "Erfassung",
+    "intake": "Aufnahme",
+    "audit-track": "Prüfübersicht",
+    "wip": "aktueller Arbeitsstand",
+    "mapping": "Zuordnung",
+    "lookup": "Suche",
+    "semi-automatisiert": "teilweise vorbereitet",
+    "formulardoppie": "doppelte Erfassung",
+    "nachschlageort": "gemeinsame Übersicht",
+    "übergabevermerkgabel": "Übergabevermerk",
+    "handschriftenkapazität": "Kapazität für handschriftliche Erfassung",
+}
+
+
+def _normalize_customer_language(value: object) -> object:
+    """Replace known internal jargon without changing factual content."""
+
+    if isinstance(value, str):
+        normalized = value
+        for term, replacement in CUSTOMER_LANGUAGE_REPLACEMENTS.items():
+            normalized = re.sub(
+                rf"\b{re.escape(term)}\b",
+                replacement,
+                normalized,
+                flags=re.IGNORECASE,
+            )
+        return normalized
+    if isinstance(value, list):
+        return [_normalize_customer_language(item) for item in value]
+    if isinstance(value, dict):
+        return {
+            key: _normalize_customer_language(item)
+            for key, item in value.items()
+        }
+    return value
+
+
+def _normalize_final_analysis_payload(value: object) -> object:
+    normalized = _normalize_customer_language(value)
+    if not isinstance(normalized, dict):
+        return normalized
+    steps = normalized.get("as_is_steps")
+    if not isinstance(steps, list):
+        return normalized
+    kept_steps: list[object] = []
+    index_map: dict[int, int] = {}
+    for old_index, step in enumerate(steps):
+        if isinstance(step, str) and AS_IS_META_PATTERN.search(step) is not None:
+            continue
+        index_map[old_index] = len(kept_steps)
+        kept_steps.append(step)
+    if kept_steps:
+        normalized["as_is_steps"] = kept_steps
+        problem_indexes = normalized.get("as_is_problem_step_indexes")
+        if isinstance(problem_indexes, list):
+            normalized["as_is_problem_step_indexes"] = [
+                index_map[index]
+                for index in problem_indexes
+                if isinstance(index, int) and index in index_map
+            ]
+    return normalized
 
 
 def _api_key() -> str:
@@ -60,12 +156,41 @@ def get_embedding_model() -> str:
 def embed_texts(texts: Sequence[str]) -> list[list[float]]:
     if not texts:
         return []
+    call_number = _record_openai_call()
+    call_started = perf_counter()
+    logger.info(
+        "openai.embeddings.start section=retrieval call=%d timeout_seconds=%.1f",
+        call_number,
+        OPENAI_RETRIEVAL_TIMEOUT_SECONDS,
+    )
     try:
-        response = OpenAI(api_key=_api_key()).embeddings.create(
+        raw_response = OpenAI(
+            api_key=_api_key(),
+            timeout=OPENAI_RETRIEVAL_TIMEOUT_SECONDS,
+            max_retries=0,
+        ).embeddings.with_raw_response.create(
             model=get_embedding_model(),
             input=list(texts),
+            timeout=OPENAI_RETRIEVAL_TIMEOUT_SECONDS,
         )
+        logger.info(
+            "openai.embeddings.response section=retrieval call=%d status=%d "
+            "duration_seconds=%.3f",
+            call_number,
+            raw_response.status_code,
+            perf_counter() - call_started,
+        )
+        response = raw_response.parse()
     except OpenAIError as error:
+        logger.exception(
+            "openai.embeddings.failed section=retrieval call=%d exception_type=%s "
+            "exception_message=%s response_status=%s duration_seconds=%.3f",
+            call_number,
+            type(error).__name__,
+            str(error),
+            getattr(error, "status_code", None),
+            perf_counter() - call_started,
+        )
         raise AIServiceError(
             "Die Wissenssuche konnte gerade nicht vorbereitet werden."
         ) from error
@@ -79,7 +204,19 @@ def _parse_structured_output(
     result_type: type[StructuredResult],
 ) -> StructuredResult:
     last_error: Exception | None = None
-    for attempt in range(2):
+    model = _structured_output_model()
+    is_final_analysis = result_type is FinalAnalysisResult
+    maximum_attempts = 1 if is_final_analysis else 2
+    request_deadline = perf_counter() + OPENAI_REQUEST_TIMEOUT_SECONDS
+    client = OpenAI(
+        api_key=_api_key(),
+        timeout=OPENAI_REQUEST_TIMEOUT_SECONDS,
+        max_retries=0,
+    )
+    model_options: dict[str, object] = {}
+    if model.casefold().startswith("gpt-5"):
+        model_options = {"reasoning_effort": "minimal", "verbosity": "low"}
+    for attempt in range(maximum_attempts):
         retry_instruction = (
             "\n\nDie vorherige Ausgabe war nicht vollständig regelkonform. "
             "Prüfe jetzt jedes Feld erneut gegen das Ausgabeschema und alle "
@@ -87,9 +224,22 @@ def _parse_structured_output(
             if attempt
             else ""
         )
+        remaining_seconds = request_deadline - perf_counter()
+        if remaining_seconds <= 0:
+            last_error = TimeoutError("Zeitlimit vor dem Modellaufruf erreicht")
+            break
+        call_number = _record_openai_call()
+        call_started = perf_counter()
+        logger.info(
+            "openai.structured_output.start section=%s call=%d attempt=%d timeout_seconds=%.1f",
+            result_type.__name__,
+            call_number,
+            attempt + 1,
+            remaining_seconds,
+        )
         try:
-            completion = OpenAI(api_key=_api_key()).chat.completions.parse(
-                model=_structured_output_model(),
+            raw_response = client.chat.completions.with_raw_response.parse(
+                model=model,
                 messages=[
                     {
                         "role": "system",
@@ -101,13 +251,66 @@ def _parse_structured_output(
                     },
                 ],
                 response_format=result_type,
+                timeout=remaining_seconds,
+                **model_options,
             )
-            parsed_result = completion.choices[0].message.parsed
-            if parsed_result is not None:
-                return parsed_result
-            last_error = ValueError("Keine auswertbare Antwort")
-        except (OpenAIError, ValidationError, ValueError, IndexError) as error:
+            logger.info(
+                "openai.structured_output.response section=%s call=%d status=%d duration_seconds=%.3f",
+                result_type.__name__,
+                call_number,
+                raw_response.status_code,
+                perf_counter() - call_started,
+            )
+            response_body = json.loads(raw_response.text)
+            choice = response_body["choices"][0]
+            if choice.get("finish_reason") != "stop":
+                raise ValueError(
+                    f"Unvollständige Modellantwort: {choice.get('finish_reason')}"
+                )
+            message = choice["message"]
+            if message.get("refusal"):
+                raise ValueError("Das Modell hat die strukturierte Antwort abgelehnt")
+            response_payload = json.loads(message.get("content") or "")
+            if is_final_analysis:
+                response_payload = _normalize_final_analysis_payload(response_payload)
+            validation_started = perf_counter()
+            parsed_result = result_type.model_validate(response_payload)
+            logger.info(
+                "openai.structured_output.validated section=%s call=%d "
+                "validation_seconds=%.3f duration_seconds=%.3f",
+                result_type.__name__,
+                call_number,
+                perf_counter() - validation_started,
+                perf_counter() - call_started,
+            )
+            return parsed_result
+        except (
+            OpenAIError,
+            ValidationError,
+            ValueError,
+            IndexError,
+            KeyError,
+            TypeError,
+            json.JSONDecodeError,
+        ) as error:
             last_error = error
+            validation_fields = (
+                _validation_error_fields(error)
+                if isinstance(error, ValidationError)
+                else []
+            )
+            logger.exception(
+                "openai.structured_output.failed section=%s call=%d exception_type=%s "
+                "exception_message=%s response_status=%s validation_fields=%s "
+                "duration_seconds=%.3f",
+                result_type.__name__,
+                call_number,
+                type(error).__name__,
+                str(error),
+                getattr(error, "status_code", None),
+                validation_fields,
+                perf_counter() - call_started,
+            )
     raise AIServiceError(
         "Die KI-Antwort konnte nicht zuverlässig verarbeitet werden."
     ) from last_error

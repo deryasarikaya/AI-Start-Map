@@ -4,6 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
+from app import openai_service
 from app.agent_service import (
     FactRecord,
     ProcessState,
@@ -21,6 +22,28 @@ from app.schemas import (
 
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_final_payload_normalization_removes_internal_jargon_and_meta_steps() -> None:
+    normalized = openai_service._normalize_final_analysis_payload(
+        {
+            "as_is_steps": [
+                "Die genaue Reihenfolge ist unbekannt.",
+                "Die Kundin sendet eine Anfrage.",
+            ],
+            "as_is_problem_step_indexes": [0, 1],
+            "opportunities": [
+                {"title": "WIP-Mapping", "recommendation": "Formulardoppie vermeiden"}
+            ],
+        }
+    )
+
+    assert isinstance(normalized, dict)
+    assert normalized["as_is_steps"] == ["Die Kundin sendet eine Anfrage."]
+    assert normalized["as_is_problem_step_indexes"] == [0]
+    opportunity = normalized["opportunities"][0]
+    assert opportunity["title"] == "aktueller Arbeitsstand-Zuordnung"
+    assert opportunity["recommendation"] == "doppelte Erfassung vermeiden"
 
 
 def _fact(value: str) -> FactRecord:

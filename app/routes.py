@@ -4,10 +4,12 @@ import json
 import base64
 import hashlib
 import hmac
+import logging
 import os
 import secrets
 from datetime import date
 from pathlib import Path
+from time import perf_counter
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
@@ -39,17 +41,23 @@ from app.openai_service import (
     generate_follow_up_questions,
     generate_process_understanding,
     generate_process_suggestions,
+    get_openai_call_count,
+    reset_openai_call_count,
 )
 from app.questions import INTRO_QUESTIONS, PROCESS_QUESTIONS
 from app.rag_service import RagConfigurationError
 from app.schemas import (
+    AutomationBlueprint,
+    AutomationOpportunityResult,
     FinalAnalysisResult,
+    OptionalAnalysisDetails,
     contains_internal_reference,
     contains_prohibited_customer_language,
 )
 
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
 ROOT_DIRECTORY = Path(__file__).resolve().parents[1]
 EVALUATION_FILE = ROOT_DIRECTORY / "knowledge" / "evaluation" / "evaluation_cases.json"
@@ -60,6 +68,7 @@ DEMO_EVALUATION_IDS = {
     "etsy-3d-print": "EVAL-C-02",
     "carpet-cleaning": "EVAL-C-10",
 }
+DEMO_SESSION_SLUGS: dict[int, str] = {}
 SESSION_COOKIE = "ai_start_map_session"
 SESSION_SIGNING_KEY = (
     os.getenv("SESSION_SIGNING_KEY", "").encode("utf-8") or secrets.token_bytes(32)
@@ -1359,41 +1368,286 @@ def _persist_final_analysis(
     database_session.commit()
 
 
+def _massage_demo_fallback_result() -> FinalAnalysisResult:
+    """Fixed result used only after an explicit massage demo service failure."""
+
+    human_check = (
+        "Ein Mensch prüft die tatsächliche Verfügbarkeit und bestätigt den Termin."
+    )
+    return FinalAnalysisResult(
+        core_problem=(
+            "Anfragen, Verfügbarkeiten und Terminbestätigungen liegen verteilt, "
+            "sodass kein verlässlicher gemeinsamer Stand entsteht."
+        ),
+        first_change=(
+            "Führe alle neuen Anfragen in einer gemeinsamen Übersicht mit klaren "
+            "Statuswerten zusammen."
+        ),
+        ai_support=(
+            "Der Betrieb gibt eine Nachricht oder gesprochene Anfrage ein; die KI "
+            "erkennt Behandlung, Dauer, Personenzahl und Wunschzeit, markiert fehlende "
+            "Angaben und bereitet prüfbare Terminoptionen vor."
+        ),
+        ai_input="Eine geschriebene oder gesprochene Terminanfrage.",
+        ai_task=(
+            "Die KI erkennt Behandlung, Dauer, Personenzahl und Wunschzeit und "
+            "markiert fehlende Angaben."
+        ),
+        ai_output="Eine vollständige Anfrage mit vorbereiteten Terminoptionen.",
+        human_check=human_check,
+        weekly_test=[
+            "Eine gemeinsame Übersicht für alle neuen Anfragen anlegen.",
+            "Die Statuswerte neu, zu prüfen, bestätigt und abgesagt verwenden.",
+            "Eine Woche lang jede neue Anfrage dort eintragen und gemeinsam prüfen.",
+        ],
+        weekly_test_success=(
+            "Für jede neue Anfrage sind aktueller Status und nächste zuständige Person "
+            "ohne Suche erkennbar."
+        ),
+        later_automation=(
+            "Wenn Übersicht und Verfügbarkeiten zuverlässig gepflegt werden, kann eine "
+            "geprüfte Bestätigungsnachricht zum Versand vorbereitet werden."
+        ),
+        why_this_first=(
+            "Erst ein gemeinsamer Stand verhindert widersprüchliche Auskünfte und macht "
+            "spätere KI-Unterstützung verlässlich."
+        ),
+        required_prerequisites=[
+            "Eine gemeinsame Anfrageübersicht",
+            "Klare Statuswerte",
+            "Aktuell gepflegte Personalverfügbarkeit",
+        ],
+        human_decisions=[
+            human_check,
+            "Personalplanung und Abrechnungsprüfung bleiben beim Menschen.",
+        ],
+        current_process_summary=(
+            "Anfragen kommen über mehrere Kanäle an, werden mit der verfügbaren "
+            "Besetzung abgeglichen und anschließend manuell bestätigt."
+        ),
+        optional_details=OptionalAnalysisDetails(
+            current_difficulties=[
+                "Anfragen und Bestätigungen sind auf mehrere Kanäle verteilt.",
+                "Die verfügbare Besetzung kann wechseln.",
+            ],
+            additional_prerequisites=[
+                "Eine Person hält Übersicht und Verfügbarkeit aktuell."
+            ],
+            later_possibilities=[
+                "Bestätigungsnachrichten nach menschlicher Prüfung vorbereiten."
+            ],
+        ),
+        process_summary=(
+            "Eine Anfrage kommt über einen der vorhandenen Kanäle an, wird mit der "
+            "verfügbaren Besetzung abgeglichen und anschließend bestätigt."
+        ),
+        as_is_steps=[
+            "Eine Terminanfrage geht über einen vorhandenen Kanal ein.",
+            "Behandlung, Wunschzeit und verfügbare Besetzung werden abgeglichen.",
+            "Ein Mensch bestätigt oder korrigiert den Termin.",
+        ],
+        core_bottleneck=(
+            "Mehrere Kanäle, wechselnde Verfügbarkeit und manuelle Bestätigung "
+            "erzeugen keinen gemeinsamen aktuellen Stand."
+        ),
+        bottleneck_symptom="Anfragen und Terminstatus sind verteilt.",
+        bottleneck_cause="Es fehlt eine gemeinsame Übersicht mit klaren Statuswerten.",
+        bottleneck_effect="Abgleich und Bestätigung erfordern wiederholte Rückfragen.",
+        as_is_problem_step_indexes=[0, 1],
+        to_be_steps=[
+            "Anfrage in einer gemeinsamen Übersicht erfassen.",
+            "Fehlende Angaben sichtbar markieren.",
+            "Verfügbarkeit durch einen Menschen prüfen.",
+            "Termin bestätigen und Status aktualisieren.",
+        ],
+        uncertainties=[
+            "Wegen eines vorübergehenden KI-Dienstfehlers wird hier das fest "
+            "vorbereitete Ergebnis der Massage-Demo gezeigt."
+        ],
+        opportunities=[
+            AutomationOpportunityResult(
+                rank=1,
+                title="Alle Anfragen gemeinsam überblicken",
+                problem="Anfragen und Status liegen an mehreren Stellen.",
+                recommendation="Eine gemeinsame Übersicht mit klaren Statuswerten nutzen.",
+                benefit="Der aktuelle Stand ist ohne Suche erkennbar.",
+                human_approval="Ein Mensch bestätigt jeden Termin.",
+                first_step="Die vier Statuswerte festlegen und neue Anfragen eintragen.",
+                category="Ordnung und Standardisierung",
+                prerequisite="Eine verantwortliche Person hält die Übersicht aktuell.",
+                mini_test=["Eine Woche lang nur neue Anfragen gemeinsam erfassen."],
+                effort="niedrig",
+                acceptance_risk="Die Übersicht wird nicht nach jeder Änderung aktualisiert.",
+            ),
+            AutomationOpportunityResult(
+                rank=2,
+                title="Anfrageangaben mit KI vorbereiten",
+                problem="Freie Nachrichten enthalten unterschiedlich vollständige Angaben.",
+                recommendation="KI ordnet die Anfrage und markiert fehlende Angaben.",
+                benefit="Die menschliche Terminprüfung startet mit einem klaren Entwurf.",
+                human_approval="Ein Mensch prüft Angaben und Verfügbarkeit.",
+                first_step="Die notwendigen Angaben für eine Terminanfrage festlegen.",
+                category="KI-Unterstützung",
+                prerequisite="Die Pflichtangaben und Statuswerte sind festgelegt.",
+                mini_test=["Zehn neue Anfragen als Entwurf strukturieren lassen."],
+                effort="mittel",
+                acceptance_risk="Unklare Angaben werden ungeprüft übernommen.",
+            ),
+            AutomationOpportunityResult(
+                rank=3,
+                title="Bestätigung nach Prüfung vorbereiten",
+                problem="Bestätigungen werden nach dem Abgleich einzeln formuliert.",
+                recommendation="Eine Bestätigungsnachricht aus freigegebenen Angaben vorbereiten.",
+                benefit="Die Nachricht ist schneller versandbereit.",
+                human_approval="Ein Mensch prüft und versendet die Nachricht.",
+                first_step="Eine verständliche Bestätigungsvorlage festlegen.",
+                category="regelbasierte Automatisierung",
+                prerequisite="Termin und Verfügbarkeit wurden menschlich bestätigt.",
+                mini_test=["Bestätigungen zunächst nur als Entwurf erzeugen."],
+                effort="mittel",
+                acceptance_risk="Ein Entwurf wird ohne letzte Prüfung versendet.",
+            ),
+        ],
+        blueprint=AutomationBlueprint(
+            objective="Neue Terminanfragen gemeinsam und nachvollziehbar bearbeiten.",
+            trigger="Eine neue Terminanfrage geht ein.",
+            required_inputs=[
+                "Behandlung",
+                "Dauer",
+                "Personenzahl",
+                "Wunschzeit",
+            ],
+            workflow_steps=[
+                "Anfrage in der gemeinsamen Übersicht erfassen.",
+                "Fehlende Angaben markieren.",
+                "Verfügbarkeit durch einen Menschen prüfen.",
+                "Termin bestätigen und Status aktualisieren.",
+            ],
+            human_review_point="Vor jeder verbindlichen Terminbestätigung.",
+            output="Eine geprüfte Terminanfrage mit eindeutigem Status.",
+            exceptions=[
+                "Fehlende Angaben",
+                "Unklare Verfügbarkeit",
+                "Abweichende Dauer oder Personenzahl",
+            ],
+        ),
+    )
+
+
+def _persist_explicit_demo_fallback(
+    database_session: Session,
+    session_id: int,
+) -> bool:
+    if DEMO_SESSION_SLUGS.get(session_id) != "massage-salon":
+        return False
+    try:
+        _persist_final_analysis(
+            database_session,
+            session_id,
+            _massage_demo_fallback_result(),
+        )
+    except Exception as error:
+        database_session.rollback()
+        logger.exception(
+            "analysis.demo_fallback_failed exception_type=%s exception_message=%s",
+            type(error).__name__,
+            str(error),
+        )
+        return False
+    return True
+
+
 def _generate_and_persist_final_analysis(
     session_id: int,
     database_session: Session,
 ) -> None:
-    process = _selected_process(database_session, session_id)
-    if process is None:
-        raise ValueError("Für die Analyse fehlt der ausgewählte Ablauf.")
-    all_questions = _get_questions(database_session, session_id)
-    process_questions = [
-        question
-        for question in all_questions
-        if question.question_phase == "process"
-    ]
-    follow_ups = [
-        question
-        for question in all_questions
-        if question.question_phase == "follow_up"
-    ]
-    if not _all_answered(process_questions) or (
-        follow_ups and not _all_answered(follow_ups)
-    ):
-        raise ValueError("Bitte vervollständige zuerst die offenen Angaben.")
-    knowledge = _retrieval_context(
-        _query_text(all_questions, process),
-        "analysis",
+    total_started = perf_counter()
+    stage = "state_load"
+    try:
+        stage_started = perf_counter()
+        process = _selected_process(database_session, session_id)
+        if process is None:
+            raise ValueError("Für die Analyse fehlt der ausgewählte Ablauf.")
+        all_questions = _get_questions(database_session, session_id)
+        process_questions = [
+            question
+            for question in all_questions
+            if question.question_phase == "process"
+        ]
+        follow_ups = [
+            question
+            for question in all_questions
+            if question.question_phase == "follow_up"
+        ]
+        if not _all_answered(process_questions) or (
+            follow_ups and not _all_answered(follow_ups)
+        ):
+            raise ValueError("Bitte vervollständige zuerst die offenen Angaben.")
+        logger.info(
+            "analysis.stage_complete stage=state_load duration_seconds=%.3f",
+            perf_counter() - stage_started,
+        )
+
+        stage = "retrieval"
+        stage_started = perf_counter()
+        knowledge = _retrieval_context(
+            _query_text(all_questions, process),
+            "analysis",
+        )
+        logger.info(
+            "analysis.stage_complete stage=retrieval duration_seconds=%.3f",
+            perf_counter() - stage_started,
+        )
+
+        stage = "agent_state"
+        stage_started = perf_counter()
+        agent_state = _diagnostic_agent_state(
+            database_session,
+            session_id,
+            process,
+        ).model_dump()
+        logger.info(
+            "analysis.stage_complete stage=agent_state duration_seconds=%.3f",
+            perf_counter() - stage_started,
+        )
+
+        stage = "final_openai_call"
+        stage_started = perf_counter()
+        result = generate_final_analysis(
+            answers=_answer_payload(all_questions),
+            selected_process=_process_payload(process),
+            knowledge_chunks=knowledge,
+            agent_state=agent_state,
+        )
+        logger.info(
+            "analysis.stage_complete stage=final_openai_call duration_seconds=%.3f openai_calls=%d",
+            perf_counter() - stage_started,
+            get_openai_call_count(),
+        )
+
+        stage = "jsonb_persistence"
+        stage_started = perf_counter()
+        _persist_final_analysis(database_session, session_id, result)
+        logger.info(
+            "analysis.stage_complete stage=jsonb_persistence duration_seconds=%.3f",
+            perf_counter() - stage_started,
+        )
+    except Exception as error:
+        logger.exception(
+            "analysis.failed section=%s exception_type=%s exception_message=%s "
+            "duration_seconds=%.3f openai_calls=%d",
+            stage,
+            type(error).__name__,
+            str(error),
+            perf_counter() - total_started,
+            get_openai_call_count(),
+        )
+        raise
+    logger.info(
+        "analysis.completed duration_seconds=%.3f openai_calls=%d",
+        perf_counter() - total_started,
+        get_openai_call_count(),
     )
-    result = generate_final_analysis(
-        answers=_answer_payload(all_questions),
-        selected_process=_process_payload(process),
-        knowledge_chunks=knowledge,
-        agent_state=_diagnostic_agent_state(
-            database_session, session_id, process
-        ).model_dump(),
-    )
-    _persist_final_analysis(database_session, session_id, result)
 
 
 @router.get(
@@ -1444,6 +1698,7 @@ def analyze_session(
     session_id: int,
     database_session: Session = Depends(get_db_session),
 ) -> JSONResponse:
+    reset_openai_call_count()
     _get_session_or_404(database_session, session_id)
     results_path = f"/sessions/{session_id}/results"
     if database_session.get(Analysis, session_id) is not None:
@@ -1471,8 +1726,32 @@ def analyze_session(
         return JSONResponse({"state": "complete", "redirect_url": results_path})
     try:
         _generate_and_persist_final_analysis(session_id, database_session)
-    except (AIServiceError, RagConfigurationError) as error:
+    except AIServiceError as error:
         database_session.rollback()
+        if _persist_explicit_demo_fallback(database_session, session_id):
+            DEMO_SESSION_SLUGS.pop(session_id, None)
+            logger.warning(
+                "analysis.demo_fallback_used demo=massage-salon exception_type=%s",
+                type(error).__name__,
+            )
+            return JSONResponse(
+                {
+                    "state": "complete",
+                    "redirect_url": results_path,
+                    "demo_fallback": True,
+                }
+            )
+        return JSONResponse(
+            {"state": "error", "message": str(error), "redirect_url": None},
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+        )
+    except RagConfigurationError as error:
+        database_session.rollback()
+        logger.exception(
+            "analysis.failed section=retrieval exception_type=%s exception_message=%s",
+            type(error).__name__,
+            str(error),
+        )
         return JSONResponse(
             {"state": "error", "message": str(error), "redirect_url": None},
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -1483,8 +1762,13 @@ def analyze_session(
             {"state": "error", "message": str(error), "redirect_url": None},
             status_code=status.HTTP_409_CONFLICT,
         )
-    except Exception:
+    except Exception as error:
         database_session.rollback()
+        logger.exception(
+            "analysis.failed section=request exception_type=%s exception_message=%s",
+            type(error).__name__,
+            str(error),
+        )
         return JSONResponse(
             {
                 "state": "error",
@@ -1496,6 +1780,7 @@ def analyze_session(
             },
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
+    DEMO_SESSION_SLUGS.pop(session_id, None)
     return JSONResponse({"state": "complete", "redirect_url": results_path})
 
 
@@ -2022,6 +2307,7 @@ def run_demo(
     try:
         evaluation_case = _load_evaluation_case(evaluation_id)
         session_id = _create_demo_session(database_session, evaluation_case)
+        DEMO_SESSION_SLUGS[session_id] = demo_slug
     except RagConfigurationError as error:
         database_session.rollback()
         return _render_error(

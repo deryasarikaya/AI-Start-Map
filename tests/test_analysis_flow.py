@@ -9,6 +9,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 import app.routes as routes
+from app.openai_service import AIServiceError
 from app.models import (
     Analysis,
     AnalysisSession,
@@ -616,6 +617,42 @@ def test_demo_route_creates_session_and_redirects_to_real_results(
     visible_text = result_response.text.casefold()
     for marker in ("m-01", "testfall", "chunk", "pattern_id", "content_origin"):
         assert marker not in visible_text
+
+
+def test_massage_demo_uses_fixed_fallback_after_ai_service_failure(
+    client: TestClient,
+    database_session: Session,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def fail_analysis(**_kwargs: object) -> FinalAnalysisResult:
+        raise AIServiceError("vorübergehender Modelldienstfehler")
+
+    monkeypatch.setattr(routes, "generate_final_analysis", fail_analysis)
+    response = client.get("/demo/massage-salon", follow_redirects=False)
+    assert response.status_code == 303
+
+    analysis_response = client.post("/analyze")
+    assert analysis_response.status_code == 200
+    assert analysis_response.json()["state"] == "complete"
+    assert analysis_response.json()["demo_fallback"] is True
+    assert client.get("/analysis-status").json()["state"] == "complete"
+
+    session_id = database_session.scalar(select(func.max(AnalysisSession.session_id)))
+    assert session_id is not None
+    analysis = database_session.get(Analysis, session_id)
+    assert analysis is not None
+    core_output = analysis.uncertainties["core_output"]
+    assert all(
+        core_output[field]
+        for field in (
+            "core_problem",
+            "first_change",
+            "ai_support",
+            "weekly_test",
+            "later_automation",
+        )
+    )
+    assert client.get("/results").status_code == 200
 
 
 def test_stored_internal_reference_is_not_rendered(
