@@ -1,8 +1,17 @@
 # Changelog
 
-**Last Updated:** 2026-08-05
+**Last Updated:** 2026-08-06
 
 Diese Datei dokumentiert nur tatsächlich ausgeführte und verifizierte Änderungen. Roadmap-Punkte gelten nicht als umgesetzt.
+
+## 2026-08-06 – Private IDE-Artefakte aus der Versionskontrolle entfernt
+
+- Sieben bereits versionierte PyCharm-Dateien unter `.idea/` aus dem Git-Index entfernt; die lokalen Dateien bleiben auf dem Entwicklungsrechner erhalten.
+- Die bestehende `.gitignore`-Regel `.idea/` verhindert, dass diese Dateien erneut aufgenommen werden.
+- Alle verfolgten Dateinamen und Textdateien auf typische private Artefakte und hochwahrscheinliche Secret-Signaturen geprüft; keine weiteren privaten Dateien oder Secrets bestätigt.
+- `.env.example` bewusst als sichere Platzhaltervorlage beibehalten.
+- Keine Produktionslogik, Prompts, Indizes, Datenbankmodelle, Tests oder Nutzeroberflächen verändert.
+- Frühere `.idea`-Versionen bleiben ohne ausdrücklich untersagten History-Rewrite in der Git-Historie; der Restpunkt ist in `docs/KNOWN_ISSUES.md` dokumentiert.
 
 ## 2026-08-05 – Recommendation-Fachgrundlage und Feature-Spec aufgenommen
 

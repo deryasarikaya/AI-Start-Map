@@ -1,6 +1,6 @@
 # Known Issues
 
-**Last Updated:** 2026-08-05
+**Last Updated:** 2026-08-06
 
 Diese Datei enthält alle bestätigten aktuell nicht funktionierenden, unzureichenden oder noch nicht eingebundenen Punkte: technische Probleme, fachliche Qualitätsprobleme, UX-Probleme und inaktive Komponenten.
 
@@ -11,6 +11,15 @@ Ein Problem darf erst entfernt werden, wenn:
 3. die Änderung in `docs/CHANGELOG.md` dokumentiert wurde.
 
 Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`, `Investigating`, `In Progress`, `Partially Fixed`, `Blocked` oder `Verified Fixed` enthalten.
+
+## SEC-001 – Historische PyCharm-Artefakte bleiben in der Git-Historie erreichbar
+
+- **Status:** Open
+- **Beobachtung:** Die sieben `.idea`-Dateien sind aus dem aktuellen Feature-Branch entfernt und werden künftig ignoriert. Frühere Commits enthalten weiterhin PyCharm-Arbeitsbereichsdaten und lokale absolute Pfade. `origin/main` enthält die Dateien bis zu einem geprüften Merge ebenfalls im aktuellen Stand.
+- **Erwartetes Verhalten:** Private IDE-Artefakte sind weder im aktuellen Default-Branch noch unbeabsichtigt über die erreichbare Projekthistorie verfügbar.
+- **Mögliche Ursachen:** `.idea/` wurde am 2026-07-17 committed; die spätere `.gitignore`-Regel beendet die Verfolgung bereits versionierter Dateien nicht automatisch.
+- **Nächster Prüfschritt:** Den Removal-Commit reviewen und freigegeben nach `main` mergen. Danach separat entscheiden, ob die historischen lokalen Pfade einen koordinierten History-Rewrite rechtfertigen; dieser ist nach den aktuellen Repositoryregeln nicht zulässig und würde alle betroffenen Branches und Klone betreffen.
+- **Betroffene Dateien:** Git-Historie von `.idea/V2_AI_Start_Map.iml`, `.idea/inspectionProfiles/Project_Default.xml`, `.idea/inspectionProfiles/profiles_settings.xml`, `.idea/misc.xml`, `.idea/modules.xml`, `.idea/vcs.xml` und `.idea/workspace.xml`; `.gitignore` enthält bereits `.idea/`.
 
 ## KI-001 – Recommendation Layer liefert noch keine durchgehend gute Auswahl
 
