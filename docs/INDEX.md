@@ -1,8 +1,8 @@
 # Dokumentationsregister
 
 **Status:** Active
-**Letzte Aktualisierung:** 2026-08-05
-**Letzte Prüfung:** 2026-08-05
+**Letzte Aktualisierung:** 2026-08-06
+**Letzte Prüfung:** 2026-08-06
 
 Dieses Register ist die verbindliche Übersicht der Projekt-, Produkt- und Entwicklungsdokumentation. Es muss aktualisiert werden, wenn ein Dokument erstellt, verschoben, umbenannt, ersetzt, archiviert oder wieder aktiviert wird.
 
@@ -22,13 +22,13 @@ Dieses Register ist die verbindliche Übersicht der Projekt-, Produkt- und Entwi
 | `docs/ARCHITECTURE.md` | Verifizierte Ist-Architektur und klar getrennte Zielarchitektur | Active | Aktuelle technische Architektur | 2026-08-05 | 2026-08-05 | `knowledge/AGENT_ARCHITECTURE.md`, `knowledge/RAG_MERGE_PLAN.md` ersetzt |
 | `docs/DOCUMENTATION_GUIDE.md` | Cheat Sheet und Pflegeprozess | Active | Detaillierte Dokumentationspflege | 2026-08-05 | 2026-08-05 | `.agents/skills/documentation-update/SKILL.md` |
 | `docs/product/AI_Start_Map_Fachgrundlage_Painpoints_Solutions_2026-08-05.md` | Fachliche Pain-Point-, Reifegrad- und Solution-Pattern-Grundlage | Active | Fachliche Grundlage für Pain Points, Reifegrad und Solution Patterns; keine Laufzeitlogik | 2026-08-05 | 2026-08-05 | `docs/specs/solution-pattern-recommendation/` |
-| `docs/flows/UX_FLOW.md` | Sichtbarer Nutzerflow und bestehende UX-Verträge | Needs Review | Aktuell implementierter Flow; Outputvertrag wird fachlich geprüft | 2026-07-26 | 2026-08-05 | Product-Output- und Recommendation-Spec |
+| `docs/flows/UX_FLOW.md` | Sichtbarer Nutzerflow und UX-Verträge | Active | Verbindliche Recommendation-Zielreise; Ist-Status im Projektstand | 2026-08-06 | 2026-08-06 | Product-Output- und Recommendation-Spec |
 | `docs/flows/PROCESSING_FLOW.md` | Processing-Zustände, Fehler- und Retry-Verhalten | Active | Aktueller Processing-Flow | 2026-07-26 | 2026-08-05 | `docs/ARCHITECTURE.md` |
-| `docs/specs/product-output/requirements.md` | Bestehender Product-Output-Vertrag | Needs Review | Aktuell implementierter Vertrag, bis Review abgeschlossen ist | 2026-07-26 | 2026-08-05 | Recommendation-Spec und Fachgrundlage |
-| `docs/specs/solution-pattern-recommendation/requirements.md` | Anforderungen des Recommendation-Layers | Draft | Aktive Feature-Spec für Scope und Anforderungen; noch keine Laufzeitlogik | 2026-08-05 | 2026-08-05 | Fachgrundlage |
-| `docs/specs/solution-pattern-recommendation/design.md` | Vorläufiges fachlich-technisches Design | Draft | Feature-Design, kein implementierter Zustand | 2026-08-05 | 2026-08-05 | Fachgrundlage, `docs/ARCHITECTURE.md` |
+| `docs/specs/product-output/requirements.md` | Verbindlicher Product-Output-Vertrag | Active | Neuer kompakter Kundenoutput und Kompatibilitätsregeln | 2026-08-06 | 2026-08-06 | Recommendation-Spec und Fachgrundlage |
+| `docs/specs/solution-pattern-recommendation/requirements.md` | Anforderungen des Recommendation-Layers | Active | Verbindlicher Feature-Scope; Ist-Status getrennt | 2026-08-06 | 2026-08-06 | Fachgrundlage |
+| `docs/specs/solution-pattern-recommendation/design.md` | Fachlich-technisches Design | Active | Verbindliches Feature-Design; Ist-Status getrennt | 2026-08-06 | 2026-08-06 | Fachgrundlage, `docs/ARCHITECTURE.md` |
 | `docs/specs/solution-pattern-recommendation/tasks.md` | Aufteilbare Umsetzungsaufgaben | Draft | Aufgabenstatus des Features | 2026-08-05 | 2026-08-05 | `docs/ROADMAP.md` |
-| `docs/specs/solution-pattern-recommendation/acceptance-criteria.md` | Fachlich bestätigte Abnahmekriterien | Draft | Feature-Abnahme; noch nicht technisch erfüllt | 2026-08-05 | 2026-08-05 | Fachgrundlage |
+| `docs/specs/solution-pattern-recommendation/acceptance-criteria.md` | Fachlich bestätigte Abnahmekriterien | Active | Verbindliche Feature-Abnahme; Nachweisstatus getrennt | 2026-08-06 | 2026-08-06 | Fachgrundlage |
 
 ## Archiv und ersetzte Dokumente
 

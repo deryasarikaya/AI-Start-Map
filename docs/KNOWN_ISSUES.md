@@ -23,7 +23,7 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 
 ## KI-001 – Recommendation Layer liefert noch keine durchgehend gute Auswahl
 
-- **Status:** Open
+- **Status:** In Progress
 - **Beobachtung:** Der aktuelle Recommendation Layer ist fachlich noch nicht zufriedenstellend. Er erkennt den Engpass häufig plausibel, priorisiert aber nicht in jedem Fall den besten konkreten nächsten KI-Workflow.
 - **Erwartetes Verhalten:** Aus bestätigtem Problem, Ursache, Reifegrad und Voraussetzungen wird ein kleiner, konkreter und betrieblich passender erster Workflow gewählt.
 - **Mögliche Ursachen:** Die Fachanalyse belegt mehrere zusammenwirkende Ursachen: Kanaleignung und Prozess-/Datenreife werden vermischt; `automation_pattern` ist im Analyse-Retrieval nicht verpflichtend; defensive Chunktypen konkurrieren im selben Top-k; der Prompt verlangt keinen systematischen Anker-/Kanal-Gegencheck; genau drei Opportunities können schwächere Empfehlungen erzwingen; `required_prerequisites` kann Voraussetzungen aufblähen; ein normalisierter Solution-Katalog fehlt.
@@ -50,7 +50,7 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 
 ## KI-004 – Strukturierter Solution-Pattern-Katalog fehlt
 
-- **Status:** Open
+- **Status:** In Progress
 - **Beobachtung:** Zwölf Problemfamilien und zehn Solution Patterns sind inzwischen fachlich dokumentiert. Ein normalisierter, validierter Katalog ist jedoch weder als strukturierte Produktionsdatei umgesetzt noch in die Laufzeit integriert.
 - **Erwartetes Verhalten:** Der Recommendation Layer wählt aus einem fachlich freigegebenen strukturierten Katalog über Applicability- und Exclusion-Gates passende konkrete Workflows aus und begründet sie.
 - **Mögliche Ursachen:** Die fachliche Grundlage wurde bewusst vor die technische Integration gestellt. Der aktuelle Laufzeitpfad besitzt deshalb weiterhin keinen normalisierten Solution-Katalog.
@@ -59,7 +59,7 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 
 ## KI-005 – Kundensprache ist teilweise zu technisch oder zu lang
 
-- **Status:** Open
+- **Status:** In Progress
 - **Beobachtung:** Einzelne Ergebnisse enthalten zu technische, abstrakte oder lange Formulierungen, obwohl die Oberfläche Alltagssprache für kleine Betriebe verlangt.
 - **Erwartetes Verhalten:** Kurze deutsche Sätze, ein klarer nächster Schritt und konkrete Beschreibung von Eingabe, KI-Aufgabe, Ergebnis und menschlicher Kontrolle.
 - **Mögliche Ursachen:** Noch zu verifizieren. Lange Structured Outputs, interne Fachbegriffe im Ausgangswissen und begrenzte sprachliche Normalisierung sind mögliche Faktoren.
@@ -68,7 +68,7 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 
 ## KI-006 – Ergebnisansicht und PDF sind teilweise zu groß oder textlastig
 
-- **Status:** Open
+- **Status:** In Progress
 - **Beobachtung:** Ergebnis und dreiseitige Druckansicht können trotz Priorisierung zu viel Text enthalten oder visuell zu groß wirken.
 - **Erwartetes Verhalten:** Der Kernoutput ist schnell scanbar; Vertiefungen bleiben optional; die normale Druckansicht nutzt drei A4-Seiten ohne überladene Textblöcke.
 - **Mögliche Ursachen:** Noch zu verifizieren. Viele strukturierte Pflichtfelder, lange Modellausgaben und feste Berichtssektionen können sich kumulieren.

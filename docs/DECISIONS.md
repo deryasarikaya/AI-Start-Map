@@ -137,4 +137,27 @@ Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest
 - **Grund:** Die feste Anzahl kann schwächere Empfehlungen erzwingen; eine Änderung berührt jedoch Schema, Persistenz, Templates und Tests und benötigt eine eigene Freigabe.
 - **Konsequenzen:** Product-Output- und UX-Flow-Dokumente bleiben `Needs Review`. Keine Laufzeitänderung in diesem Dokumentationsauftrag.
 - **Alternativen:** Sofortige Abschaffung oder unveränderte dauerhafte Bestätigung wurden noch nicht beschlossen.
-- **Status:** Needs Review; aktuelle Implementierung unverändert
+- **Status:** Superseded durch DEC-016
+
+## DEC-016 – Eine Hauptlösung statt Wochentest und Pflicht-Chancen
+
+- **Datum:** 2026-08-06
+- **Entscheidung:** Genau eine dominante Hauptlösung; kein Wochentest; null bis zwei optionale sekundäre Möglichkeiten; ein Umsetzungsweg ersetzt die Hausaufgabe.
+- **Grund:** Kunden sollen Veränderung, Ergebnis, KI-Aufgabe und eigene Kontrolle sofort verstehen.
+- **Konsequenzen:** Neuer Structured Output, variable Opportunity-Anzahl, kompakte Hauptseite, optionale dritte Druckseite und rückwärtskompatible View alter Analysen.
+- **Status:** Decided
+
+## DEC-017 – Katalog und deterministische Gates wählen die Lösung
+
+- **Datum:** 2026-08-06
+- **Entscheidung:** Zwölf Problemfamilien und zehn Solution Patterns werden direkt aus validierten Dateien geladen; sechs getrennte Gates filtern und priorisieren. Diagnose-RAG entscheidet nicht allein.
+- **Grund:** Semantisches Top-k kann konkrete Lösungen verdrängen und vermischt heute Reifedimensionen.
+- **Konsequenzen:** Kein Solution-FAISS-Index, keine Embeddings, keine Migration.
+- **Status:** Decided
+
+## DEC-018 – HTML/CSS-Prozesslinie bleibt verbindlich
+
+- **Datum:** 2026-08-06
+- **Entscheidung:** Mermaid wird nicht wieder eingeführt; validierte Schritte bleiben als vertikale HTML-/CSS-Linie sichtbar.
+- **Grund:** Zuverlässige deutsche Umbrüche, Mobile, Druck und Sicherheit.
+- **Status:** Decided

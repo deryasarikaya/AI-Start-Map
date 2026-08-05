@@ -1,8 +1,8 @@
 # Acceptance Criteria – Solution-Pattern-Recommendation
 
-**Status:** Draft
-**Datum:** 2026-08-05
-**Fachlicher Status:** Die folgenden Kriterien sind fachlich bestätigt. Sie sind noch nicht als technisch implementiert, integriert oder getestet anzusehen, sofern kein späterer Nachweis dies ausdrücklich dokumentiert.
+**Status:** Active – decided
+**Datum:** 2026-08-06
+**Fachlicher Status:** Verbindlich entschieden; technische Nachweise werden getrennt dokumentiert.
 
 ## Referenzfälle
 
@@ -22,6 +22,12 @@
 - Bei unsicherer Personalverfügbarkeit erfolgt keine automatische Terminbestätigung.
 - Das System darf fehlende Angaben prüfen und Alternativen vorschlagen; die verbindliche Zusage bleibt bei der verantwortlichen Person.
 
+### Blumenladen
+
+- Eine freie Bestellung führt primär zur strukturierten Bestellaufnahme.
+- Die Vorschau ist eine Bestellkarte; tatsächlich fehlende Angaben bleiben sichtbar.
+- Ein Antwortentwurf ist zulässig; bei ungeklärter Kapazität gibt es keine automatische verbindliche Annahme.
+
 ## Struktur jeder Recommendation
 
 Jede sichtbare Empfehlung enthält:
@@ -30,6 +36,17 @@ Jede sichtbare Empfehlung enthält:
 2. KI-Aufgabe,
 3. sichtbares Ergebnis,
 4. Human Check.
+
+Zusätzlich enthält sie eine Ergebnisvorschau, ein bis drei Nutzenpunkte, null bis drei Voraussetzungen, zwei bis vier Umsetzungsschritte und optional null bis zwei nachrangige Möglichkeiten. Wochentest und genau drei Opportunities sind nicht Bestandteil der Abnahme.
+
+## Sprache, Länge und Darstellung
+
+- Sichtbare Texte verwenden direkte Du-Ansprache; distanzierte Ersatzrollen sind unzulässig, wenn der Kunde gemeint ist.
+- Primärtitel bleibt ungefähr innerhalb 12–14 Wörtern; Begründung maximal zwei kurze Sätze.
+- Vorher umfasst maximal drei, der neue Ablauf drei oder vier Schritte; Nutzen maximal drei, Voraussetzungen maximal drei, sekundäre Möglichkeiten maximal zwei.
+- Genau eine Hauptlösung dominiert; die Vorschau ist zentral; weitere Möglichkeiten bleiben eingeklappt.
+- Der Druckbericht umfasst zwei Seiten plus eine optionale dritte Seite.
+- Die vertikale HTML-/CSS-Prozesslinie wird verwendet; Mermaid bleibt ausgeschlossen.
 
 ## Grounding und Knowledge-Sicherheit
 

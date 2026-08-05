@@ -1,68 +1,60 @@
 # AI Start Map – Product Output Spec
 
-**Status:** Needs Review
-**Letzte Prüfung:** 2026-08-05
-**Grund:** Der bisher verpflichtende Wochentest, genau drei Opportunities und einzelne Output-Verträge werden durch die neue Fachgrundlage fachlich überprüft. Die Prüfung ändert die aktuelle Laufzeit noch nicht.
-**Verwandt mit:** `docs/product/AI_Start_Map_Fachgrundlage_Painpoints_Solutions_2026-08-05.md`, `docs/specs/solution-pattern-recommendation/`
+**Status:** Active – decided
+**Letzte Prüfung:** 2026-08-06
+**Verwandt mit:** `docs/specs/solution-pattern-recommendation/`
 
-_Stand: 26.07.2026_
+## Ziel
 
-## Statusabgrenzung
+Das Kundenergebnis beantwortet in wenigen Sekunden: bester KI-Hebel, zukünftiger Ablauf, KI-Aufgabe, sichtbares Ergebnis, menschliche Kontrolle, Umsetzungsweg und optional spätere Möglichkeiten. Es ist kein langer Diagnosebericht.
 
-### Aktuell implementiert
+## Verbindliche Produktregeln
 
-- `FinalAnalysisResult` verlangt den unten beschriebenen Kernoutput einschließlich mindestens eines `weekly_test`-Schritts.
-- Die Laufzeit speichert und rendert genau drei gerankte Opportunities.
-- `required_prerequisites` verlangt mindestens einen Eintrag.
-- Ergebnisansicht und Bericht zeigen den Wochentest im aktuellen Code.
+- Die Hauptseite zeigt genau eine dominante primäre Empfehlung.
+- `weekly_test`, `weekly_test_success` und „Das kannst du diese Woche testen“ gehören nicht zum neuen Vertrag. Der Kunde erhält keine Hausaufgabe.
+- Stattdessen zeigt `implementation_path` einen konkreten Umsetzungsweg.
+- Sekundäre Möglichkeiten sind optional: null bis maximal zwei, nicht dominant und nie Füllvorschläge.
+- Alle sichtbaren Texte sprechen den Kunden mit „du“, „dir“, „dein“ oder „deine“ an. Distanzierte Ersatzrollen sind unzulässig, sofern keine andere reale Rolle gemeint ist.
+- Nutzen umfasst ein bis drei Punkte; Voraussetzungen null bis drei; Umsetzung zwei bis vier Schritte.
+- Die Vorschau verwendet nur bestätigte Nutzerfakten und neutrale, sichtbar offene Platzhalter.
+- Dieselbe Aussage wird nicht in mehreren Karten wiederholt.
 
-### Fachlich bestätigt, aber noch nicht implementiert
+## Neuer verbindlicher Kernoutput
 
-- Kanaleignung, Prozess-/Datenreife und Automationsreife sollen getrennt bewertet werden.
-- Ein strukturierter Solution-Katalog und deterministische Applicability-/Exclusion-Gates sollen die Lösungsauswahl steuern.
-- Diagnose-RAG und Solution-Katalog sollen getrennte Rollen haben.
-
-### Offene Punkte
-
-- Bleibt der Wochentest für jeden Fall verpflichtend oder wird er situationsabhängig?
-- Bleiben genau drei Opportunities Teil des Vertrags?
-- Wie werden leichte Voraussetzungen dargestellt, ohne `required_prerequisites` künstlich aufzublähen?
-- Welche Felder des neuen Solution-Patterns werden Teil der sichtbaren Kundenausgabe?
-
-Die folgenden Abschnitte erhalten den vollständigen bisherigen Vertrag. „Verbindlich“ beschreibt bis zu einer beschlossenen und implementierten Änderung den aktuellen Codevertrag, nicht automatisch die künftige fachliche Zielentscheidung.
-
-## Verbindlicher Kernoutput
-
-Jede neue Analyse erzeugt mit `FinalAnalysisResult` zuerst folgende Kundenausgabe:
-
-| Feld | Sichtbare Bedeutung | Grenze |
+| Feld | Bedeutung | Grenze |
 |---|---|---|
-| `core_problem` | Dein eigentliches Problem | ein verständlicher Satz |
-| `first_change` | Das solltest du zuerst ändern | eine konkrete priorisierte Maßnahme |
-| `ai_support` | konkrete Einordnung der KI-Hilfe | keine generische Optimierungsfloskel |
-| `ai_input` | Eingabe des Menschen | nur vorhandene oder realistisch erfassbare Angaben |
-| `ai_task` | Aufgabe der KI | erkennen, ordnen, extrahieren oder formulieren |
-| `ai_output` | konkretes Ergebnis | prüfbarer Entwurf oder strukturierte Ausgabe |
-| `human_check` | menschliche Kontrolle | Freigabe und Entscheidung sichtbar |
-| `weekly_test` | Test für diese Woche | ein bis drei sichtbare Schritte |
-| `weekly_test_success` | Erfolgskriterium | beobachtbar, ohne erfundene Zahl |
-| `later_automation` | späterer Ausbau | genau ein realistischer nächster Schritt |
+| `primary_recommendation` | eine klare Hauptlösung | ungefähr 12–14 Wörter |
+| `promise` | kurzer Satz mit greifbarem Ergebnis | ein Satz |
+| `short_reason` | knappe Begründung | maximal zwei kurze Sätze |
+| `before_process` | bestätigter Ist-Ablauf | maximal drei Schritte |
+| `future_process` | zukünftiger Ablauf | drei oder vier Schritte |
+| `sample_output` | typisierte Vorschau mit Titel, Zeilen, offenen Punkten, optional Anhängen und Vorschauhinweis | nur geerdete Inhalte |
+| `user_action` | konkrete Eingabe/Handlung | ein kurzer Du-Satz |
+| `ai_task` | Aufgabe der KI | ein kurzer Satz |
+| `visible_result` | greifbares Arbeitsergebnis | ein kurzer Satz |
+| `human_check` | echte menschliche Prüfung/Entscheidung | ein kurzer Du-Satz |
+| `customer_benefits` | konkrete Vorteile | ein bis drei |
+| `required_prerequisites` | echte Voraussetzungen | null bis drei |
+| `implementation_path` | einfachster Umsetzungsweg | zwei bis vier Schritte |
+| `later_stage` | genau ein realistischer Ausbau | optional |
+| `secondary_opportunities` | nachrangige Titel plus ein Satz | null bis zwei |
 
-Ergänzend werden `why_this_first`, `required_prerequisites`, `human_decisions`, `uncertainties`, `current_process_summary` und `optional_details` strukturiert erzeugt. Die tieferen drei `opportunities` und der bestehende Blueprint bleiben für Rückwärtskompatibilität und optionale Vertiefung erhalten, bestimmen aber nicht mehr die primäre sichtbare Hierarchie.
+## Hauptseite und Details
 
-## Ehrlichkeit und Grounding
+Die erste Ebene zeigt primäre Empfehlung, Promise, kurze Begründung, Heute/Mit KI, den Viererschritt „Du gibst ein – KI verarbeitet – Du erhältst – Du prüfst“, die Ergebnisvorschau, höchstens drei Nutzenpunkte, nur vorhandene Voraussetzungen und eine Hauptaktion „So setzt du das um“. Weitere Möglichkeiten stehen eingeklappt.
 
-- Fehlende Angaben bleiben Unsicherheiten.
-- RAG-Inhalte sind Vergleichswissen und niemals Nutzerfakten.
-- Bestätigte Nutzerfakten werden nicht durch Retrieval oder Modellannahmen überschrieben.
-- Gibt es noch keine sinnvolle KI-Grundlage, beginnt `ai_support` sinngemäß mit „KI ist heute noch nicht der erste Schritt“ und nennt die notwendige Voraussetzung.
-- Preise, Verträge, Zahlungen, Qualität, Ausnahmen und unklare Zuordnungen bleiben menschliche Entscheidungen.
-- Erfundene Tools, APIs, Geräte, Datenquellen, Einsparungszahlen und fremde Fallinformationen sind unzulässig.
+## Grounding und Sicherheit
 
-## Speicherung und Kompatibilität
+- Nur Nutzerangaben und bestätigte Extraktionen sind Fakten über den Betrieb.
+- RAG-Evidenz, interne IDs, Quellen, Prompts, Modellnamen und fremde Falldaten bleiben unsichtbar.
+- Physische Identität und realer Ort werden nie erraten.
+- Preis-, Vertrags-, Zahlungs-, Qualitäts-, Personal-, Sicherheits-, Termin- und Herausgabeentscheidungen bleiben bei einem Menschen, wenn sie extern wirksam oder risikoreich sind.
+- Fehlende Angaben bleiben als „noch offen“ sichtbar; es gibt keine erfundenen Tools, Integrationen, Zahlen oder Einsparungen.
 
-Der neue Kernoutput wird ohne Migration im vorhandenen JSONB-Feld `analyses.uncertainties` unter `core_output` gespeichert. Bestehende Analysen ohne diesen Block werden über `_result_view` auf lesbare Fallbacks abgebildet. Neue Structured Outputs verlangen die neuen Felder im JSON-Schema.
+## Speicherung und Rückwärtskompatibilität
 
-## Kundendarstellung
+Der neue Vertrag wird ohne Migration in `analyses.uncertainties.core_output` gespeichert. Die bestehenden fünf Tabellen bleiben erhalten. Neue Analysen dürfen eine bis drei Opportunity-Zeilen persistieren: Rang 1 ist die primäre Lösung, Rang 2–3 sind optionale sekundäre Möglichkeiten. Bestehende Analysen mit altem Kernoutput, Wochentest oder drei Opportunities bleiben über eine rückwärtskompatible View-Abbildung lesbar; alte Felder werden nicht mehr auf neuen Seiten gerendert.
 
-Der erste Ergebnisbereich zeigt ausschließlich die fünf Kernpunkte. Startplan und Diagnosekontext sind standardmäßig geschlossen. Interne IDs, Wissensreferenzen, Prompts, Modellnamen, Logs und Scores durchlaufen vor der Ausgabe weiterhin die vorhandenen Sicherheitsprüfungen.
+## Druckbericht
+
+Die Browser-Druckansicht verwendet weiter `window.print()`. Seite 1 zeigt beste Lösung, Vorher/Nachher, KI-Ablauf, Vorschau und Human Check. Seite 2 zeigt Umsetzung, Voraussetzungen, offene Punkte, Fehlergrenzen und menschliche Entscheidungen. Eine dritte Seite erscheint nur bei fachlich vorhandenen sekundären Möglichkeiten oder einem späteren Ausbau.

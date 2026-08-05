@@ -1,6 +1,6 @@
 # Roadmap
 
-**Last Updated:** 2026-08-05
+**Last Updated:** 2026-08-06
 
 Diese Roadmap enthält geplante Arbeit. Fachlich analysiert oder entschieden ist nicht gleich implementiert, integriert oder getestet. Eine Produktänderung gilt erst nach Verifikation und Dokumentation in `docs/CHANGELOG.md` als umgesetzt.
 
@@ -10,7 +10,7 @@ Diese Roadmap enthält geplante Arbeit. Fachlich analysiert oder entschieden ist
 
 - Die vorhandene Fachgrundlage mit zwölf Problemfamilien und zehn Solution Patterns prüfen und formal freigeben; die Analyse ist erstellt, die Freigabe noch zu bestätigen.
 - Abgrenzungen, Reifegrad-/Gate-Modell und Hausmeister-, Schuhmacher- sowie Massagesalon-Analyse im Fachreview bestätigen.
-- Erneut entscheiden, ob Wochentest und genau drei Opportunities verbindliche Outputverträge bleiben.
+- Den entschiedenen variablen Outputvertrag ohne Wochentest gegen Referenzfälle abnehmen.
 - Die Leitregel operationalisieren: **„So wenig Ordnung wie zwingend nötig, so früh konkrete KI-Unterstützung wie realistisch möglich, Automatisierung erst nach bestätigten Daten und klaren Freigaben.“**
 
 ### Technische Arbeit
@@ -18,7 +18,7 @@ Diese Roadmap enthält geplante Arbeit. Fachlich analysiert oder entschieden ist
 - Recommendation-Feature-Spec technisch prüfen: bestehende Schemas, Persistenz, Laufzeitpunkte und Testpunkte verifizieren.
 - Minimalen Vertrag für den strukturierten Solution-Katalog und die getrennten Gates spezifizieren.
 - Reproduzierbare Evaluationseingaben und erwartete Kriterien für Hausmeister, Schuhmacher und Massagesalon festlegen.
-- Keine Solution Patterns in Prompts, RAG oder Laufzeitlogik integrieren, bevor Fach- und Technikreview abgeschlossen sind.
+- Den freigegebenen Katalog, die Gates und die Recommendation-Auswahl implementieren und integrieren.
 - Datenschutz-, Betriebs- und Deployment-Konfiguration vor einem öffentlichen Produktivbetrieb abschließend prüfen.
 - Bereitstellung der ignorierten produktiven FAISS-Artefakte für frischen Checkout beziehungsweise Deployment verifizieren.
 

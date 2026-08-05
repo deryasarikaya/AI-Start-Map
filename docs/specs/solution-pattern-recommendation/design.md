@@ -1,8 +1,27 @@
 # Design – Solution-Pattern-Recommendation
 
-**Status:** Draft
-**Datum:** 2026-08-05
-**Geltung:** Fachlich vorbereitete Zielrichtung; keine ungeprüfte technische Zielarchitektur ist damit beschlossen oder implementiert.
+**Status:** Active – decided
+**Datum:** 2026-08-06
+**Geltung:** Verbindliches Design; Implementierungs-, Integrations- und Teststatus werden getrennt geführt.
+
+## Verbindlicher Zielpfad
+
+```text
+bestätigte Nutzerfakten
+→ deterministische Problemfamilienklassifikation
+→ sechs getrennte Gates
+→ validierter Solution-Katalog
+→ primäre Empfehlung plus 0–2 sekundäre Kandidaten
+→ kompakter Structured Output
+→ Pydantic-, Grounding- und Sprachvalidierung
+→ JSONB-Persistenz und kurze HTML-/Druckdarstellung
+```
+
+Problemfamilien und Patterns liegen als versionierte JSON-Dateien außerhalb aller Evaluationspfade. Der Loader validiert Anzahl, IDs, Referenzen und Kernfelder. Der Selector liefert Auswahl, Ausschlussgründe, Voraussetzungen und Freigabegrenzen. Der neue Kernoutput liegt in bestehendem JSONB; die View-Schicht liest neue und alte Analysen. Neue Seiten zeigen keinen Wochentest.
+
+Das Analyse-Retrieval balanciert Diagnose, konkretes `automation_pattern`, Voraussetzung und Guardrail. Agentenpatterns unterstützen nur die Wahl einer entscheidungsrelevanten Lücke oder Aktion. Budgets, No-Repeat, Schleifenstopp, Faktenintegrität, Stop-Wunsch und Sicherheitsgrenzen bleiben deterministisch in Python.
+
+Die vertikale HTML-/CSS-Prozesslinie bleibt verbindlich. Mermaid wird wegen unzuverlässiger Umbrüche langer deutscher Labels, Print- und Sicherheitsaufwand nicht wieder eingeführt.
 
 ## Aktueller Ist-Zustand
 
@@ -91,6 +110,6 @@ Die Fachgrundlage nennt `app/rag_service.py`, `app/openai_service.py`, `app/sche
 - Exakter Zeitpunkt und Besitzer der Problemfamilienklassifikation.
 - Persistenzbedarf; nach heutigem Stand ist keine neue Tabelle beschlossen.
 - Deterministisches Ranking und Tie-Breaking zwischen mehreren anwendbaren Patterns.
-- Umgang mit genau drei Opportunities und `required_prerequisites`.
+- Rückwärtskompatible Abbildung alter Drei-Opportunity- und Wochentest-Daten.
 - Test-Fixtures, Mocking und erwartete Laufzeitpfade für die drei Referenzfälle.
 - Ob spätere Agent-Pattern-Retrieval-Aktivierung die Solution-Auswahl überhaupt beeinflussen soll.

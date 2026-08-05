@@ -1,8 +1,8 @@
 # AI Start Map V2 – sichtbare Nutzerreise
 
-**Status:** Needs Review
-**Letzte Prüfung:** 2026-08-05
-**Konflikt:** Der sichtbare Flow entspricht dem aktuellen Code. Der bisher als verpflichtend beschriebene Wochentest und weitere Output-Verträge werden durch die neue Fachgrundlage und `docs/specs/product-output/requirements.md` fachlich überprüft. Daraus folgt noch keine Laufzeitänderung.
+**Status:** Active – decided
+**Letzte Prüfung:** 2026-08-06
+**Hinweis:** Verbindliche Zielreise; Implementierungsstatus steht im Projektstand.
 **Verwandt mit:** `docs/specs/product-output/requirements.md`, `docs/specs/solution-pattern-recommendation/`, `docs/product/AI_Start_Map_Fachgrundlage_Painpoints_Solutions_2026-08-05.md`
 
 _Stand: 26.07.2026_
@@ -59,7 +59,13 @@ Der Agent darf `ASK`, `CLARIFY`, `RETRIEVE`, `ANALYZE` oder `STOP` wählen. Eine
 
 Die zentralen, später zu kalibrierenden Heuristiken liegen ausschließlich in `app/agent_config.py`. Agenten- und Tool-Runden bleiben begrenzt. Nutzerfakten, Extraktionen, Ableitungen, RAG-Evidenz, Widersprüche und Unsicherheiten bleiben technisch getrennt.
 
-## Kernoutput
+## Kernoutput – neuer Vertrag
+
+Der erste Ergebnisbildschirm zeigt genau eine Hauptlösung: „Dein bester KI-Hebel“, Promise, Heute/Mit KI, „Du gibst ein – KI verarbeitet – Du erhältst – Du prüfst“, eine konkrete Vorschau, bis zu drei Nutzenpunkte, nur vorhandene Voraussetzungen und die Hauptaktion „So setzt du das um“. Null bis zwei weitere Möglichkeiten stehen optional eingeklappt.
+
+Es gibt keinen Wochentest und keine Pflicht zu drei Opportunities. Alle sichtbaren Ergebnistexte sprechen den Kunden direkt mit „du“ an. Diagnosekontext, Risiken und technische Varianten bleiben Details oder Druckbericht.
+
+## Früherer Kernoutput (superseded)
 
 Der erste Ergebnisbildschirm folgt verbindlich dieser Reihenfolge:
 
@@ -75,7 +81,7 @@ Ist KI heute noch nicht sinnvoll, sagt das Ergebnis ausdrücklich, dass KI noch 
 
 „Zeig mir, wie ich anfangen kann“ öffnet drei bis fünf Schritte, notwendige Dinge, Erfolgskriterium und menschliche Entscheidungen. Preise, Verträge, Zahlungen, Qualität, Ausnahmen und unklare Zuordnungen bleiben beim Menschen.
 
-Die Druckansicht besteht im Normalfall aus genau drei A4-Seiten:
+Die neue Druckansicht besteht aus zwei A4-Seiten und einer optionalen dritten. Die folgende feste Drei-Seiten-Struktur ist superseded:
 
 1. Kernproblem, erster Schritt, konkrete KI-Hilfe und Wochen-Test.
 2. Heutiger Ablauf, schwierige Stellen und kurze Begründung.
