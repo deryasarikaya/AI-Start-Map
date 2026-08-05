@@ -97,11 +97,11 @@ Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest
 ## DEC-011 – Leitregel für die Recommendation-Auswahl
 
 - **Datum:** 2026-08-05 (Aufnahmedatum)
-- **Entscheidung:** **„Ordnung vor Automatisierung, aber nicht Ordnung statt KI.“**
+- **Entscheidung:** **„So wenig Ordnung wie zwingend nötig, so früh konkrete KI-Unterstützung wie realistisch möglich, Automatisierung erst nach bestätigten Daten und klaren Freigaben.“** Die Kurzform „Ordnung vor Automatisierung, aber nicht Ordnung statt KI“ bleibt erläuternd gültig.
 - **Grund:** Fehlende Grundlagen müssen ehrlich benannt werden; vorhandene digitale Voraussetzungen sollen gleichzeitig zu konkreter KI-Unterstützung führen können.
 - **Konsequenzen:** Die derzeitige Überbetonung manueller Ordnung wird als Known Issue behandelt und anhand gezielter Evaluationen korrigiert.
 - **Alternativen:** „Immer zuerst Ordnung“ und „immer sofort KI“ wurden beide abgelehnt.
-- **Status:** Accepted; aktuelle Umsetzung noch unzureichend
+- **Status:** Accepted; fachlich präzisiert, aktuelle Umsetzung noch unzureichend
 
 ## DEC-012 – Solution Patterns erst fachlich prüfen, dann technisch integrieren
 
@@ -110,4 +110,31 @@ Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest
 - **Grund:** Ungeprüfte Lösungsmuster würden die Recommendation-Qualität nicht verlässlich verbessern und könnten neue Fehlentscheidungen erzeugen.
 - **Konsequenzen:** Noch keine neue Knowledge-Datei, kein neuer Indexinhalt und keine Promptintegration im aktuellen Dokumentationsschritt.
 - **Alternativen:** Sofortige automatische Generierung und Indexierung vieler Solution Patterns wurde nicht gewählt.
-- **Status:** Accepted; fachliche Arbeit geplant
+- **Status:** Accepted; Fachgrundlage dokumentiert, Review und technische Umsetzung noch offen
+
+## DEC-013 – Diagnose-RAG und Solution-Katalog werden getrennt
+
+- **Datum:** 2026-08-05
+- **Entscheidung:** Diagnose-RAG liefert Problem- und Bedingungsevidenz. Die Solution-Auswahl verwendet zunächst einen separaten strukturierten Katalog und deterministische Gates. Im ersten Schritt wird kein neuer FAISS-Solution-Index eingeführt.
+- **Grund:** Zehn strukturierte Patterns lassen sich nachvollziehbarer filtern und testen als über einen weiteren semantischen Top-k; ein zusätzlicher Index löst die belegte Konkurrenz defensiver Treffer nicht automatisch.
+- **Konsequenzen:** Der Diagnoseindex bleibt unverändert. Speicherformat und technischer Integrationspunkt des Katalogs werden vor Implementierung geprüft.
+- **Alternativen:** Neuer Solution-FAISS-Index oder unmittelbare Auswahl allein aus Diagnose-Top-k wurden für den ersten Schritt nicht gewählt.
+- **Status:** Accepted; noch nicht implementiert
+
+## DEC-014 – Solution-Auswahl nutzt getrennte Gates
+
+- **Datum:** 2026-08-05
+- **Entscheidung:** Vorgangsanker, Kanaleignung, Prozess-/Datenreife, Risiko, Regelstabilität und menschliche Freigabe werden getrennt bewertet. Kanaleignung, Prozess-/Datenreife und Automationsreife dürfen nicht zu einer einzigen konservativen Reifestufe zusammenfallen.
+- **Grund:** Ein ungeeigneter Kanal ist nicht automatisch ein unreifer Gesamtprozess; passende KI-Unterstützung darf durch defensive Voraussetzungen nicht unbegründet verdrängt werden.
+- **Konsequenzen:** Applicability und Exclusion werden vor technischem Ranking spezifiziert und deterministisch abgesichert.
+- **Alternativen:** Ein einziges lineares Reifegrad-Gate wurde verworfen.
+- **Status:** Accepted; noch nicht implementiert
+
+## DEC-015 – Genau drei Opportunities werden erneut geprüft
+
+- **Datum:** 2026-08-05
+- **Entscheidung:** Der bestehende Vertrag mit genau drei Opportunities bleibt vorläufig implementierter Ist-Stand, wird aber fachlich erneut geprüft und durch diese Entscheidung nicht automatisch aufgehoben.
+- **Grund:** Die feste Anzahl kann schwächere Empfehlungen erzwingen; eine Änderung berührt jedoch Schema, Persistenz, Templates und Tests und benötigt eine eigene Freigabe.
+- **Konsequenzen:** Product-Output- und UX-Flow-Dokumente bleiben `Needs Review`. Keine Laufzeitänderung in diesem Dokumentationsauftrag.
+- **Alternativen:** Sofortige Abschaffung oder unveränderte dauerhafte Bestätigung wurden noch nicht beschlossen.
+- **Status:** Needs Review; aktuelle Implementierung unverändert

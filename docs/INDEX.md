@@ -12,6 +12,7 @@ Dieses Register ist die verbindliche Übersicht der Projekt-, Produkt- und Entwi
 |---|---|---|---|---|---|---|
 | `README.md` | Öffentliche Projektübersicht, Installation und Einstieg | Active | Öffentlicher Projektüberblick | 2026-08-05 | 2026-08-05 | `docs/INDEX.md`, `docs/PROJECT_STATE.md` |
 | `AGENTS.md` | Globale Arbeitsregeln für Coding Agents | Active | Repositoryweite Agentenregeln | 2026-08-05 | 2026-08-05 | `.agents/skills/documentation-update/SKILL.md` |
+| `.agents/skills/documentation-update/SKILL.md` | Wiederverwendbarer Ablauf für Dokumentationsprüfung und -pflege | Active | Detaillierter Documentation-Update-Workflow für Coding Agents | 2026-08-05 | 2026-08-05 | `AGENTS.md`, `docs/DOCUMENTATION_GUIDE.md` |
 | `docs/INDEX.md` | Register, Status und Zuständigkeit aller wichtigen Dokumente | Active | Dokumentationsstruktur und Dokumentstatus | 2026-08-05 | 2026-08-05 | `docs/DOCUMENTATION_GUIDE.md` |
 | `docs/PROJECT_STATE.md` | Ausschließlich bestätigter heutiger Projektstand | Active | Aktueller Produkt-, Technik-, RAG-, Agenten- und Teststand | 2026-08-05 | 2026-08-05 | `docs/ARCHITECTURE.md`, `docs/KNOWN_ISSUES.md` |
 | `docs/ROADMAP.md` | Geplante fachliche, technische und produktbezogene Arbeit | Active | Priorisierte Zukunftsarbeit | 2026-08-05 | 2026-08-05 | aktive Feature-Specs |
@@ -20,9 +21,14 @@ Dieses Register ist die verbindliche Übersicht der Projekt-, Produkt- und Entwi
 | `docs/CHANGELOG.md` | Tatsächlich ausgeführte und verifizierte Änderungen | Active | Änderungshistorie auf Dokumentebene; Git bleibt verbindliche technische Historie | 2026-08-05 | 2026-08-05 | Git-Historie |
 | `docs/ARCHITECTURE.md` | Verifizierte Ist-Architektur und klar getrennte Zielarchitektur | Active | Aktuelle technische Architektur | 2026-08-05 | 2026-08-05 | `knowledge/AGENT_ARCHITECTURE.md`, `knowledge/RAG_MERGE_PLAN.md` ersetzt |
 | `docs/DOCUMENTATION_GUIDE.md` | Cheat Sheet und Pflegeprozess | Active | Detaillierte Dokumentationspflege | 2026-08-05 | 2026-08-05 | `.agents/skills/documentation-update/SKILL.md` |
+| `docs/product/AI_Start_Map_Fachgrundlage_Painpoints_Solutions_2026-08-05.md` | Fachliche Pain-Point-, Reifegrad- und Solution-Pattern-Grundlage | Active | Fachliche Grundlage für Pain Points, Reifegrad und Solution Patterns; keine Laufzeitlogik | 2026-08-05 | 2026-08-05 | `docs/specs/solution-pattern-recommendation/` |
 | `docs/flows/UX_FLOW.md` | Sichtbarer Nutzerflow und bestehende UX-Verträge | Needs Review | Aktuell implementierter Flow; Outputvertrag wird fachlich geprüft | 2026-07-26 | 2026-08-05 | Product-Output- und Recommendation-Spec |
 | `docs/flows/PROCESSING_FLOW.md` | Processing-Zustände, Fehler- und Retry-Verhalten | Active | Aktueller Processing-Flow | 2026-07-26 | 2026-08-05 | `docs/ARCHITECTURE.md` |
 | `docs/specs/product-output/requirements.md` | Bestehender Product-Output-Vertrag | Needs Review | Aktuell implementierter Vertrag, bis Review abgeschlossen ist | 2026-07-26 | 2026-08-05 | Recommendation-Spec und Fachgrundlage |
+| `docs/specs/solution-pattern-recommendation/requirements.md` | Anforderungen des Recommendation-Layers | Draft | Aktive Feature-Spec für Scope und Anforderungen; noch keine Laufzeitlogik | 2026-08-05 | 2026-08-05 | Fachgrundlage |
+| `docs/specs/solution-pattern-recommendation/design.md` | Vorläufiges fachlich-technisches Design | Draft | Feature-Design, kein implementierter Zustand | 2026-08-05 | 2026-08-05 | Fachgrundlage, `docs/ARCHITECTURE.md` |
+| `docs/specs/solution-pattern-recommendation/tasks.md` | Aufteilbare Umsetzungsaufgaben | Draft | Aufgabenstatus des Features | 2026-08-05 | 2026-08-05 | `docs/ROADMAP.md` |
+| `docs/specs/solution-pattern-recommendation/acceptance-criteria.md` | Fachlich bestätigte Abnahmekriterien | Draft | Feature-Abnahme; noch nicht technisch erfüllt | 2026-08-05 | 2026-08-05 | Fachgrundlage |
 
 ## Archiv und ersetzte Dokumente
 

@@ -208,12 +208,16 @@ Jinja2/FastAPI UI
 → begrenzter LLM-Interview-Agent
 → echtes Function Calling für typisierte Werkzeuge
 → Diagnose-RAG plus kontrolliertes Agent-Pattern-Retrieval
-→ Pain-Point-, Ursachen- und Reifegradklassifikation
-→ fachlich geprüfter Solution-Pattern-Katalog
-→ Recommendation-Auswahl
+→ strukturierte Symptom-, Ursachen- und Problemfamilienklassifikation
+→ Diagnose-RAG für Problem- und Bedingungsevidenz
+→ strukturierter Solution-Pattern-Katalog
+→ deterministische Applicability- und Exclusion-Gates
+→ Recommendation-Auswahl außerhalb eines zufälligen semantischen Top-k
 → Pydantic-/Guardrail-Validierung
 → Observability und Tracing
 → PostgreSQL und Kundenausgabe
 ```
 
 Kernmerkmal: **LLM-Agent plus echtes Function Calling und Agent-Pattern-Retrieval.** Diese Zielarchitektur ist geplant, aber nicht implementiert. Deterministische Sicherheits-, Budget- und Faktenregeln bleiben auch in der Zielarchitektur verbindlich.
+
+Für den Recommendation Layer ist als erster geplanter Schritt ausdrücklich kein neuer Solution-FAISS-Index vorgesehen. Die zwölf Problemfamilien und zehn Solution Patterns sollen strukturiert repräsentiert werden. Diagnose-RAG liefert Evidenz zu Problem, Ursache und Bedingungen; der Katalog liefert Kandidaten. Vorgangsanker, Kanaleignung, Prozess-/Datenreife, Risiko, Regelstabilität und menschliche Freigabe begrenzen und priorisieren diese Kandidaten deterministisch. Exakte Integrationspunkte, Schemas und Aufrufketten sind noch technisch zu verifizieren.

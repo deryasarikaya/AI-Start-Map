@@ -8,7 +8,7 @@ Ein Problem darf erst entfernt werden, wenn:
 
 1. es technisch oder fachlich behoben wurde,
 2. ein passender Test erfolgreich war,
-3. die Änderung in `CHANGELOG.md` dokumentiert wurde.
+3. die Änderung in `docs/CHANGELOG.md` dokumentiert wurde.
 
 Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`, `Investigating`, `In Progress`, `Partially Fixed`, `Blocked` oder `Verified Fixed` enthalten.
 
@@ -17,8 +17,8 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 - **Status:** Open
 - **Beobachtung:** Der aktuelle Recommendation Layer ist fachlich noch nicht zufriedenstellend. Er erkennt den Engpass häufig plausibel, priorisiert aber nicht in jedem Fall den besten konkreten nächsten KI-Workflow.
 - **Erwartetes Verhalten:** Aus bestätigtem Problem, Ursache, Reifegrad und Voraussetzungen wird ein kleiner, konkreter und betrieblich passender erster Workflow gewählt.
-- **Mögliche Ursachen:** Noch zu verifizieren. Prüfhypothesen sind fehlende explizite Solution Patterns, zu breite RAG-Treffer und eine zu große Auswahlverantwortung im finalen Modellprompt.
-- **Nächster Prüfschritt:** Fehlentscheidungen aus Hausmeister, Schuhmacher und Massagesalon mit erwarteten Zielworkflows vergleichen und nach Problemfamilie klassifizieren.
+- **Mögliche Ursachen:** Die Fachanalyse belegt mehrere zusammenwirkende Ursachen: Kanaleignung und Prozess-/Datenreife werden vermischt; `automation_pattern` ist im Analyse-Retrieval nicht verpflichtend; defensive Chunktypen konkurrieren im selben Top-k; der Prompt verlangt keinen systematischen Anker-/Kanal-Gegencheck; genau drei Opportunities können schwächere Empfehlungen erzwingen; `required_prerequisites` kann Voraussetzungen aufblähen; ein normalisierter Solution-Katalog fehlt.
+- **Nächster Prüfschritt:** Die vorbereitete Recommendation-Spec fachlich freigeben und anschließend Gates, Katalogvertrag und reproduzierbare Auswahltests technisch spezifizieren.
 - **Betroffene Dateien:** `app/openai_service.py`, `app/rag_service.py`, `app/schemas.py`, `tests/test_product_finalization.py`, `tests/test_quality_pass.py`.
 
 ## KI-002 – Hausmeisterfall empfiehlt teilweise zu viel manuelle Ablage
@@ -26,8 +26,8 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 - **Status:** Investigating
 - **Beobachtung:** Im Hausmeisterfall wird teilweise manuelle Ablage priorisiert, obwohl konkretere digitale oder KI-gestützte Unterstützung geprüft werden sollte.
 - **Erwartetes Verhalten:** Das System berücksichtigt den vorhandenen digitalen Reifegrad und wählt den kleinsten sinnvollen digitalen oder KI-gestützten Workflow, sofern die Voraussetzungen bereits bestehen.
-- **Mögliche Ursachen:** Noch zu verifizieren. Der aktuelle RAG-Korpus enthält für den Fall sowohl Minimalverbesserungen als auch Automationsmuster; Auswahl und Gewichtung könnten die Minimalverbesserung überbetonen.
-- **Nächster Prüfschritt:** Einen festen Hausmeister-Evaluationsfall mit Retrievaltreffern, Modelloutput und erwarteter Empfehlung ausführen und dokumentieren.
+- **Mögliche Ursachen:** Kanaleignung und Gesamt-Prozessreife werden vermischt. Defensive Minimalverbesserungen konkurrieren mit konkreten Mustern im selben Top-k, der Prompt erzwingt keinen Anker-/Kanal-Gegencheck und es fehlt ein normalisierter Katalog, der `SP-03` als eigenständige mobile Einsatzdokumentation priorisiert.
+- **Nächster Prüfschritt:** Den fachlich bestätigten Hausmeister-Akzeptanzfall technisch als reproduzierbaren Auswahltest spezifizieren; Implementierung erst nach Review der Gates und des Katalogvertrags.
 - **Betroffene Dateien:** `knowledge/research_batches/batch_03_diagnostic_depth/02_rag_corpus.jsonl`, `app/rag_service.py`, `app/openai_service.py`. Ein spezifischer automatisierter Hausmeister-Qualitätstest ist noch zu verifizieren beziehungsweise anzulegen.
 
 ## KI-003 – „Ordnung vor Automatisierung“ wird teilweise zu stark angewandt
@@ -35,18 +35,18 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 - **Status:** Open
 - **Beobachtung:** Die bestehende Regel kann dazu führen, dass Ordnung oder manuelle Standardisierung empfohlen wird, obwohl ein Betrieb bereits ausreichend digital arbeitsfähig ist.
 - **Erwartetes Verhalten:** Ordnung ist Voraussetzung, wenn sie tatsächlich fehlt; sie ersetzt aber keine passende KI-Unterstützung. Nicht jeder Betrieb beginnt auf Reifegrad 1.
-- **Mögliche Ursachen:** Noch zu verifizieren. Reifegradmuster im RAG, Promptformulierungen und manuelle Qualitätsregeln könnten zusammen eine konservative Auswahl verstärken.
-- **Nächster Prüfschritt:** Das geplante vierstufige Reifegradmodell auf repräsentative Fälle anwenden und die Auswahlgrenze zwischen Ordnung, Digitalisierung, KI-Unterstützung und Automatisierung festlegen.
+- **Mögliche Ursachen:** Die Fachanalyse belegt eine Vermischung von Kanaleignung, Prozess-/Datenreife und Automationsreife. Defensive Chunktypen konkurrieren im selben Top-k; `required_prerequisites` kann Mindestvoraussetzungen zu einer allgemeinen Ordnungsphase aufblähen; ein expliziter Gegencheck auf einen bereits vorhandenen oder leicht herstellbaren Vorgangsanker fehlt.
+- **Nächster Prüfschritt:** Die getrennten Reife- und Eignungsgates fachlich freigeben und danach gegen Fälle mit bereits ausreichender digitaler Reife testen.
 - **Betroffene Dateien:** `app/openai_service.py`, `app/schemas.py`, `app/agent_service.py`, `knowledge/research_batches/batch_03_diagnostic_depth/02_rag_corpus.jsonl`.
 
 ## KI-004 – Strukturierter Solution-Pattern-Katalog fehlt
 
 - **Status:** Open
-- **Beobachtung:** Diagnose-, Reifegrad- und Automationswissen ist vorhanden, aber es gibt noch keinen kleinen, fachlich freigegebenen Katalog konkreter Solution Patterns mit Eignung, Voraussetzungen und Ausschlusskriterien.
-- **Erwartetes Verhalten:** Der Recommendation Layer kann aus einem geprüften Katalog passende konkrete Workflows auswählen und begründen.
-- **Mögliche Ursachen:** Dies ist noch nicht umgesetzt; die fachliche Strukturierung wurde bewusst vor die technische Integration gestellt.
-- **Nächster Prüfschritt:** Pain-Point-Taxonomie, Problemfamilien und Reifegradmodell fertigstellen; danach Solution Patterns fachlich prüfen.
-- **Betroffene Dateien:** Noch keine neue Zieldatei beschlossen. Spätere Integrationspunkte sind voraussichtlich `app/rag_service.py`, `app/openai_service.py` und die Tests; genaue Pfade sind noch zu entscheiden.
+- **Beobachtung:** Zwölf Problemfamilien und zehn Solution Patterns sind inzwischen fachlich dokumentiert. Ein normalisierter, validierter Katalog ist jedoch weder als strukturierte Produktionsdatei umgesetzt noch in die Laufzeit integriert.
+- **Erwartetes Verhalten:** Der Recommendation Layer wählt aus einem fachlich freigegebenen strukturierten Katalog über Applicability- und Exclusion-Gates passende konkrete Workflows aus und begründet sie.
+- **Mögliche Ursachen:** Die fachliche Grundlage wurde bewusst vor die technische Integration gestellt. Der aktuelle Laufzeitpfad besitzt deshalb weiterhin keinen normalisierten Solution-Katalog.
+- **Nächster Prüfschritt:** Fachreview abschließen, minimales Schema und Speicherformat beschließen und erst danach die strukturierte Katalogdatei implementieren.
+- **Betroffene Dateien:** `docs/product/AI_Start_Map_Fachgrundlage_Painpoints_Solutions_2026-08-05.md`, `docs/specs/solution-pattern-recommendation/`; mögliche spätere Codepunkte `app/rag_service.py`, `app/openai_service.py`, `app/schemas.py` und Tests sind noch technisch zu verifizieren.
 
 ## KI-005 – Kundensprache ist teilweise zu technisch oder zu lang
 
@@ -71,8 +71,8 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 - **Status:** Open
 - **Beobachtung:** Die Diagnose kann Symptom und Engpass korrekt benennen, während `ai_support`, `first_change` oder die erste Opportunity zu allgemein beziehungsweise nicht die beste konkrete Lösung ist.
 - **Erwartetes Verhalten:** Der gewählte Workflow passt zur Ursache, nutzt vorhandene Eingaben, erzeugt einen prüfbaren Output und benennt die menschliche Kontrolle.
-- **Mögliche Ursachen:** Noch zu verifizieren. Aktuell werden Diagnosewissen und ein breiter finaler Prompt genutzt; eine explizite Zuordnung Problemfamilie → Solution Pattern fehlt.
-- **Nächster Prüfschritt:** Für jede Ziel-Evaluation getrennt Diagnosequalität und Solution-Auswahl bewerten.
+- **Mögliche Ursachen:** Es fehlt eine integrierte Zuordnung Problemfamilie → Solution Pattern. `automation_pattern` ist im Analyse-Retrieval nicht verpflichtend, defensive Chunktypen konkurrieren im selben Top-k und genau drei Opportunities können schwächere Empfehlungen erzwingen. Der Prompt fordert keinen systematischen Anker-/Kanal-Gegencheck.
+- **Nächster Prüfschritt:** Für Hausmeister, Schuhmacher und Massagesalon getrennte Diagnose- und Solution-Auswahltests aus den fachlich bestätigten Acceptance Criteria ableiten.
 - **Betroffene Dateien:** `app/openai_service.py`, `app/rag_service.py`, `app/schemas.py`, `tests/test_quality_pass.py`, `tests/test_product_finalization.py`.
 
 ## TECH-001 – Agent-Pattern-Index ist gebaut, aber nicht in der Laufzeit aktiv

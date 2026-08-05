@@ -2,50 +2,45 @@
 
 **Last Updated:** 2026-08-05
 
-Diese Roadmap enthält geplante Arbeit. Ein Punkt ist erst umgesetzt, wenn er im Code beziehungsweise Produkt verifiziert und anschließend in `CHANGELOG.md` dokumentiert wurde.
+Diese Roadmap enthält geplante Arbeit. Fachlich analysiert oder entschieden ist nicht gleich implementiert, integriert oder getestet. Eine Produktänderung gilt erst nach Verifikation und Dokumentation in `docs/CHANGELOG.md` als umgesetzt.
 
 ## Now
 
 ### Fachliche Arbeit
 
-- Bestehendes Diagnosewissen auswerten und strukturiert inventarisieren.
-- Eine Pain-Point-Taxonomie erarbeiten.
-- Symptome, Ursachen und Problemfamilien fachlich sauber trennen.
-- Ein vierstufiges Reifegradmodell ausarbeiten:
-  1. Ordnung
-  2. Digitalisierung
-  3. KI-Unterstützung
-  4. Automatisierung
-- Die Leitregel operationalisieren: **„Ordnung vor Automatisierung, aber nicht Ordnung statt KI.“**
-- Einen kleinen, hochwertigen Solution-Pattern-Katalog entwerfen.
-- Hausmeister, Schuhmacher und Massagesalon gezielt fachlich bewerten.
+- Die vorhandene Fachgrundlage mit zwölf Problemfamilien und zehn Solution Patterns prüfen und formal freigeben; die Analyse ist erstellt, die Freigabe noch zu bestätigen.
+- Abgrenzungen, Reifegrad-/Gate-Modell und Hausmeister-, Schuhmacher- sowie Massagesalon-Analyse im Fachreview bestätigen.
+- Erneut entscheiden, ob Wochentest und genau drei Opportunities verbindliche Outputverträge bleiben.
+- Die Leitregel operationalisieren: **„So wenig Ordnung wie zwingend nötig, so früh konkrete KI-Unterstützung wie realistisch möglich, Automatisierung erst nach bestätigten Daten und klaren Freigaben.“**
 
 ### Technische Arbeit
 
+- Recommendation-Feature-Spec technisch prüfen: bestehende Schemas, Persistenz, Laufzeitpunkte und Testpunkte verifizieren.
+- Minimalen Vertrag für den strukturierten Solution-Katalog und die getrennten Gates spezifizieren.
+- Reproduzierbare Evaluationseingaben und erwartete Kriterien für Hausmeister, Schuhmacher und Massagesalon festlegen.
+- Keine Solution Patterns in Prompts, RAG oder Laufzeitlogik integrieren, bevor Fach- und Technikreview abgeschlossen sind.
 - Datenschutz-, Betriebs- und Deployment-Konfiguration vor einem öffentlichen Produktivbetrieb abschließend prüfen.
-- Noch keine ungeprüften Solution Patterns in Prompts, RAG oder Laufzeitlogik integrieren.
-- Für die drei Zielbeispiele reproduzierbare Evaluationseingaben und erwartete Qualitätskriterien definieren.
-- Die Bereitstellung der ignorierten produktiven FAISS-Artefakte für einen frischen Checkout beziehungsweise das Deployment verifizieren.
+- Bereitstellung der ignorierten produktiven FAISS-Artefakte für frischen Checkout beziehungsweise Deployment verifizieren.
 
 ### Produktarbeit
 
 - Aktuelle Ergebnis- und PDF-Ausgaben anhand realer Beispiele auf Länge, Verständlichkeit und konkrete Handlungsfähigkeit prüfen.
-- Die Fehlentscheidungen des Recommendation Layers sammeln und nach Problemfamilie ordnen.
+- Product-Output-Vertrag gegen die neue Fachgrundlage reviewen, ohne den aktuellen Flow stillschweigend zu verändern.
 
 ## Next
 
 ### Fachliche Arbeit
 
-- Den Solution-Pattern-Katalog fachlich freigeben.
-- Pro Solution Pattern Eignung, Voraussetzungen, Ausschlusskriterien, Reifegrad, menschliche Kontrolle und kleinen Test definieren.
-- Auswahlregeln entwickeln, die nicht jeden Betrieb automatisch bei „Ordnung“ beginnen lassen.
+- Solution Patterns mit Eignung, Voraussetzungen, Ausschlüssen, Reife, Risiko und menschlicher Kontrolle final freigeben.
+- Ranking- und Tie-Breaking-Regeln für mehrere passende Patterns bestätigen.
 
 ### Technische Arbeit
 
-- Fachlich freigegebene Solution Patterns strukturiert integrieren.
-- Die Recommendation-Auswahl gegen Pain-Point-Taxonomie, Ursache und Reifegrad ausrichten.
+- Fachlich freigegebenen strukturierten Solution-Katalog implementieren; zunächst ohne neuen FAISS-Solution-Index.
+- Deterministische Applicability- und Exclusion-Gates implementieren.
+- Recommendation-Auswahl auf Problemfamilie, Ursache, Reife und Freigabe ausrichten.
 - Gezielte Tests für Hausmeister, Schuhmacher und Massagesalon ergänzen beziehungsweise schärfen.
-- Agent-Pattern-Retrieval kontrolliert in die Entscheidungslogik einbinden und gegen deterministische Guardrails absichern.
+- Agent-Pattern-Retrieval separat kontrolliert evaluieren und gegen deterministische Guardrails absichern.
 - Observability für Retrieval-Auswahl, Agentenaktion, Promptphase, Validierung und Ergebnisqualität entwerfen.
 
 ### Produktarbeit
@@ -63,10 +58,11 @@ Diese Roadmap enthält geplante Arbeit. Ein Punkt ist erst umgesetzt, wenn er im
 
 ### Technische Arbeit
 
-- Echtes LLM-Function-Calling für klar typisierte, interne Agentenwerkzeuge einführen.
-- Einen dynamischen Interview-Agenten aufbauen, der weiterhin durch deterministische Budgets und Sicherheitsregeln begrenzt wird.
+- Echtes LLM-Function-Calling für klar typisierte interne Agentenwerkzeuge einführen.
+- Einen dynamischen Interview-Agenten aufbauen, weiterhin begrenzt durch deterministische Budgets und Sicherheitsregeln.
 - End-to-End-Observability und Tracing implementieren.
-- Agent-Pattern-Retrieval evaluieren und nur bei nachgewiesenem Qualitätsgewinn dauerhaft aktivieren.
+- Agent-Pattern-Retrieval nur bei nachgewiesenem Qualitätsgewinn dauerhaft aktivieren.
+- Einen Solution-Index nur bei nachgewiesenem Bedarf und nach separater Entscheidung prüfen.
 
 ### Produktarbeit
 
@@ -85,9 +81,9 @@ Diese Roadmap enthält geplante Arbeit. Ein Punkt ist erst umgesetzt, wenn er im
 - Keine autonome Ausführung realer Unternehmensprozesse.
 - Keine automatischen Preis-, Vertrags-, Zahlungs-, Qualitäts- oder Freigabeentscheidungen.
 - Keine neuen Datenbanktabellen oder Felder ohne bestätigten aktuellen Produktbedarf.
-- Keine Ablösung der vorhandenen Architektur durch zusätzliche Frameworks oder schwere PDF-Infrastruktur ohne neue Entscheidung.
+- Keine zusätzliche Framework- oder schwere PDF-Infrastruktur ohne neue Entscheidung.
 
 ### Produktarbeit
 
-- Keine Zusage bestimmter Drittanbieterintegrationen oder APIs, solange diese nicht verifiziert und freigegeben sind.
+- Keine Zusage bestimmter Drittanbieterintegrationen oder APIs ohne Verifikation und Freigabe.
 - Kein automatisches Anhängen oder Versenden des PDF-Berichts; Kontakt bleibt derzeit ein `mailto:`-Link.

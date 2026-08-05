@@ -10,6 +10,8 @@ AI Start Map ist als diagnostische Webanwendung für Solo-Selbstständige und kl
 
 Der vollständige Kernflow ist implementiert und automatisiert getestet. Die fachliche Qualität des Recommendation Layers ist jedoch noch nicht zufriedenstellend. Insbesondere werden nicht in jedem Fall die besten konkreten KI-Workflows gewählt. Der aktuelle Stand ist deshalb ein funktionsfähiger Diagnose- und Ergebnisflow, aber noch kein fachlich finalisierter Recommendation Layer.
 
+Die Fachanalyse vom 2026-08-05 hat zwölf Problemfamilien analysiert und zehn Solution Patterns fachlich definiert. Die vollständige Grundlage liegt unter `docs/product/AI_Start_Map_Fachgrundlage_Painpoints_Solutions_2026-08-05.md`; die technische Vorbereitung steht unter `docs/specs/solution-pattern-recommendation/`. Diese Inhalte sind dokumentiert, aber weder implementiert noch in den Laufzeitpfad integriert. Der Recommendation Layer ist technisch unverändert.
+
 AI Start Map führt keine Unternehmensprozesse autonom aus. Preis-, Vertrags-, Zahlungs-, Qualitäts- und Freigabeentscheidungen bleiben beim Menschen.
 
 ## Sichtbarer Nutzerflow
@@ -76,6 +78,14 @@ Texteingabe bleibt immer verfügbar. Die numerische Session-ID wird in der öffe
 - Weitere Batch-04-Agentenpatterns, die derzeit vor allem als Forschungs-, Index- und Policy-Testmaterial dienen.
 
 Nicht implementiert sind echtes Function Calling, ein LLM-gesteuerter dynamischer Agent und End-to-End-Tracing.
+
+## Fachlich definiert, aber noch nicht implementiert
+
+- Zwölf voneinander abgegrenzte Problemfamilien (`PF-01` bis `PF-12`).
+- Zehn Solution Patterns (`SP-01` bis `SP-10`).
+- Getrennte Gates für Vorgangsanker, Kanaleignung, Prozess-/Datenreife, Risiko, Regelstabilität und menschliche Freigabe.
+- Trennung von Diagnose-RAG und strukturiertem Solution-Katalog.
+- Recommendation-Feature-Spec mit Requirements, Design, Tasks und Acceptance Criteria.
 
 ## Bekannte Einschränkungen
 
