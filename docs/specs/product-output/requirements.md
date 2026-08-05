@@ -1,6 +1,35 @@
 # AI Start Map – Product Output Spec
 
+**Status:** Needs Review
+**Letzte Prüfung:** 2026-08-05
+**Grund:** Der bisher verpflichtende Wochentest, genau drei Opportunities und einzelne Output-Verträge werden durch die neue Fachgrundlage fachlich überprüft. Die Prüfung ändert die aktuelle Laufzeit noch nicht.
+**Verwandt mit:** `docs/product/AI_Start_Map_Fachgrundlage_Painpoints_Solutions_2026-08-05.md`, `docs/specs/solution-pattern-recommendation/`
+
 _Stand: 26.07.2026_
+
+## Statusabgrenzung
+
+### Aktuell implementiert
+
+- `FinalAnalysisResult` verlangt den unten beschriebenen Kernoutput einschließlich mindestens eines `weekly_test`-Schritts.
+- Die Laufzeit speichert und rendert genau drei gerankte Opportunities.
+- `required_prerequisites` verlangt mindestens einen Eintrag.
+- Ergebnisansicht und Bericht zeigen den Wochentest im aktuellen Code.
+
+### Fachlich bestätigt, aber noch nicht implementiert
+
+- Kanaleignung, Prozess-/Datenreife und Automationsreife sollen getrennt bewertet werden.
+- Ein strukturierter Solution-Katalog und deterministische Applicability-/Exclusion-Gates sollen die Lösungsauswahl steuern.
+- Diagnose-RAG und Solution-Katalog sollen getrennte Rollen haben.
+
+### Offene Punkte
+
+- Bleibt der Wochentest für jeden Fall verpflichtend oder wird er situationsabhängig?
+- Bleiben genau drei Opportunities Teil des Vertrags?
+- Wie werden leichte Voraussetzungen dargestellt, ohne `required_prerequisites` künstlich aufzublähen?
+- Welche Felder des neuen Solution-Patterns werden Teil der sichtbaren Kundenausgabe?
+
+Die folgenden Abschnitte erhalten den vollständigen bisherigen Vertrag. „Verbindlich“ beschreibt bis zu einer beschlossenen und implementierten Änderung den aktuellen Codevertrag, nicht automatisch die künftige fachliche Zielentscheidung.
 
 ## Verbindlicher Kernoutput
 

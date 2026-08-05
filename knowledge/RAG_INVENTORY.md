@@ -1,5 +1,8 @@
 # RAG-Inventar
 
+**Status:** Needs Review
+**Hinweis:** Historisches Inventar vom 26. Juli 2026. Aktuelle Laufzeitaussagen und Indexstände sind gegen `docs/ARCHITECTURE.md`, `docs/PROJECT_STATE.md` und die jeweiligen Manifeste zu prüfen.
+
 Stand: 26. Juli 2026. Dieses Inventar trennt produktives Wissen, Research und Evaluation.
 
 ## Kuratierter Ausgangsbestand

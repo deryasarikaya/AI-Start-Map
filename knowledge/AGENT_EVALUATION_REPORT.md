@@ -1,5 +1,8 @@
 # Evaluationsbericht Diagnostic Interview Agent
 
+**Status:** Archived
+**Hinweis:** Historischer Evaluationsnachweis. Der aktuelle verifizierte Teststand wird in `docs/PROJECT_STATE.md` dokumentiert.
+
 Stand: 26. Juli 2026
 
 ## Ergebnis

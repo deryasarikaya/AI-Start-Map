@@ -84,6 +84,10 @@ Die Demos nutzen dieselbe Analyse- und Ergebnispipeline wie die normale Reise. F
 
 Die kundenverständliche Druckansicht ist im Normalfall auf drei A4-Seiten strukturiert und wird über den Browser-Druckdialog (`window.print()`) als PDF gespeichert. Interne IDs, Prompts, Modellnamen, Logs, Scores und fremde Unternehmensdaten werden nicht ausgegeben. Der Kontakt zu Derya erfolgt über einen Mailto-Link; die gespeicherte PDF muss anschließend selbst angehängt werden.
 
+## Projektdokumentation
+
+Das verbindliche Register der Projekt-, Architektur-, Flow- und Feature-Dokumentation steht in [`docs/INDEX.md`](docs/INDEX.md). Dort sind Status, Source of Truth, letzte Prüfung und verwandte beziehungsweise ersetzte Dokumente ausgewiesen. Geplant, beschlossen, implementiert, integriert und getestet werden getrennt dokumentiert.
+
 ## Tests
 
 ```powershell

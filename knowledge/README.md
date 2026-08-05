@@ -1,5 +1,8 @@
 # AI Start Map Knowledge
 
+**Status:** Needs Review
+**Hinweis:** Ordnerübersicht und Provenienz bleiben relevant. Aussagen zum aktuellen Indexstand sind gegen `docs/ARCHITECTURE.md`, `docs/PROJECT_STATE.md` und die produktiven Manifeste zu prüfen. Dieses Dokument ist kein Ersatz für das zentrale Register `docs/INDEX.md`.
+
 ## Ordner
 
 - `raw/`: unveränderte Ausgangsquellen zur Kontrolle und Nachvollziehbarkeit.

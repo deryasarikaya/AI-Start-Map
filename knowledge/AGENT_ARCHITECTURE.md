@@ -1,5 +1,8 @@
 # Architektur des Diagnostic Interview Agent
 
+**Status:** Superseded
+**Hinweis:** Historische Architekturbeschreibung vom 26. Juli 2026. Die aktuelle Source of Truth ist `docs/ARCHITECTURE.md`; aktuelle Agentenheuristiken stehen in `app/agent_config.py` und `docs/PROJECT_STATE.md`.
+
 ## Begrenzter Auftrag
 
 Der Agent diagnostiziert genau einen bestätigten Geschäftsprozess. Er darf fragen,

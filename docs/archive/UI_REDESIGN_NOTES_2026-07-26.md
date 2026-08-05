@@ -1,5 +1,10 @@
 # AI Start Map – UI Redesign Notes
 
+**Status:** Archived
+**Historischer Zweck:** Dokumentation des UI-Redesigns vom 26.07.2026.
+**Aktuelle Source of Truth:** keine.
+**Abgedeckt durch:** `docs/flows/UX_FLOW.md`, `docs/ARCHITECTURE.md`, `docs/CHANGELOG.md` sowie den aktuellen Code in `app/templates/` und `app/static/`. Relevante Design-Tokens, Responsive-Regeln, HTML/CSS-Prozessdarstellung und Print-Grenzen wurden im aktiven UX-Flow festgehalten.
+
 _Stand: 26.07.2026_
 
 ## Designrichtung

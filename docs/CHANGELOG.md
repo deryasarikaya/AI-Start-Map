@@ -1,0 +1,56 @@
+# Changelog
+
+**Last Updated:** 2026-08-05
+
+Diese Datei dokumentiert nur tatsächlich ausgeführte und verifizierte Änderungen. Roadmap-Punkte gelten nicht als umgesetzt.
+
+## 2026-08-05 – Projektdokumentation konsolidiert
+
+- Interne Projekt- und Entwicklungsdokumente unter `docs/` organisiert und in `docs/INDEX.md` mit Status und Source of Truth registriert.
+- Projektstand, UX- und Processing-Flows sowie Product-Output-Anforderungen an ihre verbindlichen Zielpfade verschoben.
+- UI-Redesign-Notizen und die frühere TODO-Liste nach Inhaltsprüfung und Zuordnung offener Punkte archiviert.
+- Dokumentationspflege in `AGENTS.md`, `docs/DOCUMENTATION_GUIDE.md` und `.agents/skills/documentation-update/SKILL.md` verbindlich beschrieben.
+- `README.md` mit dem zentralen Dokumentationsregister verknüpft.
+- Keine Produktionslogik, Prompts, RAG-Indizes, Embeddings, Datenbankmodelle, Tests oder Nutzeroberflächen verändert.
+
+## 2026-08-05 – Grounded Analysis Output normalisiert
+
+**Commit:** `6320ad0` (`Normalize grounded analysis output`)
+
+- Grounding und Normalisierung der finalen Analyse und Rückfragen erweitert.
+- Embedding-Aufrufe getrennt von Structured-Output-Aufrufen gezählt.
+- Eigener Timeout für die finale Analyse eingeführt.
+- Zugehörige Produktfinalisierungs- und Qualitätsprüfungen ergänzt beziehungsweise angepasst.
+
+## 2026-07-27 – Finale Analysevalidierung und Laufzeitverhalten verbessert
+
+**Commit:** `8f369f4` (`Fix final analysis validation and latency`)
+
+- Finale Analysevalidierung und Fehlerbehandlung erweitert.
+- Analysefluss, Status- und Latenzverhalten überarbeitet.
+- Zugehörige Analyse- und Produktfinalisierungstests ergänzt.
+
+## 2026-07-27 – Kundenorientierte Diagnosejourney finalisiert
+
+**Commit:** `73bf7fb` (`Finalize customer-first diagnostic journey`)
+
+- Sichtbare Journey, Processing, Ergebnis- und Berichtsdarstellung überarbeitet.
+- Agentenheuristiken, Structured-Output-Schema und Ergebnisaufbereitung erweitert.
+- Produkt-, UX- und Processing-Spezifikationen sowie automatisierte Tests aktualisiert.
+
+## 2026-07-26 – Diagnose- und Agentenarchitektur implementiert und dokumentiert
+
+**Commits:** `6267589` (`Complete diagnostic demo architecture`), `b6c7a87` (`Document diagnostic architecture`)
+
+- Begrenzten Diagnostic Interview Agent mit internem State, Regeln und drei Python-Werkzeugen implementiert.
+- Diagnose- und Agent-Pattern-Indizes technisch getrennt.
+- Indexbau, Vergleich, Validierung und Promotion ergänzt.
+- RAG-, Agenten-, Journey- und Qualitätsprüfungen erweitert.
+- Bestehende Diagnosearchitektur, RAG-Inventar, Merge-Plan und Evaluationsergebnisse dokumentiert.
+
+## 2026-07-26 – Research-Batches ergänzt
+
+**Commit:** `4ae2b21` (`Add diagnostic research batches`)
+
+- Batch 02 für analoge Realität, Batch 03 für diagnostische Tiefe und Batch 04 für agentische Interviewmuster hinzugefügt.
+- Korpora, Quellenregister, Patternkataloge, Guardrails, Evaluationen und Quality Gates getrennt abgelegt.

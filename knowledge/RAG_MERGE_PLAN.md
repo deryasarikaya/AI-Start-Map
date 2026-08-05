@@ -1,5 +1,8 @@
 # Plan für Diagnose- und Agenten-RAG
 
+**Status:** Superseded
+**Hinweis:** Historischer Umsetzungsplan. Der aktuelle Zustand steht in `docs/ARCHITECTURE.md` und `docs/PROJECT_STATE.md`; offene Arbeit steht in `docs/ROADMAP.md`.
+
 ## Zielbild
 
 Es werden zwei logisch und physisch getrennte Indizes verwendet:

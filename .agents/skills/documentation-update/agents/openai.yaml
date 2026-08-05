@@ -1,0 +1,4 @@
+interface:
+  display_name: "Documentation Update"
+  short_description: "Keep AI Start Map documentation consistent"
+  default_prompt: "Use $documentation-update to review and update all project documentation affected by this change."

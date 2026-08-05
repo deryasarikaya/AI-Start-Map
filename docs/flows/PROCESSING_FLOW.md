@@ -1,5 +1,9 @@
 # AI Start Map – Processing Flow
 
+**Status:** Active
+**Letzte Prüfung:** 2026-08-05
+**Source of Truth:** Aktuell implementiertes Processing-, Fehler- und Retry-Verhalten
+
 _Stand: 26.07.2026_
 
 ## Gemeinsames Verhalten

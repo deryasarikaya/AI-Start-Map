@@ -124,6 +124,19 @@ These rules apply only when AI or RAG is part of the current task:
 * Validate external input.
 * Do not commit virtual environments, IDE files, caches or logs.
 
+## Documentation
+
+Before completing any relevant task, review the affected project documentation. At minimum, check `docs/PROJECT_STATE.md`, `docs/ROADMAP.md`, `docs/KNOWN_ISSUES.md`, `docs/DECISIONS.md`, `docs/CHANGELOG.md`, `docs/ARCHITECTURE.md`, `README.md`, `docs/INDEX.md` and the active feature specification.
+
+* Implementation and documentation must not contradict each other.
+* Do not present planned, decided, implemented, integrated and tested as the same status.
+* Update the active feature spec when requirements, scope, design, tasks or acceptance criteria change.
+* Update `docs/INDEX.md` when documents are added, moved, renamed, superseded, archived or reactivated.
+* Search for stale references after structural or behavioral changes.
+* Report which documentation files were reviewed, changed or did not require changes.
+
+For the detailed workflow, follow `.agents/skills/documentation-update/SKILL.md`.
+
 ## Git
 
 * Work in small, reviewable commits.
@@ -132,6 +145,24 @@ These rules apply only when AI or RAG is part of the current task:
 * Run tests before committing.
 * Do not force-push or rewrite existing history.
 * When the user requests publication, commit and push with Derya's authenticated GitHub identity. Never use Codex as author, committer or co-author.
+
+## GitHub workflow
+
+GitHub is the authoritative project history.
+
+For every relevant, logically complete change:
+
+1. update all affected documentation,
+2. run the relevant tests or validation,
+3. review the complete diff,
+4. commit the related changes,
+5. push the commit to the current feature branch.
+
+Do not leave completed relevant work only in the local working tree.
+
+Do not work directly on `main`. Do not merge to `main` without explicit review and approval. Do not force-push or rewrite history. Do not commit unrelated changes, secrets, IDE files, caches or logs.
+
+Commits and pushes must use Derya's authenticated GitHub identity. Codex must never appear as author, committer or co-author.
 
 
 ## Completion
