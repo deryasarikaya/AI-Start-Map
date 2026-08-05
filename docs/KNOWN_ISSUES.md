@@ -50,8 +50,8 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 
 ## KI-004 – Strukturierter Solution-Pattern-Katalog fehlt
 
-- **Status:** In Progress
-- **Beobachtung:** Zwölf Problemfamilien und zehn Solution Patterns sind inzwischen fachlich dokumentiert. Ein normalisierter, validierter Katalog ist jedoch weder als strukturierte Produktionsdatei umgesetzt noch in die Laufzeit integriert.
+- **Status:** Partially Fixed
+- **Beobachtung:** Der normalisierte Katalog, Loader und Selector sind implementiert und unit-getestet. Die produktive Laufzeitintegration ist noch nicht abgeschlossen.
 - **Erwartetes Verhalten:** Der Recommendation Layer wählt aus einem fachlich freigegebenen strukturierten Katalog über Applicability- und Exclusion-Gates passende konkrete Workflows aus und begründet sie.
 - **Mögliche Ursachen:** Die fachliche Grundlage wurde bewusst vor die technische Integration gestellt. Der aktuelle Laufzeitpfad besitzt deshalb weiterhin keinen normalisierten Solution-Katalog.
 - **Nächster Prüfschritt:** Fachreview abschließen, minimales Schema und Speicherformat beschließen und erst danach die strukturierte Katalogdatei implementieren.

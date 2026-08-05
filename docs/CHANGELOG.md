@@ -11,6 +11,14 @@ Diese Datei dokumentiert nur tatsächlich ausgeführte und verifizierte Änderun
 - Strukturierter Katalog, sechs getrennte Gates, rückwärtskompatible JSONB-View und HTML-/CSS-Prozesslinie als verbindliches Design dokumentiert.
 - Blumenladen als vierten Referenzfall ergänzt; Implementierung, Integration und Tests sind mit diesem Dokumentationsschritt noch nicht behauptet.
 
+## 2026-08-06 – Strukturiertes Solution-Wissen implementiert
+
+- Versionierten Katalog mit exakt zwölf Problemfamilien, zehn Solution Patterns und vollständiger Problemfamilie-zu-Lösung-Matrix angelegt.
+- Typisierte Pydantic-Loader, sechs getrennte Decision Gates, deterministische Klassifikation und nachvollziehbaren Selector implementiert.
+- Evaluationpfade explizit vom Loader ausgeschlossen; kein neuer Index, keine Embeddings und keine Datenbankmigration eingeführt.
+- Sieben Katalog- und Referenzfalltests für Hausmeister, Schuhmacher, Blumenladen und Massagesalon erfolgreich ausgeführt.
+- Katalog und Selector sind mit diesem Paket implementiert und getestet, aber noch nicht in den produktiven Analysepfad integriert.
+
 ## 2026-08-06 – Private IDE-Artefakte aus der Versionskontrolle entfernt
 
 - Sieben bereits versionierte PyCharm-Dateien unter `.idea/` aus dem Git-Index entfernt; die lokalen Dateien bleiben auf dem Entwicklungsrechner erhalten.

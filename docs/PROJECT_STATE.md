@@ -76,6 +76,8 @@ Texteingabe bleibt immer verfügbar. Die numerische Session-ID wird in der öffe
 - Agent-Pattern-Index mit 205 Patterns.
 - `retrieve_agent_patterns()` als Retrieval-Funktion für diesen Index.
 - Weitere Batch-04-Agentenpatterns, die derzeit vor allem als Forschungs-, Index- und Policy-Testmaterial dienen.
+- Strukturierter Recommendation-Katalog mit zwölf Problemfamilien, zehn Solution Patterns und vollständiger Matrix unter `knowledge/structured/`.
+- Typisierter Loader, sechs Decision Gates und deterministischer Selector in `app/recommendation_service.py`; die Laufzeitintegration in Analyse und Kundenausgabe ist noch nicht abgeschlossen.
 
 Nicht implementiert sind echtes Function Calling, ein LLM-gesteuerter dynamischer Agent und End-to-End-Tracing.
 

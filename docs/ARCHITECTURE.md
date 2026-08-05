@@ -33,6 +33,7 @@ Die öffentliche Journey nutzt ein signiertes Sitzungscookie. Die interne numeri
 | `app/agent_config.py` | Zentrale Rückfrage-, Agenten- und Toolbudgets |
 | `app/agent_service.py` | Getrennter Process State, drei interne Werkzeuge und deterministische Aktionsentscheidung |
 | `app/rag_service.py` | Korpusladen, Indexbau/-validierung, FAISS-Retrieval, Ranking und Promptbereinigung |
+| `app/recommendation_service.py` | Validiert den strukturierten Recommendation-Katalog, klassifiziert Problemfamilien und liefert eine deterministische gated Vorauswahl; noch nicht im produktiven Analysepfad integriert. |
 | `app/openai_service.py` | OpenAI Structured Outputs, Embeddings, Prompts, Normalisierung und Grounding |
 | `app/schemas.py` | Pydantic-Schemas und sichtbare Sicherheits-/Qualitätsvalidierung |
 | `app/models.py` | SQLAlchemy-Modelle der fünf Tabellen |

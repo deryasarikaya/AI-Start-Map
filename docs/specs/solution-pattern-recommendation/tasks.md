@@ -1,20 +1,20 @@
 # Tasks – Solution-Pattern-Recommendation
 
-**Status:** Draft
-**Datum:** 2026-08-05
-**Umsetzungsstatus:** In diesem Dokumentationsauftrag wurde keine Implementierungsaufgabe begonnen.
+**Status:** In Progress
+**Datum:** 2026-08-06
+**Umsetzungsstatus:** Produktvertrag, Katalog, Loader und deterministische Vorauswahl sind umgesetzt und unit-getestet; Laufzeitintegration folgt getrennt.
 
 | Bereich | Aufgabe | Status | Nachweis / Abhängigkeit |
 |---|---|---|---|
-| Fachlicher Review | Zwölf Problemfamilien und ihre Abgrenzungen fachlich freigeben. | Not Started | Fachgrundlage, Reviewprotokoll |
-| Fachlicher Review | Zehn Solution Patterns, Voraussetzungen und Ausschlüsse fachlich freigeben. | Not Started | Fachgrundlage, Acceptance Criteria |
-| Fachlicher Review | Vertrag für Wochentest und Anzahl der Opportunities erneut entscheiden. | Not Started | Product-Output-Spec, `docs/DECISIONS.md` |
-| Schema | Bestehende Pydantic-Schemas und JSONB-Verträge gegen die Spec prüfen. | Not Started | Technischer Review von `app/schemas.py` und Persistenz |
-| Schema | Minimalen typisierten Solution-Pattern-Vertrag entwerfen und freigeben. | Not Started | Keine unnötigen Felder oder neue Tabellen |
-| Strukturierte Katalogdateien | Speicherformat und Pfad für den nicht-indexierten Katalog festlegen. | Not Started | Entscheidung und Allow-List-Prüfung |
-| Strukturierte Katalogdateien | Zehn freigegebene Patterns vollständig und validierbar erfassen. | Not Started | Schema- und Fachreview |
-| Deterministische Gates | Vorgangsanker-, Kanal-, Reife-, Risiko-, Regelstabilitäts- und Freigabegates spezifizieren. | Not Started | Design und fachliche Freigabe |
-| Deterministische Gates | Applicability, Exclusion und Tie-Breaking implementieren und testen. | Not Started | Freigegebene Spezifikation |
+| Fachlicher Review | Zwölf Problemfamilien und ihre Abgrenzungen fachlich freigeben. | Done | Fachgrundlage und Auftrag 2026-08-06 |
+| Fachlicher Review | Zehn Solution Patterns, Voraussetzungen und Ausschlüsse fachlich freigeben. | Done | Fachgrundlage und Acceptance Criteria |
+| Fachlicher Review | Vertrag für Wochentest und Anzahl der Opportunities erneut entscheiden. | Done | DEC-016 |
+| Schema | Bestehende Pydantic-Schemas und JSONB-Verträge gegen die Spec prüfen. | Done | Keine Migration; JSONB-View vorgesehen |
+| Schema | Minimalen typisierten Solution-Pattern-Vertrag entwerfen und freigeben. | Done | `app/recommendation_service.py` |
+| Strukturierte Katalogdateien | Speicherformat und Pfad für den nicht-indexierten Katalog festlegen. | Done | `knowledge/structured/recommendation_catalog.json` |
+| Strukturierte Katalogdateien | Zehn freigegebene Patterns vollständig und validierbar erfassen. | Done | 12/10/Matrix-Validierung und Tests |
+| Deterministische Gates | Vorgangsanker-, Kanal-, Reife-, Risiko-, Regelstabilitäts- und Freigabegates spezifizieren. | Done | `DecisionGates` |
+| Deterministische Gates | Applicability, Exclusion und Tie-Breaking implementieren und testen. | Done | Selector-Unit-Tests; Laufzeitintegration separat offen |
 | Retrieval-Vertrag | Diagnose-RAG-Ausgabe für Problem- und Bedingungsevidenz abgrenzen. | Not Started | Nutzerfakt-/Evidenztrennung beibehalten |
 | Retrieval-Vertrag | Konkurrenz defensiver Chunktypen und fehlenden `automation_pattern`-Gegencheck beheben. | Not Started | Reproduzierbare Retrieval-Tests |
 | Recommendation-Auswahl | Problemfamilien und anwendbare Patterns in den Laufzeitpfad integrieren. | Not Started | Gates und Katalog vorhanden |
