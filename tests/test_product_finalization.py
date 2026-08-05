@@ -46,6 +46,40 @@ def test_final_payload_normalization_removes_internal_jargon_and_meta_steps() ->
     assert opportunity["recommendation"] == "doppelte Erfassung vermeiden"
 
 
+def test_follow_up_payload_is_normalized_to_today_without_repair_call() -> None:
+    normalized = openai_service._normalize_follow_up_payload(
+        {
+            "questions": [
+                {
+                    "question": (
+                        "Wenn du abrechnest, welche Informationen brauchst du?"
+                    ),
+                    "issue_type": "critical_unknown",
+                },
+                {
+                    "question": "Welche Software sollte eingeführt werden?",
+                    "issue_type": "missing",
+                },
+            ]
+        }
+    )
+
+    assert normalized == {
+        "questions": [
+            {
+                "question": (
+                    "Welche Informationen brauchst du heute, wenn du abrechnest?"
+                ),
+                "issue_type": "critical_unknown",
+            }
+        ]
+    }
+
+
+def test_final_analysis_uses_dedicated_sixty_second_timeout() -> None:
+    assert openai_service.FINAL_ANALYSIS_TIMEOUT_SECONDS == 60.0
+
+
 def _fact(value: str) -> FactRecord:
     return FactRecord(
         value=value,

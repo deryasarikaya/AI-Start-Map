@@ -16,7 +16,10 @@ from pydantic import BaseModel, ValidationError
 
 from app.schemas import (
     AS_IS_META_PATTERN,
+    CURRENT_PROCESS_PATTERN,
+    FOLLOW_UP_SOLUTION_PATTERN,
     FinalAnalysisResult,
+    FollowUpQuestion,
     FollowUpResult,
     ProcessBoundaryResult,
     ProcessSuggestionResult,
@@ -34,24 +37,40 @@ class AIServiceError(RuntimeError):
 StructuredResult = TypeVar("StructuredResult", bound=BaseModel)
 logger = logging.getLogger(__name__)
 OPENAI_REQUEST_TIMEOUT_SECONDS = 26.0
+FINAL_ANALYSIS_TIMEOUT_SECONDS = 60.0
 OPENAI_RETRIEVAL_TIMEOUT_SECONDS = 6.0
 _openai_call_count: contextvars.ContextVar[int] = contextvars.ContextVar(
     "openai_call_count",
+    default=0,
+)
+_embedding_call_count: contextvars.ContextVar[int] = contextvars.ContextVar(
+    "embedding_call_count",
     default=0,
 )
 
 
 def reset_openai_call_count() -> None:
     _openai_call_count.set(0)
+    _embedding_call_count.set(0)
 
 
 def get_openai_call_count() -> int:
     return _openai_call_count.get()
 
 
+def get_embedding_call_count() -> int:
+    return _embedding_call_count.get()
+
+
 def _record_openai_call() -> int:
     call_count = _openai_call_count.get() + 1
     _openai_call_count.set(call_count)
+    return call_count
+
+
+def _record_embedding_call() -> int:
+    call_count = _embedding_call_count.get() + 1
+    _embedding_call_count.set(call_count)
     return call_count
 
 
@@ -126,6 +145,47 @@ def _normalize_final_analysis_payload(value: object) -> object:
     return normalized
 
 
+def _normalize_current_process_question(question: str) -> str:
+    normalized = " ".join(question.strip().split()).rstrip(".?!")
+    if not normalized:
+        return ""
+    if CURRENT_PROCESS_PATTERN.search(normalized) is not None:
+        return f"{normalized}?"
+    conditional = re.match(r"^(wenn|falls)\s+([^,]+),\s*(.+)$", normalized, re.IGNORECASE)
+    if conditional is not None:
+        condition_word, condition, question_body = conditional.groups()
+        question_body = question_body[0].upper() + question_body[1:]
+        return (
+            f"{question_body} heute, {condition_word.casefold()} "
+            f"{condition}?"
+        )
+    return f"{normalized} – bezogen auf den Ablauf heute?"
+
+
+def _normalize_follow_up_payload(value: object) -> dict[str, object]:
+    if not isinstance(value, dict) or not isinstance(value.get("questions"), list):
+        return {"questions": []}
+    normalized_questions: list[dict[str, object]] = []
+    seen: set[str] = set()
+    for item in value["questions"][:4]:
+        if not isinstance(item, dict):
+            continue
+        question = _normalize_current_process_question(str(item.get("question", "")))
+        if not question or FOLLOW_UP_SOLUTION_PATTERN.search(question) is not None:
+            continue
+        candidate = {**item, "question": question}
+        try:
+            validated = FollowUpQuestion.model_validate(candidate)
+        except ValidationError:
+            continue
+        key = validated.question.casefold().rstrip(" ?!.")
+        if key in seen:
+            continue
+        seen.add(key)
+        normalized_questions.append(validated.model_dump())
+    return {"questions": normalized_questions}
+
+
 def _api_key() -> str:
     api_key = os.getenv("OPENAI_API_KEY", "").strip()
     if not api_key or api_key == "your_openai_api_key":
@@ -156,7 +216,7 @@ def get_embedding_model() -> str:
 def embed_texts(texts: Sequence[str]) -> list[list[float]]:
     if not texts:
         return []
-    call_number = _record_openai_call()
+    call_number = _record_embedding_call()
     call_started = perf_counter()
     logger.info(
         "openai.embeddings.start section=retrieval call=%d timeout_seconds=%.1f",
@@ -206,11 +266,17 @@ def _parse_structured_output(
     last_error: Exception | None = None
     model = _structured_output_model()
     is_final_analysis = result_type is FinalAnalysisResult
-    maximum_attempts = 1 if is_final_analysis else 2
-    request_deadline = perf_counter() + OPENAI_REQUEST_TIMEOUT_SECONDS
+    is_follow_up = result_type is FollowUpResult
+    maximum_attempts = 1 if is_final_analysis or is_follow_up else 2
+    request_timeout = (
+        FINAL_ANALYSIS_TIMEOUT_SECONDS
+        if is_final_analysis
+        else OPENAI_REQUEST_TIMEOUT_SECONDS
+    )
+    request_deadline = perf_counter() + request_timeout
     client = OpenAI(
         api_key=_api_key(),
-        timeout=OPENAI_REQUEST_TIMEOUT_SECONDS,
+        timeout=request_timeout,
         max_retries=0,
     )
     model_options: dict[str, object] = {}
@@ -273,6 +339,8 @@ def _parse_structured_output(
             response_payload = json.loads(message.get("content") or "")
             if is_final_analysis:
                 response_payload = _normalize_final_analysis_payload(response_payload)
+            elif is_follow_up:
+                response_payload = _normalize_follow_up_payload(response_payload)
             validation_started = perf_counter()
             parsed_result = result_type.model_validate(response_payload)
             logger.info(
@@ -311,6 +379,13 @@ def _parse_structured_output(
                 validation_fields,
                 perf_counter() - call_started,
             )
+    if is_follow_up:
+        logger.warning(
+            "openai.structured_output.fallback section=FollowUpResult questions=0 "
+            "exception_type=%s",
+            type(last_error).__name__ if last_error is not None else "UnknownError",
+        )
+        return result_type.model_validate({"questions": []})
     raise AIServiceError(
         "Die KI-Antwort konnte nicht zuverlässig verarbeitet werden."
     ) from last_error
@@ -368,16 +443,18 @@ def _combined_user_facts(
 def _validate_follow_up_grounding(
     result: FollowUpResult,
     answers: dict[str, str],
-) -> None:
+) -> FollowUpResult:
     user_facts = _combined_user_facts(answers)
+    grounded_questions: list[FollowUpQuestion] = []
     for follow_up in result.questions:
         question = follow_up.question.casefold()
-        for term in SPECULATIVE_PROCESS_TERMS:
-            if term in question and term not in user_facts:
-                raise AIServiceError(
-                    "Die Rückfragen konnten nicht sicher aus deinen Angaben "
-                    "abgeleitet werden."
-                )
+        if any(
+            term in question and term not in user_facts
+            for term in SPECULATIVE_PROCESS_TERMS
+        ):
+            continue
+        grounded_questions.append(follow_up)
+    return FollowUpResult(questions=grounded_questions)
 
 
 def _validate_final_grounding(
@@ -386,6 +463,63 @@ def _validate_final_grounding(
     selected_process: dict[str, str],
 ) -> None:
     user_facts = _combined_user_facts(answers, selected_process)
+    unsupported_terms = {
+        term for term in SPECULATIVE_PROCESS_TERMS if term not in user_facts
+    }
+    if unsupported_terms:
+        original_steps = list(result.as_is_steps)
+        kept_step_indexes = [
+            index
+            for index, step in enumerate(original_steps)
+            if not any(term in step.casefold() for term in unsupported_terms)
+        ]
+        if kept_step_indexes:
+            index_map = {
+                old_index: new_index
+                for new_index, old_index in enumerate(kept_step_indexes)
+            }
+            result.as_is_steps = [
+                original_steps[index] for index in kept_step_indexes
+            ]
+            result.as_is_problem_step_indexes = [
+                index_map[index]
+                for index in result.as_is_problem_step_indexes
+                if index in index_map
+            ]
+        result.uncertainties = [
+            uncertainty
+            for uncertainty in result.uncertainties
+            if not any(
+                term in uncertainty.casefold() for term in unsupported_terms
+            )
+        ]
+        result.optional_details.current_difficulties = [
+            difficulty
+            for difficulty in result.optional_details.current_difficulties
+            if not any(term in difficulty.casefold() for term in unsupported_terms)
+        ]
+        if any(term in result.process_summary.casefold() for term in unsupported_terms):
+            clean_summary = result.current_process_summary
+            if any(term in clean_summary.casefold() for term in unsupported_terms):
+                clean_summary = " ".join(result.as_is_steps)
+            result.process_summary = clean_summary
+        if any(
+            term in result.current_process_summary.casefold()
+            for term in unsupported_terms
+        ):
+            result.current_process_summary = result.process_summary
+    unsupported_solution_terms = {
+        term for term in SOLUTION_ONLY_UNCERTAINTY_TERMS if term not in user_facts
+    }
+    if unsupported_solution_terms:
+        result.uncertainties = [
+            uncertainty
+            for uncertainty in result.uncertainties
+            if not any(
+                term in uncertainty.casefold()
+                for term in unsupported_solution_terms
+            )
+        ]
     existing_process_text = " ".join(
         [result.process_summary, *result.as_is_steps, *result.uncertainties]
     ).casefold()
@@ -523,8 +657,7 @@ def generate_follow_up_questions(
         },
         result_type=FollowUpResult,
     )
-    _validate_follow_up_grounding(result, answers)
-    return result
+    return _validate_follow_up_grounding(result, answers)
 
 
 def generate_final_analysis(

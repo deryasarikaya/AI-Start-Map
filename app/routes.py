@@ -41,6 +41,7 @@ from app.openai_service import (
     generate_follow_up_questions,
     generate_process_understanding,
     generate_process_suggestions,
+    get_embedding_call_count,
     get_openai_call_count,
     reset_openai_call_count,
 )
@@ -1620,9 +1621,11 @@ def _generate_and_persist_final_analysis(
             agent_state=agent_state,
         )
         logger.info(
-            "analysis.stage_complete stage=final_openai_call duration_seconds=%.3f openai_calls=%d",
+            "analysis.stage_complete stage=final_openai_call duration_seconds=%.3f "
+            "openai_calls=%d retrieval_embedding_calls=%d",
             perf_counter() - stage_started,
             get_openai_call_count(),
+            get_embedding_call_count(),
         )
 
         stage = "jsonb_persistence"
@@ -1635,18 +1638,21 @@ def _generate_and_persist_final_analysis(
     except Exception as error:
         logger.exception(
             "analysis.failed section=%s exception_type=%s exception_message=%s "
-            "duration_seconds=%.3f openai_calls=%d",
+            "duration_seconds=%.3f openai_calls=%d retrieval_embedding_calls=%d",
             stage,
             type(error).__name__,
             str(error),
             perf_counter() - total_started,
             get_openai_call_count(),
+            get_embedding_call_count(),
         )
         raise
     logger.info(
-        "analysis.completed duration_seconds=%.3f openai_calls=%d",
+        "analysis.completed duration_seconds=%.3f openai_calls=%d "
+        "retrieval_embedding_calls=%d",
         perf_counter() - total_started,
         get_openai_call_count(),
+        get_embedding_call_count(),
     )
 
 

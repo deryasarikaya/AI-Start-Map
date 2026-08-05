@@ -489,16 +489,35 @@ def test_follow_up_validation_rejects_solutions_rules_and_new_risks(
         "_parse_structured_output",
         lambda **_kwargs: speculative,
     )
-    with pytest.raises(openai_service.AIServiceError):
-        openai_service.generate_follow_up_questions(
-            answers={"actual_steps": "Auftrag wird im Heft notiert."},
-            selected_process={
-                "process_name": "Reparaturannahme bis Abholung",
-                "start_event": "Gegenstand wird angenommen",
-                "end_event": "Gegenstand wird abgeholt",
-            },
-            knowledge_chunks=[],
-        )
+    result = openai_service.generate_follow_up_questions(
+        answers={"actual_steps": "Auftrag wird im Heft notiert."},
+        selected_process={
+            "process_name": "Reparaturannahme bis Abholung",
+            "start_event": "Gegenstand wird angenommen",
+            "end_event": "Gegenstand wird abgeholt",
+        },
+        knowledge_chunks=[],
+    )
+    assert result.questions == []
+
+
+def test_final_grounding_removes_unsupported_current_process_detail() -> None:
+    result = _shoe_result()
+    result.as_is_steps.insert(1, "Der Schuh wird heute fotografiert.")
+    result.as_is_problem_step_indexes = [1, 2]
+
+    openai_service._validate_final_grounding(
+        result,
+        answers={"actual_steps": "Der Schuh kommt mit einem Papierzettel ins Regal."},
+        selected_process={
+            "process_name": "Reparaturannahme bis Abholung",
+            "start_event": "Ein Schuh wird angenommen",
+            "end_event": "Der Schuh wird abgeholt",
+        },
+    )
+
+    assert all("foto" not in step.casefold() for step in result.as_is_steps)
+    assert result.as_is_problem_step_indexes == [1]
 
 
 def test_shoe_repair_quality_flow_contains_only_grounded_current_steps(
@@ -612,35 +631,38 @@ def test_carpentry_quality_flow_keeps_technical_approval_human(
     assert blueprints[3]["blueprint"] is None
 
 
-def test_unmentioned_shoe_repair_controls_are_rejected_as_current_facts() -> None:
+def test_unmentioned_shoe_repair_controls_are_removed_from_current_facts() -> None:
     payload = _shoe_result().model_dump()
     payload["as_is_steps"].append("Bei der Abholung werden Ausweisdaten geprüft.")
     unsafe_result = FinalAnalysisResult.model_validate(payload)
-    with pytest.raises(openai_service.AIServiceError):
-        openai_service._validate_final_grounding(
-            unsafe_result,
-            answers={"actual_steps": _shoe_answers()["actual_steps"]},
-            selected_process={
-                "process_name": "Reparaturannahme bis Abholung",
-                "start_event": "Ein Gegenstand wird angenommen",
-                "end_event": "Ein Gegenstand wird abgeholt",
-            },
-        )
+    openai_service._validate_final_grounding(
+        unsafe_result,
+        answers={"actual_steps": _shoe_answers()["actual_steps"]},
+        selected_process={
+            "process_name": "Reparaturannahme bis Abholung",
+            "start_event": "Ein Gegenstand wird angenommen",
+            "end_event": "Ein Gegenstand wird abgeholt",
+        },
+    )
+    assert all("ausweis" not in step.casefold() for step in unsafe_result.as_is_steps)
     solution_payload = _shoe_result().model_dump()
     solution_payload["uncertainties"].append(
         "Es ist unbekannt, ob eine digitale Auftragskarte verwendet werden kann."
     )
     solution_uncertainty = FinalAnalysisResult.model_validate(solution_payload)
-    with pytest.raises(openai_service.AIServiceError):
-        openai_service._validate_final_grounding(
-            solution_uncertainty,
-            answers={"actual_steps": _shoe_answers()["actual_steps"]},
-            selected_process={
-                "process_name": "Reparaturannahme bis Abholung",
-                "start_event": "Ein Gegenstand wird angenommen",
-                "end_event": "Ein Gegenstand wird abgeholt",
-            },
-        )
+    openai_service._validate_final_grounding(
+        solution_uncertainty,
+        answers={"actual_steps": _shoe_answers()["actual_steps"]},
+        selected_process={
+            "process_name": "Reparaturannahme bis Abholung",
+            "start_event": "Ein Gegenstand wird angenommen",
+            "end_event": "Ein Gegenstand wird abgeholt",
+        },
+    )
+    assert all(
+        "auftragskarte" not in uncertainty.casefold()
+        for uncertainty in solution_uncertainty.uncertainties
+    )
 
 
 def test_processing_status_and_completed_analysis_are_idempotent(
