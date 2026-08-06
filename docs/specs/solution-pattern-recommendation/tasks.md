@@ -1,6 +1,6 @@
 # Tasks – Solution-Pattern-Recommendation
 
-**Status:** Implemented and tested; final Git publication in progress
+**Status:** Implemented, integrated, tested, documented and published
 **Datum:** 2026-08-06
 **Umsetzungsstatus:** Produktvertrag, Katalog, Loader, Retrieval, Agent-Pattern-Aufruf, deterministische Auswahl, Kundenausgabe und Bericht sind integriert; 107 Tests, App-Start und begrenzte Chrome-Visualprüfung sind bestanden.
 
@@ -27,7 +27,7 @@
 | Evaluationen | Massagesalon gegen Kapazitäts- und Freigabe-Gate prüfen. | Done | Keine automatische Zusage |
 | Dokumentation | Projektstand, Architektur, Entscheidungen, Issues, Changelog, Roadmap und INDEX nach Implementierung aktualisieren. | Done | Documentation-Update-Skill |
 | Code Review | Produktionsdiff auf Scope, Sicherheitsgrenzen, Knowledge-Trennung und unnötige Abstraktion prüfen. | Done | Abschlussdiff, `git diff --check` und Secret-/Artefaktprüfung bestanden |
-| Release | Relevante Tests, Migrationen falls beschlossen, App-Start und Deployment-Artefakte verifizieren. | In Progress | Keine Migration; Branch-Push folgt nach Abschlussreview |
+| Release | Relevante Tests, Migrationen falls beschlossen, App-Start und Deployment-Artefakte verifizieren. | Done | Keine Migration; `107 passed`, HTTP 200, Commit `4ed51ab` gepusht |
 
 ## Statuswerte
 

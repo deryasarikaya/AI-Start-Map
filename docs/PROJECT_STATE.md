@@ -1,7 +1,7 @@
 # AI Start Map – Projektstand
 
 **Last Updated:** 2026-08-06
-**Verifizierter Code-Stand:** Branch `feature/recommendation-experience`; vollständige Testsuite im dokumentierten Arbeitsstand bestanden
+**Verifizierter Code-Stand:** Branch `feature/recommendation-experience`; Integrations-Commit `4ed51ab` gepusht; vollständige Testsuite bestanden
 **Pflegehinweis:** Diese Datei beschreibt den bestätigten heutigen Stand. Planung, offene Probleme, Entscheidungen und Änderungshistorie stehen in den übrigen Dokumenten unter `docs/`.
 
 ## Produktstand

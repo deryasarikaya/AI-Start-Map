@@ -6,6 +6,7 @@ Diese Datei dokumentiert nur tatsächlich ausgeführte und verifizierte Änderun
 
 ## 2026-08-06 – Recommendation Experience integriert und geprüft
 
+- Integrations-Commit `4ed51ab` auf `origin/feature/recommendation-experience` veröffentlicht.
 - Neuen `FinalAnalysisResult`-Vertrag mit einer Hauptlösung, Promise, Heute/Mit KI, typisierter Ergebnisvorschau, Du/KI/Ergebnis/Human-Check, begrenzten Nutzen- und Voraussetzungenlisten, Umsetzungsweg, optionalem Ausbau und null bis zwei sekundären Möglichkeiten integriert.
 - Wochentest und Pflicht zu genau drei Opportunities aus neuen Analysen und sichtbaren Seiten entfernt; alte JSONB-Analysen bleiben über die Legacy-Abbildung lesbar.
 - Problemfamilien, sechs getrennte Gates und deterministischen Solution-Selector in den produktiven Analysepfad eingebunden; Auswahl, Ausschlüsse, Gates und Validierung werden datensparsam strukturiert geloggt.
