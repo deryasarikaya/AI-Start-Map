@@ -1,7 +1,7 @@
 # Tasks – Solution-Pattern-Recommendation
 
 **Status:** Implemented, integrated, tested, documented and published
-**Datum:** 2026-08-06
+**Datum:** 2026-08-07
 **Umsetzungsstatus:** Produktvertrag v3, Katalog, Loader, Retrieval, Agent-Pattern-Aufruf, Gate-Kaskade, A0 und deterministische Auswahl sind integriert. Ergebnisseite und Druckbericht sind überarbeitet und mit echten Browser-/PDF-Renders geprüft. Ein kontrollierter Live-Finalaufruf ist bestanden.
 
 | Bereich | Aufgabe | Status | Nachweis / Abhängigkeit |
@@ -42,6 +42,9 @@
 | Modell | Finalprompt auf 15 Regeln kürzen, `medium`, zwei Versuche und Zeitbudget live prüfen. | Done | DEC-025, 60,141 s, ein Versuch |
 | Ergebnisansicht | Achtteilige Leserichtung, kompakte Typografie, responsive Rollen und Vorschau umsetzen. | Done | Layout-Regressionen und echte Desktop-/Mobile-Browserprüfung |
 | Druckbericht | V3-Inhalt, A0, Vorschaukennzeichnung und robuste A4-Seitenumbrüche umsetzen. | Done | Report-Regressionen, normaler Zwei-Seiten-Render und langer Sechs-Seiten-Render |
+| Mentor-Demo | Hausmeister, Fotograf, Blumenladen, Coach und A0 mit echten Modellaufrufen bis Ergebnis und Bericht prüfen. | Done | `docs/MENTOR_DEMO_2026-08-07.md`; fünf HTTP-200-Ergebnisse und PDFs ohne interne IDs |
+| Live-Funde | A0-Override, PF-02-Abgrenzung, direkte Kundensprache, vollständige Zukunftssätze und kundensichere Katalogtitel absichern. | Done | Contract-, Gate-, Klassifikations- und View-Regressionen plus wiederholte Live-Fälle |
+| Solution-Retrieval | Varianten-Ranking gegen deterministische Auswahl an den vier KI-Mentor-Fällen messen. | Done | Je Pattern 3 zulässig/2 geliefert; identische Workflowmenge, kein belegter Mehrwert |
 
 ## Statuswerte
 

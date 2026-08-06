@@ -1,8 +1,19 @@
 # Changelog
 
-**Last Updated:** 2026-08-06
+**Last Updated:** 2026-08-07
 
 Diese Datei dokumentiert nur tatsächlich ausgeführte und verifizierte Änderungen. Roadmap-Punkte gelten nicht als umgesetzt.
+
+## 2026-08-07 – Fünf Mentor-Demofälle live geprüft und Laufzeitblocker behoben
+
+- Hausmeister, Fotograf, Blumenladen, Coach und einen ausdrücklichen A0-Kalenderfall mit echten Modellaufrufen bis Ergebnis und Bericht durchlaufen; wörtliche Eingaben und Befunde in `docs/MENTOR_DEMO_2026-08-07.md` dokumentiert.
+- Den A0-Selector gegen eine irrtümliche semantische Familienzuordnung abgesichert und die Kundenausgabe deterministisch auf vorhandene Funktion/einfache Regel ohne KI-Empfehlung gesetzt.
+- Die semantische PF-02-Abgrenzung für kanalübergreifende neue Anfragen geschärft; der wiederholte Blumenladenlauf wählte danach den gemeinsamen Anfrageeingang statt Dokument-zu-Datensatz.
+- Direkte Nutzer- und Human-Check-Felder lokal reparierbar gemacht, Zukunftsschritte für vollständige Sätze auf 220 Zeichen erweitert und einzelne distanzierte Rollenformulierungen in Du-Sprache normalisiert.
+- Haupt- und sekundäre Empfehlungstitel deterministisch aus dem Katalog gesetzt; PF-/SP-/OUT-IDs in neuen und bereits gespeicherten Kundensichten unterdrückt.
+- Fünf finale Browser-Renders und PDFs geprüft: Ergebnis und Bericht jeweils HTTP 200, A0 auf zwei und vier A1-Fälle auf je drei nichtleeren Seiten, keine internen IDs oder Sitzungs-URLs.
+- Solution-Retrieval gegen direkte Auswahl verglichen: in allen vier KI-Fällen dieselben zwei von drei zulässigen Workflows; kein messbarer fachlicher Mehrwert in dieser Stichprobe.
+- Vollständige automatisierte Suite nach allen Live-Funden und Dokumentationsanpassungen: `176 passed`.
 
 ## 2026-08-06 – Druckbericht an den Kundenvertrag angeglichen
 

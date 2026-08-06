@@ -29,6 +29,8 @@ Die Oberfläche ist mobile-first. Browser-Spracherkennung wird genutzt, wenn sie
 
 Das Ergebnis beschreibt KI konkret über Eingabe, KI-Aufgabe, Ergebnis und menschliche Kontrolle. Ist zunächst Ordnung oder Standardisierung nötig, wird KI nicht erzwungen: Die App nennt dann ehrlich die Voraussetzung, ab der KI sinnvoll unterstützen kann.
 
+Fünf reproduzierbare Mentor-Demofälle für Hausmeisterservice, Fotograf, Blumenladen, Coach und einen Nicht-KI-Fall stehen mit wörtlichen Eingaben und geprüften Ergebnissen in [`docs/MENTOR_DEMO_2026-08-07.md`](docs/MENTOR_DEMO_2026-08-07.md).
+
 ## Technologie
 
 - FastAPI und Jinja2
@@ -71,7 +73,7 @@ Die vorhandenen produktiven Indizes müssen für den normalen Start nicht neu ge
 
 Der Agent-Pattern-Index unterstützt im Interviewpfad die Auswahl relevanter Frage- und Guardrail-Muster. Die Solution-Auswahl erfolgt deterministisch aus Problemfamilien, einer begründeten GATE-01…06-Kaskade und dem strukturierten Katalog. Sie kann A0 („keine KI nötig“) oder eine auf A1/A2 begrenzte Unterstützung wählen; SP-04 setzt einen echten physischen Gegenstand voraus. Echtes OpenAI Function Calling ist noch nicht integriert.
 
-Der Kundenvertrag `recommendation-v3` trennt Nutzerhandlung, KI-Aufgabe, normale Software-/Regelaufgabe und menschliche Prüfung. Output-Struktur, offene Angaben, kleinste nutzbare Version, Nicht-Automationen und Autonomiestufe werden strukturiert gespeichert; Altanalysen bleiben ohne erfundene v3-Felder lesbar. Die Ergebnisseite führt kompakt von Engpass und Empfehlung über den zukünftigen Ablauf und die Vorschau bis zu Human Check, kleinstem Einstieg und Grenzen.
+Der Kundenvertrag `recommendation-v3` trennt Nutzerhandlung, KI-Aufgabe, normale Software-/Regelaufgabe und menschliche Prüfung. Output-Struktur, offene Angaben, kleinste nutzbare Version, Nicht-Automationen und Autonomiestufe werden strukturiert gespeichert; Altanalysen bleiben ohne erfundene v3-Felder lesbar. Die Ergebnisseite führt kompakt von Engpass und Empfehlung über den zukünftigen Ablauf und die Vorschau bis zu Human Check, kleinstem Einstieg und Grenzen. Interne PF-/SP-/OUT-IDs werden auch bei älteren gespeicherten Ausgaben nicht angezeigt; ein ausdrücklicher Fall „vorhandene Funktion reicht, keine KI nötig“ bleibt deterministisch A0.
 
 Sicherheitsregeln, Budgets, No-Repeat und Schleifenabbruch hängen nicht von semantischem Retrieval ab. RAG-Evidenz bleibt getrennt von Nutzerfakten.
 

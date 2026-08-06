@@ -6,6 +6,7 @@ import hashlib
 import hmac
 import logging
 import os
+import re
 import secrets
 from datetime import date
 from pathlib import Path
@@ -2006,7 +2007,7 @@ def show_results(
             "process_summary": analysis.process_summary,
             "as_is_steps": analysis.as_is_steps,
             "core_bottleneck": analysis.core_bottleneck,
-            "uncertainties": analysis.uncertainties,
+            "uncertainties": result_view["uncertainties"],
         },
     }
     summary_start = analysis.process_summary.strip().casefold()
@@ -2051,6 +2052,36 @@ def show_results(
             "result": result_view,
         },
     )
+
+
+def _customer_recommendation_title(value: object) -> str:
+    title = str(value or "").strip()
+    match = re.search(r"\bSP-\d{2}\b", title, re.IGNORECASE)
+    if match is None:
+        return title
+    solution_id = match.group(0).upper()
+    catalog = load_recommendation_catalog()
+    pattern = next(
+        (item for item in catalog.solution_patterns if item.solution_id == solution_id),
+        None,
+    )
+    if pattern is not None:
+        return pattern.name
+    return re.sub(r"\s*\(?\bSP-\d{2}\b\)?\s*:?[ -]*", " ", title).strip()
+
+
+def _customer_future_steps(value: object) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [
+        re.sub(
+            r"^(?:Der )?Nutzer wählt oder übermittelt\b",
+            "Du wählst oder übermittelst",
+            re.sub(r"\bDu wählt\b", "Du wählst", str(item)),
+            flags=re.IGNORECASE,
+        )
+        for item in value
+    ]
 
 
 def _result_view(
@@ -2098,7 +2129,7 @@ def _result_view(
         opportunity_views.append(
             {
                 "rank": opportunity.rank,
-                "title": opportunity.title,
+                "title": _customer_recommendation_title(opportunity.title),
                 "problem": opportunity.problem,
                 "recommendation": opportunity.recommendation,
                 "benefit": opportunity.benefit,
@@ -2124,12 +2155,27 @@ def _result_view(
     legacy_human_check = str(core_output.get("human_check") or first["human_approval"])
     if not any(marker in legacy_human_check.casefold() for marker in ("du ", "dein", "dir ")):
         legacy_human_check = f"Du prüfst und bestätigst: {legacy_human_check}"
+    if core_output.get("autonomy_level") == "A0" and "noch offen" in legacy_human_check.casefold():
+        legacy_human_check = (
+            "Du prüfst an einem konkreten Beispiel, ob die vorhandene Funktion "
+            "oder Regel "
+            "wie gewünscht greift."
+        )
     secondary = core_output.get("secondary_opportunities")
     if not isinstance(secondary, list):
         secondary = [
             {"title": item["title"], "description": item["benefit"]}
             for item in opportunity_views[1:3]
         ]
+    secondary = [
+        {
+            **item,
+            "title": _customer_recommendation_title(item.get("title")),
+        }
+        if isinstance(item, dict)
+        else item
+        for item in secondary
+    ]
     sample_output = core_output.get("sample_output")
     if not isinstance(sample_output, dict):
         legacy_output = str(core_output.get("ai_output") or "")
@@ -2169,11 +2215,15 @@ def _result_view(
         },
         "opportunities": opportunity_views,
         "blueprint": blueprint,
-        "primary_recommendation": core_output.get("primary_recommendation") or first["title"],
+        "primary_recommendation": _customer_recommendation_title(
+            core_output.get("primary_recommendation") or first["title"]
+        ),
         "promise": core_output.get("promise") or core_output.get("ai_support") or first["benefit"],
         "short_reason": core_output.get("short_reason") or core_output.get("core_problem") or analysis.core_bottleneck,
         "before_process": core_output.get("before_process") or as_is_steps[:3],
-        "future_process": core_output.get("future_process") or to_be_steps[:4],
+        "future_process": _customer_future_steps(
+            core_output.get("future_process") or to_be_steps[:4]
+        ),
         "sample_output": sample_output,
         "user_action": user_action,
         "ai_task": core_output.get("ai_task") or "",

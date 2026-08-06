@@ -618,6 +618,9 @@ def _apply_recommendation_contract(
 
     primary = context.get("primary")
     if isinstance(primary, dict):
+        primary_name = str(primary.get("name") or "").strip()
+        if primary_name:
+            result.primary_recommendation = primary_name[:110]
         smallest_entry = str(primary.get("smallest_entry") or "").strip()
         if smallest_entry:
             result.smallest_usable_version = smallest_entry[:220]
@@ -628,9 +631,18 @@ def _apply_recommendation_contract(
             )[:180]
     if autonomy_level == "A0":
         a0_recommendation = str(context.get("a0_recommendation") or "").strip()
+        result.primary_recommendation = (
+            "Vorhandene Funktion oder einfache Regel zuerst nutzen"
+        )
         result.ai_task = "Für diesen ersten Schritt ist keine KI-Aufgabe notwendig."
+        result.human_check = (
+            "Du prüfst an einem konkreten Beispiel, ob die vorhandene Funktion "
+            "oder Regel "
+            "wie gewünscht greift."
+        )
         result.software_rule = a0_recommendation[:180]
         result.smallest_usable_version = a0_recommendation[:220]
+        result.secondary_opportunities = []
     return result
 
 

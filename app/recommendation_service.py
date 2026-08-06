@@ -484,6 +484,38 @@ def _determine_autonomy(
     return "A2"
 
 
+def _explicit_non_ai_first(confirmed_text: str) -> bool:
+    """Honor an explicit, grounded choice to use an existing simple function."""
+
+    value = confirmed_text.casefold()
+    no_ai_markers = (
+        "keine ki nötig",
+        "keine ki notwendig",
+        "ki ist nicht nötig",
+        "ki ist nicht notwendig",
+        "dafür ist keine ki nötig",
+        "dafür ist keine ki notwendig",
+    )
+    simple_solution_markers = (
+        "bestehende funktion",
+        "bestehende softwarefunktion",
+        "vorhandene funktion",
+        "vorhandene softwarefunktion",
+        "erinnerungsfunktion",
+        "einfache regel",
+    )
+    rejection_markers = (
+        "reicht nicht aus",
+        "genügt nicht",
+        "funktioniert nicht",
+    )
+    return (
+        any(marker in value for marker in no_ai_markers)
+        and any(marker in value for marker in simple_solution_markers)
+        and not any(marker in value for marker in rejection_markers)
+    )
+
+
 def select_recommendation(
     problem_family_ids: list[str],
     gates: DecisionGates,
@@ -502,6 +534,8 @@ def select_recommendation(
     )
     target_fit, target_fit_reason = _target_fit(gates, confirmed_text)
     autonomy_level = _determine_autonomy(assessments, target_fit)
+    if _explicit_non_ai_first(confirmed_text):
+        autonomy_level = "A0"
     if autonomy_level == "A0" or not problem_family_ids:
         return RecommendationSelection(
             problem_family_ids=problem_family_ids,

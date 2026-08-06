@@ -81,6 +81,7 @@ def test_gate_context_contains_all_six_gates() -> None:
 def test_system_prompt_allows_unknown_and_requires_evidence() -> None:
     assert "unknown" in CLASSIFICATION_SYSTEM_PROMPT
     assert "Belegzitat" in CLASSIFICATION_SYSTEM_PROMPT
+    assert "Abgrenzung PF-02/PF-03/PF-12" in CLASSIFICATION_SYSTEM_PROMPT
 
 
 def test_classify_with_llm_maps_families_and_gates(monkeypatch) -> None:

@@ -5,7 +5,7 @@ import re
 from collections.abc import Mapping, Sequence
 from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 logger = logging.getLogger(__name__)
@@ -32,6 +32,27 @@ def _final_analysis_json_schema(schema: dict[str, Any]) -> None:
 
 NonEmptyText = Annotated[str, Field(min_length=1)]
 
+DIRECT_CUSTOMER_LANGUAGE_PATTERN = re.compile(
+    r"\b(?:du|dein|deine|dir)\b",
+    re.IGNORECASE,
+)
+
+
+def _ensure_direct_customer_language(
+    value: Any,
+    *,
+    prefix: str,
+    max_length: int,
+) -> Any:
+    if not isinstance(value, str):
+        return value
+    text = value.strip()
+    if not text or DIRECT_CUSTOMER_LANGUAGE_PATTERN.search(text) is not None:
+        return text
+    repaired = f"{prefix}{text[: max_length - len(prefix)].rstrip()}"
+    logger.warning("final_analysis.direct_customer_language_repaired")
+    return repaired
+
 INTERNAL_REFERENCE_PATTERN = re.compile(
     r"\b(?:bekannter\s+testfall|testfall|rag[-\s]?fall|referenzfall|"
     r"evaluationsfall|chunk(?:-id)?|content_origin|pattern_ids?|case_id|"
@@ -39,7 +60,7 @@ INTERNAL_REFERENCE_PATTERN = re.compile(
     re.IGNORECASE,
 )
 INTERNAL_IDENTIFIER_PATTERN = re.compile(
-    r"\b(?:(?:EVAL-)?[MCKP]-\d{2}(?:[_-][A-Z0-9_]+)*|"
+    r"\b(?:(?:PF|SP|OUT)-\d{2}|(?:EVAL-)?[MCKP]-\d{2}(?:[_-][A-Z0-9_]+)*|"
     r"RB(?:02|03|04)-[A-Z0-9]+(?:-[A-Z0-9]+)*)\b",
     re.IGNORECASE,
 )
@@ -317,7 +338,7 @@ class FinalAnalysisResult(StrictResultModel):
     before_process: list[Annotated[str, Field(min_length=1, max_length=140)]] = Field(
         min_length=1, max_length=3
     )
-    future_process: list[Annotated[str, Field(min_length=1, max_length=140)]] = Field(
+    future_process: list[Annotated[str, Field(min_length=1, max_length=220)]] = Field(
         min_length=3, max_length=6
     )
     sample_output: SampleOutput
@@ -364,6 +385,41 @@ class FinalAnalysisResult(StrictResultModel):
         exclude=True,
         repr=False,
     )
+
+    @field_validator("user_action", mode="before")
+    @classmethod
+    def repair_direct_user_action(cls, value: Any) -> Any:
+        return _ensure_direct_customer_language(
+            value,
+            prefix="Du übernimmst: ",
+            max_length=180,
+        )
+
+    @field_validator("human_check", mode="before")
+    @classmethod
+    def repair_direct_human_check(cls, value: Any) -> Any:
+        return _ensure_direct_customer_language(
+            value,
+            prefix="Du prüfst: ",
+            max_length=200,
+        )
+
+    @field_validator("future_process", mode="before")
+    @classmethod
+    def repair_direct_future_step_grammar(cls, value: Any) -> Any:
+        if not isinstance(value, list):
+            return value
+        return [
+            re.sub(
+                r"^(?:Der )?Nutzer wählt oder übermittelt\b",
+                "Du wählst oder übermittelst",
+                re.sub(r"\bDu wählt\b", "Du wählst", item),
+                flags=re.IGNORECASE,
+            )
+            if isinstance(item, str)
+            else item
+            for item in value
+        ]
 
     @model_validator(mode="before")
     @classmethod
@@ -577,7 +633,7 @@ class FinalAnalysisResult(StrictResultModel):
         if any(index < 0 or index >= len(self.as_is_steps) for index in self.as_is_problem_step_indexes):
             raise ValueError("Eine markierte Problemstelle liegt außerhalb des Ist-Ablaufs.")
         direct_fields = (self.user_action, self.human_check)
-        if any(re.search(r"\b(?:du|dein|deine|dir)\b", item, re.IGNORECASE) is None for item in direct_fields):
+        if any(DIRECT_CUSTOMER_LANGUAGE_PATTERN.search(item) is None for item in direct_fields):
             raise ValueError("Nutzerhandlung und menschliche Prüfung müssen direkt mit du formuliert sein.")
         customer_output = self.model_dump(exclude={"process_summary", "as_is_steps", "core_bottleneck", "bottleneck_symptom", "bottleneck_cause", "bottleneck_effect", "as_is_problem_step_indexes", "to_be_steps", "uncertainties"})
         distant_matches = {

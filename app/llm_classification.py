@@ -64,6 +64,12 @@ typischen Aussagen, Symptome und Ursachen der Familien als Maßstab, nicht
 einzelne Stichwörter. Gib eine leere Liste zurück, wenn kein belegter Engpass
 vorliegt oder eine einfache bestehende Funktion ohne KI ausreicht.
 
+Abgrenzung PF-02/PF-03/PF-12: Wenn neue Anfragen oder Bestellwünsche aus
+mehreren digitalen Kanälen nicht zuverlässig mit Status und Mindestangaben
+erfasst werden, ist PF-02 dominant. PF-03 ist nur dominant, wenn die manuelle
+Übertragung derselben Information das Kernproblem ist; PF-12 nur, wenn das
+Auslesen unstrukturierter Inhalte in einen Datensatz das Kernproblem ist.
+
 Aufgabe 2 – Gates: Bewerte die sechs Gates ausschließlich anhand der
 Erzählung. Der Wert "unknown" ist ausdrücklich erlaubt und korrekt, wenn die
 Erzählung keine Aussage dazu enthält. Rate nicht und leite nichts aus

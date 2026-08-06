@@ -1,6 +1,6 @@
 # Known Issues
 
-**Last Updated:** 2026-08-06
+**Last Updated:** 2026-08-07
 
 Diese Datei enthält alle bestätigten aktuell nicht funktionierenden, unzureichenden oder noch nicht eingebundenen Punkte: technische Probleme, fachliche Qualitätsprobleme, UX-Probleme und inaktive Komponenten.
 
@@ -60,10 +60,10 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 ## KI-005 – Kundensprache ist teilweise zu technisch oder zu lang
 
 - **Status:** Partially Fixed
-- **Beobachtung:** `recommendation-v3` trennt Nutzer, KI, Regeln und Mensch, übernimmt OUT-Feldnamen deterministisch und zeigt offene Angaben, kleinste Version, Nicht-Automationen und Autonomiestufe. Der Prompt wurde auf 15 Kernregeln gekürzt; ein kontrollierter Live-Hausmeisteraufruf bestand. Die tatsächliche Modellformulierung muss über mehrere reale Fälle weiter beobachtet werden.
+- **Beobachtung:** `recommendation-v3` trennt Nutzer, KI, Regeln und Mensch, übernimmt OUT-Feldnamen deterministisch und zeigt offene Angaben, kleinste Version, Nicht-Automationen und Autonomiestufe. Fünf Mentor-Demofälle liefen mit echten Modellantworten. Dabei gefundene abgeschnittene Zukunftssätze, interne SP-IDs, distanzierte „Nutzer wählt“-Formulierung und die zu strikte Du-Validierung wurden technisch behoben. Sprachliche Dichte und Katalogbegriffe müssen mit echten Nutzern weiter beobachtet werden.
 - **Erwartetes Verhalten:** Kurze deutsche Sätze, ein klarer nächster Schritt und konkrete Beschreibung von Eingabe, KI-Aufgabe, Ergebnis und menschlicher Kontrolle.
 - **Mögliche Ursachen:** Noch zu verifizieren. Trotz kürzerem Prompt bleibt der Structured Output umfangreich; Katalogformulierungen können ohne UI-Hierarchie weiterhin dicht wirken.
-- **Nächster Prüfschritt:** Die fünf Mentor-Demofälle vollständig im Browser gegen Verständlichkeit, erfundene Fakten und offene Angaben prüfen.
+- **Nächster Prüfschritt:** Ergebnisse mit echten anonymisierten Betrieben auf Verständlichkeit prüfen; Mentor-Demofälle sind unter `docs/MENTOR_DEMO_2026-08-07.md` dokumentiert.
 - **Betroffene Dateien:** `app/openai_service.py`, `app/schemas.py`, `app/templates/results.html`, `app/templates/report.html`, `tests/test_product_finalization.py`.
 
 ## KI-006 – Ergebnisansicht und PDF waren zu groß oder textlastig
@@ -72,7 +72,7 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 - **Beobachtung:** Die Hauptseite folgt einer festen achtteiligen Leserichtung von Engpass bis späterer Ausbaustufe. Desktop und ein schmaler Mobile-Viewport wurden im echten Browser geprüft: lange Überschriften und Ablauftexte brechen um, die Seite hat keinen horizontalen Überlauf, H1 liegt bei 40 beziehungsweise 32 Pixeln und die Hauptaktionen bei 48–55 Pixeln Höhe. Der Bericht enthält denselben fachlichen Vertrag und wurde als echtes PDF geprüft: ein normaler Fall umfasst zwei vollständige A4-Seiten; ein absichtlich langer Fall bricht ohne leere oder abgeschnittene Seiten über sechs Seiten um.
 - **Erwartetes Verhalten:** Der Kernoutput ist schnell scanbar; Vertiefungen bleiben optional; eine dritte Seite entsteht nur bei echten weiteren Möglichkeiten.
 - **Mögliche Ursachen:** Noch zu verifizieren. Viele strukturierte Pflichtfelder, lange Modellausgaben und feste Berichtssektionen können sich kumulieren.
-- **Nächster Prüfschritt:** Die browserübergreifende Geräte- und Druckmatrix bleibt unter UX-001 offen; die Mentor-Demofälle müssen den Bericht noch mit ihren tatsächlichen Laufzeitdaten prüfen.
+- **Nächster Prüfschritt:** Die browserübergreifende Geräte- und Druckmatrix bleibt unter UX-001 offen. Die fünf Mentor-Berichte sind mit tatsächlichen Laufzeitdaten auf zwei beziehungsweise drei nichtleeren Chromium-PDF-Seiten geprüft.
 - **Betroffene Dateien:** `app/templates/results.html`, `app/templates/report.html`, `app/static/styles.css`, `app/routes.py`.
 
 ## KI-007 – Problem erkannt, konkreter KI-Workflow nicht immer optimal
@@ -105,7 +105,7 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 ## TECH-003 – End-to-End-Observability und Tracing fehlen
 
 - **Status:** Open
-- **Beobachtung:** Datenschutzarme strukturierte Logs decken Chunktypen, Agent-Pattern-Typen, Agentenaktion, Fragezahl, Problemfamilien, Gates, ausgewählte und ausgeschlossene Solutions sowie Validierung ab. Ein persistiertes End-to-End-Trace-Modell existiert nicht.
+- **Beobachtung:** Datenschutzarme strukturierte Logs decken Chunktypen, Agent-Pattern-Typen, Agentenaktion, Fragezahl, Problemfamilien, Gates, ausgewählte und ausgeschlossene Solutions sowie Validierung ab. Ein persistiertes End-to-End-Trace-Modell existiert nicht. Deshalb mussten Problemfamilien und Gates der Mentor-Läufe unmittelbar aus den gespeicherten Eingaben rekonstruiert werden; auch die tatsächliche Retry-Zahl wird nicht pro Analyse gespeichert.
 - **Erwartetes Verhalten:** Eine Diagnose lässt sich intern über Phasen und Entscheidungen nachvollziehen, ohne vollständige Nutzerantworten unnötig zu protokollieren.
 - **Mögliche Ursachen:** Observability wurde bisher nicht als eigener technischer Baustein implementiert.
 - **Nächster Prüfschritt:** Erst Datenschutz, Korrelation und Aufbewahrung für persistente Traces entscheiden; keine neue Plattform ohne Bedarf.
@@ -134,7 +134,7 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 - **Status:** Investigating
 - **Beobachtung:** Formale Prüfung und Fachstichprobe sind bestanden. Die Antwortzweige der Inference Patterns sind jedoch schematisch, und die konkreten Branchenworkflows sind quellenbasierte Synthesen statt bestätigte Beobachtungen realer AI-Start-Map-Betriebe.
 - **Erwartetes Verhalten:** Patterns steuern nur überprüfbare Hypothesen und notwendige Rückfragen; Runtime-Auswahl und sichtbarer Output bleiben an bestätigte Nutzerfakten und deterministische Grenzen gebunden.
-- **Nächster Prüfschritt:** Die integrierten Runtime-Kopien mit den fünf Mentor-Demofällen sowie späteren echten Interviews getrennt auswerten.
+- **Nächster Prüfschritt:** Mentor-Demofälle sind ausgewertet; als Nächstes die Antwortzweige und Branchenvarianten mit echten anonymisierten Interviews prüfen.
 - **Betroffene Dateien:** `knowledge/candidates/batch_09/`, `docs/BATCH_09_FACHPRUEFUNG.md`.
 
 ## UX-001 – Reale Geräte- und Druckabnahme ist noch nicht vollständig bestätigt

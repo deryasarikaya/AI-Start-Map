@@ -94,6 +94,29 @@ def test_new_contract_requires_and_preserves_all_customer_roles() -> None:
     assert result.legacy_filled_fields == []
 
 
+def test_missing_direct_address_is_repaired_without_rejecting_the_analysis() -> None:
+    payload = _new_payload()
+    payload["user_action"] = "Vorhandene Nachrichten und Belege weiterleiten."
+    payload["human_check"] = "Preis, Inhalt und verbindliche Freigabe kontrollieren."
+
+    result = FinalAnalysisResult.model_validate(payload)
+
+    assert result.user_action == "Du übernimmst: Vorhandene Nachrichten und Belege weiterleiten."
+    assert result.human_check == "Du prüfst: Preis, Inhalt und verbindliche Freigabe kontrollieren."
+    assert result.primary_recommendation == payload["primary_recommendation"]
+
+
+def test_direct_address_repair_respects_field_length_limits() -> None:
+    payload = _new_payload()
+    payload["user_action"] = "A" * 180
+    payload["human_check"] = "B" * 200
+
+    result = FinalAnalysisResult.model_validate(payload)
+
+    assert len(result.user_action) == 180
+    assert len(result.human_check) == 200
+
+
 def test_user_word_example_word_and_future_workflow_are_allowed() -> None:
     normalized = openai_service._normalize_final_analysis_payload(
         {"promise": "Das Mapping erzeugt eine Foto-Übersicht."},
@@ -168,9 +191,67 @@ def test_output_structure_and_boundaries_are_applied_deterministically() -> None
         if label != "Material"
     )
     assert contracted.autonomy_level == "A1"
+    assert contracted.primary_recommendation == pattern.name
+    assert "SP-" not in contracted.primary_recommendation
     assert contracted.smallest_usable_version == pattern.smallest_entry
     assert contracted.software_rule
     assert contracted.not_automated
+
+
+def test_a0_contract_removes_ai_recommendation_and_secondary_options() -> None:
+    payload = _new_payload()
+    result = FinalAnalysisResult.model_validate(payload)
+    contracted = openai_service._apply_recommendation_contract(
+        result,
+        {
+            "autonomy_level": "A0",
+            "a0_recommendation": (
+                "Nutze zuerst die vorhandene Kalenderfunktion. "
+                "KI ist dafür nicht notwendig."
+            ),
+        },
+        user_fact_text="vorhandene kalenderfunktion",
+    )
+    assert contracted.autonomy_level == "A0"
+    assert contracted.primary_recommendation == (
+        "Vorhandene Funktion oder einfache Regel zuerst nutzen"
+    )
+    assert contracted.ai_task == (
+        "Für diesen ersten Schritt ist keine KI-Aufgabe notwendig."
+    )
+    assert "an einem konkreten Beispiel" in contracted.human_check
+    assert contracted.secondary_opportunities == []
+
+
+def test_future_step_can_finish_a_customer_sentence_beyond_140_characters() -> None:
+    payload = _new_payload()
+    payload["future_process"][0] = (
+        "Du wählst die vorhandenen digitalen Angaben für den Vorgang aus; "
+        "danach werden Sprache, Fotos und Beleg gemeinsam und mit sichtbaren "
+        "offenen Punkten als Entwurf angezeigt."
+    )
+    result = FinalAnalysisResult.model_validate(payload)
+    assert len(result.future_process[0]) > 140
+    assert result.future_process[0].endswith("angezeigt.")
+
+
+def test_internal_solution_ids_are_neutralized_and_future_grammar_is_repaired() -> None:
+    payload = _new_payload()
+    payload["short_reason"] = "Das Muster SP-03 passt zu den Angaben."
+    payload["future_process"][0] = "Du wählt die vorhandenen Angaben aus."
+    result = FinalAnalysisResult.model_validate(payload)
+    assert result.short_reason == "noch offen"
+    assert result.future_process[0] == "Du wählst die vorhandenen Angaben aus."
+    assert any("internes" in item for item in result.uncertainties)
+
+    payload = _new_payload()
+    payload["future_process"][0] = (
+        "Nutzer wählt oder übermittelt die vorhandenen Angaben."
+    )
+    result = FinalAnalysisResult.model_validate(payload)
+    assert result.future_process[0] == (
+        "Du wählst oder übermittelst die vorhandenen Angaben."
+    )
 
 
 def test_legacy_shim_logs_placeholders_and_keeps_new_fields_empty(monkeypatch) -> None:
@@ -235,6 +316,47 @@ def test_legacy_database_view_does_not_show_generic_placeholders() -> None:
     assert view["sample_output"]["fields"] == []
     assert "Angaben erkennen und ordnen" not in str(view)
     assert "Ein prüfbarer Entwurf" not in str(view)
+
+
+def test_database_view_maps_internal_solution_id_to_customer_title() -> None:
+    analysis = Analysis(
+        session_id=1,
+        process_summary="Eine Nachricht wird geprüft.",
+        as_is_steps={"steps": ["Nachricht annehmen", "Inhalt prüfen"]},
+        core_bottleneck="Angaben werden manuell übertragen.",
+        uncertainties={
+            "items": [],
+            "core_output": {
+                "primary_recommendation": "Dokumente ordnen (SP-06)",
+                "secondary_opportunities": [
+                    {
+                        "title": "Einsatznotiz (SP-03)",
+                        "description": "Eine weitere geprüfte Möglichkeit.",
+                    }
+                ],
+            },
+        },
+    )
+    opportunity = AutomationOpportunity(
+        opportunity_id=1,
+        session_id=1,
+        rank=1,
+        title="Dokumente ordnen (SP-06)",
+        problem="Angaben werden manuell übertragen.",
+        recommendation="Angaben als Entwurf strukturieren.",
+        benefit="Offene Angaben werden sichtbar.",
+        human_approval="Du prüfst den Entwurf.",
+        first_step="Pflichtangaben festlegen.",
+        blueprint_json=None,
+    )
+    view = _result_view(analysis, [opportunity])
+    assert view["primary_recommendation"] == (
+        "Dokument-zu-Datensatz mit Unsicherheitsprüfung"
+    )
+    assert view["secondary_opportunities"][0]["title"] == (
+        "Mobile Einsatzdokumentation aus Sprache, Fotos und Bon"
+    )
+    assert "SP-" not in str(view)
 
 
 def test_final_parse_uses_medium_reasoning_and_retries_once(monkeypatch) -> None:

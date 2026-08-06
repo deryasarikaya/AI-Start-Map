@@ -1,6 +1,6 @@
 # Roadmap
 
-**Last Updated:** 2026-08-06
+**Last Updated:** 2026-08-07
 
 Diese Roadmap enthält nur verbleibende geplante Arbeit. Der implementierte Recommendation-Vertrag, Katalog, Selector, Agent-Pattern-Aufruf, neue Ergebnisoberfläche und variable Druckansicht stehen im Changelog und nicht mehr als Planung hier.
 
@@ -33,7 +33,7 @@ Diese Roadmap enthält nur verbleibende geplante Arbeit. Der implementierte Reco
 
 ### Technische Arbeit
 
-- Den messbaren Mehrwert des kleinen Solution-Workflow-Indexes gegenüber der deterministischen Variantenwahl an Mentor- und späteren Realfällen bewerten.
+- Den in den Mentor-Fällen nicht belegten Mehrwert des kleinen Solution-Workflow-Indexes nur noch an echten anonymisierten Fällen prüfen; bis dahin bleibt die deterministische Auswahl der gleichwertige Fallback.
 - Datenschutzarmes Korrelations- und Aufbewahrungskonzept für persistentes Tracing entscheiden, bevor eine neue Observability-Komponente entsteht.
 - Robustheit von Agent-Pattern-Treffern gegen reale Interviewformulierungen evaluieren; deterministische Guardrails unverändert beibehalten.
 - Rückwärtskompatible View-Abbildung mit älteren produktiven Analysen beobachten und bei belegten Altformaten ergänzen.
@@ -49,7 +49,7 @@ Diese Roadmap enthält nur verbleibende geplante Arbeit. Der implementierte Reco
 
 - Echtes LLM-Function-Calling für klar typisierte interne Werkzeuge als getrennten, begrenzten Tool-Loop evaluieren.
 - Vor einer Integration maximale Runden, maximale Toolaufrufe, Signaturwiederholung, Fallback und Offline-Evaluation spezifizieren.
-- Den bestehenden kleinen Solution-Workflow-Index nur beibehalten, wenn Mentor- und Realfälle einen messbaren Auswahlvorteil gegenüber der deterministischen Variantenwahl zeigen.
+- Den bestehenden kleinen Solution-Workflow-Index entfernen oder vereinfachen, falls auch Realfälle keinen Auswahlvorteil gegenüber der deterministischen Variantenwahl zeigen. Die Mentor-Stichprobe lieferte dieselben zwei Workflows und belegt keinen Vorteil.
 
 ### Produktarbeit
 

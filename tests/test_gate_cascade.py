@@ -106,6 +106,20 @@ def test_a0_is_reachable_when_existing_function_is_enough() -> None:
     assert "KI ist" in selection.a0_recommendation
 
 
+def test_explicit_non_ai_first_overrides_semantic_problem_family() -> None:
+    text = (
+        "Alle Termine stehen bereits vollständig im digitalen Kalender. "
+        "Ich will nur die vorhandene Erinnerungsfunktion einschalten; "
+        "dafür ist keine KI nötig."
+    )
+    selection = select_recommendation(
+        ["PF-01"], infer_decision_gates(text), confirmed_text=text
+    )
+    assert selection.primary is None
+    assert selection.autonomy_level == "A0"
+    assert selection.recommendation_mode == "non_ai_first"
+
+
 def test_rule_that_does_not_suffice_does_not_trigger_a0() -> None:
     text = "Eine einfache Regel reicht nicht aus; E-Mails müssen weiter übertragen werden."
     selection = select_recommendation(

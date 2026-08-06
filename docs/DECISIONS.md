@@ -1,6 +1,6 @@
 # Entscheidungen
 
-**Last Updated:** 2026-08-06
+**Last Updated:** 2026-08-07
 
 Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest. Wenn das ursprüngliche Entscheidungsdatum nicht getrennt dokumentiert wurde, ist das Datum als Aufnahmedatum gekennzeichnet.
 
@@ -203,6 +203,7 @@ Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest
 - **Entscheidung:** Ein Filterfehler verwirft nicht mehr die gesamte finale Analyse. Nicht belegte Ist-Details oder interne Referenzen werden nur im betroffenen Feld entfernt beziehungsweise als „noch offen“ neutralisiert; eine Unsicherheit wird ergänzt. Nutzerwörter sind erlaubt, Begriffe aus OUT-Vorschauen bleiben als Beispiel erlaubt und Katalogbegriffe sind im ausdrücklich zukünftigen Workflow zulässig. FAIL-01 bis FAIL-12 und die Stop Conditions der vorausgewählten Lösung werden als begründete Guardrails an den finalen Aufruf übergeben.
 - **Geänderte Wortlisten:** `SPECULATIVE_PROCESS_TERMS` bleibt ausschließlich als enger Ist-Fakt-Schutz für `abholnummer`, `ausweis`, `falschübergab`, `foto`, `identitätsprüf`, `ringordner`, `unterschrift` und `verwechslung`; `fotograf` wurde entfernt. Ein Treffer wird immer zugelassen, wenn der Nutzer den Begriff selbst verwendet hat. `SOLUTION_ONLY_UNCERTAINTY_TERMS` wurde vollständig geleert, weil `auftragskarte`, `automatis*`, `digital`, `fotodokument`, `software` und `statusübersicht` berechtigte Zukunfts-, Voraussetzungen- oder Unsicherheitsbegriffe sein können. `CUSTOMER_LANGUAGE_REPLACEMENTS` bleibt für nicht vom Nutzer verwendete Fachwörter aktiv; Nutzerwörter werden nicht ersetzt. Die Schema-Sperre wurde auf die vier nachweislich künstlichen Wörter `formulardoppie`, `nachschlageort`, `übergabevermerkgabel` und `handschriftenkapazität` reduziert. Distanzierte Rollen werden vor Validierung in Du-Sprache normalisiert.
 - **Regex-Änderungen:** `SUMMARY_META_PATTERN` und `AS_IS_META_PATTERN` neutralisieren oder entfernen nur betroffene Felder. `INTERNAL_REFERENCE_PATTERN`, interne IDs und interne Dateipfade werden feldweise zu „noch offen“. Die übrigen internen Referenzmuster und der konkrete Ist-Fakt-Schutz bleiben erhalten.
+- **Nachtrag 2026-08-07:** PF-, SP- und OUT-IDs gelten ausdrücklich als interne Kennungen. Bereits gespeicherte Titel mit solchen IDs werden in der Kundensicht auf den Katalognamen abgebildet. Direkte Rollenfelder ohne „du“ erhalten eine begrenzte feldbezogene Reparatur; „Nutzer wählt oder übermittelt“ wird zu direkter Du-Sprache. Kein solcher Treffer verwirft die Gesamtanalyse.
 - **Grund:** Pauschale Wortlisten entfernten berechtigte Spezifität und konnten nach einer einzigen problematischen Formulierung einen ansonsten verwertbaren Output als `AIServiceError` verwerfen.
 - **Konsequenzen:** Sicherheitsgrenzen bleiben erhalten, sind aber kontext- und feldbezogen. Die automatisierte Suite enthält getrennte Fälle für Nutzerwort, Beispielwort, Zukunftsformulierung, erfundenen Ist-Fakt, interne Referenz und fortgesetzte Restanalyse.
 - **Status:** Implemented and tested; reale Modellbeobachtung bleibt erforderlich
@@ -220,5 +221,14 @@ Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest
 - **Datum:** 2026-08-06
 - **Entscheidung:** Für das konfigurierte `gpt-5-mini` verwendet nur `FinalAnalysisResult` `reasoning_effort=medium`, maximal zwei Anwendungsversuche und ein gemeinsames Zeitbudget von 120 Sekunden. Andere GPT-5-Aufrufe bleiben bei `minimal`; Follow-up bleibt bei einem Versuch. Der finale Prompt enthält genau 15 inhaltliche Kernregeln und wiederholt keine Pydantic-Längen- oder Typvorgaben.
 - **Grund:** Der umfangreichere Kundenvertrag benötigt mehr Sorgfalt; ein zweiter Versuch soll einen einzelnen Schema- oder Groundingfehler reparieren können.
-- **Messung:** Ein kontrollierter echter Hausmeister-Aufruf bestand am ersten Versuch in 60,141 Sekunden, ohne Retry, mit den sechs deterministischen OUT-SP03-Feldern. Stichprobe `n=1`; daraus wird weder eine belastbare Fehlerquote noch eine allgemeine Latenzzusage abgeleitet.
+- **Messung:** Ein kontrollierter echter Hausmeister-Aufruf bestand am ersten Versuch in 60,141 Sekunden, ohne Retry, mit den sechs deterministischen OUT-SP03-Feldern. Vier spätere Unicode-End-to-End-Läufe benötigten einschließlich vorgelagerter Modellschritte 83,968 bis 138,469 Sekunden. Vor einer feldbezogenen Du-Reparatur scheiterten drei Versuche nach Ausschöpfung beider FinalAnalysis-Anläufe; die finalen Wiederholungen liefen durch. Die erfolgreiche Retry-Anzahl wird nicht persistiert, daher bleibt eine belastbare Quote offen.
 - **Status:** Implemented, API-kompatibel live geprüft und automatisiert getestet
+
+## DEC-026 – Live-Demofunde werden deterministisch vor der Kundensicht repariert
+
+- **Datum:** 2026-08-07
+- **Entscheidung:** Eine ausdrückliche ausreichende vorhandene Funktion mit „keine KI nötig“ setzt A0 auch dann durch, wenn die semantische Klassifikation eine Problemfamilie vorschlägt. Der finale Haupttitel kommt aus dem ausgewählten Katalogmuster, nicht aus frei formulierten internen IDs. Kundensicht und Bericht bilden bereits gespeicherte SP-Titel ebenfalls auf den Katalognamen ab. Zukunftsschritte dürfen bis 220 Zeichen lang sein und direkte Rollenformulierungen werden eng begrenzt grammatisch repariert.
+- **Semantische Abgrenzung:** Bei neuen Anfragen oder Bestellwünschen aus mehreren digitalen Kanälen mit verlorenem Status oder fehlenden Mindestangaben dominiert PF-02 gegenüber PF-03 und PF-12. Diese Abgrenzung stammt direkt aus dem verlangten Blumenladen-Demofall und wurde im semantischen Klassifikationsprompt ergänzt; der Keyword-Fallback bleibt unverändert sekundär.
+- **Grund:** Die echten Läufe zeigten trotz grüner Mock-Tests einen falschen A1-Output für den A0-Fall, SP-IDs und abgeschnittene Sätze in der Kundensicht sowie zunächst SP-06 statt eines gemeinsamen Anfrageeingangs beim Blumenladen.
+- **Retrieval-Folge:** Bei den vier KI-Demofällen lieferte der Solution-Index dieselben zwei von jeweils drei zulässigen Workflows wie die deterministische Auswahl, zweimal nur anders sortiert. Ein fachlicher Mehrwert ist in dieser Stichprobe nicht belegt; der Index bleibt nachgeordnet und entfernbar.
+- **Status:** Implemented, mit fünf Live-Fällen, Browser-Render und PDF geprüft

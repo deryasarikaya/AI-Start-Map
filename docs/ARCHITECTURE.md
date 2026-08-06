@@ -1,6 +1,6 @@
 # Architektur
 
-**Last Updated:** 2026-08-06
+**Last Updated:** 2026-08-07
 
 Diese Datei beschreibt die verifizierte aktuelle Architektur und trennt sie ausdrücklich von der geplanten Zielarchitektur.
 
@@ -69,7 +69,7 @@ _generate_and_persist_final_analysis()
 → deterministische OUT-/Katalog-Anwendung
 → _validate_final_grounding()
 → _persist_final_analysis()
-→ _result_view()
+→ _result_view() mit kundensicherer Abbildung interner Katalog-IDs
 ```
 
 ## Diagnose-RAG
@@ -186,11 +186,15 @@ Der finale Prompt erhält neben Nutzerfakten, getrennten Ableitungen und Diagnos
 
 Der Legacy-Shim bleibt erforderlich, weil die lokal konfigurierte Anwendungsdatenbank 15 ältere `core_output`-Payloads enthält. Er protokolliert nur erfundene Platzhalter; die Kundensicht unterdrückt sie. Neue v3-Felder werden für alte Analysen nicht erzeugt. Es war keine Migration und keine neue Tabelle nötig.
 
+Der Selector besitzt zusätzlich eine enge A0-Sicherung: Nennt der Nutzer ausdrücklich eine ausreichende vorhandene Funktion oder einfache Regel und dass keine KI nötig ist, kann eine vorgeschlagene Problemfamilie diese Entscheidung nicht wieder zu A1 machen. Für neue kanalübergreifende Anfragen mit verlorenem Status oder fehlenden Mindestangaben grenzt der semantische Prompt PF-02 ausdrücklich von reiner Mehrfachübertragung (PF-03) und Dokumentauslesung (PF-12) ab.
+
 Es existiert kein echtes OpenAI Function Calling. Das Modell erhält Daten und internes Vergleichswissen als strukturierte Prompt-Payload, ruft aber keine Agentenwerkzeuge selbst auf.
 
 ## Ergebnisdarstellung
 
 `app/templates/results.html` rendert den validierten Kernoutput in einer festen achtteiligen Leserichtung: Engpass, Empfehlung, Zukunftsablauf, konkretes Ergebnis, Human Check, kleinster Einstieg, Voraussetzungen und Grenzen sowie späterer Ausbau. Die Darstellung erfindet keine eigene fachliche Struktur, sondern verwendet die gespeicherten v3-Felder und unterdrückt Legacy-Shim-Platzhalter über die View-Abbildung. `app/static/styles.css` begrenzt Text auf ungefähr 72 Zeichen, hält den Ablauf vertikal und stapelt Rollen und Aktionen auf schmalen Viewports.
+
+`_result_view()` bildet interne SP-Titel aus bereits gespeicherten Analysen auf den freigegebenen Katalognamen ab und normalisiert begrenzte direkte Rollenformulierungen. PF-, SP-, OUT- und Sitzungskennungen bleiben außerhalb der Kundensicht. Neue Outputs erhalten den Haupttitel bereits nach dem Modellaufruf deterministisch aus dem ausgewählten Katalogmuster.
 
 ## PDF-Erstellung
 
@@ -213,7 +217,8 @@ Es gibt keine serverseitige PDF-Bibliothek. Der `mailto:`-Kontakt hängt den Ber
 - `tests/test_ux_journey.py` prüft die vollständige sichtbare Journey und den Kundenbericht.
 - `tests/test_recommendation_catalog.py` und `tests/test_recommendation_experience.py` prüfen Katalog, Selector, vier Referenzfälle, direkte Ansprache und Feldgrenzen.
 - `tests/test_llm_classification.py` prüft Katalogkontext, typisierte Ergebnisse, Begrenzung auf drei Familien und den unveränderten Keyword-Fallback ausschließlich mit gemockten OpenAI-Aufrufen.
-- Letzter vollständiger Lauf am 2026-08-06: 135 Tests bestanden.
+- Fünf echte Mentor-Läufe, finale Chromium-Ergebnis-/Berichtsrenders und PDF-Prüfung sind unter `docs/MENTOR_DEMO_2026-08-07.md` dokumentiert. Problemfamilien und Gates werden derzeit nicht persistiert und wurden für den Bericht unmittelbar aus den gespeicherten Eingaben rekonstruiert.
+- Letzter vollständiger Lauf am 2026-08-07: 176 Tests bestanden.
 
 ## Aktuelle Architektur
 

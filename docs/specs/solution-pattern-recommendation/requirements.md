@@ -1,7 +1,7 @@
 # Requirements – Solution-Pattern-Recommendation
 
 **Status:** Active – implemented, integrated and tested
-**Datum:** 2026-08-06
+**Datum:** 2026-08-07
 **Source of Truth:** Diese Feature-Spec; Kataloginhalte stammen ausschließlich aus der Fachgrundlage vom 2026-08-05.
 
 ## Ziel
@@ -16,7 +16,7 @@ Der Recommendation Layer wählt aus bestätigtem Prozessproblem, Problemfamilie 
 - Diagnose-RAG für Fälle, Ursachen, Fragen, Risiken, Voraussetzungen und Guardrails; konkrete Auswahl primär aus Katalog und Gates,
 - kontrollierte Agent-Pattern-Nutzung für nächste Frage/Aktion bei unveränderten Python-Guardrails,
 - kompakter neuer Kundenausgabevertrag und rückwärtskompatible Darstellung alter Analysen,
-- Falltests für Hausmeister, Schuhmacher, Blumenladen und Massagesalon.
+- Falltests für Hausmeister, Schuhmacher, Blumenladen und Massagesalon sowie echte Mentor-Läufe für Hausmeister, Fotograf, Blumenladen, Coach und A0.
 - technische Trennung von direkt geladenem Katalog und Fragepatterns, noch nicht integrierten Fachkandidaten, niemals indexierbaren Evaluationen und archivierten Herkunftsartefakten.
 - deterministische Batch-09-Output-Strukturen, unbestätigte Inference Patterns und getrenntes Solution-Workflow-Wissen mit sicherem direktem Fallback.
 
@@ -33,6 +33,8 @@ Der Recommendation Layer wählt aus bestätigtem Prozessproblem, Problemfamilie 
 9. Rückfragen sind nur zulässig, wenn die Antwort Problemfamilie, Ursache, Gate, Risiko, Human Check, zulässiges Pattern oder primäre Empfehlung verändert.
 10. Normal sind null bis zwei Rückfragen, drei nur in komplexen Fällen, vier technische Obergrenze.
 11. Wochentest und Pflicht zu genau drei Opportunities sind aufgehoben.
+12. Ein ausdrücklich ausreichender vorhandener Funktions- oder Regelfall bleibt A0, selbst wenn die semantische Klassifikation eine Problemfamilie vorschlägt.
+13. Interne PF-/SP-/OUT-IDs dürfen weder in neuen noch in rückwärtskompatibel dargestellten Kundenausgaben erscheinen.
 
 ## Kundenausgabe
 
