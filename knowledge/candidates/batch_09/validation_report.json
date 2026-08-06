@@ -1,0 +1,13 @@
+{
+  "patterns": 27,
+  "workflows": 28,
+  "outputs": 10,
+  "evaluations": 30,
+  "sources": 20,
+  "difficulty": {
+    "ambiguous": 10,
+    "clear": 10,
+    "multiple": 5,
+    "no_ai": 5
+  }
+}
