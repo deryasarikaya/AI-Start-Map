@@ -57,7 +57,7 @@ Diese Roadmap enthält nur verbleibende geplante Arbeit. Der implementierte Reco
 
 ## Backlog-Ideen (nicht geplant)
 
-- Klickbarer Ergebnisprototyp nach stabiler Klassifikation, eingebauten Output-Strukturen und fachlich geprüften Ergebnissen.
+- [Klickbarer Ergebnisprototyp](future-features/clickable-result-prototype.md) nach stabiler Klassifikation, eingebauten Output-Strukturen und fachlich geprüften Ergebnissen.
 
 ## Not planned
 
