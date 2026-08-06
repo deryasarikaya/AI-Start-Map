@@ -12,6 +12,7 @@ ROOT_DIRECTORY = Path(__file__).resolve().parents[1]
 CATALOG_FILE = ROOT_DIRECTORY / "knowledge" / "runtime" / "recommendation_catalog.json"
 Confidence = Literal["low", "medium", "high"]
 GateLevel = Literal["unknown", "low", "medium", "high"]
+GateStatus = Literal["pass", "fail", "unknown"]
 AutonomyLevelId = Literal["A0", "A1", "A2", "A3", "A4", "A5"]
 
 
@@ -216,13 +217,28 @@ class DecisionGates(CatalogModel):
     real_location_known: bool = False
 
 
+class GateAssessment(CatalogModel):
+    gate_id: Literal[
+        "GATE-01", "GATE-02", "GATE-03", "GATE-04", "GATE-05", "GATE-06"
+    ]
+    status: GateStatus
+    reason: str
+
+
 class RecommendationSelection(CatalogModel):
     problem_family_ids: list[str]
-    primary: SolutionPattern
+    primary: SolutionPattern | None
     secondary: list[SolutionPattern] = Field(max_length=2)
     excluded_reasons: dict[str, list[str]]
     required_prerequisites: list[str] = Field(max_length=3)
     human_approval_boundaries: list[str]
+    gate_assessments: list[GateAssessment] = Field(min_length=6, max_length=6)
+    autonomy_level: AutonomyLevelId
+    recommendation_mode: Literal["ai_assisted", "non_ai_first"]
+    a0_recommendation: str = ""
+    stop_conditions: list[str]
+    target_fit: GateStatus
+    target_fit_reason: str
 
 
 def load_recommendation_catalog(path: Path = CATALOG_FILE) -> RecommendationCatalog:
@@ -233,6 +249,16 @@ def load_recommendation_catalog(path: Path = CATALOG_FILE) -> RecommendationCata
 
 def classify_problem_families(text: str) -> list[str]:
     value = text.casefold()
+    if any(
+        marker in value
+        for marker in (
+            "kein engpass",
+            "keine probleme",
+            "bestehende softwarefunktion reicht aus",
+            "einfache regel reicht aus",
+        )
+    ):
+        return []
     rules = (
         ("PF-08", ("sprachnachricht", "bon", "einsatz", "rechnung")),
         ("PF-05", ("schuh", "gegenstand", "regal", "ablageort")),
@@ -252,7 +278,8 @@ def classify_problem_families(text: str) -> list[str]:
 def infer_decision_gates(text: str) -> DecisionGates:
     value = text.casefold()
     physical_object = re.search(
-        r"\b(?:schuh|schuhe|gegenstand|gegenstände|objekt|objekte|regal|regalplatz)\b",
+        r"\b(?:schuh|schuhe|gegenstand|gegenstände|gerät|geräte|paket|pakete|"
+        r"fahrrad|fahrräder|reparaturstück|ware|warenstück|regal|regalplatz)\b",
         value,
     ) is not None
     real_location_known = any(
@@ -295,10 +322,205 @@ def infer_decision_gates(text: str) -> DecisionGates:
     )
 
 
-def select_recommendation(problem_family_ids: list[str], gates: DecisionGates, *, catalog: RecommendationCatalog | None = None) -> RecommendationSelection:
+def evaluate_gate_cascade(
+    problem_family_ids: list[str],
+    gates: DecisionGates,
+    *,
+    confirmed_text: str = "",
+) -> list[GateAssessment]:
+    """Übersetzt Rohsignale nachvollziehbar in GATE-01 bis GATE-06."""
+
+    value = confirmed_text.casefold()
+    no_ai_needed = any(
+        marker in value
+        for marker in (
+            "kein engpass",
+            "keine probleme",
+            "bestehende softwarefunktion reicht aus",
+            "einfache regel reicht aus",
+        )
+    )
+    if no_ai_needed or not problem_family_ids:
+        task_fit: GateStatus = "fail"
+        task_reason = "Es ist kein belegter Engpass erkennbar, für den KI nötig wäre."
+    elif "PF-05" in problem_family_ids and not gates.physical_object:
+        task_fit = "unknown"
+        task_reason = "Ein echter physischer Gegenstand ist noch nicht bestätigt."
+    else:
+        task_fit = "pass"
+        task_reason = "Der beschriebene Engpass passt zu einer abgegrenzten Unterstützungsaufgabe."
+
+    def level_status(level: GateLevel) -> GateStatus:
+        if level in {"medium", "high"}:
+            return "pass"
+        if level == "low":
+            return "fail"
+        return "unknown"
+
+    anchor_status = level_status(gates.transaction_anchor)
+    output_status = level_status(gates.process_data_maturity)
+    if any(
+        marker in value
+        for marker in ("ohne prüfung", "ohne freigabe", "vollautomatisch entscheiden")
+    ):
+        review_status: GateStatus = "fail"
+        review_reason = "Eine notwendige menschliche Prüfung wird ausdrücklich ausgeschlossen."
+    elif gates.human_approval == "unknown":
+        review_status = "unknown"
+        review_reason = "Die verantwortliche menschliche Prüfung ist noch nicht bestätigt."
+    else:
+        review_status = "pass"
+        review_reason = "Eine menschliche Prüfung kann als verbindliche Grenze vorgesehen werden."
+
+    if gates.error_impact == "high" and review_status != "pass":
+        impact_status: GateStatus = "fail"
+        impact_reason = "Hohe Fehlerfolgen sind ohne bestätigte menschliche Prüfung nicht vertretbar."
+    elif gates.error_impact == "unknown":
+        impact_status = "unknown"
+        impact_reason = "Die möglichen Fehlerfolgen sind noch nicht angegeben."
+    else:
+        impact_status = "pass"
+        impact_reason = "Die Fehlerfolgen bleiben mit menschlicher Prüfung begrenzbar."
+
+    permission_fail = any(
+        marker in value
+        for marker in ("keine berechtigung", "nicht erlaubt", "ohne einwilligung")
+    )
+    permission_pass = any(
+        marker in value
+        for marker in (
+            "berechtigung liegt vor",
+            "einwilligung liegt vor",
+            "zugriff ist erlaubt",
+        )
+    )
+    if permission_fail:
+        permission_status: GateStatus = "fail"
+        permission_reason = "Die notwendige Berechtigung oder Einwilligung fehlt ausdrücklich."
+    elif permission_pass:
+        permission_status = "pass"
+        permission_reason = "Die notwendige Berechtigung oder Einwilligung ist bestätigt."
+    else:
+        permission_status = "unknown"
+        permission_reason = "Berechtigungen und Einwilligungen sind noch nicht angegeben."
+
+    return [
+        GateAssessment(gate_id="GATE-01", status=task_fit, reason=task_reason),
+        GateAssessment(
+            gate_id="GATE-02",
+            status=anchor_status,
+            reason=(
+                "Ein eindeutiger Vorgangsanker ist vorhanden."
+                if anchor_status == "pass"
+                else "Ein eindeutiger Vorgangsanker fehlt."
+                if anchor_status == "fail"
+                else "Der Vorgangsanker ist noch nicht angegeben."
+            ),
+        ),
+        GateAssessment(
+            gate_id="GATE-03",
+            status=output_status,
+            reason=(
+                "Ein prüfbarer Zieloutput lässt sich festlegen."
+                if output_status == "pass"
+                else "Ein prüfbarer Zieloutput ist noch nicht ausreichend strukturiert."
+                if output_status == "fail"
+                else "Der prüfbare Zieloutput ist noch nicht angegeben."
+            ),
+        ),
+        GateAssessment(gate_id="GATE-04", status=review_status, reason=review_reason),
+        GateAssessment(gate_id="GATE-05", status=impact_status, reason=impact_reason),
+        GateAssessment(gate_id="GATE-06", status=permission_status, reason=permission_reason),
+    ]
+
+
+def _target_fit(gates: DecisionGates, confirmed_text: str) -> tuple[GateStatus, str]:
+    value = confirmed_text.casefold()
+    if any(
+        marker in value
+        for marker in ("nur papier", "rein analog", "keinen digitalen kanal")
+    ):
+        return "fail", "Der Fall hat noch keinen digitalen Ausgangskanal."
+    if gates.physical_object and any(
+        marker in value
+        for marker in ("lagerordnung", "regalordnung", "objektkennzeichnung")
+    ):
+        return "fail", "Das Hauptproblem ist physische Lagerung oder Kennzeichnung."
+    if any(
+        marker in value
+        for marker in (
+            "preis automatisch",
+            "zahlung automatisch",
+            "personal automatisch",
+            "ohne freigabe entscheiden",
+        )
+    ):
+        return (
+            "fail",
+            "Die gewünschte autonome Geschäftsentscheidung liegt außerhalb des sicheren Zielbereichs.",
+        )
+    if gates.channel_suitability in {"medium", "high"}:
+        return "pass", "Mindestens ein digitaler Arbeitskanal ist vorhanden."
+    if gates.channel_suitability == "low":
+        return "fail", "Ein geeigneter digitaler Arbeitskanal ist nicht erkennbar."
+    return "unknown", "Ein geeigneter digitaler Arbeitskanal ist noch nicht bestätigt."
+
+
+def _determine_autonomy(
+    assessments: list[GateAssessment], target_fit: GateStatus
+) -> AutonomyLevelId:
+    statuses = {item.gate_id: item.status for item in assessments}
+    if target_fit == "fail" or statuses["GATE-01"] == "fail":
+        return "A0"
+    if any(
+        statuses[gate] == "fail" for gate in ("GATE-04", "GATE-05", "GATE-06")
+    ):
+        return "A0"
+    if target_fit == "unknown" or any(
+        statuses[gate] != "pass"
+        for gate in ("GATE-02", "GATE-03", "GATE-04", "GATE-05", "GATE-06")
+    ):
+        return "A1"
+    return "A2"
+
+
+def select_recommendation(
+    problem_family_ids: list[str],
+    gates: DecisionGates,
+    *,
+    catalog: RecommendationCatalog | None = None,
+    confirmed_text: str = "",
+) -> RecommendationSelection:
     data = catalog or load_recommendation_catalog()
     by_id = {item.solution_id: item for item in data.solution_patterns}
     mappings = {item.problem_family_id: item for item in data.matrix}
+    unknown_family_ids = sorted(set(problem_family_ids) - set(mappings))
+    if unknown_family_ids:
+        raise ValueError(f"Unbekannte Problemfamilien: {', '.join(unknown_family_ids)}")
+    assessments = evaluate_gate_cascade(
+        problem_family_ids, gates, confirmed_text=confirmed_text
+    )
+    target_fit, target_fit_reason = _target_fit(gates, confirmed_text)
+    autonomy_level = _determine_autonomy(assessments, target_fit)
+    if autonomy_level == "A0" or not problem_family_ids:
+        return RecommendationSelection(
+            problem_family_ids=problem_family_ids,
+            primary=None,
+            secondary=[],
+            excluded_reasons={},
+            required_prerequisites=[],
+            human_approval_boundaries=[],
+            gate_assessments=assessments,
+            autonomy_level="A0",
+            recommendation_mode="non_ai_first",
+            a0_recommendation=(
+                "Nutze zuerst eine einfache Regel, klare Ablage oder eine vorhandene "
+                "Softwarefunktion. KI ist für den beschriebenen Stand nicht notwendig."
+            ),
+            stop_conditions=[],
+            target_fit=target_fit,
+            target_fit_reason=target_fit_reason,
+        )
     candidates: list[str] = []
     prerequisites: list[str] = []
     for family_id in problem_family_ids:
@@ -308,6 +530,10 @@ def select_recommendation(problem_family_ids: list[str], gates: DecisionGates, *
             prerequisites.append(mapping.hard_prerequisite)
     candidates = list(dict.fromkeys(candidates))
     excluded: dict[str, list[str]] = {}
+    if not gates.physical_object and "SP-04" in candidates:
+        excluded.setdefault("SP-04", []).append(
+            "Kein angenommener, gelagerter, bearbeiteter oder abgeholter Gegenstand ist bestätigt."
+        )
     if gates.physical_object and not gates.real_location_known:
         for candidate in candidates:
             if candidate != "SP-04":
@@ -319,7 +545,24 @@ def select_recommendation(problem_family_ids: list[str], gates: DecisionGates, *
         candidates = ["SP-05", *[item for item in candidates if item != "SP-05"]]
     allowed = [item for item in candidates if item not in excluded]
     if not allowed:
-        allowed = [candidates[0]]
+        return RecommendationSelection(
+            problem_family_ids=problem_family_ids,
+            primary=None,
+            secondary=[],
+            excluded_reasons=excluded,
+            required_prerequisites=list(dict.fromkeys(prerequisites))[:3],
+            human_approval_boundaries=[],
+            gate_assessments=assessments,
+            autonomy_level="A0",
+            recommendation_mode="non_ai_first",
+            a0_recommendation=(
+                "Kläre zuerst den Vorgangsanker und den realen Prozess. "
+                "Eine KI-Empfehlung wäre derzeit nicht fachlich belastbar."
+            ),
+            stop_conditions=[],
+            target_fit=target_fit,
+            target_fit_reason=target_fit_reason,
+        )
     primary_id = allowed[0]
     secondary_ids = [item for item in allowed[1:] if item != primary_id][:2]
     approval_boundaries = [by_id[primary_id].human_check]
@@ -332,4 +575,11 @@ def select_recommendation(problem_family_ids: list[str], gates: DecisionGates, *
         excluded_reasons=excluded,
         required_prerequisites=list(dict.fromkeys(prerequisites))[:3],
         human_approval_boundaries=list(dict.fromkeys(approval_boundaries)),
+        gate_assessments=assessments,
+        autonomy_level=autonomy_level,
+        recommendation_mode="ai_assisted",
+        a0_recommendation="",
+        stop_conditions=by_id[primary_id].stop_conditions,
+        target_fit=target_fit,
+        target_fit_reason=target_fit_reason,
     )

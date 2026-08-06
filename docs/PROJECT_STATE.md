@@ -28,9 +28,9 @@ Texteingabe bleibt immer verfügbar. Die numerische Session-ID wird in der öffe
 
 - `knowledge/runtime/recommendation_catalog.json` enthält exakt zwölf Problemfamilien `PF-01` bis `PF-12`, zehn Solution Patterns `SP-01` bis `SP-10` und die vollständige Zuordnungsmatrix.
 - `app/recommendation_service.py` validiert Anzahl, IDs, Referenzen, Kernfelder und Evaluationstrennung.
-- `app/llm_classification.py` klassifiziert die bestätigte Erzählung primär per Structured Output in ein bis drei Katalog-Problemfamilien und die bestehenden sechs Gate-Werte. Bei `AIServiceError` bleiben Keyword-Klassifikation und alte Gate-Inferenz der konservative Fallback.
-- Vorgangsanker, Kanaleignung, Prozess-/Datenreife, Fehlerauswirkung, Regelstabilität und menschliche Freigabe bleiben getrennte typisierte Gates.
-- Der deterministische Selector liefert Hauptlösung, höchstens zwei sekundäre Kandidaten, Ausschlussgründe, Voraussetzungen und Freigabegrenzen.
+- `app/llm_classification.py` klassifiziert die bestätigte Erzählung primär per Structured Output in null bis drei Katalog-Problemfamilien und die bestehenden sechs Rohsignale. Eine leere Familienliste ist die belegbare A0-Entscheidung „keine KI nötig“. Bei `AIServiceError` bleiben Keyword-Klassifikation und Gate-Inferenz der konservative Fallback.
+- `app/recommendation_service.py` übersetzt die Rohsignale deterministisch in `GATE-01` bis `GATE-06` mit `pass`, `fail` oder `unknown` und deutscher Begründung. Zielgruppenfit, Fehlerfolgen und menschliche Prüfung werden gesondert bewertet.
+- Der deterministische Selector liefert A0 oder eine Hauptlösung, höchstens zwei sekundäre Kandidaten, Ausschlussgründe, Voraussetzungen, Stop Conditions, Autonomiestufe und Freigabegrenzen. SP-04 ist ohne bestätigten angenommenen, gelagerten, bearbeiteten oder abgeholten Gegenstand ausgeschlossen.
 - Der Selector ist in den produktiven Analysepfad integriert. Seine Vorauswahl wird dem finalen Structured-Output-Aufruf getrennt von Nutzerfakten und RAG-Evidenz übergeben.
 - Der neue Kernoutput wird ohne Migration in bestehendem JSONB gespeichert. Alte Analysen mit früherem Kernoutput bleiben über die View-Abbildung lesbar.
 
@@ -70,10 +70,11 @@ Texteingabe bleibt immer verfügbar. Die numerische Session-ID wird in der öffe
 
 ## Verifikation
 
-- Das reproduzierbare Evaluation-Harness umfasst 91 getrennte Fälle. Alle 91 Label-Einträge stehen auf `confirmed: false`; 40 vorbelegte PF-/SP-Zuordnungen sind Vorschläge und keine bestätigte Ground Truth.
-- Vollständige Testsuite: `135 passed` am 2026-08-06; die Demo-Tests mocken den vorgeschalteten Klassifikator.
+- Das reproduzierbare Evaluation-Harness weist 91 Legacy-Fälle und 30 Batch-09-Fälle getrennt aus und mittelt ihre Werte nicht. Alle 40 vorbelegten Legacy-Zuordnungen stehen auf `confirmed: false`; Batch 09 bleibt `research_proposed`.
+- Vollständige Testsuite: `149 passed` am 2026-08-06; die Demo-Tests mocken den vorgeschalteten Klassifikator.
 - Phase-1-RAG-Regression: vier isolierte Tests für leere Chunks, zwei vollständige Promote-Backups, mtime-Cache-Invalidierung und fehlende Dateien bestanden.
 - Keyword-Evaluation nach Phase 1: PF Top-1 28 %, PF Top-3 38 %, SP Top-1 30 %, PF-01-Default 48 %, verbotene Inhalte 0 von 91; damit gegenüber der Keyword-Baseline fachlich unverändert.
+- Aktuelle Keyword-Messung mit Gate-Kaskade: Legacy 91 weiterhin PF Top-1 28 %, irgendein PF-Treffer 38 %, SP Top-1 30 %, PF-01 48 %, verbotene Auswahltexte 0/91. Batch 09 getrennt: 25 Fälle mit vorgeschlagenen nicht bestätigten Labels, PF Top-1 40 %, irgendein PF-Treffer 48 %, SP Top-1 36 %, PF-01 33 %, verbotene Auswahltexte 0/30. Die schwache Keyword-Baseline bleibt nur Fallback.
 - Vorhandenes LLM-Eval-Artefakt: PF Top-1 65 %, PF Top-3 85 %, SP Top-1 70 %, PF-01-Default 3 %, zwei Klassifikatorfehler und ein Treffer eines verbotenen Begriffs. Dieser kostenpflichtige Lauf wurde in der aktuellen Sicherungsarbeit nicht wiederholt; seine Labels sind weiterhin unbestätigte Vorschläge.
 - Python-Kompilierung: `python -m compileall app scripts` bestanden.
 - App-Start gegen die separate Testdatenbank geprüft; Landingpage antwortete mit HTTP 200.

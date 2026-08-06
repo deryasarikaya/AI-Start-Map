@@ -69,7 +69,7 @@ Die vorhandenen produktiven Indizes müssen für den normalen Start nicht neu ge
 - Agentenaktionen: `ASK`, `CLARIFY`, `RETRIEVE`, `ANALYZE`, `STOP`.
 - Werkzeuge: `extract_process_state`, `search_diagnostic_knowledge`, `evaluate_readiness_and_next_action`.
 
-Der Agent-Pattern-Index unterstützt im Interviewpfad die Auswahl relevanter Frage- und Guardrail-Muster. Die Solution-Auswahl erfolgt deterministisch aus Problemfamilien, sechs getrennten Gates und dem strukturierten Katalog. Echtes OpenAI Function Calling ist noch nicht integriert.
+Der Agent-Pattern-Index unterstützt im Interviewpfad die Auswahl relevanter Frage- und Guardrail-Muster. Die Solution-Auswahl erfolgt deterministisch aus Problemfamilien, einer begründeten GATE-01…06-Kaskade und dem strukturierten Katalog. Sie kann A0 („keine KI nötig“) oder eine auf A1/A2 begrenzte Unterstützung wählen; SP-04 setzt einen echten physischen Gegenstand voraus. Echtes OpenAI Function Calling ist noch nicht integriert.
 
 Sicherheitsregeln, Budgets, No-Repeat und Schleifenabbruch hängen nicht von semantischem Retrieval ab. RAG-Evidenz bleibt getrennt von Nutzerfakten.
 

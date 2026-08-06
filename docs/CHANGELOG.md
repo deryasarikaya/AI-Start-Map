@@ -4,6 +4,14 @@
 
 Diese Datei dokumentiert nur tatsächlich ausgeführte und verifizierte Änderungen. Roadmap-Punkte gelten nicht als umgesetzt.
 
+## 2026-08-06 – Begründete Gate-Kaskade und A0 integriert
+
+- `GATE-01` bis `GATE-06` werden nach der Klassifikation deterministisch als `pass`, `fail` oder `unknown` mit Begründung ausgewertet.
+- A0 ist erreichbar, wenn keine KI nötig ist, der Fall außerhalb der digitalen Zielgruppe liegt oder kritische autonome Entscheidungen beziehungsweise fehlende Prüfgrenzen die Lösung blockieren.
+- SP-04 setzt nun zwingend einen echten angenommenen, gelagerten, bearbeiteten oder abgeholten Gegenstand voraus; Gebäude, Einsatzorte und Kundenadressen reichen nicht. Der digitale Hausmeisterfall bleibt SP-03.
+- `scripts/evaluate.py` misst 91 Legacy-Fälle und 30 Batch-09-Fälle getrennt und mittelt sie nicht. `confirmed: false` und `research_proposed` bleiben erhalten.
+- Vierzehn neue Gate-/A0-/Zielgruppen- und Datensatztrennungstests ergänzen die Regression; vollständige Suite `149 passed`.
+
 ## 2026-08-06 – Batch-09-Knowledge-Rollen integriert
 
 - Kontrollierte Runtime-Kopien für 27 Inference Patterns, 28 Solution Workflows und 10 Output-Strukturen reproduzierbar aus dem unveränderten Kandidaten-Batch erzeugt und mit Pydantic validiert.

@@ -48,7 +48,7 @@ Diese Roadmap enthält nur verbleibende geplante Arbeit. Der implementierte Reco
 
 - Echtes LLM-Function-Calling für klar typisierte interne Werkzeuge als getrennten, begrenzten Tool-Loop evaluieren.
 - Vor einer Integration maximale Runden, maximale Toolaufrufe, Signaturwiederholung, Fallback und Offline-Evaluation spezifizieren.
-- Einen Solution-Index nur bei nachgewiesenem Bedarf und nach separater Entscheidung prüfen; der aktuelle Katalog benötigt ihn nicht.
+- Den bestehenden kleinen Solution-Workflow-Index nur beibehalten, wenn Mentor- und Realfälle einen messbaren Auswahlvorteil gegenüber der deterministischen Variantenwahl zeigen.
 
 ### Produktarbeit
 

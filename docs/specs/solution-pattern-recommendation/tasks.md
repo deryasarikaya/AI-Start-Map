@@ -2,7 +2,7 @@
 
 **Status:** Implemented, integrated, tested, documented and published
 **Datum:** 2026-08-06
-**Umsetzungsstatus:** Produktvertrag, Katalog, Loader, Retrieval, Agent-Pattern-Aufruf, deterministische Auswahl, Kundenausgabe und Bericht sind integriert; 107 Tests, App-Start und begrenzte Chrome-Visualprüfung sind bestanden.
+**Umsetzungsstatus:** Produktvertrag, Katalog, Loader, Retrieval, Agent-Pattern-Aufruf, Gate-Kaskade, A0 und deterministische Auswahl sind integriert; Kundenausgabe und Bericht werden im aktiven Qualitätslauf weiter konkretisiert. 149 Tests sind bestanden.
 
 | Bereich | Aufgabe | Status | Nachweis / Abhängigkeit |
 |---|---|---|---|
@@ -33,6 +33,8 @@
 | RAG-Zuverlässigkeit | FAISS-Indizes pro Prozess und Verzeichnis mit mtime-Invalidierung cachen. | Done | Wiederverwendung, Reload nach Dateiänderung und Fehlerpfad für fehlende Dateien getestet |
 | Batch 09 | Output-Strukturen, Inference Patterns, Workflows und Evaluationen nach Datenrolle trennen. | Done | Pydantic-Loader, reproduzierbare Promotion und 30 ausgeschlossene Evaluationen |
 | Batch 09 | Solution-Workflow-Index getrennt bauen und direkten Fallback erhalten. | Done | 27 positive Chunks, SP-04/Evaluationen ausgeschlossen, Index validiert |
+| Gate-Kaskade | GATE-01 bis GATE-06 mit `pass`/`fail`/`unknown`, Begründung, Zielgruppenfit und A0 umsetzen. | Done | `test_gate_cascade.py`, 149 Tests |
+| Gate-Kaskade | Legacy 91 und Batch 09 getrennt messen und Labelstatus bewahren. | Done | `scripts/evaluate.py`, keine gemittelte Kennzahl |
 
 ## Statuswerte
 

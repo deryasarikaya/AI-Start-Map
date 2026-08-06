@@ -7,8 +7,6 @@ bestehende Keyword-Logik greift.
 
 from __future__ import annotations
 
-import pytest
-
 import app.llm_classification as llm_classification
 from app.llm_classification import (
     CLASSIFICATION_SYSTEM_PROMPT,
@@ -120,7 +118,7 @@ def test_classify_with_llm_deduplicates_and_limits_to_three(monkeypatch) -> None
     assert outcome.problem_family_ids == ["PF-02", "PF-04", "PF-05"]
 
 
-def test_classify_with_llm_raises_on_empty_family_list(monkeypatch) -> None:
+def test_classify_with_llm_allows_empty_family_list_for_a0(monkeypatch) -> None:
     monkeypatch.setattr(
         llm_classification,
         "_parse_structured_output",
@@ -129,8 +127,9 @@ def test_classify_with_llm_raises_on_empty_family_list(monkeypatch) -> None:
             gates=_llm_result(["PF-01"]).gates,
         ),
     )
-    with pytest.raises(AIServiceError):
-        classify_with_llm(HAUSMEISTER_TEXT)
+    outcome = classify_with_llm("Die vorhandene Kalenderfunktion reicht aus.")
+    assert outcome.problem_family_ids == []
+    assert outcome.method == "llm"
 
 
 def test_classify_narrative_uses_llm_when_available(monkeypatch) -> None:

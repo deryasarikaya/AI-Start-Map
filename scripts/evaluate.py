@@ -45,6 +45,7 @@ from app.recommendation_service import (  # noqa: E402
 
 EVALUATION_DIRECTORY = ROOT_DIRECTORY / "knowledge" / "evaluation"
 LABEL_FILE = EVALUATION_DIRECTORY / "expected_labels.json"
+BATCH_09_FILE = EVALUATION_DIRECTORY / "batch_09_evaluation_cases.jsonl"
 
 CASE_FILES = {
     "EVAL-C": EVALUATION_DIRECTORY / "cases_ten_kmu.json",
@@ -62,6 +63,10 @@ class EvaluationCase:
     forbidden: list[str] = field(default_factory=list)
     required: list[str] = field(default_factory=list)
     expected_verdict: str = ""
+    dataset: str = "legacy_91"
+    expected_families: list[str] = field(default_factory=list)
+    expected_solutions: list[str] = field(default_factory=list)
+    label_status: str = "unlabelled"
 
 
 def _read_json(path: Path) -> dict | list:
@@ -69,7 +74,7 @@ def _read_json(path: Path) -> dict | list:
 
 
 def load_cases() -> list[EvaluationCase]:
-    """Sammelt alle Evaluationsfaelle aus den vier vorhandenen Quellen."""
+    """Lädt Legacy- und Batch-09-Fälle mit strikt getrennten Datensatzrollen."""
 
     cases: list[EvaluationCase] = []
 
@@ -145,6 +150,24 @@ def load_cases() -> list[EvaluationCase]:
                     expected_verdict=str(case.get("expected", "")),
                 )
             )
+    if BATCH_09_FILE.is_file():
+        for line in BATCH_09_FILE.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            case = json.loads(line)
+            cases.append(
+                EvaluationCase(
+                    case_id=case["case_id"],
+                    source="BATCH-09",
+                    dataset="batch_09",
+                    text=str(case["customer_statement"]),
+                    forbidden=list(case.get("forbidden_answer_elements", [])),
+                    required=list(case.get("expected_answer_elements", [])),
+                    expected_families=list(case["expected_problem_family_ids"]),
+                    expected_solutions=list(case["expected_solution_pattern_ids"]),
+                    label_status=str(case["label_status"]),
+                )
+            )
     return cases
 
 
@@ -158,7 +181,10 @@ def selection_text(selection) -> str:
     """Alle Texte, die aus der Auswahl beim Kunden sichtbar werden koennen."""
 
     parts: list[str] = []
-    for pattern in [selection.primary, *selection.secondary]:
+    patterns = ([selection.primary] if selection.primary is not None else []) + list(
+        selection.secondary
+    )
+    for pattern in patterns:
         parts.extend(
             [
                 pattern.name,
@@ -173,6 +199,8 @@ def selection_text(selection) -> str:
         )
     parts.extend(selection.required_prerequisites)
     parts.extend(selection.human_approval_boundaries)
+    if selection.a0_recommendation:
+        parts.append(selection.a0_recommendation)
     return " ".join(parts).casefold()
 
 
@@ -259,40 +287,61 @@ def run(*, classifier: str = "keyword", workers: int = 1) -> dict:
     for case, classification in zip(cases, classifications):
         families = classification["families"]
         gates = classification["gates"]
-        selection = select_recommendation(families, gates, catalog=catalog)
+        selection = select_recommendation(
+            families, gates, catalog=catalog, confirmed_text=case.text
+        )
         visible = selection_text(selection)
         label = labels.get(case.case_id, {})
+        expected_families = case.expected_families or list(
+            filter(None, [label.get("problem_family")])
+        )
+        expected_solutions = case.expected_solutions or list(
+            filter(None, [label.get("solution_pattern")])
+        )
+        primary_id = selection.primary.solution_id if selection.primary else "A0"
         results.append(
             {
                 "case_id": case.case_id,
                 "source": case.source,
+                "dataset": case.dataset,
                 "text": case.text,
                 "families": families,
                 "gates": gates.model_dump(),
-                "primary": selection.primary.solution_id,
+                "gate_assessments": [
+                    item.model_dump() for item in selection.gate_assessments
+                ],
+                "primary": primary_id,
                 "secondary": [item.solution_id for item in selection.secondary],
-                "autonomy_max": selection.primary.autonomy_level_max,
+                "autonomy_level": selection.autonomy_level,
                 "is_default_fallback": families == ["PF-01"],
                 "classifier_error": classification["classifier_error"],
                 "forbidden_hits": [
                     term for term in case.forbidden if term.casefold() in visible
                 ],
-                "expected_family": label.get("problem_family"),
-                "expected_solution": label.get("solution_pattern"),
-                "label_confirmed": bool(label.get("confirmed")),
+                "expected_families": expected_families,
+                "expected_solutions": expected_solutions,
+                "label_status": (
+                    case.label_status
+                    if case.dataset == "batch_09"
+                    else "confirmed"
+                    if label.get("confirmed")
+                    else "review_proposed"
+                    if expected_families
+                    else "unlabelled"
+                ),
             }
         )
     return {
         "classifier": classifier,
         "case_count": len(results),
+        "dataset_counts": dict(Counter(item["dataset"] for item in results)),
         "results": results,
     }
 
 
 def report(payload: dict, *, show_misses: bool) -> None:
     results = payload["results"]
-    total = len(results)
-    if not total:
+    if not results:
         print("Keine Evaluationsfaelle gefunden.")
         return
 
@@ -302,114 +351,76 @@ def report(payload: dict, *, show_misses: bool) -> None:
         f"(Klassifikator: {payload.get('classifier', 'keyword')})"
     )
     print("=" * 66)
-    print(f"Faelle gesamt: {total}")
-    classifier_errors = [
-        item for item in results if item.get("classifier_error")
-    ]
-    if classifier_errors:
-        print(
-            f"Klassifikator-Fehler (als PF-01 gezaehlt): "
-            f"{len(classifier_errors)}/{total}"
-        )
-    for source, count in sorted(Counter(item["source"] for item in results).items()):
-        print(f"  {source}: {count}")
+    print(f"Datensaetze: {payload['dataset_counts']}")
 
-    print("\n--- Labelfreie Kennzahlen -------------------------------------")
-    fallback = [item for item in results if item["is_default_fallback"]]
-    print(
-        f"Nur PF-01 (Default-Fallback): {len(fallback)}/{total} "
-        f"= {100 * len(fallback) / total:.0f}%"
-    )
-
-    reached = {family for item in results for family in item["families"]}
-    never = sorted({f"PF-{index:02d}" for index in range(1, 13)} - reached)
-    print(f"Nie erreichte Problemfamilien: {never or 'keine'}")
-
-    primaries = Counter(item["primary"] for item in results)
-    print(f"Verschiedene primaere Solutions: {len(primaries)}/10")
-    print("  " + ", ".join(f"{key}:{value}" for key, value in primaries.most_common()))
-
-    print("\nGate-Streuung (wie oft welcher Wert):")
-    gate_names = [
-        "transaction_anchor",
-        "channel_suitability",
-        "process_data_maturity",
-        "error_impact",
-        "rule_stability",
-        "human_approval",
-    ]
-    for name in gate_names:
-        counter = Counter(item["gates"][name] for item in results)
-        dominant, dominant_count = counter.most_common(1)[0]
-        print(
-            f"  {name:<22} {dict(counter)}   "
-            f"-> {100 * dominant_count / total:.0f}% auf '{dominant}'"
-        )
-
-    violations = [item for item in results if item["forbidden_hits"]]
-    print(
-        f"\nVerbotene Inhalte in der Auswahl: {len(violations)}/{total} Faelle"
-    )
-    for item in violations[:10]:
-        print(f"  {item['case_id']:<12} {item['forbidden_hits']}")
-
-    confirmed = [item for item in results if item["label_confirmed"]]
-    proposed = [
-        item
-        for item in results
-        if item["expected_family"] and not item["label_confirmed"]
-    ]
-
-    def accuracy(items: list[dict], title: str) -> None:
+    def dataset_report(dataset: str, title: str) -> None:
+        items = [item for item in results if item["dataset"] == dataset]
         count = len(items)
         if not count:
             return
-        family_top1 = sum(
-            1
-            for item in items
-            if item["families"] and item["families"][0] == item["expected_family"]
-        )
-        family_any = sum(
-            1 for item in items if item["expected_family"] in item["families"]
-        )
-        solution_top1 = sum(
-            1 for item in items if item["expected_solution"] == item["primary"]
-        )
-        print(f"{title}: {count} Faelle")
-        print(f"  PF Top-1 korrekt:      {family_top1}/{count} = {100 * family_top1 / count:.0f}%")
-        print(f"  PF irgendwo getroffen: {family_any}/{count} = {100 * family_any / count:.0f}%")
-        print(f"  SP Top-1 korrekt:      {solution_top1}/{count} = {100 * solution_top1 / count:.0f}%")
-        if show_misses:
-            print("  Fehltreffer:")
-            for item in items:
-                if item["expected_solution"] != item["primary"]:
-                    print(
-                        f"    {item['case_id']:<12} erwartet {item['expected_solution']} "
-                        f"({item['expected_family']}), bekommen {item['primary']} "
-                        f"({item['families']})"
-                    )
-                    print(f"      {item['text'][:88]}")
-
-    print("\n--- Trefferquoten --------------------------------------------")
-    if not confirmed and not proposed:
+        print(f"\n--- {title} ({count}) " + "-" * max(1, 43 - len(title)))
+        for source, source_count in sorted(
+            Counter(item["source"] for item in items).items()
+        ):
+            print(f"  {source}: {source_count}")
+        errors = [item for item in items if item.get("classifier_error")]
+        fallback = [item for item in items if item["is_default_fallback"]]
+        print(f"Klassifikator-Fehler: {len(errors)}/{count}")
         print(
-            "Keine Labels vorhanden. Trage erwartete Problemfamilie und Solution\n"
-            "Pattern in knowledge/evaluation/expected_labels.json ein."
+            f"Nur PF-01: {len(fallback)}/{count} = "
+            f"{100 * len(fallback) / count:.0f}%"
         )
-    accuracy(confirmed, "Bestaetigte Labels (verbindlich)")
-    if proposed:
-        if confirmed:
-            print()
-        accuracy(proposed, "Vorgeschlagene Labels (noch nicht bestaetigt)")
+        reached = {family for item in items for family in item["families"]}
+        never = sorted({f"PF-{index:02d}" for index in range(1, 13)} - reached)
+        print(f"Nie erreichte Problemfamilien: {never or 'keine'}")
+        primaries = Counter(item["primary"] for item in items)
         print(
-            "\n  Hinweis: Diese Labels sind ein Vorschlag und keine bestaetigte\n"
-            "  Wahrheit. Nach fachlicher Pruefung \"confirmed\": true setzen."
+            "Primaere Auswahl: "
+            + ", ".join(f"{key}:{value}" for key, value in primaries.most_common())
         )
+        autonomy = Counter(item["autonomy_level"] for item in items)
+        print(f"Autonomiestufen: {dict(autonomy)}")
+        violations = [item for item in items if item["forbidden_hits"]]
+        print(f"Verbotene Inhalte in Auswahltexten: {len(violations)}/{count}")
 
-    if show_misses:
-        print("\n--- Alle Default-Fallback-Faelle ------------------------------")
-        for item in fallback:
-            print(f"  {item['case_id']:<12} {item['text'][:80]}")
+        labelled = [item for item in items if item["expected_families"]]
+        if labelled:
+            family_top1 = sum(
+                bool(item["families"])
+                and item["families"][0] in item["expected_families"]
+                for item in labelled
+            )
+            family_any = sum(
+                bool(set(item["families"]) & set(item["expected_families"]))
+                for item in labelled
+            )
+            solution_top1 = sum(
+                item["primary"] in item["expected_solutions"] for item in labelled
+            )
+            print(
+                f"Vorgeschlagene Labels ({len(labelled)}, nicht Ground Truth):\n"
+                f"  PF Top-1 passend: {family_top1}/{len(labelled)} = "
+                f"{100 * family_top1 / len(labelled):.0f}%\n"
+                f"  PF irgendein Treffer: {family_any}/{len(labelled)} = "
+                f"{100 * family_any / len(labelled):.0f}%\n"
+                f"  SP Top-1 passend: {solution_top1}/{len(labelled)} = "
+                f"{100 * solution_top1 / len(labelled):.0f}%"
+            )
+            if show_misses:
+                for item in labelled:
+                    if item["primary"] not in item["expected_solutions"]:
+                        print(
+                            f"  {item['case_id']}: erwartet {item['expected_solutions']}, "
+                            f"bekommen {item['primary']} ({item['families']})"
+                        )
+        if show_misses and fallback:
+            print("PF-01-Fälle:")
+            for item in fallback:
+                print(f"  {item['case_id']:<12} {item['text'][:80]}")
+
+    dataset_report("legacy_91", "Alter Datensatz – Zielgruppe überwiegend historisch")
+    dataset_report("batch_09", "Batch 09 – neue Zielgruppe, research_proposed")
+    print("\nDie Kennzahlen beider Datensätze werden bewusst nicht gemittelt.\n")
     print()
 
 

@@ -1664,51 +1664,59 @@ def _generate_and_persist_final_analysis(
 
         stage = "recommendation_selection"
         stage_started = perf_counter()
-        recommendation = select_recommendation(problem_family_ids, gates)
+        recommendation = select_recommendation(
+            problem_family_ids, gates, confirmed_text=query_text
+        )
         confirmed_channels = extract_confirmed_channels(query_text)
         all_solution_workflows = load_solution_workflows()
-        deterministic_workflows = select_solution_workflows(
-            recommendation.primary.solution_id,
-            channels=confirmed_channels,
-            limit=2,
-            workflows=all_solution_workflows,
+        primary_solution_id = (
+            recommendation.primary.solution_id if recommendation.primary else None
         )
-        solution_query = build_solution_query(
-            problem_family_ids=problem_family_ids,
-            solution_pattern_id=recommendation.primary.solution_id,
-            bottleneck=process.process_name,
-            channels=confirmed_channels,
-        )
-        solution_retrieval_method = "deterministic"
-        selected_workflows = deterministic_workflows
-        try:
-            semantic_chunks = retrieve_solution_workflows(
-                solution_query,
-                solution_pattern_id=recommendation.primary.solution_id,
+        selected_workflows = []
+        solution_query = ""
+        solution_retrieval_method = "not_applicable_a0"
+        if primary_solution_id:
+            selected_workflows = select_solution_workflows(
+                primary_solution_id,
                 channels=confirmed_channels,
-                top_k=2,
+                limit=2,
+                workflows=all_solution_workflows,
             )
-            by_workflow_id = {
-                item.workflow_id: item for item in all_solution_workflows
-            }
-            semantic_workflows = [
-                by_workflow_id[chunk.chunk_id]
-                for chunk in semantic_chunks
-                if chunk.chunk_id in by_workflow_id
-            ]
-            if semantic_workflows:
-                selected_workflows = semantic_workflows
-                solution_retrieval_method = "semantic"
-        except (AIServiceError, RagConfigurationError) as error:
-            logger.warning(
-                "solution_retrieval.fallback method=deterministic "
-                "exception_type=%s exception_message=%s",
-                type(error).__name__,
-                str(error),
+            solution_query = build_solution_query(
+                problem_family_ids=problem_family_ids,
+                solution_pattern_id=primary_solution_id,
+                bottleneck=process.process_name,
+                channels=confirmed_channels,
             )
+            solution_retrieval_method = "deterministic"
+            try:
+                semantic_chunks = retrieve_solution_workflows(
+                    solution_query,
+                    solution_pattern_id=primary_solution_id,
+                    channels=confirmed_channels,
+                    top_k=2,
+                )
+                by_workflow_id = {
+                    item.workflow_id: item for item in all_solution_workflows
+                }
+                semantic_workflows = [
+                    by_workflow_id[chunk.chunk_id]
+                    for chunk in semantic_chunks
+                    if chunk.chunk_id in by_workflow_id
+                ]
+                if semantic_workflows:
+                    selected_workflows = semantic_workflows
+                    solution_retrieval_method = "semantic"
+            except (AIServiceError, RagConfigurationError) as error:
+                logger.warning(
+                    "solution_retrieval.fallback method=deterministic "
+                    "exception_type=%s exception_message=%s",
+                    type(error).__name__,
+                    str(error),
+                )
         recommendation_context = recommendation.model_dump()
         recommendation_context["output_structure"] = output_structure_context(
-            output_structure_for(recommendation.primary.solution_id)
+            output_structure_for(primary_solution_id) if primary_solution_id else None
         )
         recommendation_context["solution_workflows"] = solution_workflow_context(
             selected_workflows
@@ -1716,7 +1724,7 @@ def _generate_and_persist_final_analysis(
         recommendation_context["solution_retrieval"] = {
             "query": solution_query,
             "eligible_count": sum(
-                item.solution_pattern_id == recommendation.primary.solution_id
+                item.solution_pattern_id == primary_solution_id
                 and item.batch_scope == "in_scope"
                 for item in all_solution_workflows
             ),
@@ -1727,7 +1735,7 @@ def _generate_and_persist_final_analysis(
             "recommendation.selected problem_families=%s primary_solution=%s "
             "secondary_solutions=%s excluded_solutions=%s gates=%s",
             problem_family_ids,
-            recommendation.primary.solution_id,
+            primary_solution_id or "A0",
             [item.solution_id for item in recommendation.secondary],
             recommendation.excluded_reasons,
             gates.model_dump(),
@@ -1749,7 +1757,7 @@ def _generate_and_persist_final_analysis(
         logger.info(
             "recommendation.output_validated validation_result=passed "
             "primary_solution=%s secondary_count=%d",
-            recommendation.primary.solution_id,
+            primary_solution_id or "A0",
             len(result.secondary_opportunities),
         )
         logger.info(

@@ -55,13 +55,14 @@ Du klassifizierst die bestätigte Erzählung eines sehr kleinen Betriebs für ei
 Prozessdiagnose. Die Nutzdaten enthalten die Erzählung, zwölf definierte
 Problemfamilien und sechs Entscheidungs-Gates.
 
-Aufgabe 1 – Problemfamilien: Wähle die eine bis höchstens drei Problemfamilien,
+Aufgabe 1 – Problemfamilien: Wähle null bis höchstens drei Problemfamilien,
 die das erzählte Kernproblem am besten treffen, geordnet nach Dominanz. Die
 dominante Familie steht an erster Stelle. Wähle nur Familien, für die es eine
 konkrete Textstelle in der Erzählung gibt, und gib diese Textstelle wörtlich
 als Belegzitat an. Wähle keine Familie auf Verdacht. Nutze die Definitionen,
 typischen Aussagen, Symptome und Ursachen der Familien als Maßstab, nicht
-einzelne Stichwörter.
+einzelne Stichwörter. Gib eine leere Liste zurück, wenn kein belegter Engpass
+vorliegt oder eine einfache bestehende Funktion ohne KI ausreicht.
 
 Aufgabe 2 – Gates: Bewerte die sechs Gates ausschließlich anhand der
 Erzählung. Der Wert "unknown" ist ausdrücklich erlaubt und korrekt, wenn die
@@ -156,10 +157,6 @@ def classify_with_llm(
     family_ids = list(
         dict.fromkeys(item.problem_family_id for item in result.families)
     )[:MAXIMUM_FAMILY_COUNT]
-    if not family_ids:
-        raise AIServiceError(
-            "Die Klassifikation hat keine Problemfamilie geliefert."
-        )
     gates = DecisionGates.model_validate(result.gates.model_dump())
     return ClassificationOutcome(
         problem_family_ids=family_ids,

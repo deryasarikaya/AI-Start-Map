@@ -165,9 +165,9 @@ Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest
 ## DEC-019 – Semantische Klassifikation vor deterministischer Auswahl
 
 - **Datum:** 2026-08-06
-- **Entscheidung:** Die bestätigte Nutzererzählung wird primär per Structured Output einer bis drei gültigen Problemfamilien und den bestehenden typisierten Gate-Werten zugeordnet. Der Katalog begrenzt die IDs; der Selector und alle Sicherheitsgrenzen bleiben deterministisch.
+- **Entscheidung:** Die bestätigte Nutzererzählung wird primär per Structured Output null bis drei gültigen Problemfamilien und den typisierten Gate-Rohwerten zugeordnet. Der Katalog begrenzt die IDs; der Selector und alle Sicherheitsgrenzen bleiben deterministisch.
 - **Grund:** Die gemessene Keyword-Baseline erreicht nur 28 % PF Top-1 und fällt in 48 % der Fälle auf `PF-01` zurück. Freie Erzählungen benötigen semantische Zuordnung, ohne die Entscheidungshoheit des Selectors an das Modell abzugeben.
-- **Konsequenzen:** Bei `AIServiceError` bleiben die unveränderte Keyword-Klassifikation und alte Gate-Inferenz der Fallback. Die fachliche GATE-01-bis-GATE-06-Kaskade und der A0-Ausgang sind damit noch nicht integriert und bleiben ein getrenntes Vorhaben.
+- **Konsequenzen:** Bei `AIServiceError` bleiben Keyword-Klassifikation und Gate-Inferenz der Fallback. Die nachgelagerte fachliche GATE-01-bis-GATE-06-Kaskade und A0 sind durch DEC-022 ergänzt.
 - **Alternativen:** Keyword-Matching als primärer Pfad und freie Solution-Auswahl durch das LLM wurden nicht gewählt.
 - **Status:** Implemented, integrated, tested and documented
 
@@ -187,3 +187,12 @@ Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest
 - **Grund:** Die drei Datentypen besitzen unterschiedliche Vertrauens- und Laufzeitrollen. Semantische Suche kann eine Branchenvariante auswählen, darf aber weder Gates noch den Katalog-Selector ersetzen.
 - **Konsequenzen:** Harte Filterung nur nach dem bereits gewählten Solution Pattern; Kanäle und Betriebstyp nur als Soft-Boost. Bei fehlendem Index greift direkte deterministische Auswahl. Der ungemessene Source-Strength-Abzug von 0,15/0,08 ist neutralisiert.
 - **Status:** Implemented, integrated and tested; fachliche Kalibrierung mit echten Betrieben bleibt offen
+
+## DEC-022 – Gate-Kaskade entscheidet vor der Darstellung über A0 bis A2
+
+- **Datum:** 2026-08-06
+- **Entscheidung:** Die Klassifikations-Rohsignale werden deterministisch in `GATE-01` bis `GATE-06` mit `pass`, `fail` oder `unknown` und nachvollziehbarer Begründung übersetzt. Der Selector liefert A0, A1 oder A2; höhere Autonomie wird für die aktuelle Empfehlung nicht gewählt. Eine leere Problemfamilienliste ist zulässig und bedeutet nicht automatisch Klassifikationsfehler.
+- **Grund:** Die richtige und sichere Lösung muss vor der Modellformulierung feststehen. Unbekannte Fakten dürfen weder still als erfüllt gelten noch pauschal die ganze Diagnose verwerfen.
+- **Konsequenzen:** Kein KI-Bedarf, rein analoge Ausgangslage, fehlende kritische Prüfung oder gewünschte autonome Preis-, Zahlungs- oder Personalentscheidung führen konservativ zu A0. Unbekannte Voraussetzungen begrenzen auf A1. SP-04 erfordert einen echten physischen Gegenstand; Gebäude, Einsatzorte und Adressen gelten nicht als Objektfall. Hausmeister mit Sprache, Foto und Bon wird als SP-03 behandelt.
+- **Alternativen:** Ein einzelner Reifegradwert, automatisches PF-01 bei fehlendem Engpass und Auswahl hoher Autonomie wurden verworfen.
+- **Status:** Implemented, integrated and tested

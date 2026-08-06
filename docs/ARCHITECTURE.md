@@ -33,7 +33,7 @@ Die öffentliche Journey nutzt ein signiertes Sitzungscookie. Die interne numeri
 | `app/agent_config.py` | Zentrale Rückfrage-, Agenten- und Toolbudgets |
 | `app/agent_service.py` | Getrennter Process State, drei interne Werkzeuge und deterministische Aktionsentscheidung |
 | `app/rag_service.py` | Korpusladen, Indexbau/-validierung, FAISS-Retrieval, Ranking und Promptbereinigung |
-| `app/recommendation_service.py` | Validiert den strukturierten Recommendation-Katalog, klassifiziert Problemfamilien, bewertet sechs getrennte Gates und liefert die im Analysepfad verwendete deterministische Vorauswahl. |
+| `app/recommendation_service.py` | Validiert den Recommendation-Katalog, hält den Keyword-Fallback, übersetzt Rohsignale in die begründete GATE-01…06-Kaskade und liefert A0 oder die deterministische Vorauswahl. |
 | `app/solution_knowledge.py` | Validiert Batch-09-Output-Strukturen, Inference Patterns und Solution Workflows; entfernt Beispielwerte aus dem Laufzeitkontext und bietet deterministische Fallback-Auswahl. |
 | `app/llm_classification.py` | Ordnet die bestätigte Erzählung per Structured Output Problemfamilien und bestehenden Gate-Werten zu; bei API-Fehlern nutzt es die unveränderte Keyword-/Gate-Heuristik als Fallback. |
 | `app/openai_service.py` | OpenAI Structured Outputs, Embeddings, Prompts, Normalisierung und Grounding |
@@ -196,7 +196,7 @@ Es gibt keine serverseitige PDF-Bibliothek. Der `mailto:`-Kontakt hängt den Ber
 - Alle produktseitig ausgeführten Test- und Demo-Fälle liegen getrennt unter `knowledge/evaluation/`.
 - Historische Originale in archivierten Research-Batches sind Provenienzartefakte und werden nicht indexiert.
 - Das Repository dokumentiert und testet 91 Legacy-Evaluationen sowie 30 getrennte Batch-09-Evaluationen außerhalb der Indizes.
-- `scripts/evaluate.py` führt sie reproduzierbar durch Klassifikation, Gates und Selector. Vorgeschlagene Labels werden getrennt von bestätigter Ground Truth ausgewiesen; aktuell steht jeder Label-Eintrag auf `confirmed: false`.
+- `scripts/evaluate.py` führt beide Datensätze reproduzierbar durch Klassifikation, Gate-Kaskade und Selector. Legacy 91 und Batch 09 werden in getrennten Abschnitten ausgewiesen und nie gemittelt; `confirmed: false` und `research_proposed` bleiben sichtbar.
 - `tests/test_agent_architecture.py` prüft Korpustrennung, Indexausschluss, Agentenpolicy, Budgets und Evidenztrennung.
 - `tests/test_analysis_flow.py` prüft Journey, RAG-Bereinigung, Persistenz, Opportunities und Blueprint.
 - `tests/test_product_finalization.py` prüft Kernoutput, konkrete KI-Hilfe, Reifegradfälle und Berichtsstruktur.

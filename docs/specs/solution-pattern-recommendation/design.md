@@ -11,7 +11,7 @@ bestätigte Nutzerfakten
 → LLM-Klassifikation von Problemfamilien und Gates (Structured Output,
   Katalogdefinitionen als Kontext, deterministischer Keyword-Fallback
   nur bei API-Fehlern)
-→ sechs getrennte Gates
+→ sechs begründete Gates mit pass / fail / unknown
 → validierter Solution-Katalog
 → primäre Empfehlung plus 0–2 sekundäre Kandidaten
 → kompakter Structured Output
@@ -29,8 +29,8 @@ Nicht-GenAI-Mechanismen. Problemfamilien und Solution Patterns tragen die
 zugehörigen Research-Felder aus Batch 05 bis 07.
 
 Diese Felder werden geladen und auf IDs, Referenzen und Autonomiegrenzen
-validiert. Der bestehende Selector nutzt sie noch nicht fachlich; seine Logik
-bleibt in diesem Datenpaket unverändert. Batch 08 wird unverändert als
+validiert. Der Selector nutzt die Gates, Stop Conditions und Autonomiestufen
+deterministisch; A0 ist ein zulässiges Ergebnis. Batch 08 wird unverändert als
 zeitkritische Tool- und Architektur-Researchgrundlage versioniert, ist aber
 weder in den Laufzeitkatalog noch in einen produktiven Index integriert.
 
@@ -46,18 +46,18 @@ Neuer verbindlicher Pfad (`app/llm_classification.py`):
 - Ein Structured-Output-Aufruf erhält die bestätigte Erzählung sowie die zwölf
   Problemfamilien-Definitionen (`definition`, `typical_statements`, `symptoms`,
   `common_causes`) und die sechs Gate-Definitionen aus Katalog v2 als Kontext.
-- Das Modell liefert ein bis drei Problemfamilien-IDs als Enum (keine
+- Das Modell liefert null bis drei Problemfamilien-IDs als Enum (keine
   erfundenen IDs möglich), je Familie ein wörtliches Belegzitat aus der
   Erzählung, sechs Gate-Werte mit `unknown` als ausdrücklich erlaubtem Wert
   sowie `physical_object` und `real_location_known`.
 - Die Stichwort-Funktionen `classify_problem_families()` und
-  `infer_decision_gates()` bleiben unverändert erhalten und dienen
+  `infer_decision_gates()` dienen
   ausschließlich als Fallback bei API-Fehlern (`AIServiceError`). Der genutzte
   Pfad wird geloggt.
-- Selector, Matrix, Ausschlussregeln, UI, Bericht, Regex-Filter, Agent-Layer
-  und Indizes bleiben unverändert. Der Agent-Layer nutzt weiterhin die
-  deterministische Gate-Heuristik; seine Umstellung ist eine getrennte
-  Entscheidung.
+- Der Selector übersetzt die Rohwerte anschließend in GATE-01 bis GATE-06 mit
+  `pass`, `fail` oder `unknown`. Kritische Fehlerfolgen ohne Prüfung, fehlende
+  Berechtigung sowie autonome Geschäftsentscheidungen führen konservativ zu A0.
+  Unbekannte Voraussetzungen begrenzen die Auswahl auf A1.
 
 Problemfamilien und Patterns liegen als versionierte JSON-Dateien außerhalb aller Evaluationspfade. Der Loader validiert Anzahl, IDs, Referenzen und Kernfelder. Der Selector liefert Auswahl, Ausschlussgründe, Voraussetzungen, Fehlergrenzen und Freigabegrenzen. Der neue Kernoutput liegt in bestehendem JSONB; die View-Schicht liest neue und alte Analysen. Neue Seiten zeigen keinen Wochentest.
 
