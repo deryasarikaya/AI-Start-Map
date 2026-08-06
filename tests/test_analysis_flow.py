@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from fastapi.testclient import TestClient
@@ -20,6 +21,7 @@ from app.models import (
 )
 from app.questions import INTRO_QUESTIONS, PROCESS_QUESTIONS
 from app.rag_service import format_chunks_for_prompt, load_curated_chunks
+from app.recommendation_service import DecisionGates
 from app.schemas import (
     AutomationBlueprint,
     AutomationOpportunityResult,
@@ -637,6 +639,16 @@ def test_demo_route_creates_session_and_redirects_to_real_results(
         routes,
         "generate_final_analysis",
         generate_clean_demo_analysis,
+    )
+    monkeypatch.setattr(
+        routes,
+        "classify_narrative",
+        lambda _text: SimpleNamespace(
+            problem_family_ids=["PF-01"],
+            gates=DecisionGates(),
+            method="test",
+        ),
+        raising=False,
     )
     response = client.get(f"/demo/{demo_slug}", follow_redirects=False)
     assert response.status_code == 303
