@@ -4,10 +4,11 @@ AI Start Map hilft Solo-Selbstständigen und kleinen Betrieben, aus einem unübe
 
 ```text
 eigentliches Problem
-→ erster Schritt
-→ konkrete KI-Unterstützung
-→ Test für diese Woche
-→ spätere Automatisierung
+→ dein bester KI-Hebel
+→ zukünftiger Ablauf
+→ konkrete Ergebnisvorschau
+→ deine Prüfung
+→ einfachster Umsetzungsweg
 ```
 
 AI Start Map diagnostiziert und unterstützt Entscheidungen. Die Anwendung führt keine Unternehmensprozesse autonom aus und trifft keine automatischen Preis-, Vertrags-, Zahlungs- oder Freigabeentscheidungen.
@@ -62,9 +63,12 @@ Die vorhandenen produktiven Indizes müssen für den normalen Start nicht neu ge
 
 - Diagnoseindex: 634 freigegebene Chunks aus `knowledge/curated/`, Batch 02 und Batch 03.
 - Agent-Pattern-Index: 205 optionale Patterns aus Batch 04.
+- Strukturierter Recommendation-Katalog: zwölf Problemfamilien, zehn Solution Patterns und eine validierte Zuordnungsmatrix ohne zusätzlichen Vektorindex.
 - Evaluationen: 79 getrennte Fälle, die niemals indexiert werden.
 - Agentenaktionen: `ASK`, `CLARIFY`, `RETRIEVE`, `ANALYZE`, `STOP`.
 - Werkzeuge: `extract_process_state`, `search_diagnostic_knowledge`, `evaluate_readiness_and_next_action`.
+
+Der Agent-Pattern-Index unterstützt im Interviewpfad die Auswahl relevanter Frage- und Guardrail-Muster. Die Solution-Auswahl erfolgt deterministisch aus Problemfamilien, sechs getrennten Gates und dem strukturierten Katalog. Echtes OpenAI Function Calling ist noch nicht integriert.
 
 Sicherheitsregeln, Budgets, No-Repeat und Schleifenabbruch hängen nicht von semantischem Retrieval ab. RAG-Evidenz bleibt getrennt von Nutzerfakten.
 
@@ -82,7 +86,7 @@ Die Demos nutzen dieselbe Analyse- und Ergebnispipeline wie die normale Reise. F
 
 ## PDF und Kontakt
 
-Die kundenverständliche Druckansicht ist im Normalfall auf drei A4-Seiten strukturiert und wird über den Browser-Druckdialog (`window.print()`) als PDF gespeichert. Interne IDs, Prompts, Modellnamen, Logs, Scores und fremde Unternehmensdaten werden nicht ausgegeben. Der Kontakt zu Derya erfolgt über einen Mailto-Link; die gespeicherte PDF muss anschließend selbst angehängt werden.
+Die kundenverständliche Druckansicht nutzt zwei Seiten für Hauptlösung und Umsetzung. Eine dritte Seite erscheint nur bei fachlich vorhandenen weiteren Möglichkeiten. Sie wird über den Browser-Druckdialog (`window.print()`) als PDF gespeichert. Interne IDs, Prompts, Modellnamen, Logs, Scores und fremde Unternehmensdaten werden nicht ausgegeben. Der Kontakt zu Derya erfolgt über einen Mailto-Link; die gespeicherte PDF muss anschließend selbst angehängt werden.
 
 ## Projektdokumentation
 

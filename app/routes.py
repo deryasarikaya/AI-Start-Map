@@ -47,11 +47,14 @@ from app.openai_service import (
 )
 from app.questions import INTRO_QUESTIONS, PROCESS_QUESTIONS
 from app.rag_service import RagConfigurationError
+from app.rag_service import format_chunks_for_prompt, retrieve_agent_patterns
+from app.recommendation_service import (
+    classify_problem_families,
+    infer_decision_gates,
+    select_recommendation,
+)
 from app.schemas import (
-    AutomationBlueprint,
-    AutomationOpportunityResult,
     FinalAnalysisResult,
-    OptionalAnalysisDetails,
     contains_internal_reference,
     contains_prohibited_customer_language,
 )
@@ -355,6 +358,34 @@ def _retrieval_context(query: str, phase: str) -> list[str]:
         evidence.content
         for evidence in search_diagnostic_knowledge(query, phase=phase)
     ]
+
+
+def _agent_pattern_context(query: str) -> tuple[list[str], list[str]]:
+    """Retrieve optional interview patterns without weakening Python guardrails."""
+
+    try:
+        patterns = retrieve_agent_patterns(
+            query,
+            allowed_types={
+                "agent_decision_pattern",
+                "next_question_pattern",
+                "contradiction_pattern",
+                "agent_stop_rule",
+                "tool_selection_pattern",
+                "agent_guardrail",
+            },
+            top_k=3,
+        )
+    except (AIServiceError, RagConfigurationError):
+        logger.warning("agent_pattern_retrieval.fallback pattern_count=0")
+        return [], []
+    pattern_types = [pattern.chunk_type for pattern in patterns]
+    logger.info(
+        "agent_pattern_retrieval.selected pattern_count=%d pattern_types=%s",
+        len(patterns),
+        pattern_types,
+    )
+    return format_chunks_for_prompt(patterns), pattern_types
 
 
 def _ensure_process_questions(
@@ -1098,6 +1129,12 @@ def _continue_after_process_answers(
         return _redirect(_next_valid_path(database_session, session_id))
     agent_state = _diagnostic_agent_state(database_session, session_id, process)
     decision = evaluate_readiness_and_next_action(agent_state)
+    logger.info(
+        "interview_agent.policy action=%s follow_up_count=%d information_gap=%s",
+        decision.next_action,
+        agent_state.follow_up_count,
+        decision.information_gap or "none",
+    )
     if decision.next_action in {"ANALYZE", "STOP"}:
         return _redirect(f"/sessions/{session_id}/processing")
     remaining_budget = (
@@ -1108,6 +1145,7 @@ def _continue_after_process_answers(
     all_questions = _get_questions(database_session, session_id)
     try:
         query = _query_text(all_questions, process)
+        agent_pattern_knowledge, agent_pattern_types = _agent_pattern_context(query)
         if decision.next_action == "RETRIEVE":
             agent_state.rag_evidence = search_diagnostic_knowledge(
                 query, phase="follow_up"
@@ -1118,17 +1156,40 @@ def _continue_after_process_answers(
             knowledge = [evidence.content for evidence in agent_state.rag_evidence]
         else:
             knowledge = _retrieval_context(query, "follow_up")
+        knowledge.extend(agent_pattern_knowledge)
+        logger.info(
+            "interview_agent.decision action=%s follow_up_count=%d "
+            "information_gap=%s agent_pattern_types=%s",
+            decision.next_action,
+            agent_state.follow_up_count,
+            decision.information_gap or "none",
+            agent_pattern_types,
+        )
         result = generate_follow_up_questions(
             answers=_answer_payload(all_questions),
             selected_process=_process_payload(process),
             knowledge_chunks=knowledge,
         )
-        candidate_texts = [
+        generated_candidate_texts = [
             follow_up.question
             for follow_up in result.questions
             if not _is_repeated_follow_up(follow_up.question, existing_follow_ups)
             and question_can_change_core_output(follow_up.question, agent_state)
         ]
+        candidate_texts = []
+        if (
+            decision.possible_next_question
+            and not _is_repeated_follow_up(
+                decision.possible_next_question, existing_follow_ups
+            )
+            and question_can_change_core_output(
+                decision.possible_next_question, agent_state
+            )
+        ):
+            candidate_texts.append(decision.possible_next_question)
+        candidate_texts.extend(
+            item for item in generated_candidate_texts if item not in candidate_texts
+        )
         preferred_limit = (
             AGENT_HEURISTICS.complex_follow_up_maximum
             if decision.next_action == "CLARIFY"
@@ -1315,7 +1376,7 @@ def _persist_final_analysis(
             as_is_steps={
                 "steps": result.as_is_steps,
                 "problem_step_indexes": result.as_is_problem_step_indexes,
-                "to_be_steps": result.to_be_steps or result.blueprint.workflow_steps,
+                "to_be_steps": result.to_be_steps or result.future_process,
             },
             core_bottleneck=result.core_bottleneck,
             uncertainties={
@@ -1326,43 +1387,52 @@ def _persist_final_analysis(
                     "effect": result.bottleneck_effect,
                 },
                 "core_output": {
-                    "core_problem": result.core_problem,
-                    "first_change": result.first_change,
-                    "ai_support": result.ai_support,
-                    "ai_input": result.ai_input,
+                    "primary_recommendation": result.primary_recommendation,
+                    "promise": result.promise,
+                    "short_reason": result.short_reason,
+                    "before_process": result.before_process,
+                    "future_process": result.future_process,
+                    "sample_output": result.sample_output.model_dump(),
+                    "user_action": result.user_action,
                     "ai_task": result.ai_task,
-                    "ai_output": result.ai_output,
+                    "visible_result": result.visible_result,
                     "human_check": result.human_check,
-                    "weekly_test": result.weekly_test,
-                    "weekly_test_success": result.weekly_test_success,
-                    "later_automation": result.later_automation,
-                    "why_this_first": result.why_this_first,
+                    "customer_benefits": result.customer_benefits,
                     "required_prerequisites": result.required_prerequisites,
-                    "human_decisions": result.human_decisions,
-                    "current_process_summary": result.current_process_summary,
-                    "optional_details": result.optional_details.model_dump(),
+                    "implementation_path": result.implementation_path,
+                    "later_stage": result.later_stage,
+                    "secondary_opportunities": [
+                        item.model_dump() for item in result.secondary_opportunities
+                    ],
+                    "error_boundaries": result.error_boundaries,
                 },
             },
         )
     )
-    for opportunity in result.opportunities:
+    stored_opportunities = [
+        {
+            "title": result.primary_recommendation,
+            "description": result.short_reason,
+            "benefit": result.customer_benefits[0],
+        },
+        *[item.model_dump() | {"benefit": item.description} for item in result.secondary_opportunities],
+    ]
+    for rank, opportunity in enumerate(stored_opportunities, start=1):
         database_session.add(
             AutomationOpportunity(
                 session_id=session_id,
-                rank=opportunity.rank,
-                title=opportunity.title,
-                problem=opportunity.problem,
-                recommendation=opportunity.recommendation,
-                benefit=opportunity.benefit,
-                human_approval=opportunity.human_approval,
-                first_step=opportunity.first_step,
+                rank=rank,
+                title=str(opportunity["title"]),
+                problem=result.short_reason,
+                recommendation=str(opportunity.get("description") or result.primary_recommendation),
+                benefit=str(opportunity["benefit"]),
+                human_approval=result.human_check,
+                first_step=result.implementation_path[0],
                 blueprint_json={
-                    "category": opportunity.category,
-                    "prerequisite": opportunity.prerequisite,
-                    "mini_test": opportunity.mini_test,
-                    "effort": opportunity.effort,
-                    "acceptance_risk": opportunity.acceptance_risk,
-                    "blueprint": result.blueprint.model_dump() if opportunity.rank == 1 else None,
+                    "contract_version": "recommendation-v2",
+                    "sample_output": result.sample_output.model_dump() if rank == 1 else None,
+                    "implementation_path": result.implementation_path if rank == 1 else [],
+                    "later_stage": result.later_stage if rank == 1 else "",
                 },
             )
         )
@@ -1372,72 +1442,69 @@ def _persist_final_analysis(
 def _massage_demo_fallback_result() -> FinalAnalysisResult:
     """Fixed result used only after an explicit massage demo service failure."""
 
-    human_check = (
-        "Ein Mensch prüft die tatsächliche Verfügbarkeit und bestätigt den Termin."
-    )
     return FinalAnalysisResult(
-        core_problem=(
-            "Anfragen, Verfügbarkeiten und Terminbestätigungen liegen verteilt, "
-            "sodass kein verlässlicher gemeinsamer Stand entsteht."
+        primary_recommendation="Terminanfragen mit KI ordnen und Kapazität sicher prüfen",
+        promise=(
+            "Aus jeder Nachricht entsteht eine vollständige Terminanfrage mit "
+            "sichtbarem Kapazitätsstatus."
         ),
-        first_change=(
-            "Führe alle neuen Anfragen in einer gemeinsamen Übersicht mit klaren "
-            "Statuswerten zusammen."
+        short_reason=(
+            "Anfragen und Verfügbarkeiten liegen verteilt. Dadurch fehlt ein "
+            "verlässlicher gemeinsamer Stand."
         ),
-        ai_support=(
-            "Der Betrieb gibt eine Nachricht oder gesprochene Anfrage ein; die KI "
-            "erkennt Behandlung, Dauer, Personenzahl und Wunschzeit, markiert fehlende "
-            "Angaben und bereitet prüfbare Terminoptionen vor."
-        ),
-        ai_input="Eine geschriebene oder gesprochene Terminanfrage.",
-        ai_task=(
-            "Die KI erkennt Behandlung, Dauer, Personenzahl und Wunschzeit und "
-            "markiert fehlende Angaben."
-        ),
-        ai_output="Eine vollständige Anfrage mit vorbereiteten Terminoptionen.",
-        human_check=human_check,
-        weekly_test=[
-            "Eine gemeinsame Übersicht für alle neuen Anfragen anlegen.",
-            "Die Statuswerte neu, zu prüfen, bestätigt und abgesagt verwenden.",
-            "Eine Woche lang jede neue Anfrage dort eintragen und gemeinsam prüfen.",
+        before_process=[
+            "Eine Anfrage kommt über einen vorhandenen Kanal an.",
+            "Du gleichst Wunschzeit und verfügbare Besetzung ab.",
+            "Du bestätigst oder korrigierst den Termin.",
         ],
-        weekly_test_success=(
-            "Für jede neue Anfrage sind aktueller Status und nächste zuständige Person "
-            "ohne Suche erkennbar."
+        future_process=[
+            "Du leitest die geschriebene oder gesprochene Anfrage weiter.",
+            "Die KI ordnet Behandlung, Dauer, Personenzahl und Wunschzeit.",
+            "Du prüfst Kapazität und offene Angaben.",
+            "Du bestätigst den Termin und aktualisierst den Status.",
+        ],
+        sample_output={
+            "title": "Terminanfrage",
+            "fields": [
+                {"label": "Behandlung", "value": "noch offen"},
+                {"label": "Wunschzeit", "value": "noch offen"},
+                {"label": "Kapazitätsstatus", "value": "zu prüfen"},
+            ],
+            "open_items": ["Verfügbare Person bestätigen"],
+            "preview_notice": "Vorschau – die endgültigen Angaben prüfst du selbst.",
+        },
+        user_action="Du gibst die geschriebene oder gesprochene Terminanfrage ein.",
+        ai_task=(
+            "Die KI ordnet die Angaben und markiert fehlende oder unklare Werte."
         ),
-        later_automation=(
-            "Wenn Übersicht und Verfügbarkeiten zuverlässig gepflegt werden, kann eine "
-            "geprüfte Bestätigungsnachricht zum Versand vorbereitet werden."
+        visible_result="Du erhältst eine Terminanfrage mit eindeutigem Prüfstatus.",
+        human_check=(
+            "Du prüfst die tatsächliche Verfügbarkeit und bestätigst jeden Termin."
         ),
-        why_this_first=(
-            "Erst ein gemeinsamer Stand verhindert widersprüchliche Auskünfte und macht "
-            "spätere KI-Unterstützung verlässlich."
-        ),
+        customer_benefits=[
+            "Du siehst den aktuellen Stand ohne Suche.",
+            "Fehlende Angaben fallen vor der Bestätigung auf.",
+            "Jede Anfrage folgt demselben übersichtlichen Aufbau.",
+        ],
         required_prerequisites=[
             "Eine gemeinsame Anfrageübersicht",
             "Klare Statuswerte",
             "Aktuell gepflegte Personalverfügbarkeit",
         ],
-        human_decisions=[
-            human_check,
-            "Personalplanung und Abrechnungsprüfung bleiben beim Menschen.",
+        implementation_path=[
+            "Pflichtangaben und Statuswerte für Terminanfragen festlegen.",
+            "Einen gemeinsamen Eingang mit der Anfrageübersicht verbinden.",
+            "KI-Entwurf und menschliche Kapazitätsfreigabe einrichten.",
         ],
-        current_process_summary=(
-            "Anfragen kommen über mehrere Kanäle an, werden mit der verfügbaren "
-            "Besetzung abgeglichen und anschließend manuell bestätigt."
+        later_stage=(
+            "Nach bestätigter Kapazität kann die KI eine Nachricht zur manuellen "
+            "Freigabe vorbereiten."
         ),
-        optional_details=OptionalAnalysisDetails(
-            current_difficulties=[
-                "Anfragen und Bestätigungen sind auf mehrere Kanäle verteilt.",
-                "Die verfügbare Besetzung kann wechseln.",
-            ],
-            additional_prerequisites=[
-                "Eine Person hält Übersicht und Verfügbarkeit aktuell."
-            ],
-            later_possibilities=[
-                "Bestätigungsnachrichten nach menschlicher Prüfung vorbereiten."
-            ],
-        ),
+        secondary_opportunities=[],
+        error_boundaries=[
+            "Fehlende Angaben bleiben sichtbar und verhindern eine verbindliche Zusage.",
+            "Unklare Personalverfügbarkeit wird nicht automatisch aufgelöst.",
+        ],
         process_summary=(
             "Eine Anfrage kommt über einen der vorhandenen Kanäle an, wird mit der "
             "verfügbaren Besetzung abgeglichen und anschließend bestätigt."
@@ -1465,73 +1532,6 @@ def _massage_demo_fallback_result() -> FinalAnalysisResult:
             "Wegen eines vorübergehenden KI-Dienstfehlers wird hier das fest "
             "vorbereitete Ergebnis der Massage-Demo gezeigt."
         ],
-        opportunities=[
-            AutomationOpportunityResult(
-                rank=1,
-                title="Alle Anfragen gemeinsam überblicken",
-                problem="Anfragen und Status liegen an mehreren Stellen.",
-                recommendation="Eine gemeinsame Übersicht mit klaren Statuswerten nutzen.",
-                benefit="Der aktuelle Stand ist ohne Suche erkennbar.",
-                human_approval="Ein Mensch bestätigt jeden Termin.",
-                first_step="Die vier Statuswerte festlegen und neue Anfragen eintragen.",
-                category="Ordnung und Standardisierung",
-                prerequisite="Eine verantwortliche Person hält die Übersicht aktuell.",
-                mini_test=["Eine Woche lang nur neue Anfragen gemeinsam erfassen."],
-                effort="niedrig",
-                acceptance_risk="Die Übersicht wird nicht nach jeder Änderung aktualisiert.",
-            ),
-            AutomationOpportunityResult(
-                rank=2,
-                title="Anfrageangaben mit KI vorbereiten",
-                problem="Freie Nachrichten enthalten unterschiedlich vollständige Angaben.",
-                recommendation="KI ordnet die Anfrage und markiert fehlende Angaben.",
-                benefit="Die menschliche Terminprüfung startet mit einem klaren Entwurf.",
-                human_approval="Ein Mensch prüft Angaben und Verfügbarkeit.",
-                first_step="Die notwendigen Angaben für eine Terminanfrage festlegen.",
-                category="KI-Unterstützung",
-                prerequisite="Die Pflichtangaben und Statuswerte sind festgelegt.",
-                mini_test=["Zehn neue Anfragen als Entwurf strukturieren lassen."],
-                effort="mittel",
-                acceptance_risk="Unklare Angaben werden ungeprüft übernommen.",
-            ),
-            AutomationOpportunityResult(
-                rank=3,
-                title="Bestätigung nach Prüfung vorbereiten",
-                problem="Bestätigungen werden nach dem Abgleich einzeln formuliert.",
-                recommendation="Eine Bestätigungsnachricht aus freigegebenen Angaben vorbereiten.",
-                benefit="Die Nachricht ist schneller versandbereit.",
-                human_approval="Ein Mensch prüft und versendet die Nachricht.",
-                first_step="Eine verständliche Bestätigungsvorlage festlegen.",
-                category="regelbasierte Automatisierung",
-                prerequisite="Termin und Verfügbarkeit wurden menschlich bestätigt.",
-                mini_test=["Bestätigungen zunächst nur als Entwurf erzeugen."],
-                effort="mittel",
-                acceptance_risk="Ein Entwurf wird ohne letzte Prüfung versendet.",
-            ),
-        ],
-        blueprint=AutomationBlueprint(
-            objective="Neue Terminanfragen gemeinsam und nachvollziehbar bearbeiten.",
-            trigger="Eine neue Terminanfrage geht ein.",
-            required_inputs=[
-                "Behandlung",
-                "Dauer",
-                "Personenzahl",
-                "Wunschzeit",
-            ],
-            workflow_steps=[
-                "Anfrage in der gemeinsamen Übersicht erfassen.",
-                "Fehlende Angaben markieren.",
-                "Verfügbarkeit durch einen Menschen prüfen.",
-                "Termin bestätigen und Status aktualisieren.",
-            ],
-            human_review_point="Vor jeder verbindlichen Terminbestätigung.",
-            output="Eine geprüfte Terminanfrage mit eindeutigem Status.",
-            exceptions=[
-                "Fehlende Angaben",
-                "Unklare Verfügbarkeit",
-                "Abweichende Dauer oder Personenzahl",
-            ],
-        ),
     )
 
 
@@ -1591,10 +1591,15 @@ def _generate_and_persist_final_analysis(
 
         stage = "retrieval"
         stage_started = perf_counter()
-        knowledge = _retrieval_context(
-            _query_text(all_questions, process),
-            "analysis",
+        query_text = _query_text(all_questions, process)
+        problem_family_ids = classify_problem_families(query_text)
+        gates = infer_decision_gates(query_text)
+        retrieval_query = (
+            f"{query_text}\n\nDiagnostischer Fokus: Ursache, Problemfamilie, "
+            "konkretes Lösungsmuster, Voraussetzung und Guardrail; Kanaleignung, "
+            "Prozess-/Datenreife und menschliche Freigabe getrennt prüfen."
         )
+        knowledge = _retrieval_context(retrieval_query, "analysis")
         logger.info(
             "analysis.stage_complete stage=retrieval duration_seconds=%.3f",
             perf_counter() - stage_started,
@@ -1612,6 +1617,23 @@ def _generate_and_persist_final_analysis(
             perf_counter() - stage_started,
         )
 
+        stage = "recommendation_selection"
+        stage_started = perf_counter()
+        recommendation = select_recommendation(problem_family_ids, gates)
+        logger.info(
+            "recommendation.selected problem_families=%s primary_solution=%s "
+            "secondary_solutions=%s excluded_solutions=%s gates=%s",
+            problem_family_ids,
+            recommendation.primary.solution_id,
+            [item.solution_id for item in recommendation.secondary],
+            recommendation.excluded_reasons,
+            gates.model_dump(),
+        )
+        logger.info(
+            "analysis.stage_complete stage=recommendation_selection duration_seconds=%.3f",
+            perf_counter() - stage_started,
+        )
+
         stage = "final_openai_call"
         stage_started = perf_counter()
         result = generate_final_analysis(
@@ -1619,6 +1641,13 @@ def _generate_and_persist_final_analysis(
             selected_process=_process_payload(process),
             knowledge_chunks=knowledge,
             agent_state=agent_state,
+            recommendation_context=recommendation.model_dump(),
+        )
+        logger.info(
+            "recommendation.output_validated validation_result=passed "
+            "primary_solution=%s secondary_count=%d",
+            recommendation.primary.solution_id,
+            len(result.secondary_opportunities),
         )
         logger.info(
             "analysis.stage_complete stage=final_openai_call duration_seconds=%.3f "
@@ -1818,7 +1847,7 @@ def show_results(
             .order_by(AutomationOpportunity.rank)
         )
     )
-    if len(opportunities) != 3:
+    if not 1 <= len(opportunities) <= 3:
         return _render_error(
             request,
             "Die Ergebnisse sind unvollständig.",
@@ -1946,7 +1975,36 @@ def _result_view(
         if isinstance(blueprint, dict)
         else []
     )
-    primary_mini_test = [str(item) for item in first["mini_test"]][:3]
+    primary_mini_test = [str(item) for item in first["mini_test"]][:4]
+    is_new_contract = bool(core_output.get("primary_recommendation"))
+    legacy_human_check = str(core_output.get("human_check") or first["human_approval"])
+    if not any(marker in legacy_human_check.casefold() for marker in ("du ", "dein", "dir ")):
+        legacy_human_check = f"Du prüfst und bestätigst: {legacy_human_check}"
+    secondary = core_output.get("secondary_opportunities")
+    if not isinstance(secondary, list):
+        secondary = [
+            {"title": item["title"], "description": item["benefit"]}
+            for item in opportunity_views[1:3]
+        ]
+    sample_output = core_output.get("sample_output")
+    if not isinstance(sample_output, dict):
+        legacy_output = str(core_output.get("ai_output") or "Ein prüfbarer Entwurf")
+        sample_output = {
+            "title": legacy_output,
+            "fields": [{"label": "Ergebnis", "value": legacy_output}],
+            "open_items": [],
+            "attachments": [],
+            "preview_notice": "Vorschau – die endgültigen Angaben prüfst du selbst.",
+        }
+    user_action = str(core_output.get("user_action") or core_output.get("ai_input") or "Vorhandene Angaben eingeben")
+    if not any(marker in user_action.casefold() for marker in ("du ", "dein", "dir ")):
+        user_action = f"Du gibst ein: {user_action}."
+    implementation_path = core_output.get("implementation_path")
+    if not isinstance(implementation_path, list) or len(implementation_path) < 2:
+        implementation_path = core_output.get("weekly_test") or blueprint_steps or primary_mini_test
+    stored_error_boundaries = core_output.get("error_boundaries")
+    if not isinstance(stored_error_boundaries, list):
+        stored_error_boundaries = [] if is_new_contract else [str(first["acceptance_risk"])]
     return {
         "as_is_steps": as_is_steps,
         "problem_step_indexes": problem_indexes,
@@ -1959,31 +2017,25 @@ def _result_view(
         },
         "opportunities": opportunity_views,
         "blueprint": blueprint,
-        "core_problem": core_output.get("core_problem") or analysis.core_bottleneck,
-        "first_change": core_output.get("first_change") or first["recommendation"],
-        "ai_support": core_output.get("ai_support") or (
-            "KI kann eingegebene Angaben ordnen und fehlende Angaben markieren."
-        ),
-        "ai_input": core_output.get("ai_input") or "Vorhandene Auftragsangaben",
+        "primary_recommendation": core_output.get("primary_recommendation") or first["title"],
+        "promise": core_output.get("promise") or core_output.get("ai_support") or first["benefit"],
+        "short_reason": core_output.get("short_reason") or core_output.get("core_problem") or analysis.core_bottleneck,
+        "before_process": core_output.get("before_process") or as_is_steps[:3],
+        "future_process": core_output.get("future_process") or to_be_steps[:4],
+        "sample_output": sample_output,
+        "user_action": user_action,
         "ai_task": core_output.get("ai_task") or "Angaben erkennen und ordnen",
-        "ai_output": core_output.get("ai_output") or "Ein prüfbarer Entwurf",
-        "human_check": core_output.get("human_check") or first["human_approval"],
-        "weekly_test": core_output.get("weekly_test") or primary_mini_test,
-        "weekly_test_success": core_output.get("weekly_test_success") or (
-            "Neue Vorgänge sind vollständig und ohne zusätzliche Suche auffindbar."
-        ),
-        "later_automation": core_output.get("later_automation") or (
-            to_be_steps[-1] if to_be_steps else first["recommendation"]
-        ),
-        "why_this_first": core_output.get("why_this_first") or first["benefit"],
+        "visible_result": core_output.get("visible_result") or core_output.get("ai_output") or sample_output["title"],
+        "human_check": legacy_human_check,
+        "customer_benefits": core_output.get("customer_benefits") or [first["benefit"]],
         "required_prerequisites": core_output.get("required_prerequisites")
-        or [first["prerequisite"]],
-        "human_decisions": core_output.get("human_decisions")
-        or [first["human_approval"]],
-        "current_process_summary": core_output.get("current_process_summary")
-        or analysis.process_summary,
-        "optional_details": core_output.get("optional_details") or {},
-        "start_plan_steps": blueprint_steps or primary_mini_test,
+        or ([] if is_new_contract else [first["prerequisite"]]),
+        "implementation_path": [str(item) for item in implementation_path][:4],
+        "later_stage": core_output.get("later_stage") or core_output.get("later_automation") or "",
+        "secondary_opportunities": secondary[:2],
+        "human_decisions": [legacy_human_check],
+        "error_boundaries": [str(item) for item in stored_error_boundaries][:3],
+        "current_process_summary": analysis.process_summary,
     }
 
 
@@ -2007,7 +2059,7 @@ def show_report(
             .order_by(AutomationOpportunity.rank)
         )
     )
-    if analysis is None or process is None or len(opportunities) != 3:
+    if analysis is None or process is None or not 1 <= len(opportunities) <= 3:
         return _redirect(_next_valid_path(database_session, session_id))
     result = _result_view(analysis, opportunities)
     if contains_internal_reference(result):

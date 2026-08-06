@@ -4,30 +4,28 @@
 <div class="print-toolbar"><p>Wähle im Druckdialog „Als PDF speichern“.</p><button class="primary-button" type="button" onclick="window.print()">Drucken / als PDF speichern</button></div>
 <article class="customer-report">
     <section class="report-page report-page-one">
-        <header class="report-header">
-            <div><p class="eyebrow">AI START MAP</p><h1>Dein klarer Start für „{{ process.process_name }}“</h1><p>Analyse vom {{ analysis_date }}</p></div>
-            <div class="report-contact"><strong>Derya Sarikaya</strong><span>deryaxsarikaya@gmail.com</span></div>
-        </header>
-        <div class="report-core"><p class="section-kicker">DEIN EIGENTLICHES PROBLEM</p><h2>{{ result.core_problem }}</h2></div>
-        <div class="report-core first"><p class="section-kicker">DAS SOLLTEST DU ZUERST ÄNDERN</p><h2>{{ result.first_change }}</h2></div>
-        <div class="report-ai"><p class="section-kicker">SO KANN KI DIR KONKRET HELFEN</p><p>{{ result.ai_support }}</p><dl><dt>Eingabe</dt><dd>{{ result.ai_input }}</dd><dt>KI-Aufgabe</dt><dd>{{ result.ai_task }}</dd><dt>Ergebnis</dt><dd>{{ result.ai_output }}</dd><dt>Menschliche Kontrolle</dt><dd>{{ result.human_check }}</dd></dl></div>
-        <div class="report-week"><p class="section-kicker">DAS KANNST DU DIESE WOCHE TESTEN</p><ol>{% for step in result.weekly_test[:3] %}<li>{{ step }}</li>{% endfor %}</ol></div>
+        <header class="report-header"><div><p class="eyebrow">AI START MAP</p><h1>Deine beste Lösung</h1><p>{{ process.process_name }} · {{ analysis_date }}</p></div><div class="report-contact"><strong>Derya Sarikaya</strong><span>deryaxsarikaya@gmail.com</span></div></header>
+        <div class="report-primary"><p class="section-kicker">DEIN BESTER KI-HEBEL</p><h2>{{ result.primary_recommendation }}</h2><p class="report-promise">{{ result.promise }}</p><p>{{ result.short_reason }}</p></div>
+        <div class="report-comparison"><section><p class="section-kicker">HEUTE</p><ol>{% for step in result.before_process %}<li>{{ step }}</li>{% endfor %}</ol></section><section><p class="section-kicker">MIT KI</p><ol>{% for step in result.future_process %}<li>{{ step }}</li>{% endfor %}</ol></section></div>
+        <div class="report-support"><dl><dt>Du gibst ein</dt><dd>{{ result.user_action }}</dd><dt>KI verarbeitet</dt><dd>{{ result.ai_task }}</dd><dt>Du erhältst</dt><dd>{{ result.visible_result }}</dd><dt>Du prüfst</dt><dd>{{ result.human_check }}</dd></dl></div>
+        <div class="report-sample"><p class="section-kicker">VORSCHAU · {{ result.sample_output.title }}</p><dl>{% for field in result.sample_output.fields %}<dt>{{ field.label }}</dt><dd>{{ field.value }}</dd>{% endfor %}</dl><p class="preview-notice">{{ result.sample_output.preview_notice }}</p></div>
     </section>
 
     <section class="report-page report-page-two">
-        <header class="report-page-heading"><p class="eyebrow">DEIN HEUTIGER ABLAUF</p><h2>So läuft es im Moment</h2><p>{{ result.current_process_summary }}</p></header>
-        <ol class="process-strip report-process">{% for step in result.as_is_steps[:5] %}<li class="{% if loop.index0 in result.problem_step_indexes %}problem{% endif %}"><span>{{ loop.index }}</span><p>{{ step }}</p></li>{% endfor %}</ol>
-        <div class="report-difficulties"><h3>Hier wird es schwierig</h3><ul>{% for item in result.optional_details.get('current_difficulties', []) %}<li>{{ item }}</li>{% else %}<li>{{ result.bottleneck.symptom }}</li>{% endfor %}</ul></div>
-        <div class="report-reason"><h3>Warum dieser erste Schritt?</h3><p>{{ result.why_this_first }}</p></div>
-    </section>
-
-    <section class="report-page report-page-three">
-        <header class="report-page-heading"><p class="eyebrow">DEIN STARTPLAN</p><h2>So kannst du diese Woche anfangen</h2></header>
-        <ol class="report-plan">{% for step in result.start_plan_steps[:5] %}<li>{{ step }}</li>{% endfor %}</ol>
-        <div class="report-grid"><section><h3>Was du brauchst</h3><ul>{% for item in result.required_prerequisites %}<li>{{ item }}</li>{% endfor %}</ul></section><section><h3>Was ein Mensch weiterhin entscheidet</h3><ul>{% for item in result.human_decisions %}<li>{{ item }}</li>{% endfor %}</ul></section></div>
-        <div class="report-success"><h3>Woran du merkst, dass es funktioniert</h3><p>{{ result.weekly_test_success }}</p></div>
-        <div class="report-later"><p class="section-kicker">SPÄTER AUTOMATISIEREN</p><p>{{ result.later_automation }}</p></div>
+        <header class="report-page-heading"><p class="eyebrow">UMSETZUNG</p><h2>So kann dein Einstieg aussehen</h2></header>
+        <ol class="report-plan">{% for step in result.implementation_path %}<li>{{ step }}</li>{% endfor %}</ol>
+        {% if result.required_prerequisites %}<div class="report-block"><h3>Das brauchst du</h3><ul>{% for item in result.required_prerequisites %}<li>{{ item }}</li>{% endfor %}</ul></div>{% endif %}
+        <div class="report-grid"><section><h3>Was du prüfst und entscheidest</h3><p>{{ result.human_check }}</p></section>{% if result.error_boundaries %}<section><h3>Fehlergrenzen</h3><ul>{% for item in result.error_boundaries %}<li>{{ item }}</li>{% endfor %}</ul></section>{% endif %}</div>
+        {% if result.sample_output.open_items or result.uncertainties %}<div class="report-block"><h3>Offene Punkte</h3><ul>{% for item in result.sample_output.open_items %}<li>{{ item }}</li>{% endfor %}{% for item in result.uncertainties %}<li>{{ item }}</li>{% endfor %}</ul></div>{% endif %}
+        {% if result.later_stage and not result.secondary_opportunities %}<div class="report-later"><p class="section-kicker">SPÄTERER AUSBAU</p><p>{{ result.later_stage }}</p></div>{% endif %}
         <footer><h3>Du möchtest das gemeinsam umsetzen?</h3><p>Sende die gespeicherte PDF an Derya Sarikaya: <strong>deryaxsarikaya@gmail.com</strong></p></footer>
     </section>
+
+    {% if result.secondary_opportunities %}<section class="report-page report-page-three">
+        <header class="report-page-heading"><p class="eyebrow">SPÄTERE MÖGLICHKEITEN</p><h2>Was danach sinnvoll werden kann</h2></header>
+        {% for item in result.secondary_opportunities %}<article class="report-block"><h3>{{ item.title }}</h3><p>{{ item.description }}</p></article>{% endfor %}
+        {% if result.later_stage %}<div class="report-later"><p class="section-kicker">SPÄTERER AUSBAU</p><p>{{ result.later_stage }}</p></div>{% endif %}
+        <p>Diese Möglichkeiten sind nachrangig, weil zuerst die Hauptlösung und ihre bestätigten Daten tragen müssen.</p>
+    </section>{% endif %}
 </article>
 {% endblock %}

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
 from collections.abc import Mapping, Sequence
 from pathlib import Path
@@ -10,9 +11,11 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from app.agent_config import AGENT_HEURISTICS
 from app.rag_service import KnowledgeChunk, format_chunks_for_prompt, retrieve_chunks
+from app.recommendation_service import infer_decision_gates
 
 
 ROOT_DIRECTORY = Path(__file__).resolve().parents[1]
+logger = logging.getLogger(__name__)
 QUESTION_PATTERN_FILE = (
     ROOT_DIRECTORY
     / "knowledge"
@@ -174,6 +177,10 @@ def _question_gap(question_text: str) -> str:
         ("abgeschlossen", "process_end"),
         ("auslös", "process_start"),
         ("status", "status_transitions"),
+        ("welchem auftrag", "transaction_anchor"),
+        ("woran erkennst", "transaction_anchor"),
+        ("wirklich liegt", "physical_location"),
+        ("kapazität", "capacity_constraints"),
         ("anders", "exceptions"),
     )
     return next((gap for marker, gap in keyword_gaps if marker in normalized), "other")
@@ -348,6 +355,12 @@ def question_templates() -> dict[str, str]:
 
 def search_diagnostic_knowledge(query: str, *, phase: str = "analysis") -> list[RagEvidence]:
     chunks: list[KnowledgeChunk] = retrieve_chunks(query, phase=phase)
+    logger.info(
+        "diagnostic_retrieval.selected phase=%s chunk_count=%d chunk_types=%s",
+        phase,
+        len(chunks),
+        [chunk.chunk_type for chunk in chunks],
+    )
     prompt_contents = format_chunks_for_prompt(chunks)
     return [
         RagEvidence(
@@ -574,6 +587,29 @@ def evaluate_readiness_and_next_action(
                 analysis_allowed=False,
             )
     state_text = _state_text(state)
+    decision_gates = infer_decision_gates(state_text)
+    if (
+        state.follow_up_count < AGENT_HEURISTICS.normal_follow_up_maximum
+        and decision_gates.physical_object
+        and not decision_gates.real_location_known
+        and "transaction_anchor" not in answered
+    ):
+        return NextActionDecision(
+            next_action="ASK",
+            reasoning=(
+                "Die Antwort entscheidet, ob physische Identität und realer Ort "
+                "vor weiterer KI-Unterstützung belastbar sind."
+            ),
+            information_gap="transaction_anchor",
+            possible_next_question=(
+                "Woran erkennst du heute, zu welchem Auftrag der Gegenstand gehört "
+                "und wo er wirklich liegt?"
+            ),
+            remaining_uncertainties=remaining,
+            analysis_allowed=True,
+        )
+    # Ein fehlender leichter Vorgangsanker blockiert einen geeigneten digitalen
+    # Eingang nicht. Der Selector ergänzt ihn als Teil derselben Einstiegslösung.
     high_stakes = any(
         marker in state_text
         for marker in (

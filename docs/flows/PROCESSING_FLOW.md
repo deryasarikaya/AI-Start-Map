@@ -1,7 +1,7 @@
 # AI Start Map – Processing Flow
 
 **Status:** Active
-**Letzte Prüfung:** 2026-08-05
+**Letzte Prüfung:** 2026-08-06
 **Source of Truth:** Aktuell implementiertes Processing-, Fehler- und Retry-Verhalten
 
 _Stand: 26.07.2026_
@@ -16,9 +16,9 @@ Alle Formulare mit merklicher Modell-, RAG- oder Agentenarbeit tragen `data-disa
 |---|---|---|---|
 | Erzählung → Prozesse | „Wir ordnen deine Erzählung“ | Eingaben speichern; automatische Processing-Ansicht startet Prozesserkennung | Weiterleitung zur Prozesswahl |
 | Prozesswahl → Zusammenfassung | „Wir ordnen diesen Ablauf“ | Structured Output rekonstruiert höchstens fünf Ist-Schritte | Weiterleitung zur Bestätigung |
-| Bestätigung → Agent | „Wir prüfen, ob noch etwas Entscheidendes fehlt“ | State-Extraktion, Agentenentscheidung, gegebenenfalls Retrieval | Rückfrage oder Analyse |
+| Bestätigung → Agent | „Wir prüfen, ob noch etwas Entscheidendes fehlt“ | State-Extraktion, deterministische Agentenentscheidung, gegebenenfalls Diagnose- und kontrolliertes Agent-Pattern-Retrieval | Rückfrage oder Analyse |
 | Rückfrage → nächste Aktion | gleiche Processing-Komponente | Antwort speichern, State erneut prüfen, verbleibende Fragen gegebenenfalls verwerfen | nächste Frage oder Analyse |
-| Analyse → Ergebnis | eigene Processing-Seite | Statusabfrage an `/analysis-status`, Analyse über `/analyze` | automatische Weiterleitung zum Ergebnis |
+| Analyse → Ergebnis | eigene Processing-Seite | Statusabfrage an `/analysis-status`, Problemfamilien/Gates, Diagnose-Retrieval, Solution-Selector und finale Structured-Output-Analyse über `/analyze` | automatische Weiterleitung zur einen priorisierten Hauptlösung |
 
 Die Analyse-Processing-Seite arbeitet mit echtem Serverstatus (`pending`, `processing`, `complete`, `error`). Parallel laufende Analyseversuche werden durch den bestehenden Sitzungs-Schreibschutz begrenzt.
 

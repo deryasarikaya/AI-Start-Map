@@ -40,7 +40,7 @@ def test_housekeeper_selects_mobile_job_documentation_with_anchor_in_entry() -> 
         DecisionGates(
             transaction_anchor="low",
             channel_suitability="high",
-            process_data_maturity="medium",
+            process_data_maturity="low",
             error_impact="medium",
             rule_stability="medium",
             human_approval="high",

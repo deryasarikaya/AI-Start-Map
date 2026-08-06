@@ -1,6 +1,6 @@
 # AI Start Map – Product Output Spec
 
-**Status:** Active – decided
+**Status:** Active – implemented, integrated and tested
 **Letzte Prüfung:** 2026-08-06
 **Verwandt mit:** `docs/specs/solution-pattern-recommendation/`
 
@@ -38,6 +38,7 @@ Das Kundenergebnis beantwortet in wenigen Sekunden: bester KI-Hebel, zukünftige
 | `implementation_path` | einfachster Umsetzungsweg | zwei bis vier Schritte |
 | `later_stage` | genau ein realistischer Ausbau | optional |
 | `secondary_opportunities` | nachrangige Titel plus ein Satz | null bis zwei |
+| `error_boundaries` | echte Fehlergrenzen für die ausführliche PDF | null bis drei |
 
 ## Hauptseite und Details
 
@@ -57,4 +58,4 @@ Der neue Vertrag wird ohne Migration in `analyses.uncertainties.core_output` ges
 
 ## Druckbericht
 
-Die Browser-Druckansicht verwendet weiter `window.print()`. Seite 1 zeigt beste Lösung, Vorher/Nachher, KI-Ablauf, Vorschau und Human Check. Seite 2 zeigt Umsetzung, Voraussetzungen, offene Punkte, Fehlergrenzen und menschliche Entscheidungen. Eine dritte Seite erscheint nur bei fachlich vorhandenen sekundären Möglichkeiten oder einem späteren Ausbau.
+Die Browser-Druckansicht verwendet weiter `window.print()`. Seite 1 zeigt beste Lösung, Vorher/Nachher, KI-Ablauf, Vorschau und Human Check. Seite 2 zeigt Umsetzung, Voraussetzungen, offene Punkte, Fehlergrenzen und menschliche Entscheidungen. Eine dritte Seite erscheint nur bei fachlich vorhandenen sekundären Möglichkeiten; ein alleiniger späterer Ausbau bleibt auf Seite 2.

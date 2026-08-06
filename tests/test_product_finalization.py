@@ -170,22 +170,21 @@ def _analysis_result(
 def test_structured_output_requires_the_new_customer_core() -> None:
     required = set(FinalAnalysisResult.model_json_schema()["required"])
     assert {
-        "core_problem",
-        "first_change",
-        "ai_support",
-        "ai_input",
+        "primary_recommendation",
+        "promise",
+        "short_reason",
+        "before_process",
+        "future_process",
+        "sample_output",
+        "user_action",
         "ai_task",
-        "ai_output",
+        "visible_result",
         "human_check",
-        "weekly_test",
-        "weekly_test_success",
-        "later_automation",
-        "why_this_first",
-        "required_prerequisites",
-        "human_decisions",
-        "current_process_summary",
-        "optional_details",
+        "customer_benefits",
+        "implementation_path",
     } <= required
+    assert "weekly_test" not in FinalAnalysisResult.model_json_schema()["properties"]
+    assert "weekly_test_success" not in FinalAnalysisResult.model_json_schema()["properties"]
 
 
 def test_generic_ai_claim_is_rejected() -> None:
@@ -214,11 +213,11 @@ def test_shoe_repair_output_is_concrete_and_grounded() -> None:
         later_automation="Wenn Zuordnung und Status verlässlich sind, kann eine Fertigmeldung vorbereitet werden.",
     )
     visible = " ".join(
-        (result.core_problem, result.first_change, result.ai_support, result.later_automation)
+        (result.short_reason, result.primary_recommendation, result.promise, result.later_stage)
     ).casefold()
     assert "auftrag, schuh und regalplatz" in visible
-    assert "sprache oder text" in result.ai_input.casefold()
-    assert "fertigmeldung" in result.later_automation.casefold()
+    assert "sprache oder text" in result.user_action.casefold()
+    assert "fertigmeldung" in result.later_stage.casefold()
     assert not any(term in visible for term in ("chatbot", "qr-code", "sicherheitsvorfall"))
 
 
@@ -233,9 +232,9 @@ def test_massage_output_keeps_appointment_confirmation_human() -> None:
         human_check="Ein Mensch wählt und bestätigt den Termin.",
         later_automation="Nach menschlicher Terminbestätigung kann die bestätigte Nachricht zum Versand vorbereitet werden.",
     )
-    assert "mehrere kanäle" in result.core_problem.casefold()
-    assert all(term in result.ai_input.casefold() for term in ("behandlung", "dauer", "personenzahl", "wunschzeit"))
-    assert "mensch" in result.human_check.casefold()
+    assert "mehrere kanäle" in result.short_reason.casefold()
+    assert all(term in result.user_action.casefold() for term in ("behandlung", "dauer", "personenzahl", "wunschzeit"))
+    assert "du" in result.human_check.casefold()
 
 
 def test_no_digital_foundation_states_that_ai_is_not_first() -> None:
@@ -249,11 +248,11 @@ def test_no_digital_foundation_states_that_ai_is_not_first() -> None:
         human_check="Ein Mensch prüft Preis, Inhalt und Freigabe.",
         later_automation="Nach einem stabilen Test kann eine bestätigte Statusmeldung vorbereitet werden.",
     )
-    assert result.ai_support.startswith("KI ist heute noch nicht der erste Schritt.")
+    assert result.promise.startswith("KI ist heute noch nicht der erste Schritt.")
     assert "preis" in result.human_check.casefold()
 
 
-def test_agent_can_analyze_without_a_follow_up_and_rejects_repeats() -> None:
+def test_agent_asks_only_for_solution_changing_anchor_and_rejects_repeats() -> None:
     state = ProcessState(
         process_start=_fact("Ein Schuh wird angenommen."),
         process_end=_fact("Der Schuh wird übergeben."),
@@ -263,7 +262,10 @@ def test_agent_can_analyze_without_a_follow_up_and_rejects_repeats() -> None:
         available_data=[_fact("Papierzettel")],
         rag_evidence=[RagEvidence(chunk_id="x", chunk_type="pattern", content="Vergleichswissen")],
     )
-    assert evaluate_readiness_and_next_action(state).next_action == "ANALYZE"
+    anchor_decision = evaluate_readiness_and_next_action(state)
+    assert anchor_decision.next_action == "ASK"
+    assert anchor_decision.information_gap == "transaction_anchor"
+    assert anchor_decision.possible_next_question.startswith("Woran erkennst du heute")
     assert not question_can_change_core_output(
         "Wie lange bleiben die Schuhe heute liegen?", state
     )
@@ -273,9 +275,13 @@ def test_agent_can_analyze_without_a_follow_up_and_rejects_repeats() -> None:
     assert not question_can_change_core_output(
         "Wie wird heute festgehalten, an welchem Ort der Schuh liegt?", state
     )
-    repeated = evaluate_readiness_and_next_action(
-        state, latest_user_message="Das habe ich doch schon gesagt."
-    )
+    grounded_state = state.model_copy(deep=True)
+    grounded_state.as_is_steps = [
+        _fact("Auftragsnummer am Schuh anbringen"),
+        _fact("Schuh in ein festes Fach legen"),
+    ]
+    assert evaluate_readiness_and_next_action(grounded_state).next_action == "ANALYZE"
+    repeated = evaluate_readiness_and_next_action(grounded_state, latest_user_message="Das habe ich doch schon gesagt.")
     assert repeated.next_action == "ANALYZE"
     assert repeated.stop_reason == "no_repeat_recheck"
 
@@ -287,7 +293,11 @@ def test_process_summary_and_report_use_safe_vertical_structures() -> None:
     assert "process-strip" in details and "mermaid" not in details.casefold()
     assert "process-strip" in results and "mermaid" not in results.casefold()
     assert report.count('class="report-page ') == 3
+    assert "{% if result.secondary_opportunities %}" in report
+    assert "result.later_stage and not result.secondary_opportunities" in report
     assert "mermaid" not in report.casefold()
+    assert "weekly_test" not in results
+    assert "weekly_test" not in report
     assert "session_id" not in report
     assert "Prozessdiagnostik und Entscheidungsvorbereitung" not in report
 

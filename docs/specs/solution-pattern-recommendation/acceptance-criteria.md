@@ -1,6 +1,6 @@
 # Acceptance Criteria – Solution-Pattern-Recommendation
 
-**Status:** Active – decided
+**Status:** Active – acceptance criteria passed in automated suite; limited Chrome visual check completed
 **Datum:** 2026-08-06
 **Fachlicher Status:** Verbindlich entschieden; technische Nachweise werden getrennt dokumentiert.
 
@@ -66,6 +66,6 @@ Zusätzlich enthält sie eine Ergebnisvorschau, ein bis drei Nutzenpunkte, null 
 ## Technischer Nachweis vor Abnahme
 
 - Für jedes Kriterium existiert ein passender automatisierter oder fachlich reproduzierbarer Test.
-- Die drei Referenzfälle prüfen sowohl positive Auswahl als auch relevante Ausschlüsse.
+- Die vier Referenzfälle prüfen positive Auswahl und relevante Freigabe- beziehungsweise Ausschlussgrenzen.
 - Externe OpenAI- und Embedding-Aufrufe sind in automatisierten Tests gemockt.
 - Die Änderung ist in `docs/CHANGELOG.md`, `docs/PROJECT_STATE.md`, `docs/KNOWN_ISSUES.md`, `docs/ARCHITECTURE.md`, `docs/DECISIONS.md`, `docs/ROADMAP.md` und `docs/INDEX.md` ihrem tatsächlichen Status entsprechend dokumentiert.

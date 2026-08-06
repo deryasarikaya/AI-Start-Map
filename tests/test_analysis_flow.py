@@ -9,6 +9,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 import app.routes as routes
+from app.agent_service import NextActionDecision
 from app.openai_service import AIServiceError
 from app.models import (
     Analysis,
@@ -122,6 +123,7 @@ def mock_retrieval(monkeypatch: pytest.MonkeyPatch) -> None:
         "_retrieval_context",
         lambda _query, _phase: ["Vergleichsmuster ohne Nutzerfakten"],
     )
+    monkeypatch.setattr(routes, "_agent_pattern_context", lambda _query: ([], []))
 
 
 def _generate_options_and_select(
@@ -155,16 +157,21 @@ def _generate_options_and_select(
 
 
 def _process_answers() -> dict[str, str]:
-    return {
+    answers = {
         question["key"]: f"Konkrete Antwort für {question['key']}"
         for question in PROCESS_QUESTIONS
     }
+    answers["actual_steps"] = (
+        '["Anfrage aufnehmen", "Angaben prüfen", "Auftrag bestätigen"]'
+    )
+    return answers
 
 
 def _complete_analysis(
     client: TestClient,
     database_session: Session,
     monkeypatch: pytest.MonkeyPatch,
+    final_result: FinalAnalysisResult | None = None,
 ) -> int:
     session_id = _generate_options_and_select(
         client,
@@ -179,7 +186,7 @@ def _complete_analysis(
     monkeypatch.setattr(
         routes,
         "generate_final_analysis",
-        lambda **_kwargs: _final_result(),
+        lambda **_kwargs: final_result or _final_result(),
     )
     response = client.post(
         f"/sessions/{session_id}/process-details",
@@ -187,7 +194,15 @@ def _complete_analysis(
         follow_redirects=False,
     )
     assert response.status_code == 303
-    assert response.headers["location"] == f"/sessions/{session_id}/processing"
+    stored_follow_ups = list(
+        database_session.scalars(
+            select(InterviewQuestion.question_text).where(
+                InterviewQuestion.session_id == session_id,
+                InterviewQuestion.question_phase == "follow_up",
+            )
+        )
+    )
+    assert response.headers["location"] == f"/sessions/{session_id}/processing", stored_follow_ups
     assert client.get(response.headers["location"]).status_code == 200
     analysis_response = client.post(f"/sessions/{session_id}/analyze")
     assert analysis_response.status_code == 200
@@ -366,6 +381,16 @@ def test_dynamic_questions_receive_only_app_assigned_keys(
             ]
         ),
     )
+    monkeypatch.setattr(
+        routes,
+        "evaluate_readiness_and_next_action",
+        lambda _state: NextActionDecision(
+            next_action="ASK",
+            reasoning="Testet das Fragebudget.",
+            information_gap="other",
+            analysis_allowed=True,
+        ),
+    )
     client.post(
         f"/sessions/{session_id}/process-details",
         data=_process_answers(),
@@ -402,7 +427,7 @@ def test_at_most_three_follow_up_questions_are_stored(
     assert count == 2
 
 
-def test_final_analysis_stores_exactly_three_opportunities(
+def test_final_analysis_stores_one_primary_and_at_most_two_secondary_opportunities(
     client: TestClient,
     database_session: Session,
     monkeypatch: pytest.MonkeyPatch,
@@ -416,7 +441,7 @@ def test_final_analysis_stores_exactly_three_opportunities(
     assert count == 3
 
 
-def test_opportunity_ranks_are_one_two_and_three(
+def test_primary_and_optional_secondary_opportunity_ranks_are_contiguous(
     client: TestClient,
     database_session: Session,
     monkeypatch: pytest.MonkeyPatch,
@@ -432,7 +457,29 @@ def test_opportunity_ranks_are_one_two_and_three(
     assert ranks == [1, 2, 3]
 
 
-def test_blueprint_and_presentation_metadata_are_stored(
+def test_analysis_can_store_only_the_primary_opportunity(
+    client: TestClient,
+    database_session: Session,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    result = _final_result().model_copy(update={"secondary_opportunities": []})
+    session_id = _complete_analysis(
+        client,
+        database_session,
+        monkeypatch,
+        final_result=result,
+    )
+    ranks = list(
+        database_session.scalars(
+            select(AutomationOpportunity.rank).where(
+                AutomationOpportunity.session_id == session_id
+            )
+        )
+    )
+    assert ranks == [1]
+
+
+def test_concise_output_and_presentation_metadata_are_stored(
     client: TestClient,
     database_session: Session,
     monkeypatch: pytest.MonkeyPatch,
@@ -446,10 +493,11 @@ def test_blueprint_and_presentation_metadata_are_stored(
             ).where(AutomationOpportunity.session_id == session_id)
         ).all()
     )
-    assert blueprints[1]["blueprint"] is not None
-    assert blueprints[2]["blueprint"] is None
-    assert blueprints[3]["blueprint"] is None
-    assert all(value["category"] for value in blueprints.values())
+    assert blueprints[1]["contract_version"] == "recommendation-v2"
+    assert blueprints[1]["sample_output"] is not None
+    assert blueprints[1]["implementation_path"]
+    assert blueprints[2]["sample_output"] is None
+    assert blueprints[3]["sample_output"] is None
 
 
 def test_failed_analysis_leaves_no_partial_results(
@@ -549,8 +597,8 @@ def test_model_prompt_context_contains_no_internal_metadata() -> None:
         ("process_summary", "Interner Fall RB03-C01-01"),
         ("as_is_steps", "Interner Chunk wurde verwendet"),
         ("core_bottleneck", "Ableitung aus pattern_id"),
-        ("opportunities", "Quelle content_origin"),
-        ("blueprint", "Aus einem Referenzfall übernommen"),
+        ("primary_recommendation", "Quelle content_origin"),
+        ("sample_output", "Aus einem Referenzfall übernommen"),
     ],
 )
 def test_visible_analysis_fields_reject_internal_references(
@@ -560,10 +608,8 @@ def test_visible_analysis_fields_reject_internal_references(
     payload = _final_result().model_dump()
     if field_name == "as_is_steps":
         payload[field_name][0] = marker
-    elif field_name == "opportunities":
-        payload[field_name][0]["recommendation"] = marker
-    elif field_name == "blueprint":
-        payload[field_name]["objective"] = marker
+    elif field_name == "sample_output":
+        payload[field_name]["fields"][0]["value"] = marker
     else:
         payload[field_name] = marker
 
@@ -613,7 +659,7 @@ def test_demo_route_creates_session_and_redirects_to_real_results(
     assert opportunity_count == 3
     result_response = client.get(f"/sessions/{session_id}/results")
     assert result_response.status_code == 200
-    assert "Dein eigentliches Problem" in result_response.text
+    assert "DEIN BESTER KI-HEBEL" in result_response.text
     visible_text = result_response.text.casefold()
     for marker in ("m-01", "testfall", "chunk", "pattern_id", "content_origin"):
         assert marker not in visible_text
@@ -645,11 +691,10 @@ def test_massage_demo_uses_fixed_fallback_after_ai_service_failure(
     assert all(
         core_output[field]
         for field in (
-            "core_problem",
-            "first_change",
-            "ai_support",
-            "weekly_test",
-            "later_automation",
+            "primary_recommendation",
+            "promise",
+            "sample_output",
+            "implementation_path",
         )
     )
     assert client.get("/results").status_code == 200
@@ -688,15 +733,25 @@ def test_follow_up_answers_complete_the_analysis(
         "generate_follow_up_questions",
         lambda **_kwargs: FollowUpResult(
             questions=[
-                FollowUpQuestion(
-                    question="Wer prüft heute die Auftragsangaben?",
-                    issue_type="missing",
-                ),
-                FollowUpQuestion(
-                    question="Wie viele Aufträge entstehen heute pro Woche?",
-                    issue_type="critical_unknown",
-                ),
+                    FollowUpQuestion(
+                            question="Welche Angabe verändert heute die Hauptempfehlung?",
+                        issue_type="missing",
+                    ),
+                    FollowUpQuestion(
+                            question="Was ist heute bei der Zuordnung noch ungeklärt?",
+                        issue_type="critical_unknown",
+                    ),
             ]
+        ),
+    )
+    monkeypatch.setattr(
+        routes,
+        "evaluate_readiness_and_next_action",
+        lambda _state: NextActionDecision(
+            next_action="ASK",
+            reasoning="Testet beantwortete und unbekannte Rückfragen.",
+            information_gap="other",
+            analysis_allowed=True,
         ),
     )
     monkeypatch.setattr(
@@ -730,7 +785,10 @@ def test_follow_up_answers_complete_the_analysis(
             )
         ).all()
     )
-    assert answers == {"follow_up_1": "Die Inhaberin prüft die Angaben."}
+    assert answers == {
+        "follow_up_1": "Die Inhaberin prüft die Angaben.",
+        "follow_up_2": "Ich weiß es gerade nicht",
+    }
     assert database_session.get(Analysis, session_id) is None
     analysis_response = client.post(f"/sessions/{session_id}/analyze")
     assert analysis_response.status_code == 200
@@ -798,4 +856,4 @@ def test_all_workflow_pages_render_without_template_errors(
     client.post(f"/sessions/{session_id}/analyze")
     results = client.get(f"/sessions/{session_id}/results")
     assert results.status_code == 200
-    assert "Diese Woche ausprobieren" in results.text
+    assert "So setzt du das um" in results.text

@@ -15,8 +15,8 @@ AI Start Map is a diagnostic and decision-support system. It does not autonomous
 * confirmation or correction,
 * zero to four relevant follow-up questions shown one at a time,
 * visible analysis state,
-* a concise result ordered as problem, first change, concrete AI support, weekly test and later automation,
-* customer-facing print/PDF report, first-step plan and contact action.
+* a concise result with one primary recommendation, before/after flow, concrete result preview, human check and implementation path,
+* optional secondary opportunities, customer-facing print/PDF report and contact action.
 
 Diagnose before recommending. Depending on the current digital maturity, the correct first step may be order and standardization, simple digitization, rule-based automation or AI support.
 
@@ -104,7 +104,7 @@ These rules apply only when AI or RAG is part of the current task:
 * Preserve working demo routes and the existing structured OpenAI/RAG architecture.
 * Use browser `SpeechRecognition`/`webkitSpeechRecognition` for the first voice-input version and provide a safe unsupported-browser fallback.
 * Use a readable vertical HTML/CSS process line; never render model-written diagram source directly.
-* Use a customer-facing print view of normally three pages plus `window.print()` for PDF saving; do not add a heavy PDF dependency.
+* Use a customer-facing print view of two core pages plus an optional third page and `window.print()` for PDF saving; do not add a heavy PDF dependency.
 * Contact is a plain `mailto:` link. Do not imply that a browser attaches the report automatically.
 
 ## Diagnostic interview agent

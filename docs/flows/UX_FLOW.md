@@ -1,6 +1,6 @@
 # AI Start Map V2 – sichtbare Nutzerreise
 
-**Status:** Active – decided
+**Status:** Active – implemented, tested and documented
 **Letzte Prüfung:** 2026-08-06
 **Hinweis:** Verbindliche Zielreise; Implementierungsstatus steht im Projektstand.
 **Verwandt mit:** `docs/specs/product-output/requirements.md`, `docs/specs/solution-pattern-recommendation/`, `docs/product/AI_Start_Map_Fachgrundlage_Painpoints_Solutions_2026-08-05.md`
@@ -17,8 +17,8 @@ Landingpage
 → kurze Zusammenfassung bestätigen oder korrigieren
 → nur entscheidungsrelevante Rückfrage(n)
 → sichtbare Verarbeitung
-→ Kernoutput
-→ optional Startplan, Details, PDF, weiterer Ablauf oder Kontakt
+→ eine priorisierte Hauptlösung mit Ergebnisvorschau
+→ optional Umsetzung, weitere Möglichkeiten, Details, PDF, weiterer Ablauf oder Kontakt
 ```
 
 Die Fortschrittsanzeige hat überall drei Zustände: `Erzählen → Verstehen → Ergebnis`. Rückfragen gehören zu „Verstehen“. Die interne numerische Session-ID erscheint weder in URLs der öffentlichen Reise noch im Seiteninhalt.
@@ -47,7 +47,7 @@ Die Bestätigung zeigt höchstens fünf kurze Ist-Schritte als responsive vertik
 
 ## Rückfragen und Agent
 
-Der Agent darf `ASK`, `CLARIFY`, `RETRIEVE`, `ANALYZE` oder `STOP` wählen. Eine Frage ist nur zulässig, wenn sie Kernproblem, ersten Schritt, konkrete KI-Hilfe, Wochen-Test, spätere Automatisierung, eine zwingende Freigabe, eine kritische Voraussetzung oder die Entscheidung über den aktuellen KI-Einsatz ändern kann.
+Der Agent darf `ASK`, `CLARIFY`, `RETRIEVE`, `ANALYZE` oder `STOP` wählen. Eine Frage ist nur zulässig, wenn ihre Antwort Problemfamilie, Ursache, Vorgangsanker, Kanaleignung, Prozess-/Datenreife, Risiko, Human Check, zulässiges Solution Pattern oder primäre Empfehlung verändern kann.
 
 - Null Rückfragen sind ausdrücklich möglich.
 - Normal sind null bis zwei Fragen.
@@ -65,37 +65,23 @@ Der erste Ergebnisbildschirm zeigt genau eine Hauptlösung: „Dein bester KI-He
 
 Es gibt keinen Wochentest und keine Pflicht zu drei Opportunities. Alle sichtbaren Ergebnistexte sprechen den Kunden direkt mit „du“ an. Diagnosekontext, Risiken und technische Varianten bleiben Details oder Druckbericht.
 
-## Früherer Kernoutput (superseded)
-
-Der erste Ergebnisbildschirm folgt verbindlich dieser Reihenfolge:
-
-1. Dein eigentliches Problem.
-2. Das solltest du zuerst ändern.
-3. So kann KI dir konkret helfen: Eingabe, KI-Aufgabe, Ergebnis und menschliche Kontrolle.
-4. Das kannst du diese Woche testen: höchstens drei Schritte und ein beobachtbares Erfolgskriterium.
-5. Später kannst du automatisieren: genau ein realistischer Ausbau nach erfüllter Voraussetzung.
-
 Ist KI heute noch nicht sinnvoll, sagt das Ergebnis ausdrücklich, dass KI noch nicht der erste Schritt ist, und nennt die Voraussetzung für eine spätere konkrete Unterstützung. Tieferer Diagnosekontext, heutiger Ablauf, Unsicherheiten und spätere Möglichkeiten sind standardmäßig geschlossen.
 
 ## Startplan, PDF und Kontakt
 
-„Zeig mir, wie ich anfangen kann“ öffnet drei bis fünf Schritte, notwendige Dinge, Erfolgskriterium und menschliche Entscheidungen. Preise, Verträge, Zahlungen, Qualität, Ausnahmen und unklare Zuordnungen bleiben beim Menschen.
+„So setzt du das um“ öffnet zwei bis vier Schritte, notwendige Voraussetzungen, menschliche Entscheidungen und optional einen späteren Ausbau. Preise, Verträge, Zahlungen, Qualität, Ausnahmen und unklare Zuordnungen bleiben beim Menschen.
 
-Die neue Druckansicht besteht aus zwei A4-Seiten und einer optionalen dritten. Die folgende feste Drei-Seiten-Struktur ist superseded:
-
-1. Kernproblem, erster Schritt, konkrete KI-Hilfe und Wochen-Test.
-2. Heutiger Ablauf, schwierige Stellen und kurze Begründung.
-3. Startplan, Voraussetzungen, menschliche Entscheidungen, Erfolgskriterium, spätere Automatisierung und Kontakt.
+Die Druckansicht besteht aus zwei Kernseiten und einer optionalen dritten. Seite 1 zeigt Hauptlösung, Vorher/Nachher, KI-Ablauf und Vorschau. Seite 2 zeigt Umsetzung, Voraussetzungen, offene Punkte, Fehlergrenzen und Human Check. Seite 3 erscheint nur bei mindestens einer fachlich vorhandenen sekundären Möglichkeit; ein alleiniger späterer Ausbau bleibt auf Seite 2.
 
 Die PDF wird über `window.print()` gespeichert. Der Mailto-Link behauptet nicht, die PDF automatisch anzuhängen.
 
 ## Daten- und Wissensgrenzen
 
-Der Diagnoseindex mit 634 Chunks und der Agent-Pattern-Index mit 205 Patterns bleiben getrennt. Alle 79 Evaluationen bleiben außerhalb jedes Indexes. RAG-Evidenz ist nur Vergleichswissen und wird niemals als Nutzerfakt gespeichert oder sichtbar ausgegeben. In dieser Überarbeitung wurden weder Research-Batches noch Indizes neu gebaut.
+Der Diagnoseindex mit 634 Chunks und der Agent-Pattern-Index mit 205 Patterns bleiben getrennt. Der Agent-Pattern-Index unterstützt Rückfragen kontrolliert; der strukturierte Solution-Katalog wird direkt ohne neuen Index geladen. Alle 79 Evaluationen bleiben außerhalb jedes Indexes. RAG-Evidenz ist nur Vergleichswissen und wird niemals als Nutzerfakt gespeichert oder sichtbar ausgegeben. In dieser Überarbeitung wurden weder Research-Batches noch Indizes neu gebaut.
 
 ## Abnahme
 
-Automatisiert geprüft werden Kernoutput, Agentenlimits, Null-Rückfragen, No-Repeat, Schuhmacher, Massagesalon, Betrieb ohne digitale Grundlage, menschliche Preis-/Terminfreigabe, Processing-Verträge, responsive CSS-Grundregeln, drei Berichtseiten und das Fehlen interner IDs. Eine echte Gerätefreigabe bleibt erst nach visueller Prüfung in Chrome, Android und iPhone/Safari vollständig.
+Automatisiert geprüft werden Kernoutput, Agentenlimits, Null-Rückfragen, No-Repeat, Hausmeister, Schuhmacher, Blumenladen, Massagesalon, menschliche Freigaben, Retrieval-Vertrag, Agent-Pattern-Aufruf, variable Opportunity-Anzahl, responsive CSS-Grundregeln, variable Berichtsseiten und das Fehlen interner IDs. Desktop, schmaler Mobile-Viewport und Bericht wurden zusätzlich in Chrome visuell geprüft; physische Geräte und Safari bleiben offen.
 
 ## Aktuell bestätigte Darstellungsregeln
 

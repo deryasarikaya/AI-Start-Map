@@ -1,8 +1,8 @@
 # Tasks – Solution-Pattern-Recommendation
 
-**Status:** In Progress
+**Status:** Implemented and tested; final Git publication in progress
 **Datum:** 2026-08-06
-**Umsetzungsstatus:** Produktvertrag, Katalog, Loader und deterministische Vorauswahl sind umgesetzt und unit-getestet; Laufzeitintegration folgt getrennt.
+**Umsetzungsstatus:** Produktvertrag, Katalog, Loader, Retrieval, Agent-Pattern-Aufruf, deterministische Auswahl, Kundenausgabe und Bericht sind integriert; 107 Tests, App-Start und begrenzte Chrome-Visualprüfung sind bestanden.
 
 | Bereich | Aufgabe | Status | Nachweis / Abhängigkeit |
 |---|---|---|---|
@@ -14,19 +14,20 @@
 | Strukturierte Katalogdateien | Speicherformat und Pfad für den nicht-indexierten Katalog festlegen. | Done | `knowledge/structured/recommendation_catalog.json` |
 | Strukturierte Katalogdateien | Zehn freigegebene Patterns vollständig und validierbar erfassen. | Done | 12/10/Matrix-Validierung und Tests |
 | Deterministische Gates | Vorgangsanker-, Kanal-, Reife-, Risiko-, Regelstabilitäts- und Freigabegates spezifizieren. | Done | `DecisionGates` |
-| Deterministische Gates | Applicability, Exclusion und Tie-Breaking implementieren und testen. | Done | Selector-Unit-Tests; Laufzeitintegration separat offen |
-| Retrieval-Vertrag | Diagnose-RAG-Ausgabe für Problem- und Bedingungsevidenz abgrenzen. | Not Started | Nutzerfakt-/Evidenztrennung beibehalten |
-| Retrieval-Vertrag | Konkurrenz defensiver Chunktypen und fehlenden `automation_pattern`-Gegencheck beheben. | Not Started | Reproduzierbare Retrieval-Tests |
-| Recommendation-Auswahl | Problemfamilien und anwendbare Patterns in den Laufzeitpfad integrieren. | Not Started | Gates und Katalog vorhanden |
-| Recommendation-Auswahl | Ranking gegen den aktuellen Prompt-/Python-Vertrag abgleichen. | Not Started | Keine doppelte widersprüchliche Entscheidungshoheit |
-| Output-Anpassung | Nutzerhandlung, KI-Aufgabe, sichtbares Ergebnis und Human Check verbindlich abbilden. | Not Started | Kundensprach- und Schema-Review |
-| Output-Anpassung | Voraussetzungen, Wochentest und Opportunity-Anzahl nach Entscheidung anpassen. | Not Started | Separate Outputentscheidung erforderlich |
-| Evaluationen | Hausmeisterfall mit SP-03 auf Rang 1 unter bestätigten Bedingungen prüfen. | Not Started | Evaluation bleibt außerhalb Produktwissen |
-| Evaluationen | Schuhmacherfall gegen Objekt-ID-/Orts-Gate prüfen. | Not Started | Negative und positive Fälle |
-| Evaluationen | Massagesalon gegen Kapazitäts- und Freigabe-Gate prüfen. | Not Started | Keine automatische Zusage |
-| Dokumentation | Projektstand, Architektur, Entscheidungen, Issues, Changelog, Roadmap und INDEX nach Implementierung aktualisieren. | Not Started | Documentation-Update-Skill |
-| Code Review | Produktionsdiff auf Scope, Sicherheitsgrenzen, Knowledge-Trennung und unnötige Abstraktion prüfen. | Not Started | Vollständiger Review |
-| Release | Relevante Tests, Migrationen falls beschlossen, App-Start und Deployment-Artefakte verifizieren. | Not Started | Kein Release ohne Review und Freigabe |
+| Deterministische Gates | Applicability, Exclusion und Tie-Breaking implementieren und testen. | Done | Selector-Unit-Tests und Laufzeitintegration vor dem finalen Modellaufruf |
+| Retrieval-Vertrag | Diagnose-RAG-Ausgabe für Problem- und Bedingungsevidenz abgrenzen. | Done | Nutzerfakt-/Evidenztrennung und Retrievaltests |
+| Retrieval-Vertrag | Konkurrenz defensiver Chunktypen und fehlenden `automation_pattern`-Gegencheck beheben. | Done | Vier reservierte Analyse-Typen |
+| Recommendation-Auswahl | Problemfamilien und anwendbare Patterns in den Laufzeitpfad integrieren. | Done | `routes.py` → `recommendation_service.py` |
+| Recommendation-Auswahl | Ranking gegen den aktuellen Prompt-/Python-Vertrag abgleichen. | Done | Selector entscheidet; Prompt formuliert den validierten Output |
+| Output-Anpassung | Nutzerhandlung, KI-Aufgabe, sichtbares Ergebnis und Human Check verbindlich abbilden. | Done | Pydantic-Vertrag, Sprach- und Längentests |
+| Output-Anpassung | Voraussetzungen und variable Opportunity-Anzahl umsetzen. | Done | Kein neuer Wochentest; 1–3 persistierte Zeilen |
+| Evaluationen | Hausmeisterfall mit SP-03 auf Rang 1 unter bestätigten Bedingungen prüfen. | Done | Katalog- und Experience-Test |
+| Evaluationen | Schuhmacherfall gegen Objekt-ID-/Orts-Gate prüfen. | Done | Objekt-/Orts- und Herausgabeprüfung |
+| Evaluationen | Blumenladen gegen Bestellkarten- und Kapazitätsgrenze prüfen. | Done | Bestellkarte, offene Angaben, keine Autoannahme |
+| Evaluationen | Massagesalon gegen Kapazitäts- und Freigabe-Gate prüfen. | Done | Keine automatische Zusage |
+| Dokumentation | Projektstand, Architektur, Entscheidungen, Issues, Changelog, Roadmap und INDEX nach Implementierung aktualisieren. | Done | Documentation-Update-Skill |
+| Code Review | Produktionsdiff auf Scope, Sicherheitsgrenzen, Knowledge-Trennung und unnötige Abstraktion prüfen. | Done | Abschlussdiff, `git diff --check` und Secret-/Artefaktprüfung bestanden |
+| Release | Relevante Tests, Migrationen falls beschlossen, App-Start und Deployment-Artefakte verifizieren. | In Progress | Keine Migration; Branch-Push folgt nach Abschlussreview |
 
 ## Statuswerte
 

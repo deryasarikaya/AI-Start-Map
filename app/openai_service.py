@@ -493,21 +493,8 @@ def _validate_final_grounding(
                 term in uncertainty.casefold() for term in unsupported_terms
             )
         ]
-        result.optional_details.current_difficulties = [
-            difficulty
-            for difficulty in result.optional_details.current_difficulties
-            if not any(term in difficulty.casefold() for term in unsupported_terms)
-        ]
         if any(term in result.process_summary.casefold() for term in unsupported_terms):
-            clean_summary = result.current_process_summary
-            if any(term in clean_summary.casefold() for term in unsupported_terms):
-                clean_summary = " ".join(result.as_is_steps)
-            result.process_summary = clean_summary
-        if any(
-            term in result.current_process_summary.casefold()
-            for term in unsupported_terms
-        ):
-            result.current_process_summary = result.process_summary
+            result.process_summary = " ".join(result.as_is_steps)
     unsupported_solution_terms = {
         term for term in SOLUTION_ONLY_UNCERTAINTY_TERMS if term not in user_facts
     }
@@ -631,9 +618,9 @@ def generate_follow_up_questions(
             "heutigen tatsächlichen Ablauf. Die technische Obergrenze ist vier. "
             "Jede Rückfrage muss unmittelbar auf einer belegten Nutzerangabe oder "
             "einer darin erkennbaren Lücke beruhen und mindestens eines dieser "
-            "Ergebnisfelder verändern können: core_problem, first_change, ai_support, "
-            "weekly_test, later_automation, zwingende menschliche Freigabe, kritische "
-            "Voraussetzung oder die Entscheidung, ob KI heute sinnvoll ist. "
+            "Entscheidungen verändern können: Problemfamilie, Ursache, Vorgangsanker, "
+            "Kanaleignung, Prozess-/Datenreife, Risiko, Human Check, zulässiges "
+            "Solution Pattern oder primäre Empfehlung. "
             "Wiederhole keine beantwortete Frage und behandle je Frage genau ein "
             "Thema. Frage nichts erneut, was in Ursprungserzählung, bestätigtem "
             "Ablauf oder Korrektur bereits eindeutig steht. Fragen, die den Ablauf "
@@ -641,8 +628,8 @@ def generate_follow_up_questions(
             "Schlage weder eine Lösung noch eine neue Geschäftsregel vor. "
             "Erfinde keine Gefahr, keine Kontrollmaßnahme und kein Sicherheitsrisiko. "
             "Setze keine Fotos, Identitätsprüfung, Software oder Automatisierung "
-            "voraus. Frage offen danach, was heute passiert. Wenn die fünf Kernfelder "
-            "sicher erzeugt werden können, gib eine leere Liste zurück."
+            "voraus. Frage offen danach, was heute passiert. Wenn die "
+            "Entscheidungsgrundlage sicher ausreicht, gib eine leere Liste zurück."
         ),
         payload={
             "A_USER_FACTS": {
@@ -666,6 +653,7 @@ def generate_final_analysis(
     selected_process: dict[str, str],
     knowledge_chunks: Sequence[str],
     agent_state: dict[str, object] | None = None,
+    recommendation_context: dict[str, object] | None = None,
 ) -> FinalAnalysisResult:
     result = _parse_structured_output(
         system_prompt=(
@@ -675,22 +663,25 @@ def generate_final_analysis(
             "dürfen nie als bestehender Ablauf erscheinen. C. ALLOWED INFERENCES "
             "sind nur logisch zwingende Verbindungen zwischen belegten Schritten; "
             "kennzeichne fehlende Details stattdessen als Unsicherheit. D. "
-            "RECOMMENDATIONS gehören nur in Chancen und Blueprint.\n\n"
+            "RECOMMENDATIONS beschreibt die deterministisch vorausgewählte Lösung.\n\n"
             "Rekonstruiere den Ist-Ablauf, benenne Symptom, Ursache und Auswirkung "
-            "des Kernengpasses getrennt. Erzeuge zuerst den verbindlichen Kernoutput: "
-            "core_problem ist genau ein verständlicher Satz zum eigentlichen Problem; "
-            "first_change ist genau eine kleine, konkrete priorisierte Maßnahme; "
-            "ai_support beschreibt einen konkreten KI-Einsatz und wird zusätzlich in "
-            "ai_input, ai_task, ai_output und human_check zerlegt; weekly_test enthält "
-            "höchstens drei klar ausführbare Schritte für diese Woche und "
-            "weekly_test_success ein beobachtbares Erfolgskriterium; later_automation "
-            "nennt genau einen realistischen Ausbau nach erfüllter Voraussetzung. "
-            "Wenn KI heute noch nicht sinnvoll ist, sage ausdrücklich: ‚KI ist heute "
-            "noch nicht der erste Schritt.‘ und beschreibe, wobei sie nach einheitlicher "
-            "Datenerfassung konkret unterstützen kann. Keine generischen Aussagen wie "
-            "‚KI kann deinen Prozess optimieren‘. Erzeuge zusätzlich für die interne "
-            "Vertiefung exakt drei realistische Startpunkte mit den "
-            "Rängen 1, 2 und 3. Keine generischen CRM- oder Chatbot-Empfehlungen, "
+            "des Kernengpasses getrennt. Erzeuge genau eine dominante Hauptlösung aus "
+            "der deterministischen Vorauswahl. primary_recommendation ist höchstens "
+            "ungefähr 12 bis 14 Wörter; promise ist ein kurzer Satz mit dem greifbaren "
+            "Ergebnis; short_reason umfasst höchstens zwei kurze Sätze. before_process "
+            "enthält höchstens drei bestätigte Ist-Schritte, future_process drei oder "
+            "vier kurze neue Schritte. user_action und human_check sprechen mit du an. "
+            "ai_task und visible_result sind je ein kurzer Satz. customer_benefits "
+            "enthält ein bis drei Punkte, required_prerequisites null bis drei echte "
+            "Voraussetzungen und implementation_path zwei bis vier Umsetzungsschritte. "
+            "Das ist kein Wochentest und keine Hausaufgabe. later_stage ist optional "
+            "genau ein Ausbau. secondary_opportunities enthält nur fachlich passende "
+            "weitere Möglichkeiten, null bis maximal zwei, niemals Füllvorschläge. "
+            "error_boundaries enthält null bis drei echte Fehlergrenzen aus der "
+            "vorausgewählten Lösung, keine allgemeinen Testhinweise. "
+            "sample_output ist eine klar gekennzeichnete Vorschau des konkreten "
+            "Arbeitsergebnisses. Verwende bestätigte Fakten; fehlende Werte erscheinen "
+            "neutral als ‚noch offen‘. Keine generischen CRM- oder Chatbot-Empfehlungen, "
             "keine erfundenen Geld- oder Zeitwerte und keine erfundenen APIs. "
             "In process_summary und as_is_steps dürfen nur USER FACTS und logisch "
             "zwingende Verbindungen stehen. Baue keine vorgeschlagenen Tools, "
@@ -700,12 +691,10 @@ def generate_final_analysis(
             "Ablauf oder zur Bewertung einer Empfehlung; gib höchstens vier aus. "
             "Eine Unsicherheit darf keine erst vorgeschlagene Software, Dokumentation, "
             "Kontrolle oder andere Lösung als bestehenden Ablauf voraussetzen. "
-            "Ordnung und Standardisierung darf ausdrücklich vor Digitalisierung "
-            "oder Automatisierung stehen. Ordne jeden Startpunkt genau einer der "
-            "vorgegebenen Kategorien zu und nenne Voraussetzung, Mini-Test, Aufwand "
-            "sowie ein konkretes Akzeptanzrisiko ohne Prozentwert. Erzeuge außerdem "
-            "einen kurzen Soll-Ablauf, der nur die nächste realistische Reifestufe "
-            "abbildet. Markiere belegte Problemstellen im Ist-Ablauf über ihre "
+            "So wenig Ordnung wie zwingend nötig, so früh konkrete KI-Unterstützung "
+            "wie realistisch möglich; Automatisierung erst nach bestätigten Daten und "
+            "klaren Freigaben. Erzeuge einen kurzen Soll-Ablauf für die nächste "
+            "realistische Reifestufe. Markiere belegte Problemstellen im Ist-Ablauf über ihre "
             "nullbasierten Schrittpositionen. Wenn "
             "physische Gegenstände bearbeitet werden, prüfe insbesondere eine zentrale "
             "digitale Auftragskarte, eindeutige Zuordnung, Status und Ablageort, eine "
@@ -713,13 +702,7 @@ def generate_final_analysis(
             "Änderungen und Kundenfreigaben. Fotos sind höchstens eine optionale "
             "Ergänzung und niemals ungefragt Pflicht oder Kernlösung. "
             "Medizinische, rechtliche, finanzielle, technische und kreative "
-            "Entscheidungen dürfen nicht autonom automatisiert werden. Erzeuge "
-            "einen Blueprint ausschließlich für Chance 1 mit drei bis fünf konkreten "
-            "Schritten. required_prerequisites und human_decisions enthalten nur "
-            "wirklich notwendige Grundlagen und menschliche Entscheidungen. "
-            "current_process_summary fasst den bestätigten heutigen Ablauf kurz "
-            "zusammen; optional_details bündelt nur vertiefende Informationen. "
-            "Prüfe vor der Ausgabe "
+            "Entscheidungen dürfen nicht autonom automatisiert werden. Prüfe vor der Ausgabe "
             "jedes sichtbare Feld erneut darauf, dass es nur den Nutzerprozess "
             "beschreibt und keinerlei interne Wissensreferenz enthält. Beginne die "
             "Zusammenfassung direkt mit dem Ablauf und wiederhole weder den Titel "
@@ -747,9 +730,7 @@ def generate_final_analysis(
                 ),
                 "widersprueche": (agent_state or {}).get("contradictions", []),
             },
-            "D_RECOMMENDATIONS": (
-                "Nur in opportunities und blueprint; nie im bestehenden Ablauf."
-            ),
+            "D_RECOMMENDATIONS": recommendation_context or {},
         },
         result_type=FinalAnalysisResult,
     )

@@ -1,6 +1,6 @@
 # Entscheidungen
 
-**Last Updated:** 2026-08-05
+**Last Updated:** 2026-08-06
 
 Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest. Wenn das ursprüngliche Entscheidungsdatum nicht getrennt dokumentiert wurde, ist das Datum als Aufnahmedatum gekennzeichnet.
 
@@ -20,7 +20,7 @@ Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest
 - **Grund:** Fachliches Vergleichswissen und Agentenentscheidungsmuster haben unterschiedliche Aufgaben und dürfen nicht unkontrolliert vermischt werden.
 - **Konsequenzen:** Getrennte Korpora, Verzeichnisse, Manifeste, Testindizes und Validierungen.
 - **Alternativen:** Ein gemeinsamer Vektorindex wurde verworfen.
-- **Status:** Implemented; Agent-Pattern-Index noch nicht in der Laufzeit aktiv
+- **Status:** Implemented and integrated; Agent-Pattern-Retrieval unterstützt den Interviewpfad kontrolliert
 
 ## DEC-003 – Evaluationen sind niemals Produktwissen
 
@@ -54,7 +54,7 @@ Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest
 - **Datum:** 2026-07-27
 - **Entscheidung:** Die Oberfläche zeigt einen klaren Schritt nach dem anderen, bevorzugt null bis zwei Rückfragen und begrenzt die sichtbare Zahl technisch auf vier.
 - **Grund:** Kleine Betriebe sollen schnell zu einem verständlichen, handlungsfähigen Ergebnis kommen.
-- **Konsequenzen:** Einzelne Rückfrageseiten, sichtbarer Processing-Zustand und priorisierter fünfteiliger Kernoutput.
+- **Konsequenzen:** Einzelne Rückfrageseiten, sichtbarer Processing-Zustand und ein kompakter Recommendation-Vertrag mit einer Hauptlösung.
 - **Alternativen:** Langer Fragebogen und mehrere gleichzeitig sichtbare Detailformulare wurden nicht gewählt.
 - **Status:** Implemented; Heuristiken müssen mit echten Interviews kalibriert werden
 
@@ -79,7 +79,7 @@ Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest
 ## DEC-009 – PDF über Druckansicht und Kontakt über `mailto:`
 
 - **Datum:** 2026-07-27
-- **Entscheidung:** Der Bericht wird als normalerweise dreiseitige HTML-Druckansicht mit `window.print()` bereitgestellt; Kontakt erfolgt über einen normalen `mailto:`-Link.
+- **Entscheidung:** Der Bericht wird als zweiseitige Kernausgabe mit optionaler dritter Seite und `window.print()` bereitgestellt; Kontakt erfolgt über einen normalen `mailto:`-Link.
 - **Grund:** Kleine, wartbare Implementierung ohne schwere PDF-Abhängigkeit oder falsche Browserzusagen.
 - **Konsequenzen:** Nutzer speichern die PDF selbst und hängen sie selbst an die E-Mail an.
 - **Alternativen:** Serverseitige PDF-Erzeugung und automatischer E-Mail-Versand wurden nicht gewählt.
@@ -88,11 +88,11 @@ Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest
 ## DEC-010 – Vierstufige fachliche Richtung
 
 - **Datum:** 2026-08-05 (Aufnahmedatum)
-- **Entscheidung:** Das geplante Reifegradmodell unterscheidet Ordnung, Digitalisierung, KI-Unterstützung und Automatisierung. Nicht jeder Betrieb muss bei Ordnung beginnen.
+- **Entscheidung:** Das Reifegradmodell unterscheidet Ordnung, Digitalisierung, KI-Unterstützung und Automatisierung. Nicht jeder Betrieb muss bei Ordnung beginnen.
 - **Grund:** Der nächste Schritt muss zur tatsächlichen digitalen Reife passen und darf KI nicht unnötig auf später verschieben.
 - **Konsequenzen:** Pain-Point-Taxonomie, Problemursache und Reifegrad sollen künftig die Solution-Auswahl explizit steuern.
 - **Alternativen:** Eine lineare Regel, nach der jeder Betrieb zwingend bei Ordnung beginnt, wurde abgelehnt.
-- **Status:** Accepted; fachliche Ausarbeitung und technische Umsetzung geplant
+- **Status:** Implemented, integrated and tested
 
 ## DEC-011 – Leitregel für die Recommendation-Auswahl
 
@@ -101,34 +101,34 @@ Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest
 - **Grund:** Fehlende Grundlagen müssen ehrlich benannt werden; vorhandene digitale Voraussetzungen sollen gleichzeitig zu konkreter KI-Unterstützung führen können.
 - **Konsequenzen:** Die derzeitige Überbetonung manueller Ordnung wird als Known Issue behandelt und anhand gezielter Evaluationen korrigiert.
 - **Alternativen:** „Immer zuerst Ordnung“ und „immer sofort KI“ wurden beide abgelehnt.
-- **Status:** Accepted; fachlich präzisiert, aktuelle Umsetzung noch unzureichend
+- **Status:** Implemented in Selector, Outputvertrag und Kundendarstellung; Kalibrierung mit realen Interviews bleibt offen
 
 ## DEC-012 – Solution Patterns erst fachlich prüfen, dann technisch integrieren
 
 - **Datum:** 2026-08-05 (Aufnahmedatum)
 - **Entscheidung:** Zuerst entsteht ein kleiner, hochwertiger und fachlich geprüfter Solution-Pattern-Katalog. Erst danach wird er technisch durch Codex integriert.
 - **Grund:** Ungeprüfte Lösungsmuster würden die Recommendation-Qualität nicht verlässlich verbessern und könnten neue Fehlentscheidungen erzeugen.
-- **Konsequenzen:** Noch keine neue Knowledge-Datei, kein neuer Indexinhalt und keine Promptintegration im aktuellen Dokumentationsschritt.
+- **Konsequenzen:** Der fachlich geprüfte Katalog liegt versioniert unter `knowledge/structured/`; ein zusätzlicher Solution-Index bleibt ausgeschlossen.
 - **Alternativen:** Sofortige automatische Generierung und Indexierung vieler Solution Patterns wurde nicht gewählt.
-- **Status:** Accepted; Fachgrundlage dokumentiert, Review und technische Umsetzung noch offen
+- **Status:** Implemented and tested
 
 ## DEC-013 – Diagnose-RAG und Solution-Katalog werden getrennt
 
 - **Datum:** 2026-08-05
 - **Entscheidung:** Diagnose-RAG liefert Problem- und Bedingungsevidenz. Die Solution-Auswahl verwendet zunächst einen separaten strukturierten Katalog und deterministische Gates. Im ersten Schritt wird kein neuer FAISS-Solution-Index eingeführt.
 - **Grund:** Zehn strukturierte Patterns lassen sich nachvollziehbarer filtern und testen als über einen weiteren semantischen Top-k; ein zusätzlicher Index löst die belegte Konkurrenz defensiver Treffer nicht automatisch.
-- **Konsequenzen:** Der Diagnoseindex bleibt unverändert. Speicherformat und technischer Integrationspunkt des Katalogs werden vor Implementierung geprüft.
+- **Konsequenzen:** Der Diagnoseindex bleibt unverändert. Der JSON-Katalog wird direkt geladen und seine Auswahl getrennt als Recommendation-Kontext an die finale Analyse übergeben.
 - **Alternativen:** Neuer Solution-FAISS-Index oder unmittelbare Auswahl allein aus Diagnose-Top-k wurden für den ersten Schritt nicht gewählt.
-- **Status:** Accepted; noch nicht implementiert
+- **Status:** Implemented, integrated and tested
 
 ## DEC-014 – Solution-Auswahl nutzt getrennte Gates
 
 - **Datum:** 2026-08-05
 - **Entscheidung:** Vorgangsanker, Kanaleignung, Prozess-/Datenreife, Risiko, Regelstabilität und menschliche Freigabe werden getrennt bewertet. Kanaleignung, Prozess-/Datenreife und Automationsreife dürfen nicht zu einer einzigen konservativen Reifestufe zusammenfallen.
 - **Grund:** Ein ungeeigneter Kanal ist nicht automatisch ein unreifer Gesamtprozess; passende KI-Unterstützung darf durch defensive Voraussetzungen nicht unbegründet verdrängt werden.
-- **Konsequenzen:** Applicability und Exclusion werden vor technischem Ranking spezifiziert und deterministisch abgesichert.
+- **Konsequenzen:** Applicability, Exclusion, Voraussetzungen und Human-Approval-Grenzen werden vor der finalen Kundenausgabe deterministisch ausgewertet und strukturiert geloggt.
 - **Alternativen:** Ein einziges lineares Reifegrad-Gate wurde verworfen.
-- **Status:** Accepted; noch nicht implementiert
+- **Status:** Implemented, integrated and tested
 
 ## DEC-015 – Genau drei Opportunities werden erneut geprüft
 
@@ -145,7 +145,7 @@ Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest
 - **Entscheidung:** Genau eine dominante Hauptlösung; kein Wochentest; null bis zwei optionale sekundäre Möglichkeiten; ein Umsetzungsweg ersetzt die Hausaufgabe.
 - **Grund:** Kunden sollen Veränderung, Ergebnis, KI-Aufgabe und eigene Kontrolle sofort verstehen.
 - **Konsequenzen:** Neuer Structured Output, variable Opportunity-Anzahl, kompakte Hauptseite, optionale dritte Druckseite und rückwärtskompatible View alter Analysen.
-- **Status:** Decided
+- **Status:** Implemented, integrated, tested and documented
 
 ## DEC-017 – Katalog und deterministische Gates wählen die Lösung
 
@@ -153,11 +153,11 @@ Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest
 - **Entscheidung:** Zwölf Problemfamilien und zehn Solution Patterns werden direkt aus validierten Dateien geladen; sechs getrennte Gates filtern und priorisieren. Diagnose-RAG entscheidet nicht allein.
 - **Grund:** Semantisches Top-k kann konkrete Lösungen verdrängen und vermischt heute Reifedimensionen.
 - **Konsequenzen:** Kein Solution-FAISS-Index, keine Embeddings, keine Migration.
-- **Status:** Decided
+- **Status:** Implemented, integrated, tested and documented
 
 ## DEC-018 – HTML/CSS-Prozesslinie bleibt verbindlich
 
 - **Datum:** 2026-08-06
 - **Entscheidung:** Mermaid wird nicht wieder eingeführt; validierte Schritte bleiben als vertikale HTML-/CSS-Linie sichtbar.
 - **Grund:** Zuverlässige deutsche Umbrüche, Mobile, Druck und Sicherheit.
-- **Status:** Decided
+- **Status:** Implemented, visually checked and documented

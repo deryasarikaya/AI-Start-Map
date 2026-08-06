@@ -1,6 +1,6 @@
 # Requirements – Solution-Pattern-Recommendation
 
-**Status:** Active – decided
+**Status:** Active – implemented, integrated and tested
 **Datum:** 2026-08-06
 **Source of Truth:** Diese Feature-Spec; Kataloginhalte stammen ausschließlich aus der Fachgrundlage vom 2026-08-05.
 

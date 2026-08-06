@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Literal
 
@@ -139,6 +140,52 @@ def classify_problem_families(text: str) -> list[str]:
     )
     matches = [family for family, markers in rules if any(marker in value for marker in markers)]
     return list(dict.fromkeys(matches))[:3] or ["PF-01"]
+
+
+def infer_decision_gates(text: str) -> DecisionGates:
+    value = text.casefold()
+    physical_object = re.search(
+        r"\b(?:schuh|schuhe|gegenstand|gegenstände|objekt|objekte|regal|regalplatz)\b",
+        value,
+    ) is not None
+    real_location_known = any(
+        marker in value
+        for marker in ("regalplatz wird", "ort wird dokumentiert", "festes fach")
+    )
+    anchor = "high" if any(
+        marker in value for marker in ("auftragsnummer", "einsatznummer", "vorgangs-id")
+    ) else "low" if physical_object or any(
+        marker in value for marker in ("verteilt", "zusammensuchen", "lose nummer")
+    ) else "medium"
+    channel = "high" if any(
+        marker in value
+        for marker in ("smartphone", "handy", "whatsapp", "e-mail", "foto", "sprache", "nachricht")
+    ) else "low" if any(marker in value for marker in ("nur papier", "nur zettel")) else "medium"
+    maturity = "high" if any(
+        marker in value for marker in ("pflichtfeld", "statuswert", "zielschema", "system")
+    ) else "low" if any(
+        marker in value for marker in ("unbekannt", "nicht geklärt", "lose zettel")
+    ) else "medium"
+    error = "high" if any(
+        marker in value
+        for marker in ("preis", "vertrag", "zahlung", "termin", "qualität", "herausgabe", "personal")
+    ) else "medium"
+    rules = "low" if any(
+        marker in value for marker in ("wechselnd", "ausnahme", "unklar", "je nach")
+    ) else "medium"
+    approval = "high" if error == "high" or any(
+        marker in value for marker in ("freigabe", "bestätigt", "zustimmung")
+    ) else "medium"
+    return DecisionGates(
+        transaction_anchor=anchor,
+        channel_suitability=channel,
+        process_data_maturity=maturity,
+        error_impact=error,
+        rule_stability=rules,
+        human_approval=approval,
+        physical_object=physical_object,
+        real_location_known=real_location_known,
+    )
 
 
 def select_recommendation(problem_family_ids: list[str], gates: DecisionGates, *, catalog: RecommendationCatalog | None = None) -> RecommendationSelection:

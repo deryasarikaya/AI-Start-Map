@@ -32,6 +32,11 @@ PROHIBITED_CUSTOMER_LANGUAGE_PATTERN = re.compile(
     r"handschriftenkapazität)\b",
     re.IGNORECASE,
 )
+DISTANT_CUSTOMER_LANGUAGE_PATTERN = re.compile(
+    r"\b(?:der Nutzer|die Nutzerin|der Unternehmer|der Mitarbeiter|"
+    r"die Person|man sollte)\b",
+    re.IGNORECASE,
+)
 FOLLOW_UP_SOLUTION_PATTERN = re.compile(
     r"\b(?:sollte|sollten|könnte|könnten|würde|würden|empfehlen|"
     r"automatisier\w*|software|app|schnittstelle|api|zum beispiel|"
@@ -229,22 +234,61 @@ class OptionalAnalysisDetails(StrictResultModel):
     later_possibilities: list[NonEmptyText] = Field(default_factory=list, max_length=3)
 
 
+class SampleOutputField(StrictResultModel):
+    label: Annotated[str, Field(min_length=1, max_length=45)]
+    value: Annotated[str, Field(min_length=1, max_length=140)]
+
+
+class SampleOutput(StrictResultModel):
+    title: Annotated[str, Field(min_length=1, max_length=80)]
+    fields: list[SampleOutputField] = Field(min_length=1, max_length=6)
+    open_items: list[Annotated[str, Field(min_length=1, max_length=120)]] = Field(
+        default_factory=list, max_length=4
+    )
+    attachments: list[Annotated[str, Field(min_length=1, max_length=80)]] = Field(
+        default_factory=list, max_length=3
+    )
+    preview_notice: Annotated[str, Field(min_length=1, max_length=100)] = (
+        "Vorschau – die endgültigen Angaben prüfst du selbst."
+    )
+
+
+class SecondaryOpportunity(StrictResultModel):
+    title: Annotated[str, Field(min_length=1, max_length=90)]
+    description: Annotated[str, Field(min_length=1, max_length=220)]
+
+
 class FinalAnalysisResult(StrictResultModel):
-    core_problem: NonEmptyText
-    first_change: NonEmptyText
-    ai_support: NonEmptyText
-    ai_input: NonEmptyText
-    ai_task: NonEmptyText
-    ai_output: NonEmptyText
-    human_check: NonEmptyText
-    weekly_test: list[NonEmptyText] = Field(min_length=1, max_length=3)
-    weekly_test_success: NonEmptyText
-    later_automation: NonEmptyText
-    why_this_first: NonEmptyText
-    required_prerequisites: list[NonEmptyText] = Field(min_length=1, max_length=4)
-    human_decisions: list[NonEmptyText] = Field(min_length=1, max_length=5)
-    current_process_summary: NonEmptyText
-    optional_details: OptionalAnalysisDetails
+    primary_recommendation: Annotated[str, Field(min_length=1, max_length=110)]
+    promise: Annotated[str, Field(min_length=1, max_length=220)]
+    short_reason: Annotated[str, Field(min_length=1, max_length=300)]
+    before_process: list[Annotated[str, Field(min_length=1, max_length=140)]] = Field(
+        min_length=1, max_length=3
+    )
+    future_process: list[Annotated[str, Field(min_length=1, max_length=140)]] = Field(
+        min_length=3, max_length=4
+    )
+    sample_output: SampleOutput
+    user_action: Annotated[str, Field(min_length=1, max_length=180)]
+    ai_task: Annotated[str, Field(min_length=1, max_length=180)]
+    visible_result: Annotated[str, Field(min_length=1, max_length=180)]
+    human_check: Annotated[str, Field(min_length=1, max_length=200)]
+    customer_benefits: list[Annotated[str, Field(min_length=1, max_length=140)]] = Field(
+        min_length=1, max_length=3
+    )
+    required_prerequisites: list[
+        Annotated[str, Field(min_length=1, max_length=140)]
+    ] = Field(default_factory=list, max_length=3)
+    implementation_path: list[
+        Annotated[str, Field(min_length=1, max_length=160)]
+    ] = Field(min_length=2, max_length=4)
+    later_stage: Annotated[str, Field(max_length=220)] = ""
+    secondary_opportunities: list[SecondaryOpportunity] = Field(
+        default_factory=list, max_length=2
+    )
+    error_boundaries: list[
+        Annotated[str, Field(min_length=1, max_length=160)]
+    ] = Field(default_factory=list, max_length=3)
     process_summary: NonEmptyText
     as_is_steps: list[NonEmptyText] = Field(min_length=1)
     core_bottleneck: NonEmptyText
@@ -252,22 +296,19 @@ class FinalAnalysisResult(StrictResultModel):
     bottleneck_cause: str = ""
     bottleneck_effect: str = ""
     as_is_problem_step_indexes: list[int] = Field(default_factory=list, max_length=4)
-    to_be_steps: list[NonEmptyText] = Field(default_factory=list, max_length=7)
+    to_be_steps: list[NonEmptyText] = Field(default_factory=list, max_length=4)
     uncertainties: list[NonEmptyText] = Field(max_length=4)
-    opportunities: list[AutomationOpportunityResult] = Field(
-        min_length=3,
-        max_length=3,
-    )
-    blueprint: AutomationBlueprint
 
     @model_validator(mode="before")
     @classmethod
     def fill_legacy_core_output(cls, value: Any) -> Any:
-        """Keep stored/test payloads readable while the API schema requires new fields."""
+        """Map legacy model/test payloads to the concise customer contract."""
 
         if not isinstance(value, Mapping):
             return value
         payload = dict(value)
+        if "primary_recommendation" in payload:
+            return payload
         opportunities = payload.get("opportunities")
         primary_value = (
             opportunities[0]
@@ -316,49 +357,69 @@ class FinalAnalysisResult(StrictResultModel):
             if isinstance(required_inputs, list) and required_inputs
             else "Die bereits vorhandenen Auftragsangaben"
         )
-        payload.setdefault("core_problem", core_problem)
-        payload.setdefault("first_change", first_change)
-        payload.setdefault(
-            "ai_support",
-            "KI kann die eingegebenen Angaben ordnen und fehlende Angaben markieren.",
-        )
-        payload.setdefault("ai_input", input_text)
+        as_is_steps = [str(item) for item in payload.get("as_is_steps", [])]
+        future_steps = [str(item) for item in payload.get("to_be_steps", [])]
+        if not future_steps:
+            future_steps = [str(item) for item in blueprint_data.get("workflow_steps", [])]
+        while len(future_steps) < 3:
+            future_steps.append(("Du prüfst das Ergebnis." if len(future_steps) == 2 else first_change))
+        legacy_human_check = str(payload.get("human_check") or human_check)
+        if re.search(r"\bdu\b", legacy_human_check, re.IGNORECASE) is None:
+            legacy_human_check = f"Du prüfst und bestätigst: {legacy_human_check}"
+        payload.setdefault("primary_recommendation", str(primary.get("title") or first_change))
+        payload.setdefault("promise", str(payload.get("ai_support") or primary.get("benefit") or first_change))
+        payload.setdefault("short_reason", core_problem)
+        payload.setdefault("before_process", as_is_steps[:3] or [process_summary])
+        payload.setdefault("future_process", future_steps[:4])
+        payload["to_be_steps"] = future_steps[:4]
+        output_text = str(payload.get("ai_output") or blueprint_data.get("output") or "Ein prüfbarer Entwurf")
+        payload.setdefault("sample_output", {
+            "title": output_text[:80],
+            "fields": [{"label": "Ergebnis", "value": output_text[:140]}],
+            "open_items": [],
+            "attachments": [],
+            "preview_notice": "Vorschau – die endgültigen Angaben prüfst du selbst.",
+        })
+        user_action = str(payload.get("ai_input") or input_text)
+        if re.search(r"\bdu\b", user_action, re.IGNORECASE) is None:
+            user_action = f"Du gibst ein: {user_action}."
+        payload.setdefault("user_action", user_action)
         payload.setdefault("ai_task", "Die KI erkennt und ordnet die relevanten Angaben.")
-        payload.setdefault(
-            "ai_output", str(blueprint_data.get("output") or "Ein prüfbarer Entwurf")
-        )
-        payload.setdefault("human_check", human_check)
-        payload.setdefault("weekly_test", mini_test[:3])
-        payload.setdefault(
-            "weekly_test_success",
-            "Die neuen Vorgänge sind vollständig und ohne zusätzliche Suche auffindbar.",
-        )
-        payload.setdefault(
-            "later_automation",
-            "Nach einem erfolgreichen Test kann der nächste bestätigte Schritt vorbereitet werden.",
-        )
-        payload.setdefault("why_this_first", str(primary.get("benefit") or first_change))
-        payload.setdefault(
-            "required_prerequisites",
-            [str(primary.get("prerequisite") or "Einheitliche Angaben")],
-        )
-        payload.setdefault("human_decisions", [human_check])
-        payload.setdefault("current_process_summary", process_summary)
-        payload.setdefault(
-            "optional_details",
-            {
-                "current_difficulties": [],
-                "additional_prerequisites": [],
-                "later_possibilities": [],
-            },
-        )
+        payload.setdefault("visible_result", output_text)
+        payload["human_check"] = legacy_human_check
+        payload.setdefault("customer_benefits", [str(primary.get("benefit") or first_change)])
+        old_prerequisites = payload.get("required_prerequisites", [])
+        payload["required_prerequisites"] = list(old_prerequisites)[:3] if isinstance(old_prerequisites, list) else []
+        payload.setdefault("implementation_path", [str(item) for item in mini_test[:4]])
+        while len(payload["implementation_path"]) < 2:
+            payload["implementation_path"].append(first_change)
+        payload.setdefault("later_stage", str(payload.get("later_automation") or ""))
+        old_opportunities = payload.get("opportunities", [])
+        legacy_secondary: list[dict[str, str]] = []
+        if isinstance(old_opportunities, list):
+            for item in old_opportunities[1:3]:
+                item_data = item.model_dump() if isinstance(item, BaseModel) else item
+                if isinstance(item_data, Mapping):
+                    legacy_secondary.append({
+                        "title": str(item_data.get("title", "")),
+                        "description": str(item_data.get("benefit", "")),
+                    })
+        payload.setdefault("secondary_opportunities", legacy_secondary)
+        legacy_error = str(primary.get("acceptance_risk") or "").strip()
+        payload.setdefault("error_boundaries", [legacy_error] if legacy_error else [])
+        for legacy_key in (
+            "core_problem", "first_change", "ai_support", "ai_input", "ai_output",
+            "weekly_test", "weekly_test_success", "later_automation", "why_this_first",
+            "human_decisions", "current_process_summary", "optional_details",
+            "opportunities", "blueprint",
+        ):
+            payload.pop(legacy_key, None)
         return payload
 
     @model_validator(mode="after")
-    def validate_unique_ranks(self) -> FinalAnalysisResult:
-        ranks = sorted(opportunity.rank for opportunity in self.opportunities)
-        if ranks != [1, 2, 3]:
-            raise ValueError("Die Chancen müssen genau die Ränge 1, 2 und 3 haben.")
+    def validate_concise_customer_output(self) -> FinalAnalysisResult:
+        if len(re.findall(r"[\wÄÖÜäöüß]+", self.primary_recommendation)) > 14:
+            raise ValueError("Die Hauptempfehlung darf höchstens 14 Wörter enthalten.")
         if SUMMARY_META_PATTERN.search(self.process_summary) is not None:
             raise ValueError("Die Zusammenfassung darf keine Meta-Einleitung enthalten.")
         if any(AS_IS_META_PATTERN.search(step) is not None for step in self.as_is_steps):
@@ -370,30 +431,27 @@ class FinalAnalysisResult(StrictResultModel):
             raise ValueError("Unsicherheiten dürfen nicht doppelt vorkommen.")
         if any(index < 0 or index >= len(self.as_is_steps) for index in self.as_is_problem_step_indexes):
             raise ValueError("Eine markierte Problemstelle liegt außerhalb des Ist-Ablaufs.")
-        combined_opportunities = " ".join(
-            f"{opportunity.title} {opportunity.recommendation}"
-            for opportunity in self.opportunities
+        direct_fields = (self.user_action, self.human_check)
+        if any(re.search(r"\b(?:du|dein|deine|dir)\b", item, re.IGNORECASE) is None for item in direct_fields):
+            raise ValueError("Nutzerhandlung und menschliche Prüfung müssen direkt mit du formuliert sein.")
+        customer_output = self.model_dump(exclude={"process_summary", "as_is_steps", "core_bottleneck", "bottleneck_symptom", "bottleneck_cause", "bottleneck_effect", "as_is_problem_step_indexes", "to_be_steps", "uncertainties"})
+        distant_matches = {
+            match.group(0).casefold()
+            for match in DISTANT_CUSTOMER_LANGUAGE_PATTERN.finditer(str(customer_output))
+        }
+        grounded_role_text = " ".join(
+            [self.process_summary, *self.as_is_steps]
         ).casefold()
-        manual_markers = ("papierformular", "ringordner", "stempel", "wand-board")
-        useful_markers = (
-            "digital",
-            "automatisch",
-            "automatisiert",
-            "automatisierung",
-            "statusübersicht",
-        )
-        if (
-            sum(marker in combined_opportunities for marker in manual_markers) >= 2
-            and not any(marker in combined_opportunities for marker in useful_markers)
-        ):
-            raise ValueError(
-                "Die Chancen dürfen nicht ausschließlich manuelle Hilfsmittel sein."
-            )
+        ungrounded_matches = distant_matches - {"der mitarbeiter"}
+        if "der mitarbeiter" in distant_matches and "mitarbeiter" not in grounded_role_text:
+            ungrounded_matches.add("der mitarbeiter")
+        if ungrounded_matches:
+            raise ValueError("Die Kundenausgabe enthält distanzierte Ansprache.")
         generic_ai_phrases = (
             "ki kann deinen prozess optimieren",
             "ki kann den prozess optimieren",
             "ki kann dabei helfen",
         )
-        if any(phrase in self.ai_support.casefold() for phrase in generic_ai_phrases):
+        if any(phrase in self.promise.casefold() for phrase in generic_ai_phrases):
             raise ValueError("Die KI-Unterstützung muss konkret beschrieben werden.")
         return self

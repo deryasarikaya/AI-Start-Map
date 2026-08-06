@@ -145,6 +145,7 @@ def _final_result() -> FinalAnalysisResult:
 @pytest.fixture(autouse=True)
 def mock_retrieval(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(routes, "_retrieval_context", lambda _query, _phase: ["Internes Muster"])
+    monkeypatch.setattr(routes, "_agent_pattern_context", lambda _query: ([], []))
 
 
 def test_landing_voice_fallback_and_mobile_assets(client: TestClient) -> None:
@@ -249,21 +250,22 @@ def test_complete_public_journey_and_customer_report(
 
     monkeypatch.setattr(routes, "generate_final_analysis", lambda **_kwargs: _final_result())
     analyzed = client.post("/analyze")
-    assert analyzed.status_code == 200
+    assert analyzed.status_code == 200, analyzed.text
     assert analyzed.json()["redirect_url"] == "/results"
     results = client.get("/results")
     for text in (
-        "Das ist jetzt dein sinnvollster Anfang",
-        "Dein eigentliches Problem",
-        "Das solltest du zuerst ändern",
-        "So kann KI dir konkret helfen",
-        "Menschliche Kontrolle",
-        "Das kannst du diese Woche testen",
-        "Später kannst du automatisieren",
+        "DEIN BESTER KI-HEBEL",
+        "Heute und mit KI",
+        "So funktioniert es",
+        "DU GIBST EIN",
+        "DU ERHÄLTST",
+        "VORSCHAU DEINES ERGEBNISSES",
+        "Das bringt dir das",
+        "So setzt du das um",
         "So läuft es heute",
-        "Offene Unsicherheiten",
+        "Offene Punkte",
         "Ergebnis als PDF speichern",
-        "Auswertung mit Derya besprechen",
+        "Umsetzung mit Derya besprechen",
     ):
         assert text in results.text
     assert "/sessions/" not in results.text
@@ -275,10 +277,10 @@ def test_complete_public_journey_and_customer_report(
         "AI START MAP",
         "Derya Sarikaya",
         "deryaxsarikaya@gmail.com",
-        "DEIN EIGENTLICHES PROBLEM",
-        "SO KANN KI DIR KONKRET HELFEN",
-        "DEIN HEUTIGER ABLAUF",
-        "DEIN STARTPLAN",
+        "DEIN BESTER KI-HEBEL",
+        "MIT KI",
+        "VORSCHAU",
+        "UMSETZUNG",
         "Drucken / als PDF speichern",
     ):
         assert text in report.text
@@ -308,7 +310,7 @@ def test_follow_up_schema_allows_four_but_rejects_duplicates() -> None:
 
 def test_documented_decisions_exist() -> None:
     root = Path(__file__).resolve().parents[1]
-    ux_flow = (root / "UX_FLOW.md").read_text(encoding="utf-8")
+    ux_flow = (root / "docs/flows/UX_FLOW.md").read_text(encoding="utf-8")
     assert "Minimal-Change-Plan" in ux_flow
     assert "MediaRecorder" in ux_flow
     assert "window.print()" in ux_flow

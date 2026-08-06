@@ -576,7 +576,12 @@ PHASE_TYPES = {
             "information_flow_problem",
             "physical_object_tracking_pattern",
         },
-        "required": ("diagnostic_pattern", "automation_guardrail"),
+        "required": (
+            "diagnostic_pattern",
+            "automation_pattern",
+            "implementation_prerequisite",
+            "automation_guardrail",
+        ),
     },
 }
 

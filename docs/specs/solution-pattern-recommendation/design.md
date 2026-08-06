@@ -1,6 +1,6 @@
 # Design – Solution-Pattern-Recommendation
 
-**Status:** Active – decided
+**Status:** Active – implemented, integrated and tested
 **Datum:** 2026-08-06
 **Geltung:** Verbindliches Design; Implementierungs-, Integrations- und Teststatus werden getrennt geführt.
 
@@ -17,27 +17,27 @@ bestätigte Nutzerfakten
 → JSONB-Persistenz und kurze HTML-/Druckdarstellung
 ```
 
-Problemfamilien und Patterns liegen als versionierte JSON-Dateien außerhalb aller Evaluationspfade. Der Loader validiert Anzahl, IDs, Referenzen und Kernfelder. Der Selector liefert Auswahl, Ausschlussgründe, Voraussetzungen und Freigabegrenzen. Der neue Kernoutput liegt in bestehendem JSONB; die View-Schicht liest neue und alte Analysen. Neue Seiten zeigen keinen Wochentest.
+Problemfamilien und Patterns liegen als versionierte JSON-Dateien außerhalb aller Evaluationspfade. Der Loader validiert Anzahl, IDs, Referenzen und Kernfelder. Der Selector liefert Auswahl, Ausschlussgründe, Voraussetzungen, Fehlergrenzen und Freigabegrenzen. Der neue Kernoutput liegt in bestehendem JSONB; die View-Schicht liest neue und alte Analysen. Neue Seiten zeigen keinen Wochentest.
 
 Das Analyse-Retrieval balanciert Diagnose, konkretes `automation_pattern`, Voraussetzung und Guardrail. Agentenpatterns unterstützen nur die Wahl einer entscheidungsrelevanten Lücke oder Aktion. Budgets, No-Repeat, Schleifenstopp, Faktenintegrität, Stop-Wunsch und Sicherheitsgrenzen bleiben deterministisch in Python.
 
 Die vertikale HTML-/CSS-Prozesslinie bleibt verbindlich. Mermaid wird wegen unzuverlässiger Umbrüche langer deutscher Labels, Print- und Sicherheitsaufwand nicht wieder eingeführt.
 
-## Aktueller Ist-Zustand
+## Implementierter Ist-Zustand
 
-Die Laufzeit nutzt ein aktives Diagnose-RAG, überwiegend deterministische Python-Agentenregeln und einen finalen Structured-Output-Prompt. Der Agent-Pattern-Index ist gebaut, aber nicht eingebunden. Ein normalisierter Solution-Katalog und explizite Solution-Gates existieren im produktiven Laufzeitpfad noch nicht. Der Recommendation Layer bleibt technisch unverändert.
+Die Laufzeit nutzt aktives Diagnose-RAG, deterministische Python-Guardrails, kontrolliertes Agent-Pattern-Retrieval, den direkt geladenen Katalog, sechs typisierte Gates, den deterministischen Selector und einen finalen Structured-Output-Prompt. Der Selector-Kontext bleibt technisch von Nutzerfakten, Ableitungen und RAG-Evidenz getrennt.
 
-## Belegte Ursachen der defensiven Empfehlungen
+## Behobene strukturelle Ursachen der defensiven Empfehlungen
 
-- Kanaleignung und Prozess-/Datenreife werden vermischt.
-- `automation_pattern` ist im Analyse-Retrieval erlaubt, aber nicht verpflichtend.
-- Defensive Chunktypen konkurrieren im selben Top-k mit konkreteren Mustern.
-- Der finale Prompt verlangt keinen systematischen Vorgangsanker-/Kanal-Gegencheck.
-- Genau drei Opportunities können schwächere Empfehlungen erzwingen.
-- `required_prerequisites` kann Voraussetzungen künstlich aufblähen.
-- Ein normalisierter Solution-Katalog fehlt.
+- Kanaleignung und Prozess-/Datenreife wurden vermischt.
+- `automation_pattern` war im Analyse-Retrieval erlaubt, aber nicht verpflichtend.
+- Defensive Chunktypen konkurrierten im selben Top-k mit konkreteren Mustern.
+- Der finale Prompt verlangte keinen systematischen Vorgangsanker-/Kanal-Gegencheck.
+- Genau drei Opportunities konnten schwächere Empfehlungen erzwingen.
+- `required_prerequisites` konnte Voraussetzungen künstlich aufblähen.
+- Ein normalisierter Solution-Katalog fehlte.
 
-Diese Ursachen sind fachlich und anhand des vorhandenen Retrieval-/Output-Vertrags belegt. Sie gelten nicht als behoben.
+Diese Ursachen waren fachlich und technisch belegt. Katalog, Gates, reservierte Retrieval-Typen, variabler Outputvertrag und Selector beheben sie strukturell; reale Kalibrierung bleibt erforderlich.
 
 ## Zwölf Problemfamilien
 
@@ -86,15 +86,19 @@ Das Diagnose-RAG liefert Vergleichswissen zu Symptomen, Ursachen, Bedingungen, R
 
 ## Rolle des strukturierten Solution-Katalogs
 
-Der Katalog hält für jedes Pattern stabile ID, passende Problemfamilien, erforderliche Signale, Voraussetzungen, Ausschlüsse, Risiken, Reifeanforderungen, Nutzerhandlung, KI-Aufgabe, sichtbares Ergebnis und Human Check. Die Auswahl prüft Katalogeinträge gegen den bestätigten State und die Gates. Das konkrete Schema und der Speicherpfad werden erst im technischen Review festgelegt.
+Der Katalog hält für jedes Pattern stabile ID, passende Problemfamilien, Signale, Voraussetzungen, Ausschlüsse, Risiken, Nutzerhandlung, KI-Aufgabe, sichtbares Ergebnis und Human Check. `app/recommendation_service.py` prüft die Einträge gegen Gates und Matrix. Der Speicherpfad ist `knowledge/structured/recommendation_catalog.json`.
 
 ## Warum zunächst kein neuer FAISS-Solution-Index empfohlen wird
 
 Der Katalog umfasst zunächst nur zehn strukturierte Patterns. Deterministische Filterung und Ranking über explizite Felder sind dafür nachvollziehbarer und leichter zu testen als ein weiterer semantischer Top-k. Ein zusätzlicher Index würde die belegte Konkurrenz unspezifischer Treffer nicht automatisch lösen und erhöht Build-, Deployment- und Evaluationsaufwand. Eine spätere semantische Erweiterung bleibt möglich, benötigt aber einen nachgewiesenen Qualitätsgewinn und eine eigene Entscheidung.
 
-## Mögliche Integrationspunkte
+## Integrationspunkte
 
-Die Fachgrundlage nennt `app/rag_service.py`, `app/openai_service.py`, `app/schemas.py`, `app/agent_service.py` und die Qualitäts-/Produktfinalisierungstests als mögliche Prüfstellen. Exakte Aufrufkette, Schemaänderungen und Dateipfade sind noch zu verifizieren; diese Spec beschließt keine Codeänderung.
+- `app/routes.py`: Orchestrierung von Klassifikation, Gates, Retrieval, Selector, Agent-Patterns, Logging und Persistenz.
+- `app/rag_service.py`: reservierte Analyse-Chunktypen und separater Agent-Pattern-Abruf.
+- `app/openai_service.py`: getrennte Recommendation-Payload und kompakter Outputprompt.
+- `app/schemas.py`: neuer Kundenvertrag und Legacy-Abbildung.
+- `app/templates/` und `app/static/styles.css`: Hauptseite und variabler Druckbericht.
 
 ## Risiken
 
@@ -104,12 +108,10 @@ Die Fachgrundlage nennt `app/rag_service.py`, `app/openai_service.py`, `app/sche
 - Doppelte Entscheidungshoheit in Python, Retrieval und Prompt kann widersprüchliche Rankings erzeugen.
 - Änderungen am Opportunity-Vertrag können Persistenz, Templates und bestehende Tests berühren.
 
-## Noch zu verifizierende technische Details
+## Verifizierte technische Entscheidungen
 
-- Bestehende Felder und Validatoren in `app/schemas.py`, die den Katalogvertrag tragen können.
-- Exakter Zeitpunkt und Besitzer der Problemfamilienklassifikation.
-- Persistenzbedarf; nach heutigem Stand ist keine neue Tabelle beschlossen.
-- Deterministisches Ranking und Tie-Breaking zwischen mehreren anwendbaren Patterns.
-- Rückwärtskompatible Abbildung alter Drei-Opportunity- und Wochentest-Daten.
-- Test-Fixtures, Mocking und erwartete Laufzeitpfade für die drei Referenzfälle.
-- Ob spätere Agent-Pattern-Retrieval-Aktivierung die Solution-Auswahl überhaupt beeinflussen soll.
+- Keine neue Tabelle oder Migration; neuer Output liegt im vorhandenen JSONB.
+- Klassifikation und Gates laufen vor `select_recommendation()` in der finalen Analyseorchestrierung.
+- Alte Kernoutputs werden nur beim Lesen beziehungsweise bei Legacy-Fixtures auf den neuen Vertrag abgebildet.
+- Agent-Patterns unterstützen den Rückfragekontext und beeinflussen die Solution-Auswahl nicht.
+- Echtes Function Calling ist nicht integriert und bleibt ein getrennter nächster Schritt.

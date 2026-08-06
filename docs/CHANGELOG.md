@@ -4,6 +4,22 @@
 
 Diese Datei dokumentiert nur tatsächlich ausgeführte und verifizierte Änderungen. Roadmap-Punkte gelten nicht als umgesetzt.
 
+## 2026-08-06 – Recommendation Experience integriert und geprüft
+
+- Neuen `FinalAnalysisResult`-Vertrag mit einer Hauptlösung, Promise, Heute/Mit KI, typisierter Ergebnisvorschau, Du/KI/Ergebnis/Human-Check, begrenzten Nutzen- und Voraussetzungenlisten, Umsetzungsweg, optionalem Ausbau und null bis zwei sekundären Möglichkeiten integriert.
+- Wochentest und Pflicht zu genau drei Opportunities aus neuen Analysen und sichtbaren Seiten entfernt; alte JSONB-Analysen bleiben über die Legacy-Abbildung lesbar.
+- Problemfamilien, sechs getrennte Gates und deterministischen Solution-Selector in den produktiven Analysepfad eingebunden; Auswahl, Ausschlüsse, Gates und Validierung werden datensparsam strukturiert geloggt.
+- Analyse-Retrieval reserviert nun Diagnose-, Automations-, Voraussetzungs- und Guardrail-Muster, sodass ein konkretes Lösungsmuster nicht zufällig vollständig fehlt.
+- Agent-Pattern-Index mit kontrollierten Typen, drei Treffern und sicherem Fallback im Interviewpfad aktiviert. Budgets, No-Repeat, Schleifenstopp, Faktenintegrität und Freigabegrenzen bleiben deterministisch.
+- Echtes OpenAI Function Calling bewusst nicht integriert; ein sicherer Tool-Calling-Loop bleibt ein getrennt zu evaluierender Schritt.
+- Ergebnisoberfläche auf eine dominante Hauptlösung, Vorher/Nachher, Vier-Schritt-Ablauf, zentrale Musterkarte und progressive Details umgebaut.
+- Bericht auf zwei Kernseiten reduziert; Seite 3 erscheint nur bei fachlich vorhandenen sekundären Möglichkeiten. Browserdruck und `window.print()` bleiben bestehen.
+- Mermaid nicht eingeführt; die validierte HTML-/CSS-Darstellung war bei Desktop, schmalem Mobile-Viewport und Bericht stabiler.
+- Referenzfälle für Hausmeister, Schuhmacher, Blumenladen und Massagesalon sowie Sprach-, Längen-, Grounding-, Retrieval- und Agent-Pattern-Prüfungen ergänzt beziehungsweise angepasst.
+- `python -m compileall -q app`, App-Start mit HTTP 200 und vollständige Testsuite mit `107 passed` erfolgreich ausgeführt.
+- Visuell in Chrome geprüft: Desktop, schmale Mobile-Ansicht, 48–58-Pixel-Touchziele, lange deutsche Texte, fehlender horizontaler Überlauf und zweiseitiger Bericht ohne künstliche dritte Seite.
+- Superseded Root-Kompatibilitätsdatei `UX_FLOW.md` entfernt und den Dokumentationstest auf die aktive Source of Truth unter `docs/flows/UX_FLOW.md` umgestellt.
+
 ## 2026-08-06 – Kompakten Recommendation-Vertrag beschlossen
 
 - Wochentest und Pflicht zu genau drei Opportunities aus dem verbindlichen Zielvertrag entfernt.

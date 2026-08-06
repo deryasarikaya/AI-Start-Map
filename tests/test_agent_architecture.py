@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 import app.rag_service as rag_service
+import app.routes as routes
 from app.agent_config import AGENT_HEURISTICS
 from app.agent_service import (
     ContradictionRecord,
@@ -317,6 +318,75 @@ def test_low_strength_sources_are_deterministically_downranked() -> None:
         [0.80, 0.85], [0, 1], [high, low]
     )
     assert [chunk.chunk_id for chunk in ranked] == ["high", "low"]
+
+
+def _retrieval_chunk(chunk_id: str, chunk_type: str) -> rag_service.KnowledgeChunk:
+    return rag_service.KnowledgeChunk(
+        chunk_id=chunk_id,
+        chunk_type=chunk_type,
+        title=chunk_id,
+        content=f"Vergleichswissen für {chunk_type}",
+        source_file="knowledge/test.jsonl",
+        metadata={"source_strength": "high"},
+    )
+
+
+def test_analysis_retrieval_reserves_each_decision_relevant_chunk_type() -> None:
+    required = rag_service.PHASE_TYPES["analysis"]["required"]
+    assert required == (
+        "diagnostic_pattern",
+        "automation_pattern",
+        "implementation_prerequisite",
+        "automation_guardrail",
+    )
+    ranked = [
+        _retrieval_chunk("case-1", "case_evidence"),
+        _retrieval_chunk("guard", "automation_guardrail"),
+        _retrieval_chunk("case-2", "case_evidence"),
+        _retrieval_chunk("solution", "automation_pattern"),
+        _retrieval_chunk("diagnosis", "diagnostic_pattern"),
+        _retrieval_chunk("prerequisite", "implementation_prerequisite"),
+    ]
+    selected = rag_service._diverse_selection(
+        ranked,
+        required_types=required,
+        top_k=6,
+    )
+    assert set(required) <= {chunk.chunk_type for chunk in selected}
+
+
+def test_interview_path_retrieves_controlled_agent_patterns(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    captured: dict[str, object] = {}
+
+    def fake_retrieve(
+        query: str,
+        *,
+        allowed_types: set[str] | None = None,
+        top_k: int = 5,
+    ) -> list[rag_service.KnowledgeChunk]:
+        captured.update(query=query, allowed_types=allowed_types, top_k=top_k)
+        return [
+            _retrieval_chunk("question", "next_question_pattern"),
+            _retrieval_chunk("guardrail", "agent_guardrail"),
+        ]
+
+    monkeypatch.setattr(routes, "retrieve_agent_patterns", fake_retrieve)
+    context, pattern_types = routes._agent_pattern_context(
+        "Auftrag und Zuordnung sind heute noch unklar."
+    )
+    assert captured["top_k"] == 3
+    assert {
+        "agent_decision_pattern",
+        "next_question_pattern",
+        "contradiction_pattern",
+        "agent_stop_rule",
+        "tool_selection_pattern",
+        "agent_guardrail",
+    } == captured["allowed_types"]
+    assert pattern_types == ["next_question_pattern", "agent_guardrail"]
+    assert len(context) == 2
 
 
 def test_batch_identifiers_are_removed_from_prompt_and_visible_results() -> None:

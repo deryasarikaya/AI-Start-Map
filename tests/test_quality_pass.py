@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 import app.openai_service as openai_service
 import app.routes as routes
+from app.agent_service import NextActionDecision
 from app.models import Analysis, AutomationOpportunity, InterviewQuestion, ProcessOption
 from app.questions import PROCESS_QUESTIONS
 from app.schemas import (
@@ -29,6 +30,7 @@ def mock_retrieval(monkeypatch: pytest.MonkeyPatch) -> None:
         "_retrieval_context",
         lambda _query, _phase: ["Internes Vergleichswissen ohne Nutzerfakten"],
     )
+    monkeypatch.setattr(routes, "_agent_pattern_context", lambda _query: ([], []))
 
 
 def _start_with_context(
@@ -566,8 +568,7 @@ def test_shoe_repair_quality_flow_contains_only_grounded_current_steps(
         assert forbidden not in lower_text
     assert "Auftragsangaben, Zuordnung und Bearbeitungsstand" in result_text
     assert "Kunden nach Fertigmeldung benachrichtigen" in result_text
-    assert "So kann KI dir konkret helfen" in result_text
-    assert "Später kannst du automatisieren" in result_text
+    assert "So funktioniert es" in result_text
     assert database_session.scalar(
         select(func.count())
         .select_from(AutomationOpportunity)
@@ -626,9 +627,10 @@ def test_carpentry_quality_flow_keeps_technical_approval_human(
             ).where(AutomationOpportunity.session_id == session_id)
         ).all()
     )
-    assert blueprints[1]["blueprint"] is not None
-    assert blueprints[2]["blueprint"] is None
-    assert blueprints[3]["blueprint"] is None
+    assert blueprints[1]["contract_version"] == "recommendation-v2"
+    assert blueprints[1]["sample_output"] is not None
+    assert blueprints[2]["sample_output"] is None
+    assert blueprints[3]["sample_output"] is None
 
 
 def test_unmentioned_shoe_repair_controls_are_removed_from_current_facts() -> None:
@@ -844,10 +846,23 @@ def test_process_answers_can_be_edited_without_duplicate_questions(
             ]
         ),
     )
+    monkeypatch.setattr(
+        routes,
+        "evaluate_readiness_and_next_action",
+        lambda _state: NextActionDecision(
+            next_action="ASK",
+            reasoning="Testet die idempotente Speicherung einer relevanten Rückfrage.",
+            information_gap="status_transitions",
+            analysis_allowed=True,
+        ),
+    )
     first_answers = {
         question["key"]: f"Heutige Antwort {question['order']}"
         for question in PROCESS_QUESTIONS
     }
+    first_answers["actual_steps"] = (
+        '["Auftrag annehmen", "Angaben prüfen", "Auftrag fertigstellen"]'
+    )
     client.post(
         f"/sessions/{session_id}/process-details",
         data=first_answers,
@@ -857,7 +872,9 @@ def test_process_answers_can_be_edited_without_duplicate_questions(
     assert "Eine Sache möchten wir noch verstehen" in follow_up_page.text
     assert "Weiß ich gerade nicht" in follow_up_page.text
     edited_answers = dict(first_answers)
-    edited_answers["actual_steps"] = "Heute wird der Ablauf bewusst neu beschrieben."
+    edited_answers["actual_steps"] = (
+        '["Ablauf neu beschreiben", "Bearbeitung bewusst fortsetzen"]'
+    )
     response = client.post(
         f"/sessions/{session_id}/process-details",
         data=edited_answers,
