@@ -61,7 +61,7 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
 ROOT_DIRECTORY = Path(__file__).resolve().parents[1]
-EVALUATION_FILE = ROOT_DIRECTORY / "knowledge" / "evaluation" / "evaluation_cases.json"
+EVALUATION_FILE = ROOT_DIRECTORY / "knowledge" / "evaluation" / "cases_ten_kmu.json"
 INTRO_KEYS = tuple(question["key"] for question in INTRO_QUESTIONS)
 PROCESS_KEYS = tuple(question["key"] for question in PROCESS_QUESTIONS)
 DEMO_EVALUATION_IDS = {

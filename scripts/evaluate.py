@@ -44,8 +44,14 @@ from app.recommendation_service import (  # noqa: E402
 )
 
 EVALUATION_DIRECTORY = ROOT_DIRECTORY / "knowledge" / "evaluation"
-BATCH_DIRECTORY = ROOT_DIRECTORY / "knowledge" / "research_batches"
 LABEL_FILE = EVALUATION_DIRECTORY / "expected_labels.json"
+
+CASE_FILES = {
+    "EVAL-C": EVALUATION_DIRECTORY / "cases_ten_kmu.json",
+    "RB03": EVALUATION_DIRECTORY / "cases_rb03.json",
+    "RB04": EVALUATION_DIRECTORY / "cases_rb04_agent.json",
+    "RB07": EVALUATION_DIRECTORY / "cases_rb07_guardrail.json",
+}
 
 
 @dataclass
@@ -67,7 +73,7 @@ def load_cases() -> list[EvaluationCase]:
 
     cases: list[EvaluationCase] = []
 
-    path = EVALUATION_DIRECTORY / "evaluation_cases.json"
+    path = CASE_FILES["EVAL-C"]
     if path.is_file():
         for case in _read_json(path)["cases"]:
             cases.append(
@@ -88,7 +94,7 @@ def load_cases() -> list[EvaluationCase]:
                 )
             )
 
-    path = BATCH_DIRECTORY / "batch_03_diagnostic_depth" / "06_evaluation_cases.json"
+    path = CASE_FILES["RB03"]
     if path.is_file():
         payload = _read_json(path)
         for case in payload["cases"] if isinstance(payload, dict) else payload:
@@ -103,7 +109,7 @@ def load_cases() -> list[EvaluationCase]:
                 )
             )
 
-    path = BATCH_DIRECTORY / "batch_04_agentic_interview" / "09_evaluation_cases.json"
+    path = CASE_FILES["RB04"]
     if path.is_file():
         for case in _read_json(path)["cases"]:
             state = case.get("current_agent_state", {})
@@ -126,11 +132,7 @@ def load_cases() -> list[EvaluationCase]:
                 )
             )
 
-    path = (
-        BATCH_DIRECTORY
-        / "batch_07_failure_and_overautomation"
-        / "02_evaluation_cases.json"
-    )
+    path = CASE_FILES["RB07"]
     if path.is_file():
         for case in _read_json(path)["cases"]:
             cases.append(

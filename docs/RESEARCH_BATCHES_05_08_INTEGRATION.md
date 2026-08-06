@@ -157,10 +157,10 @@ weitere Doku. Das wäre eine Wiederholung genau des Fehlers aus dem Code-Review.
 
 | Inhalt | Wohin | Warum |
 |---|---|---|
-| GAI-01…09, SP-01…10 (neue Felder), FAIL-01…12, GATE-01…06 | `knowledge/structured/recommendation_catalog.json` v2 | wird deterministisch geladen und validiert, nicht gesucht |
+| GAI-01…09, SP-01…10 (neue Felder), FAIL-01…12, GATE-01…06 | `knowledge/runtime/recommendation_catalog.json` v2 | wird deterministisch geladen und validiert, nicht gesucht |
 | Batch-07-Evaluationsfälle | `knowledge/evaluation/` | niemals indexieren, nur messen |
 | Batch 08 | `docs/reference/` | Entwicklerwissen, kein Produktwissen |
-| Fließtext der Forschungsgrundlage | `knowledge/raw/` | Beleg, nicht Laufzeit |
+| Fließtext der Forschungsgrundlage | `knowledge/archive/raw/` | Beleg, nicht Laufzeit |
 
 Es entsteht **kein neuer Vektorindex**. Die Gesamtmenge ist ~37 Datensätze —
 die passen vollständig in einen Prompt.

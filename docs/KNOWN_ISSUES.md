@@ -37,7 +37,7 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 - **Erwartetes Verhalten:** Das System berücksichtigt den vorhandenen digitalen Reifegrad und wählt den kleinsten sinnvollen digitalen oder KI-gestützten Workflow, sofern die Voraussetzungen bereits bestehen.
 - **Historische Ursache:** Kanaleignung und Gesamt-Prozessreife waren vermischt; der normalisierte Katalog und der Anker-/Kanal-Gegencheck fehlten.
 - **Nächster Prüfschritt:** Im Rahmen der allgemeinen realen Kalibrierung beobachten; keine offene Codekorrektur für den Referenzfall.
-- **Betroffene Dateien:** `knowledge/structured/recommendation_catalog.json`, `app/recommendation_service.py`, `tests/test_recommendation_catalog.py`, `tests/test_recommendation_experience.py`.
+- **Betroffene Dateien:** `knowledge/runtime/recommendation_catalog.json`, `app/recommendation_service.py`, `tests/test_recommendation_catalog.py`, `tests/test_recommendation_experience.py`.
 
 ## KI-003 – „Ordnung vor Automatisierung“ wird teilweise zu stark angewandt
 
@@ -46,7 +46,7 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 - **Erwartetes Verhalten:** Ordnung ist Voraussetzung, wenn sie tatsächlich fehlt; sie ersetzt aber keine passende KI-Unterstützung. Nicht jeder Betrieb beginnt auf Reifegrad 1.
 - **Historische Ursache:** Kanaleignung, Prozess-/Datenreife und Automationsreife waren vermischt; Voraussetzungen konnten eine allgemeine Ordnungsphase aufblähen.
 - **Nächster Prüfschritt:** Die sechs Gates mit realen Interviews kalibrieren; die technische Vermischung ist behoben.
-- **Betroffene Dateien:** `app/openai_service.py`, `app/schemas.py`, `app/agent_service.py`, `knowledge/research_batches/batch_03_diagnostic_depth/02_rag_corpus.jsonl`.
+- **Betroffene Dateien:** `app/openai_service.py`, `app/schemas.py`, `app/agent_service.py`, `knowledge/archive/research_batches/batch_03_diagnostic_depth/02_rag_corpus.jsonl`.
 
 ## KI-004 – Strukturierter Solution-Pattern-Katalog fehlte
 
@@ -55,7 +55,7 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 - **Erwartetes Verhalten:** Der Recommendation Layer wählt aus einem fachlich freigegebenen strukturierten Katalog über Applicability- und Exclusion-Gates passende konkrete Workflows aus und begründet sie.
 - **Historische Ursache:** Die fachliche Grundlage wurde zunächst vor die technische Integration gestellt; der normalisierte Katalog fehlte deshalb im früheren Laufzeitpfad.
 - **Nächster Prüfschritt:** Inhalt nur bei fachlich bestätigten Änderungen versioniert weiterpflegen.
-- **Betroffene Dateien:** `knowledge/structured/recommendation_catalog.json`, `app/recommendation_service.py`, `app/routes.py` und Katalogtests.
+- **Betroffene Dateien:** `knowledge/runtime/recommendation_catalog.json`, `app/recommendation_service.py`, `app/routes.py` und Katalogtests.
 
 ## KI-005 – Kundensprache ist teilweise zu technisch oder zu lang
 
@@ -119,6 +119,15 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 - **Mögliche Ursachen:** Die generierten Artefakte wurden bewusst nicht versioniert; ein separater Artefakt- oder Build-Prozess ist noch zu verifizieren.
 - **Nächster Prüfschritt:** Aktuelles Deployment prüfen und eine eindeutige, getestete Bereitstellungsstrategie dokumentieren.
 - **Betroffene Dateien:** `.gitignore`, `README.md`, `app/rag_service.py`, `scripts/build_index.py`, `scripts/compare_indexes.py`.
+
+## TECH-005 – Diagnoseindex basiert noch auf dem archivierten bisherigen Korpus
+
+- **Status:** Investigating
+- **Beobachtung:** Die produktiven FAISS-Artefakte wurden bei der Knowledge-Umordnung nicht verändert. Der Diagnoseindex bleibt lauffähig, basiert aber weiterhin auf dem bisherigen Korpus. Dessen Quellen liegen nun unter `knowledge/archive/` und werden von den bestehenden Loadern für Kompatibilität und reproduzierbare Indexprüfungen weiter gelesen.
+- **Erwartetes Verhalten:** Ein späterer, fachlich freigegebener Zielkorpus besitzt einen reproduzierbar gebauten und validierten Diagnoseindex; Evaluationen bleiben ausgeschlossen.
+- **Mögliche Ursachen:** Der aktuelle Auftrag ordnet Dateien und Pfade, autorisiert aber weder Batch-09-Integration noch Index-Neubau.
+- **Nächster Prüfschritt:** Batch-09-Ergebnisse separat fachlich reviewen und erst nach ausdrücklicher Freigabe über Ersatz oder Neubau des Diagnoseindex entscheiden.
+- **Betroffene Dateien:** `app/rag_service.py`, `knowledge/archive/`, `knowledge/candidates/batch_09/RESEARCH_AUFTRAG.md`, `data/vector_index/`.
 
 ## UX-001 – Reale Geräte- und Druckabnahme ist noch nicht vollständig bestätigt
 

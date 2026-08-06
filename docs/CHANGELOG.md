@@ -4,6 +4,14 @@
 
 Diese Datei dokumentiert nur tatsächlich ausgeführte und verifizierte Änderungen. Roadmap-Punkte gelten nicht als umgesetzt.
 
+## 2026-08-06 – Knowledge für den Zielgruppenübergang geordnet
+
+- Direkt geladene Dateien unter `knowledge/runtime/`, noch nicht integrierte Fachkandidaten unter `knowledge/candidates/`, 91 Test- und Demo-Fälle unter `knowledge/evaluation/` und Herkunftsartefakte unter `knowledge/archive/` getrennt.
+- Katalog-, Fragepattern-, Demo-, Evaluation-, Merge- und bisherige RAG-Quellenpfade angepasst; Evaluationen bleiben durch Allow-Lists und Indexmarker ausgeschlossen.
+- Produktive FAISS-Artefakte weder verschoben noch neu gebaut. Der bestehende Diagnoseindex bleibt lauffähig, basiert aber weiterhin auf dem bisherigen archivierten Korpus; die bestehenden Loader lesen diese Quellen für Übergangskompatibilität noch.
+- Den Batch-09-Research-Auftrag nur als nicht integrierten Kandidaten eingeordnet. Keine Batch-09-Ergebnisse, Gate-Kaskade oder neue RAG-Logik integriert.
+- 121 Tests, `python -m compileall app scripts`, App-Import, Pfad-/Katalog-/Pattern-/Indexprüfung und der kostenlose 91-Fälle-Keyword-Eval bestanden; Baseline unverändert bei 28 % PF Top-1, 30 % SP Top-1 und 48 % PF-01-Default.
+
 ## 2026-08-06 – Recommendation-Reviews versioniert
 
 - Code-Review, RAG-Audit, Research-Integrationsplan, Zweitmeinungs-Briefing und Wettbewerbsanalyse als zeitgebundene Review-Dokumente aufgenommen.

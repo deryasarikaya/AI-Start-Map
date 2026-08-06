@@ -1,7 +1,7 @@
 # AI Start Map – Projektstand
 
 **Last Updated:** 2026-08-06
-**Verifizierter Code-Stand:** Branch `feature/gate-cascade-quality`; Phase-1-RAG-Zuverlässigkeit und semantische Problemklassifikation integriert; vollständige Suite mit 121 Tests grün
+**Verifizierter Code-Stand:** Branch `feature/gate-cascade-quality`; Knowledge nach Runtime, Candidates, Evaluation und Archive geordnet; Phase-1-RAG-Zuverlässigkeit und semantische Problemklassifikation integriert; vollständige Suite mit 121 Tests grün
 **Pflegehinweis:** Diese Datei beschreibt den bestätigten heutigen Stand. Planung, offene Probleme, Entscheidungen und Änderungshistorie stehen in den übrigen Dokumenten unter `docs/`.
 
 ## Produktstand
@@ -26,7 +26,7 @@ Texteingabe bleibt immer verfügbar. Die numerische Session-ID wird in der öffe
 
 ## Recommendation Layer
 
-- `knowledge/structured/recommendation_catalog.json` enthält exakt zwölf Problemfamilien `PF-01` bis `PF-12`, zehn Solution Patterns `SP-01` bis `SP-10` und die vollständige Zuordnungsmatrix.
+- `knowledge/runtime/recommendation_catalog.json` enthält exakt zwölf Problemfamilien `PF-01` bis `PF-12`, zehn Solution Patterns `SP-01` bis `SP-10` und die vollständige Zuordnungsmatrix.
 - `app/recommendation_service.py` validiert Anzahl, IDs, Referenzen, Kernfelder und Evaluationstrennung.
 - `app/llm_classification.py` klassifiziert die bestätigte Erzählung primär per Structured Output in ein bis drei Katalog-Problemfamilien und die bestehenden sechs Gate-Werte. Bei `AIServiceError` bleiben Keyword-Klassifikation und alte Gate-Inferenz der konservative Fallback.
 - Vorgangsanker, Kanaleignung, Prozess-/Datenreife, Fehlerauswirkung, Regelstabilität und menschliche Freigabe bleiben getrennte typisierte Gates.
@@ -37,6 +37,9 @@ Texteingabe bleibt immer verfügbar. Die numerische Session-ID wird in der öffe
 ## Diagnose-RAG und Agent
 
 - Der Diagnoseindex umfasst laut Manifest 634 Chunks; der getrennte Agent-Pattern-Index umfasst 205 Patterns.
+- Die Knowledge-Struktur trennt direkt geladene Dateien unter `knowledge/runtime/`, noch nicht integrierte Fachkandidaten unter `knowledge/candidates/`, niemals indexierbare Test- und Demo-Fälle unter `knowledge/evaluation/` und Herkunftsartefakte unter `knowledge/archive/`.
+- Der bestehende Diagnoseindex wurde nicht neu gebaut und basiert weiterhin auf dem bisherigen Korpus, dessen Quellen jetzt archiviert sind. `app/rag_service.py` liest diese Archivquellen vorübergehend weiter, damit Indexprüfung und bestehende Buildpfade funktionieren; `archive/` ist daher noch nicht technisch unbenutzt.
+- Der Batch-09-Research-Auftrag liegt nur als Kandidat vor. Es sind keine Batch-09-Ergebnisse, Loader oder Indexinhalte integriert.
 - Diagnose- und Agentenindex werden pro Prozess und Indexverzeichnis im Speicher wiederverwendet. Ändert sich die mtime der FAISS- oder Metadatendatei, wird der betroffene Cache beim nächsten Abruf neu geladen; fehlende Dateien bleiben ein Konfigurationsfehler.
 - Vor jeder Übernahme validierter Testindizes werden beide aktuellen Produktionsindizes vollständig unter `data/index_backups/<timestamp>/diagnostic/` und `data/index_backups/<timestamp>/agent/` gesichert. Jeder Promote erzeugt ein neues Backup; das historische Pre-Batch-04-Archiv bleibt unverändert.
 - Die Analyse-Retrieval-Auswahl reserviert Diagnosemuster, konkretes Automationsmuster, Implementierungsvoraussetzung und Guardrail, bevor weitere Treffer auffüllen.
@@ -70,7 +73,7 @@ Texteingabe bleibt immer verfügbar. Die numerische Session-ID wird in der öffe
 - Phase-1-RAG-Regression: vier isolierte Tests für leere Chunks, zwei vollständige Promote-Backups, mtime-Cache-Invalidierung und fehlende Dateien bestanden.
 - Keyword-Evaluation nach Phase 1: PF Top-1 28 %, PF Top-3 38 %, SP Top-1 30 %, PF-01-Default 48 %, verbotene Inhalte 0 von 91; damit gegenüber der Keyword-Baseline fachlich unverändert.
 - Vorhandenes LLM-Eval-Artefakt: PF Top-1 65 %, PF Top-3 85 %, SP Top-1 70 %, PF-01-Default 3 %, zwei Klassifikatorfehler und ein Treffer eines verbotenen Begriffs. Dieser kostenpflichtige Lauf wurde in der aktuellen Sicherungsarbeit nicht wiederholt; seine Labels sind weiterhin unbestätigte Vorschläge.
-- Python-Kompilierung: `python -m compileall -q app` bestanden.
+- Python-Kompilierung: `python -m compileall app scripts` bestanden.
 - App-Start gegen die separate Testdatenbank geprüft; Landingpage antwortete mit HTTP 200.
 - Visuell geprüft: Ergebnis bei Desktop- und schmalem Mobile-Viewport; Karten stapeln, lange Texte brechen um, kein horizontaler Seitenüberlauf, Touch-Ziele 48–58 Pixel.
 - Visuell geprüft: Bericht ohne sekundäre Möglichkeit rendert zwei Seiten und verschiebt den späteren Ausbau auf Seite 2.

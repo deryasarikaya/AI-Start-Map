@@ -21,7 +21,7 @@ INTERNAL_IDENTIFIER_PATTERN = re.compile(
     re.IGNORECASE,
 )
 INTERNAL_FILE_PATTERN = re.compile(
-    r"(?:knowledge[/\\](?:curated|raw|evaluation)|"
+    r"(?:knowledge[/\\](?:runtime|candidates|evaluation|archive|curated|raw|patterns)|"
     r"(?:original_[\w-]+|[\w-]+_rag_corpus|evaluation_cases)"
     r"\.(?:md|pdf|json))",
     re.IGNORECASE,

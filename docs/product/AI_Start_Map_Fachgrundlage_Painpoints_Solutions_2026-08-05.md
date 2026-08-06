@@ -17,9 +17,9 @@
 
 | Bereich | Dateien / Inhalt | tatsächlicher Umfang | Verwendung in dieser Analyse |
 |---|---|---:|---|
-| `knowledge/raw/` | zehn KMU-Fälle, zusätzliche KMU-Recherche, Massagesalon-Analyse und Transkript | 4 Dateien | Herkunft und Kontext prüfen; nicht direkt als fertige Taxonomie übernehmen |
-| `knowledge/curated/` | `ten_cases_rag_corpus.md`, `massage_rag_corpus.md`, `additional_kmu_rag_corpus.md` | 111 Chunks | produktives Diagnose-, Frage-, Automations- und Guardrail-Wissen |
-| `knowledge/evaluation/` | `evaluation_cases.json` | 25 Evaluationen | ausschließlich Qualitätsprüfung; niemals Produktwissen |
+| `knowledge/archive/raw/` | zehn KMU-Fälle, zusätzliche KMU-Recherche, Massagesalon-Analyse und Transkript | 4 Dateien | Herkunft und Kontext prüfen; nicht direkt als fertige Taxonomie übernehmen |
+| `knowledge/archive/curated/` | `ten_cases_rag_corpus.md`, `massage_rag_corpus.md`, `additional_kmu_rag_corpus.md` | 111 Chunks | Quellenbasis des bestehenden Diagnoseindex; keine neue fachliche Runtime-Quelle |
+| `knowledge/evaluation/` | `cases_ten_kmu.json` | 25 Evaluationen | ausschließlich Qualitätsprüfung; niemals Produktwissen |
 | Batch 02 `analog_reality` | Research-Bericht, 162 JSONL-Chunks, Quellenregister, Merge-Gate | 35 Fälle / 162 Chunks | produktives Diagnosewissen im gelieferten 634er-Index |
 | Batch 03 `diagnostic_depth` | Research-Bericht, RAG-Korpus, Pattern-Katalog, Legal Guardrails, Evaluationen | 46 Fälle / 361 Chunks / 49 Patterns / 12 Guardrails | produktives Diagnosewissen; 14 Evaluationen ausgeschlossen |
 | Batch 04 `agentic_interview` | Entscheidungs-, Frage-, Klärungs-, Stop-, Tool- und Guardrail-Patterns | 205 Patterns | Agentenwissen; nicht als Betriebs- oder Solution-Evidenz verwendet |

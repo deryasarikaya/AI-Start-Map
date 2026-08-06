@@ -18,7 +18,8 @@ from app.openai_service import embed_texts, get_embedding_model
 
 
 ROOT_DIRECTORY = Path(__file__).resolve().parents[1]
-CURATED_DIRECTORY = ROOT_DIRECTORY / "knowledge" / "curated"
+# Der Diagnosekorpus liegt bis zum Umbau auf Batch 09 im Archiv.
+CURATED_DIRECTORY = ROOT_DIRECTORY / "knowledge" / "archive" / "curated"
 INDEX_DIRECTORY = ROOT_DIRECTORY / "data" / "vector_index"
 INDEX_FILE = INDEX_DIRECTORY / "knowledge.faiss"
 METADATA_FILE = INDEX_DIRECTORY / "chunks.json"
@@ -37,28 +38,37 @@ TOKEN_PATTERN = re.compile(r"[\wäöüß]+", re.IGNORECASE)
 DIAGNOSTIC_JSONL_FILES = (
     ROOT_DIRECTORY
     / "knowledge"
+    / "archive"
     / "research_batches"
     / "batch_02_analog_reality"
     / "02_rag_corpus.jsonl",
     ROOT_DIRECTORY
     / "knowledge"
+    / "archive"
     / "research_batches"
     / "batch_03_diagnostic_depth"
     / "02_rag_corpus.jsonl",
 )
-AGENT_PATTERN_FILES = (
-    "02_agent_decision_patterns.jsonl",
-    "03_next_question_patterns.jsonl",
-    "04_clarification_and_contradiction_patterns.jsonl",
-    "05_stop_rules.jsonl",
-    "06_tool_selection_patterns.jsonl",
-    "08_agent_guardrails.jsonl",
-)
 AGENT_PATTERN_DIRECTORY = (
     ROOT_DIRECTORY
     / "knowledge"
+    / "archive"
     / "research_batches"
     / "batch_04_agentic_interview"
+)
+# Die direkt geladenen Fragemuster liegen unter knowledge/runtime/;
+# die uebrigen Agentenmuster bleiben bis zu einem spaeteren Umbau im Archiv.
+AGENT_PATTERN_FILES = (
+    AGENT_PATTERN_DIRECTORY / "02_agent_decision_patterns.jsonl",
+    ROOT_DIRECTORY
+    / "knowledge"
+    / "runtime"
+    / "patterns"
+    / "next_question_patterns.jsonl",
+    AGENT_PATTERN_DIRECTORY / "04_clarification_and_contradiction_patterns.jsonl",
+    AGENT_PATTERN_DIRECTORY / "05_stop_rules.jsonl",
+    AGENT_PATTERN_DIRECTORY / "06_tool_selection_patterns.jsonl",
+    AGENT_PATTERN_DIRECTORY / "08_agent_guardrails.jsonl",
 )
 FORBIDDEN_INDEX_MARKERS = ("evaluation", "evaluation_cases", "never_index")
 
@@ -343,8 +353,7 @@ def load_diagnostic_chunks() -> list[KnowledgeChunk]:
 
 def load_agent_pattern_chunks() -> list[KnowledgeChunk]:
     chunks: list[KnowledgeChunk] = []
-    for file_name in AGENT_PATTERN_FILES:
-        path = AGENT_PATTERN_DIRECTORY / file_name
+    for path in AGENT_PATTERN_FILES:
         if not path.is_file():
             raise RagConfigurationError(f"Agenten-Pattern-Datei fehlt: {path}")
         chunks.extend(_parse_jsonl_file(path))

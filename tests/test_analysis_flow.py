@@ -567,7 +567,7 @@ def test_evaluation_directory_is_not_indexed() -> None:
 def test_rag_chunks_are_loaded_only_from_curated_files() -> None:
     chunks = load_curated_chunks()
     curated_names = {
-        path.name for path in Path("knowledge/curated").glob("*.md")
+        path.name for path in Path("knowledge/archive/curated").glob("*.md")
     }
     assert len(chunks) == 111
     assert {chunk.source_file for chunk in chunks} == curated_names

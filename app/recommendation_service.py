@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 ROOT_DIRECTORY = Path(__file__).resolve().parents[1]
-CATALOG_FILE = ROOT_DIRECTORY / "knowledge" / "structured" / "recommendation_catalog.json"
+CATALOG_FILE = ROOT_DIRECTORY / "knowledge" / "runtime" / "recommendation_catalog.json"
 Confidence = Literal["low", "medium", "high"]
 GateLevel = Literal["unknown", "low", "medium", "high"]
 AutonomyLevelId = Literal["A0", "A1", "A2", "A3", "A4", "A5"]

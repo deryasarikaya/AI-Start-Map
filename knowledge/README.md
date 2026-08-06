@@ -1,56 +1,83 @@
-# AI Start Map Knowledge
+# Wissensbasis
 
-**Status:** Needs Review
-**Hinweis:** Ordnerübersicht und Provenienz bleiben relevant. Aussagen zum aktuellen Indexstand sind gegen `docs/ARCHITECTURE.md`, `docs/PROJECT_STATE.md` und die produktiven Manifeste zu prüfen. Dieses Dokument ist kein Ersatz für das zentrale Register `docs/INDEX.md`.
+Die Wissensdateien sind nach ihrem aktuellen technischen Status getrennt. Die
+Einordnung beschreibt keine neue fachliche Integration.
 
-## Ordner
+## Struktur
 
-- `raw/`: unveränderte Ausgangsquellen zur Kontrolle und Nachvollziehbarkeit.
-- `curated/`: semantisch getrennte RAG-Chunks mit stabilen IDs und Metadaten.
-- `evaluation/`: erwartete Ergebnisse und verbotene Empfehlungen für Tests. Nicht indexieren.
-- `research_batches/`: getrennte Forschungsstände, die vor einer Übernahme geprüft, bereinigt und freigegeben werden müssen.
+```text
+knowledge/
+├── README.md
+├── runtime/
+│   ├── recommendation_catalog.json
+│   └── patterns/next_question_patterns.jsonl
+├── candidates/
+│   ├── diagnostic_patterns_rb03.jsonl
+│   ├── legal_guardrails.jsonl
+│   └── batch_09/RESEARCH_AUFTRAG.md
+├── evaluation/
+│   ├── expected_labels.json
+│   └── cases_*.json
+└── archive/
+    ├── curated/
+    ├── raw/
+    ├── notes/
+    └── research_batches/
+```
 
-## Research-Batches
+## `runtime/`
 
-- `batch_02_analog_reality/`: 162 fallbezogene Chunks im produktiven Diagnoseindex.
-- `batch_03_diagnostic_depth/`: 361 Chunks im produktiven Diagnoseindex; 49 Pattern-Katalogeinträge, 12 Legal Guardrails und 14 Evaluationen bleiben getrennte Prüf- und Dokumentationsdateien.
-- `batch_04_agentic_interview/`: 205 Entscheidungs-, Frage-, Klärungs-, Stop-, Tool- und Guardrail-Patterns im separaten Agent-Pattern-Index sowie 40 niemals indexierte Evaluationen.
+Hier liegen ausschließlich Dateien, die das Produkt direkt lädt:
 
-Die Research-Dateien werden über explizite Allow-Lists geladen. Evaluationsdateien sind immer getrennt und mit `NEVER_INDEX` zu behandeln.
+- `recommendation_catalog.json`: validierter Katalog mit zwölf
+  Problemfamilien, zehn Solution Patterns, GAI-01 bis GAI-09, GATE-01 bis
+  GATE-06, FAIL-01 bis FAIL-12 und Autonomiestufen A0 bis A5; geladen durch
+  `app/recommendation_service.py`.
+- `patterns/next_question_patterns.jsonl`: direkt geladene Fragevorlagen;
+  verwendet durch `app/agent_service.py` und als eine Quelle des bestehenden
+  Agent-Pattern-Korpus.
 
-## Produktive FAISS-Indizes
+## `candidates/`
 
-Diagnoseindex mit 634 Chunks:
+Diese Dateien sind fachlich relevant, aber nicht als neue Produktquelle
+integriert und nicht indexiert:
 
-- `curated/ten_cases_rag_corpus.md`
-- `curated/massage_rag_corpus.md`
-- `curated/additional_kmu_rag_corpus.md`
-- `research_batches/batch_02_analog_reality/02_rag_corpus.jsonl`
-- `research_batches/batch_03_diagnostic_depth/02_rag_corpus.jsonl`
+- `diagnostic_patterns_rb03.jsonl`: 49 Diagnosemuster aus Research Batch 03.
+- `legal_guardrails.jsonl`: zwölf rechtliche Leitplanken aus Batch 03.
+- `batch_09/RESEARCH_AUFTRAG.md`: geplanter Research-Auftrag. Es wurden weder
+  Batch-09-Ergebnisse integriert noch Loader oder Indizes dafür geändert.
 
-Separater Agent-Pattern-Index mit 205 Patterns:
+## `evaluation/`
 
-- Batch 04, Dateien `02` bis `06` sowie `08`
+`expected_labels.json` und die vier Dateien `cases_*.json` bilden zusammen 91
+Test- und Demo-Fälle. Sie sind ausschließlich für Evaluation und Demo-Fixtures
+bestimmt und dürfen niemals indexiert werden. `scripts/evaluate.py` und die
+Demo-Route lesen sie direkt; sie sind kein Produktwissen.
 
-Nicht indexieren: `raw/`, `evaluation/`, alle Batch-Evaluationen, Reports, Spezifikationen, Quellenregister, Coverage-Matrizen, Merge-Gates, Batch-03-Pattern-Katalog und Legal-Guardrail-Datei sowie das Batch-04-State-Schema.
+## `archive/`
 
-## Chunk-Typen
+- `curated/`: drei kuratierte Korpora des bisherigen Diagnosewissens.
+- `raw/`: unveränderte Ausgangsquellen und Belege.
+- `notes/`: frühere Architektur-, Inventar- und Evaluationsnotizen.
+- `research_batches/`: vollständige Research-Batches 02 bis 08 einschließlich
+  Quellenregistern, Quality Gates und historischen Evaluationen.
 
-- `case_evidence`: nur quellenbasierter Ist-Prozess und belegter Engpass.
-- `diagnostic_pattern`: fachlich generalisiertes Prozessmuster.
-- `interview_question_set`: noch notwendige Rückfragen.
-- `automation_pattern`: möglicher Zielablauf, keine bereits umgesetzte Lösung.
-- `automation_guardrail`: Grenzen und menschliche Freigaben.
+`archive/` ist keine neue fachliche Runtime-Quelle. Es ist derzeit jedoch noch
+nicht technisch unbenutzt: `app/rag_service.py` lädt für Reproduzierbarkeit und
+Übergangskompatibilität weiterhin die archivierten kuratierten Korpora sowie
+freigegebene Dateien aus Batch 02, 03 und 04, falls Diagnose- oder
+Agent-Pattern-Indizes gebaut beziehungsweise geprüft werden. Auch
+`scripts/merge_catalog_v2.py` liest seine historischen Merge-Quellen dort.
 
-## Verbindliche Retrieval-Regeln
+## Bestehende FAISS-Indizes
 
-1. Maximal zwei `case_evidence`-Chunks je `pattern_id` in einem Retrieval-Ergebnis.
-2. Zusätzlich mindestens einen passenden `diagnostic_pattern`-Chunk laden.
-3. Zusätzlich mindestens einen passenden `automation_guardrail`-Chunk laden.
-4. Fragen gezielt aus `interview_question_set` abrufen.
-5. Quellenfälle sind Vergleichsmuster. Keine Mengen, Tools, Abläufe, Risiken oder Geschäftsdaten als Nutzerfakten übernehmen.
-6. `evaluation/evaluation_cases.json` niemals in den produktiven Vektorindex aufnehmen.
+Die produktiven Artefakte unter `data/vector_index/` und
+`data/agent_pattern_index/` wurden bei dieser Umordnung weder verschoben noch
+neu gebaut. Der bestehende Diagnoseindex bleibt vorübergehend lauffähig, basiert
+aber weiterhin auf dem bisherigen Korpus, dessen Quellen jetzt unter
+`archive/` liegen. Eine spätere Batch-09-Prüfung und ein ausdrücklich
+freigegebener Ersatz oder Neubau sind getrennte Vorhaben und nicht Teil dieser
+Änderung.
 
-## Bewertungslogik
-
-Nutzen, Häufigkeit, Standardisierbarkeit, Datenreife, Integrationsaufwand, Datenschutz und menschliche Entscheidung werden hybrid und evidenzbasiert anhand transparenter Rubrics und belegter Eingaben bewertet. Eine regelbasierte Formel darf nur mit nachvollziehbar erhobenen Eingaben arbeiten.
+Evaluationsdateien bleiben durch explizite Allow-Lists und verbotene
+Indexmarker außerhalb beider Indizes.

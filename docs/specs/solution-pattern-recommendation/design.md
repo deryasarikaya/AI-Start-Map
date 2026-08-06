@@ -128,7 +128,7 @@ Das Diagnose-RAG liefert Vergleichswissen zu Symptomen, Ursachen, Bedingungen, R
 
 ## Rolle des strukturierten Solution-Katalogs
 
-Der Katalog hält für jedes Pattern stabile ID, passende Problemfamilien, Signale, Voraussetzungen, Ausschlüsse, Risiken, Nutzerhandlung, KI-Aufgabe, sichtbares Ergebnis und Human Check. `app/recommendation_service.py` prüft die Einträge gegen Gates und Matrix. Der Speicherpfad ist `knowledge/structured/recommendation_catalog.json`.
+Der Katalog hält für jedes Pattern stabile ID, passende Problemfamilien, Signale, Voraussetzungen, Ausschlüsse, Risiken, Nutzerhandlung, KI-Aufgabe, sichtbares Ergebnis und Human Check. `app/recommendation_service.py` prüft die Einträge gegen Gates und Matrix. Der Speicherpfad ist `knowledge/runtime/recommendation_catalog.json`; Evaluationsfälle liegen getrennt unter `knowledge/evaluation/` und werden niemals indexiert.
 
 ## Warum zunächst kein neuer FAISS-Solution-Index empfohlen wird
 

@@ -19,9 +19,9 @@ logger = logging.getLogger(__name__)
 QUESTION_PATTERN_FILE = (
     ROOT_DIRECTORY
     / "knowledge"
-    / "research_batches"
-    / "batch_04_agentic_interview"
-    / "03_next_question_patterns.jsonl"
+    / "runtime"
+    / "patterns"
+    / "next_question_patterns.jsonl"
 )
 
 AgentAction = Literal["ASK", "CLARIFY", "RETRIEVE", "ANALYZE", "STOP"]

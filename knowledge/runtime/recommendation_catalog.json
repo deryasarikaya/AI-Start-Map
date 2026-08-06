@@ -1,6 +1,6 @@
 {
   "version": "2026-08-06-v2",
-  "source": "docs/product/AI_Start_Map_Fachgrundlage_Painpoints_Solutions_2026-08-05.md; knowledge/raw/AI_Start_Map_Research_GenAI_Unterstuetzung_Kleinunternehmen_2026-08-06.md",
+  "source": "docs/product/AI_Start_Map_Fachgrundlage_Painpoints_Solutions_2026-08-05.md; knowledge/archive/raw/AI_Start_Map_Research_GenAI_Unterstuetzung_Kleinunternehmen_2026-08-06.md",
   "problem_families": [
     {
       "problem_family_id": "PF-01",

@@ -76,11 +76,13 @@ _generate_and_persist_final_analysis()
 
 - Produktiver Diagnoseindex: `data/vector_index/`.
 - Manifest: 634 Chunks, `text-embedding-3-small`, Evaluationen ausgeschlossen.
-- Quellen: kuratierte Markdown-Korpora sowie die explizit erlaubten Batch-02- und Batch-03-`02_rag_corpus.jsonl`-Dateien.
+- Quellenbasis des bestehenden Index: kuratierte Markdown-Korpora sowie die explizit erlaubten Batch-02- und Batch-03-`02_rag_corpus.jsonl`-Dateien; diese bisherigen Quellen liegen jetzt unter `knowledge/archive/`.
 - Produktiver Agent-Pattern-Index: `data/agent_pattern_index/`.
 - Manifest: 205 Patterns, `text-embedding-3-small`, Evaluationen ausgeschlossen.
 
 `app/rag_service.py` verwendet explizite Allow-Lists. Pfade oder Inhalte mit `evaluation`, `evaluation_cases` oder `never_index` werden abgewiesen. Testindizes werden getrennt gebaut und erst nach Validierung bewusst promoviert.
+
+Die Umordnung der Dateien hat die produktiven FAISS-Artefakte nicht verändert und keinen Index neu gebaut. Der bestehende Diagnoseindex bleibt vorübergehend lauffähig, basiert jedoch weiterhin auf dem alten, archivierten Korpus. Die Archivquellen werden von den bisherigen Diagnose- und Agent-Pattern-Loadern für Kompatibilität und reproduzierbare Indexprüfungen noch gelesen. Ein späterer Ersatz oder Neubau nach eigener Batch-09-Prüfung ist geplant, aber nicht integriert.
 
 ### Laufzeit-Retrieval
 
@@ -115,7 +117,7 @@ RAG-Evidenz wird im Agentenstate als eigener Typ geführt und niemals in bestät
 
 `retrieve_agent_patterns()` liest im Interviewpfad den separaten Agent-Pattern-Index. `_agent_pattern_context()` begrenzt die Suche auf Entscheidungs-, Frage-, Widerspruchs-, Stop-, Werkzeug- und Guardrail-Muster und auf drei Treffer. Die bereinigten Inhalte unterstützen den Kontext einer tatsächlich zulässigen Rückfrage; bei Retrievalfehlern bleibt der deterministische Controller arbeitsfähig. Die Patterns ersetzen keine Python-Sicherheitsregel und wählen die finale Recommendation nicht.
 
-Die Fragevorlagen aus `knowledge/research_batches/batch_04_agentic_interview/03_next_question_patterns.jsonl` werden direkt durch `question_templates()` gelesen. Dies ist von semantischem Agent-Pattern-Retrieval zu unterscheiden.
+Die Fragevorlagen aus `knowledge/runtime/patterns/next_question_patterns.jsonl` werden direkt durch `question_templates()` gelesen. Dies ist von semantischem Agent-Pattern-Retrieval zu unterscheiden. Weitere Quellen des bestehenden Agent-Pattern-Korpus liegen vorübergehend unter `knowledge/archive/research_batches/batch_04_agentic_interview/`.
 
 ## Agentenlogik
 
@@ -186,8 +188,8 @@ Es gibt keine serverseitige PDF-Bibliothek. Der `mailto:`-Kontakt hängt den Ber
 
 ## Evaluationen und Tests
 
-- Produkt-Evaluationen liegen getrennt unter `knowledge/evaluation/`.
-- Batch-spezifische Evaluationen liegen in den Research-Batches und werden nicht indexiert.
+- Alle produktseitig ausgeführten Test- und Demo-Fälle liegen getrennt unter `knowledge/evaluation/`.
+- Historische Originale in archivierten Research-Batches sind Provenienzartefakte und werden nicht indexiert.
 - Das Repository dokumentiert und testet insgesamt 91 getrennte Evaluationen außerhalb der Indizes.
 - `scripts/evaluate.py` führt sie reproduzierbar durch Klassifikation, Gates und Selector. Vorgeschlagene Labels werden getrennt von bestätigter Ground Truth ausgewiesen; aktuell steht jeder Label-Eintrag auf `confirmed: false`.
 - `tests/test_agent_architecture.py` prüft Korpustrennung, Indexausschluss, Agentenpolicy, Budgets und Evidenztrennung.

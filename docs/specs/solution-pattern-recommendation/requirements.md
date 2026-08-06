@@ -17,6 +17,7 @@ Der Recommendation Layer wählt aus bestätigtem Prozessproblem, Problemfamilie 
 - kontrollierte Agent-Pattern-Nutzung für nächste Frage/Aktion bei unveränderten Python-Guardrails,
 - kompakter neuer Kundenausgabevertrag und rückwärtskompatible Darstellung alter Analysen,
 - Falltests für Hausmeister, Schuhmacher, Blumenladen und Massagesalon.
+- technische Trennung von direkt geladenem Katalog und Fragepatterns, noch nicht integrierten Fachkandidaten, niemals indexierbaren Evaluationen und archivierten Herkunftsartefakten.
 
 ## Verbindliche Regeln
 

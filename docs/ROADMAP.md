@@ -32,6 +32,7 @@ Diese Roadmap enthält nur verbleibende geplante Arbeit. Der implementierte Reco
 
 ### Technische Arbeit
 
+- Batch-09-Ergebnisse zunächst separat fachlich prüfen und erst nach ausdrücklicher Freigabe über Ersatz oder Neubau des noch auf dem archivierten bisherigen Korpus basierenden Diagnoseindex entscheiden.
 - Datenschutzarmes Korrelations- und Aufbewahrungskonzept für persistentes Tracing entscheiden, bevor eine neue Observability-Komponente entsteht.
 - Robustheit von Agent-Pattern-Treffern gegen reale Interviewformulierungen evaluieren; deterministische Guardrails unverändert beibehalten.
 - Rückwärtskompatible View-Abbildung mit älteren produktiven Analysen beobachten und bei belegten Altformaten ergänzen.

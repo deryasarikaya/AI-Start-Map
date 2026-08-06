@@ -19,10 +19,10 @@ Dieses Register ist die verbindliche Übersicht der Projekt-, Produkt- und Entwi
 | `docs/KNOWN_ISSUES.md` | Bestätigte offene oder unzureichende Punkte | Active | Offene technische, fachliche und UX-Probleme | 2026-08-06 | 2026-08-06 | `docs/CHANGELOG.md` |
 | `docs/DECISIONS.md` | Bestätigte Entscheidungen und Begründungen | Active | Produkt- und Architekturentscheidungen | 2026-08-06 | 2026-08-06 | aktive Feature-Specs |
 | `docs/CHANGELOG.md` | Tatsächlich ausgeführte und verifizierte Änderungen | Active | Änderungshistorie auf Dokumentebene; Git bleibt verbindliche technische Historie | 2026-08-06 | 2026-08-06 | Git-Historie |
-| `docs/ARCHITECTURE.md` | Verifizierte Ist-Architektur und klar getrennte Zielarchitektur | Active | Aktuelle technische Architektur | 2026-08-06 | 2026-08-06 | `knowledge/AGENT_ARCHITECTURE.md`, `knowledge/RAG_MERGE_PLAN.md` ersetzt |
+| `docs/ARCHITECTURE.md` | Verifizierte Ist-Architektur und klar getrennte Zielarchitektur | Active | Aktuelle technische Architektur | 2026-08-06 | 2026-08-06 | `knowledge/archive/notes/AGENT_ARCHITECTURE.md`, `knowledge/archive/notes/RAG_MERGE_PLAN.md` ersetzt |
 | `docs/DOCUMENTATION_GUIDE.md` | Cheat Sheet und Pflegeprozess | Active | Detaillierte Dokumentationspflege | 2026-08-05 | 2026-08-05 | `.agents/skills/documentation-update/SKILL.md` |
 | `docs/product/AI_Start_Map_Fachgrundlage_Painpoints_Solutions_2026-08-05.md` | Fachliche Pain-Point-, Reifegrad- und Solution-Pattern-Grundlage | Active | Fachliche Grundlage für Pain Points, Reifegrad und Solution Patterns; keine Laufzeitlogik | 2026-08-05 | 2026-08-05 | `docs/specs/solution-pattern-recommendation/` |
-| `knowledge/structured/recommendation_catalog.json` | Maschinenlesbare Problemfamilien, Solution Patterns und Matrix | Active | Strukturierter, nicht indexierter Recommendation-Katalog | 2026-08-06 | 2026-08-06 | Fachgrundlage und Recommendation-Spec |
+| `knowledge/runtime/recommendation_catalog.json` | Maschinenlesbare Problemfamilien, Solution Patterns und Matrix | Active | Direkt geladener, nicht indexierter Recommendation-Katalog | 2026-08-06 | 2026-08-06 | Fachgrundlage und Recommendation-Spec |
 | `docs/flows/UX_FLOW.md` | Sichtbarer Nutzerflow und UX-Verträge | Active | Verbindliche Recommendation-Zielreise; Ist-Status im Projektstand | 2026-08-06 | 2026-08-06 | Product-Output- und Recommendation-Spec |
 | `docs/flows/PROCESSING_FLOW.md` | Processing-Zustände, Fehler- und Retry-Verhalten | Active | Aktueller Processing-Flow | 2026-08-06 | 2026-08-06 | `docs/ARCHITECTURE.md` |
 | `docs/specs/product-output/requirements.md` | Verbindlicher Product-Output-Vertrag | Active | Neuer kompakter Kundenoutput und Kompatibilitätsregeln | 2026-08-06 | 2026-08-06 | Recommendation-Spec und Fachgrundlage |
@@ -47,15 +47,16 @@ Dieses Register ist die verbindliche Übersicht der Projekt-, Produkt- und Entwi
 |---|---|---|---|---|---|---|
 | `docs/archive/UI_REDESIGN_NOTES_2026-07-26.md` | Historische UI-Redesign-Notizen | Archived | Keine aktuelle Source of Truth | 2026-07-26 | 2026-08-05 | `docs/flows/UX_FLOW.md`, `docs/ARCHITECTURE.md`, `docs/CHANGELOG.md` |
 | `docs/archive/TODO_2026-07-26.md` | Historischer Umsetzungsstand und offene Liste | Archived | Keine aktive Aufgabenliste | 2026-07-26 | 2026-08-05 | `docs/ROADMAP.md`, `docs/KNOWN_ISSUES.md`, Feature-Specs |
-| `knowledge/AGENT_ARCHITECTURE.md` | Frühere Agentenarchitektur | Superseded | Keine aktuelle Source of Truth | 2026-07-26 | 2026-08-05 | `docs/ARCHITECTURE.md` |
-| `knowledge/AGENT_EVALUATION_REPORT.md` | Historischer Evaluationsbericht | Archived | Historischer Nachweis, nicht heutiger Teststand | 2026-07-26 | 2026-08-05 | `docs/PROJECT_STATE.md`, Tests |
-| `knowledge/RAG_INVENTORY.md` | RAG-Inventar vom 26.07.2026 | Needs Review | Historisches Inventar; aktueller Laufzeitstand in `docs/ARCHITECTURE.md` | 2026-07-26 | 2026-08-05 | Fachgrundlage, `docs/ARCHITECTURE.md` |
-| `knowledge/RAG_MERGE_PLAN.md` | Früherer Merge- und Build-Plan | Superseded | Keine aktuelle Planungs-Source-of-Truth | 2026-07-26 | 2026-08-05 | `docs/ARCHITECTURE.md`, `docs/ROADMAP.md` |
-| `knowledge/README.md` | Verzeichnisführer für Knowledge-Artefakte | Needs Review | Ordnerstruktur; Laufzeitstatus ausschließlich in `docs/ARCHITECTURE.md` | 2026-07-26 | 2026-08-05 | Fachgrundlage, `docs/ARCHITECTURE.md` |
+| `knowledge/archive/notes/AGENT_ARCHITECTURE.md` | Frühere Agentenarchitektur | Superseded | Keine aktuelle Source of Truth | 2026-07-26 | 2026-08-06 | `docs/ARCHITECTURE.md` |
+| `knowledge/archive/notes/AGENT_EVALUATION_REPORT.md` | Historischer Evaluationsbericht | Archived | Historischer Nachweis, nicht heutiger Teststand | 2026-07-26 | 2026-08-06 | `docs/PROJECT_STATE.md`, Tests |
+| `knowledge/archive/notes/RAG_INVENTORY.md` | RAG-Inventar vom 26.07.2026 | Archived | Historisches Inventar; aktueller Laufzeitstand in `docs/ARCHITECTURE.md` | 2026-07-26 | 2026-08-06 | Fachgrundlage, `docs/ARCHITECTURE.md` |
+| `knowledge/archive/notes/RAG_MERGE_PLAN.md` | Früherer Merge- und Build-Plan | Superseded | Keine aktuelle Planungs-Source-of-Truth | 2026-07-26 | 2026-08-06 | `docs/ARCHITECTURE.md`, `docs/ROADMAP.md` |
+| `knowledge/candidates/batch_09/RESEARCH_AUFTRAG.md` | Research-Auftrag für einen möglichen späteren Zielkorpus | Planned Candidate | Keine integrierte Runtime-Quelle | 2026-08-06 | 2026-08-06 | `docs/ROADMAP.md`, `docs/KNOWN_ISSUES.md` |
+| `knowledge/README.md` | Verzeichnisführer für Knowledge-Artefakte | Active | Status und Grenzen der Knowledge-Ordner | 2026-08-06 | 2026-08-06 | `docs/ARCHITECTURE.md`, `docs/PROJECT_STATE.md` |
 
 ## Bewusst außerhalb von `docs/`
 
-`knowledge/curated/`, `knowledge/raw/` und `knowledge/research_batches/` bleiben an ihren vorhandenen Pfaden. Sie sind produktive Wissensquellen, Rohquellen oder unveränderliche Research-/Provenienzartefakte und keine parallel gepflegte allgemeine Projektdokumentation. Pfade werden durch Allow-Lists, Tests, Quellenreferenzen und die Fachgrundlage verwendet. Dieser Dokumentationsauftrag verändert diese Knowledge-Quelldateien nicht.
+`knowledge/runtime/` enthält ausschließlich direkt geladene Produktdateien. `knowledge/candidates/` enthält noch nicht integrierte Fachkandidaten, `knowledge/evaluation/` ausschließlich niemals indexierbare Test- und Demo-Fälle und `knowledge/archive/` Herkunftsartefakte. Das Archiv ist keine neue fachliche Runtime-Quelle, wird aber für die alte Indexquellenbasis und den reproduzierbaren Katalog-Merge technisch noch gelesen. Der genaue Übergangsstatus steht in `knowledge/README.md` und `docs/ARCHITECTURE.md`.
 
 ## Pflegeregel
 

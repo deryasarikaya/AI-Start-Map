@@ -18,11 +18,12 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-CATALOG = ROOT / "knowledge" / "structured" / "recommendation_catalog.json"
-BATCHES = ROOT / "knowledge" / "research_batches"
+CATALOG = ROOT / "knowledge" / "runtime" / "recommendation_catalog.json"
+BATCHES = ROOT / "knowledge" / "archive" / "research_batches"
 RESEARCH_MD = (
     ROOT
     / "knowledge"
+    / "archive"
     / "raw"
     / "AI_Start_Map_Research_GenAI_Unterstuetzung_Kleinunternehmen_2026-08-06.md"
 )
@@ -157,7 +158,7 @@ def build() -> tuple[dict, list[str]]:
     catalog["version"] = "2026-08-06-v2"
     catalog["source"] = (
         "docs/product/AI_Start_Map_Fachgrundlage_Painpoints_Solutions_2026-08-05.md; "
-        "knowledge/raw/AI_Start_Map_Research_GenAI_Unterstuetzung_Kleinunternehmen_2026-08-06.md"
+        "knowledge/archive/raw/AI_Start_Map_Research_GenAI_Unterstuetzung_Kleinunternehmen_2026-08-06.md"
     )
 
     catalog["genai_capabilities"] = [

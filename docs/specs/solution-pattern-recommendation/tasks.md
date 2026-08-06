@@ -11,7 +11,7 @@
 | Fachlicher Review | Vertrag für Wochentest und Anzahl der Opportunities erneut entscheiden. | Done | DEC-016 |
 | Schema | Bestehende Pydantic-Schemas und JSONB-Verträge gegen die Spec prüfen. | Done | Keine Migration; JSONB-View vorgesehen |
 | Schema | Minimalen typisierten Solution-Pattern-Vertrag entwerfen und freigeben. | Done | `app/recommendation_service.py` |
-| Strukturierte Katalogdateien | Speicherformat und Pfad für den nicht-indexierten Katalog festlegen. | Done | `knowledge/structured/recommendation_catalog.json` |
+| Strukturierte Katalogdateien | Speicherformat und Pfad für den nicht-indexierten Katalog festlegen. | Done | `knowledge/runtime/recommendation_catalog.json` |
 | Strukturierte Katalogdateien | Zehn freigegebene Patterns vollständig und validierbar erfassen. | Done | 12/10/Matrix-Validierung und Tests |
 | Deterministische Gates | Vorgangsanker-, Kanal-, Reife-, Risiko-, Regelstabilitäts- und Freigabegates spezifizieren. | Done | `DecisionGates` |
 | Deterministische Gates | Applicability, Exclusion und Tie-Breaking implementieren und testen. | Done | Selector-Unit-Tests und Laufzeitintegration vor dem finalen Modellaufruf |

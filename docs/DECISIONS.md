@@ -108,7 +108,7 @@ Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest
 - **Datum:** 2026-08-05 (Aufnahmedatum)
 - **Entscheidung:** Zuerst entsteht ein kleiner, hochwertiger und fachlich geprüfter Solution-Pattern-Katalog. Erst danach wird er technisch durch Codex integriert.
 - **Grund:** Ungeprüfte Lösungsmuster würden die Recommendation-Qualität nicht verlässlich verbessern und könnten neue Fehlentscheidungen erzeugen.
-- **Konsequenzen:** Der fachlich geprüfte Katalog liegt versioniert unter `knowledge/structured/`; ein zusätzlicher Solution-Index bleibt ausgeschlossen.
+- **Konsequenzen:** Der fachlich geprüfte Katalog liegt versioniert unter `knowledge/runtime/`; ein zusätzlicher Solution-Index bleibt ausgeschlossen.
 - **Alternativen:** Sofortige automatische Generierung und Indexierung vieler Solution Patterns wurde nicht gewählt.
 - **Status:** Implemented and tested
 
@@ -170,3 +170,12 @@ Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest
 - **Konsequenzen:** Bei `AIServiceError` bleiben die unveränderte Keyword-Klassifikation und alte Gate-Inferenz der Fallback. Die fachliche GATE-01-bis-GATE-06-Kaskade und der A0-Ausgang sind damit noch nicht integriert und bleiben ein getrenntes Vorhaben.
 - **Alternativen:** Keyword-Matching als primärer Pfad und freie Solution-Auswahl durch das LLM wurden nicht gewählt.
 - **Status:** Implemented, integrated, tested and documented
+
+## DEC-020 – Knowledge nach technischem Status trennen
+
+- **Datum:** 2026-08-06
+- **Entscheidung:** Direkt geladene Dateien liegen unter `knowledge/runtime/`, noch nicht integrierte Fachkandidaten unter `knowledge/candidates/`, Test- und Demo-Fälle unter `knowledge/evaluation/` und Herkunftsartefakte unter `knowledge/archive/`.
+- **Grund:** Dateistatus und technische Verwendung müssen erkennbar sein; Evaluationen dürfen nie als Produktwissen oder Indexquelle behandelt werden.
+- **Konsequenzen:** Bestehende Loaderpfade werden angepasst. Der produktive Diagnoseindex wird nicht neu gebaut und bleibt vorübergehend auf seiner bisherigen, jetzt archivierten Quellenbasis. Archivquellen dürfen für diese Übergangskompatibilität weiter gelesen werden, ohne dadurch neue fachliche Runtime-Quellen zu werden.
+- **Alternativen:** Eine gemeinsame Ablage nach Research-Batch oder die unzutreffende Behauptung, das Archiv werde technisch gar nicht verwendet, wurden verworfen.
+- **Status:** Implemented and tested

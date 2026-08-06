@@ -64,22 +64,28 @@ def test_all_indexable_chunks_keep_normalized_metadata() -> None:
         assert "evaluation" not in chunk.source_file.casefold()
 
 
-def test_all_79_evaluations_are_outside_indexes() -> None:
+def test_all_91_evaluations_are_outside_indexes() -> None:
     legacy = json.loads(
-        (ROOT / "knowledge/evaluation/evaluation_cases.json").read_text(encoding="utf-8")
+        (ROOT / "knowledge/evaluation/cases_ten_kmu.json").read_text(encoding="utf-8")
     )["cases"]
     batch_03 = json.loads(
         (
             ROOT
-            / "knowledge/research_batches/batch_03_diagnostic_depth/06_evaluation_cases.json"
+            / "knowledge/evaluation/cases_rb03.json"
         ).read_text(encoding="utf-8")
     )
     batch_04_root = json.loads(
         (
             ROOT
-            / "knowledge/research_batches/batch_04_agentic_interview/09_evaluation_cases.json"
+            / "knowledge/evaluation/cases_rb04_agent.json"
         ).read_text(encoding="utf-8")
     )
+    batch_07_root = json.loads(
+        (ROOT / "knowledge/evaluation/cases_rb07_guardrail.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    batch_07 = batch_07_root["cases"]
     indexed_text = " ".join(
         chunk.content
         for chunk in [
@@ -87,12 +93,16 @@ def test_all_79_evaluations_are_outside_indexes() -> None:
             *rag_service.load_agent_pattern_chunks(),
         ]
     )
-    assert len(legacy) + len(batch_03) + len(batch_04_root["cases"]) == 79
+    assert (
+        len(legacy) + len(batch_03) + len(batch_04_root["cases"]) + len(batch_07)
+        == 91
+    )
     assert batch_04_root["indexing_policy"] == "NEVER_INDEX"
     for evaluation_id in [
         *(item["evaluation_id"] for item in legacy),
         *(item["evaluation_id"] for item in batch_03),
         *(item["case_id"] for item in batch_04_root["cases"]),
+        *(item["id"] for item in batch_07),
     ]:
         assert evaluation_id not in indexed_text
 
@@ -206,7 +216,7 @@ def test_all_batch_04_evaluation_actions_match_policy() -> None:
     evaluation_root = json.loads(
         (
             ROOT
-            / "knowledge/research_batches/batch_04_agentic_interview/09_evaluation_cases.json"
+            / "knowledge/evaluation/cases_rb04_agent.json"
         ).read_text(encoding="utf-8")
     )
     mismatches = []
