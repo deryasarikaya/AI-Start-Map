@@ -54,6 +54,10 @@ Diese Roadmap enthält nur verbleibende geplante Arbeit. Der implementierte Reco
 
 - Interviewtiefe, Patternabdeckung und Ergebnisdarstellung anhand wachsender realer Nutzung kalibrieren.
 
+## Backlog-Ideen (nicht geplant)
+
+- Klickbarer Ergebnisprototyp nach stabiler Klassifikation, eingebauten Output-Strukturen und fachlich geprüften Ergebnissen.
+
 ## Not planned
 
 - Keine autonome Ausführung realer Unternehmensprozesse.

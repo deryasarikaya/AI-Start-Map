@@ -41,6 +41,12 @@ Dieses Register ist die verbindliche Übersicht der Projekt-, Produkt- und Entwi
 | `docs/BRIEFING_ZWEITMEINUNG.md` | Historisches Briefing für externe Einschätzung | Historical Snapshot | Keine aktuelle Source of Truth | 2026-08-06 | 2026-08-06 | `docs/PROJECT_STATE.md`, `docs/CODE_REVIEW_2026-08-06.md` |
 | `docs/WETTBEWERB_KIHELFER24.md` | Zeitgebundene Wettbewerbsanalyse | Historical Market Review | Keine Implementierungs-Source-of-Truth | 2026-08-06 | 2026-08-06 | `docs/PROJECT_STATE.md`, Recommendation-Spec |
 
+## Future Features
+
+| Dokument | Zweck | Status | Source of Truth | Letzte Aktualisierung | Letzte Prüfung | Verwandt mit |
+|---|---|---|---|---|---|---|
+| [`docs/future-features/clickable-result-prototype.md`](future-features/clickable-result-prototype.md) | Idee für einen klickbaren Ergebnisprototyp | Idee festgehalten, nicht geplant, nicht umgesetzt | Keine aktuelle Produkt- oder Implementierungs-Source-of-Truth | 2026-08-06 | 2026-08-06 | `docs/ROADMAP.md`, Product-Output- und Recommendation-Spec |
+
 ## Archiv und ersetzte Dokumente
 
 | Dokument | Zweck | Status | Source of Truth | Letzte Aktualisierung | Letzte Prüfung | Ersetzt durch / Verwandt mit |

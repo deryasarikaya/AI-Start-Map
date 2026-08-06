@@ -4,6 +4,11 @@
 
 Diese Datei dokumentiert nur tatsächlich ausgeführte und verifizierte Änderungen. Roadmap-Punkte gelten nicht als umgesetzt.
 
+## 2026-08-06 – Klickbaren Ergebnisprototyp als Idee festgehalten
+
+- Das unveränderte Ideenpapier unter `docs/future-features/clickable-result-prototype.md` abgelegt und im Dokumentationsregister als nicht geplant und nicht umgesetzt verlinkt.
+- Nur einen späteren Backlog-Hinweis ergänzt; keine Route, kein Template, kein JavaScript und keine Runtime-, Prompt-, Schema-, Datenbank- oder RAG-Änderung vorgenommen.
+
 ## 2026-08-06 – Knowledge für den Zielgruppenübergang geordnet
 
 - Direkt geladene Dateien unter `knowledge/runtime/`, noch nicht integrierte Fachkandidaten unter `knowledge/candidates/`, 91 Test- und Demo-Fälle unter `knowledge/evaluation/` und Herkunftsartefakte unter `knowledge/archive/` getrennt.
