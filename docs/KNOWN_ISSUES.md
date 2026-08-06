@@ -24,10 +24,10 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 ## KI-001 – Recommendation-Auswahl braucht noch reale Kalibrierung
 
 - **Status:** Partially Fixed
-- **Beobachtung:** Katalog, sechs Gates und Selector wählen die Lösung nun außerhalb des Diagnose-Top-k. Die vier verbindlichen Referenzfälle bestehen; reale Interviews können dennoch weitere Klassifikations- und Priorisierungsfehler zeigen.
+- **Beobachtung:** Katalog, sechs Gates und Selector wählen die Lösung nun außerhalb des Diagnose-Top-k. Ein reproduzierbares Harness misst 91 getrennte Evaluationsfälle; seine 40 vorbelegten PF-/SP-Zuordnungen sind jedoch noch unbestätigte Vorschläge. Die vier verbindlichen Referenzfälle bestehen; reale Interviews können dennoch weitere Klassifikations- und Priorisierungsfehler zeigen.
 - **Erwartetes Verhalten:** Aus bestätigtem Problem, Ursache, Reifegrad und Voraussetzungen wird ein kleiner, konkreter und betrieblich passender erster Workflow gewählt.
 - **Mögliche Ursachen:** Die deterministische Klassifikation verwendet bewusst kleine Wortmarker; branchenspezifische Umschreibungen und widersprüchliche reale Angaben sind noch nicht ausreichend kalibriert.
-- **Nächster Prüfschritt:** Reale Interviews anonymisiert auswerten und Fehlklassifikationen gegen Katalog, Gates und sichtbaren Output prüfen.
+- **Nächster Prüfschritt:** Vorgeschlagene Labels fachlich prüfen, erst danach als Ground Truth bestätigen, und zusätzlich reale Interviews anonymisiert gegen Katalog, Gates und sichtbaren Output auswerten.
 - **Betroffene Dateien:** `app/recommendation_service.py`, `app/openai_service.py`, `tests/test_recommendation_catalog.py`, `tests/test_recommendation_experience.py`.
 
 ## KI-002 – Hausmeisterfall empfiehlt teilweise zu viel manuelle Ablage

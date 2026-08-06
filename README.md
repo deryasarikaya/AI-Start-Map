@@ -64,7 +64,7 @@ Die vorhandenen produktiven Indizes müssen für den normalen Start nicht neu ge
 - Diagnoseindex: 634 freigegebene Chunks aus `knowledge/curated/`, Batch 02 und Batch 03.
 - Agent-Pattern-Index: 205 optionale Patterns aus Batch 04.
 - Strukturierter Recommendation-Katalog: zwölf Problemfamilien, zehn Solution Patterns und eine validierte Zuordnungsmatrix ohne zusätzlichen Vektorindex.
-- Evaluationen: 79 getrennte Fälle, die niemals indexiert werden.
+- Evaluationen: 91 getrennte Fälle, die niemals indexiert werden. Vorbelegte erwartete Labels bleiben bis zur fachlichen Bestätigung ausdrücklich Vorschläge und keine Ground Truth.
 - Agentenaktionen: `ASK`, `CLARIFY`, `RETRIEVE`, `ANALYZE`, `STOP`.
 - Werkzeuge: `extract_process_state`, `search_diagnostic_knowledge`, `evaluate_readiness_and_next_action`.
 

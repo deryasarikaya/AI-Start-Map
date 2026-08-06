@@ -185,7 +185,8 @@ Es gibt keine serverseitige PDF-Bibliothek. Der `mailto:`-Kontakt hängt den Ber
 
 - Produkt-Evaluationen liegen getrennt unter `knowledge/evaluation/`.
 - Batch-spezifische Evaluationen liegen in den Research-Batches und werden nicht indexiert.
-- Das Repository dokumentiert und testet insgesamt 79 getrennte Evaluationen außerhalb der Indizes.
+- Das Repository dokumentiert und testet insgesamt 91 getrennte Evaluationen außerhalb der Indizes.
+- `scripts/evaluate.py` führt sie reproduzierbar durch Klassifikation, Gates und Selector. Vorgeschlagene Labels werden getrennt von bestätigter Ground Truth ausgewiesen; aktuell steht jeder Label-Eintrag auf `confirmed: false`.
 - `tests/test_agent_architecture.py` prüft Korpustrennung, Indexausschluss, Agentenpolicy, Budgets und Evidenztrennung.
 - `tests/test_analysis_flow.py` prüft Journey, RAG-Bereinigung, Persistenz, Opportunities und Blueprint.
 - `tests/test_product_finalization.py` prüft Kernoutput, konkrete KI-Hilfe, Reifegradfälle und Berichtsstruktur.

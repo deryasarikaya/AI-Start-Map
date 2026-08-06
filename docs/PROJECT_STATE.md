@@ -64,6 +64,7 @@ Texteingabe bleibt immer verfügbar. Die numerische Session-ID wird in der öffe
 
 ## Verifikation
 
+- Das reproduzierbare Evaluation-Harness umfasst 91 getrennte Fälle. Alle 91 Label-Einträge stehen auf `confirmed: false`; 40 vorbelegte PF-/SP-Zuordnungen sind Vorschläge und keine bestätigte Ground Truth.
 - Vollständige Testsuite: `107 passed` am 2026-08-06.
 - Phase-1-RAG-Regression: vier isolierte Tests für leere Chunks, zwei vollständige Promote-Backups, mtime-Cache-Invalidierung und fehlende Dateien bestanden; Gesamtlauf im vorhandenen uncommittierten Klassifikations-Arbeitsstand: `119 passed, 2 failed`. Die zwei Fehler betreffen bestehende Demo-Tests, die den neu vorgeschalteten LLM-Klassifikator noch nicht mocken, nicht die RAG-Zuverlässigkeitsänderungen.
 - Keyword-Evaluation nach Phase 1: PF Top-1 28 %, PF Top-3 38 %, SP Top-1 30 %, PF-01-Default 48 %, verbotene Inhalte 0 von 91; damit gegenüber der Keyword-Baseline fachlich unverändert.

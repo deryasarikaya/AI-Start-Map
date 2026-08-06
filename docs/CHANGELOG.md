@@ -4,6 +4,13 @@
 
 Diese Datei dokumentiert nur tatsächlich ausgeführte und verifizierte Änderungen. Roadmap-Punkte gelten nicht als umgesetzt.
 
+## 2026-08-06 – Recommendation-Evaluation reproduzierbar gemacht
+
+- `scripts/evaluate.py` führt die 91 getrennten Evaluationsfälle standardmäßig ohne LLM-Kosten durch `classify_problem_families` → `infer_decision_gates` → `select_recommendation` und misst Default-Quote, Gate-Streuung, verbotene Inhalte und Trefferquoten.
+- Die gespeicherte Keyword-Baseline ergibt PF Top-1 28 Prozent, PF Top-3 38 Prozent, SP Top-1 30 Prozent, PF-01-Default 48 Prozent und null Treffer verbotener Inhalte.
+- `knowledge/evaluation/expected_labels.json` enthält 91 Einträge. Alle stehen auf `confirmed: false`; die 40 vorbelegten Zuordnungen sind ausschließlich Vorschläge aus der Review und keine bestätigte Ground Truth.
+- Evaluationsdateien bleiben vollständig außerhalb der produktiven Wissensindizes.
+
 ## 2026-08-06 – Katalog v2 und Research-Grundlage aufgenommen
 
 - Research Batches 05 bis 08 und die zugehörige Forschungsgrundlage unter `knowledge/` abgelegt. Keine Datei wurde in einen Vektorindex aufgenommen; `DIAGNOSTIC_JSONL_FILES` und `AGENT_PATTERN_FILES` bleiben unverändert.
