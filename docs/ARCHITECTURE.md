@@ -66,6 +66,7 @@ _generate_and_persist_final_analysis()
 → select_recommendation()
 → generate_final_analysis()
 → FinalAnalysisResult-Validierung
+→ deterministische OUT-/Katalog-Anwendung
 → _validate_final_grounding()
 → _persist_final_analysis()
 → _result_view()
@@ -178,10 +179,12 @@ Der Process State wird derzeit bei Bedarf aus den bestehenden Tabellen rekonstru
 - Structured Outputs für Prozessoptionen, benutzerdefinierte Prozessgrenzen, Prozessverständnis, Rückfragen und finale Analyse,
 - Pydantic-Modelle als erwartete Ergebnisstruktur,
 - Embeddings für Diagnose- und optionales Agent-Pattern-Retrieval,
-- getrennte Timeouts für Standardanfragen, finale Analyse und Retrieval,
-- Normalisierung, Kundensprachfilter und Grounding-Prüfungen.
+- getrennte Timeouts für Standardanfragen, finale Analyse und Retrieval; die finale Analyse hat 120 Sekunden Gesamtbudget, `medium` Reasoning und maximal zwei Versuche,
+- feldbezogene Normalisierung und Grounding-Prüfungen, die einen betroffenen Wert neutralisieren, ohne die übrige Analyse zu verwerfen.
 
-Der finale Prompt erhält neben Nutzerfakten, getrennten Ableitungen und Diagnosewissen die deterministische Recommendation-Auswahl. Er erzeugt eine Hauptempfehlung, Promise, kurzen Grund, bestätigten Ist-Ablauf, drei bis vier Soll-Schritte, eine typisierte Ergebnisvorschau, Nutzerhandlung, KI-Aufgabe, sichtbares Ergebnis, Human Check, ein bis drei Nutzenpunkte, null bis drei Voraussetzungen, zwei bis vier Umsetzungsschritte, optional einen späteren Ausbau und null bis zwei sekundäre Möglichkeiten. Empfehlungen dürfen nicht rückwirkend als heutiger Ablauf dargestellt werden. Die Schema- und Grounding-Prüfung erzwingt Feldgrenzen, direkte Ansprache und interne Referenzfreiheit.
+Der finale Prompt erhält neben Nutzerfakten, getrennten Ableitungen und Diagnosewissen die deterministische Recommendation-Auswahl einschließlich Gates, Stop Conditions, Failure Guardrails, OUT-Struktur und Workflowkontext. Er enthält 15 inhaltliche Kernregeln; Typen, Längen und Listenbegrenzungen bleiben im Pydantic-Schema. `recommendation-v3` ergänzt die bisherige Empfehlung um normale Software-/Regelaufgabe, offene Angaben, kleinste nutzbare Version, Nicht-Automationen und Autonomiestufe. OUT-Feldnamen, Human Review, Kataloggrenzen, Autonomiestufe und kleinste Version werden nach der Modellantwort deterministisch angewendet. Nicht belegte Vorschauwerte werden „noch offen“ oder klar als Beispiel markiert.
+
+Der Legacy-Shim bleibt erforderlich, weil die lokal konfigurierte Anwendungsdatenbank 15 ältere `core_output`-Payloads enthält. Er protokolliert nur erfundene Platzhalter; die Kundensicht unterdrückt sie. Neue v3-Felder werden für alte Analysen nicht erzeugt. Es war keine Migration und keine neue Tabelle nötig.
 
 Es existiert kein echtes OpenAI Function Calling. Das Modell erhält Daten und internes Vergleichswissen als strukturierte Prompt-Payload, ruft aber keine Agentenwerkzeuge selbst auf.
 
@@ -217,8 +220,8 @@ Jinja2/FastAPI UI
 → semantische Problemklassifikation mit deterministischem Fallback
 → strukturierter Katalog und sechs Gates
 → deterministische Solution-Vorauswahl
-→ OpenAI Structured Output
-→ Pydantic- und Grounding-Validierung
+→ OpenAI Structured Output mit 15 Kernregeln
+→ Pydantic-, OUT-, Katalog- und feldbezogene Grounding-Validierung
 → PostgreSQL
 → HTML-Ergebnis und Browser-PDF
 ```

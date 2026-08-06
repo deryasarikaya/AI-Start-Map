@@ -53,7 +53,10 @@ from app.rag_service import (
     retrieve_solution_workflows,
 )
 from app.llm_classification import classify_narrative
-from app.recommendation_service import select_recommendation
+from app.recommendation_service import (
+    load_recommendation_catalog,
+    select_recommendation,
+)
 from app.solution_knowledge import (
     build_solution_query,
     extract_confirmed_channels,
@@ -1434,12 +1437,17 @@ def _persist_final_analysis(
                     "sample_output": result.sample_output.model_dump(),
                     "user_action": result.user_action,
                     "ai_task": result.ai_task,
+                    "software_rule": result.software_rule,
                     "visible_result": result.visible_result,
                     "human_check": result.human_check,
                     "customer_benefits": result.customer_benefits,
                     "required_prerequisites": result.required_prerequisites,
                     "implementation_path": result.implementation_path,
                     "later_stage": result.later_stage,
+                    "open_details": result.open_details,
+                    "smallest_usable_version": result.smallest_usable_version,
+                    "not_automated": result.not_automated,
+                    "autonomy_level": result.autonomy_level,
                     "secondary_opportunities": [
                         item.model_dump() for item in result.secondary_opportunities
                     ],
@@ -1468,7 +1476,7 @@ def _persist_final_analysis(
                 human_approval=result.human_check,
                 first_step=result.implementation_path[0],
                 blueprint_json={
-                    "contract_version": "recommendation-v2",
+                    "contract_version": "recommendation-v3",
                     "sample_output": result.sample_output.model_dump() if rank == 1 else None,
                     "implementation_path": result.implementation_path if rank == 1 else [],
                     "later_stage": result.later_stage if rank == 1 else "",
@@ -1520,6 +1528,9 @@ def _massage_demo_fallback_result() -> FinalAnalysisResult:
         human_check=(
             "Du prüfst die tatsächliche Verfügbarkeit und bestätigst jeden Termin."
         ),
+        software_rule=(
+            "Die Übersicht hält Pflichtfelder und Statuswerte nach festen Regeln fest."
+        ),
         customer_benefits=[
             "Du siehst den aktuellen Stand ohne Suche.",
             "Fehlende Angaben fallen vor der Bestätigung auf.",
@@ -1539,6 +1550,16 @@ def _massage_demo_fallback_result() -> FinalAnalysisResult:
             "Nach bestätigter Kapazität kann die KI eine Nachricht zur manuellen "
             "Freigabe vorbereiten."
         ),
+        open_details=["Die aktuell verfügbare Person ist noch offen."],
+        smallest_usable_version=(
+            "Starte mit einer gemeinsamen Übersicht und einem KI-Entwurf für neue Anfragen."
+        ),
+        not_automated=[
+            "Terminzusage",
+            "Personalentscheidung",
+            "Versand der Bestätigung",
+        ],
+        autonomy_level="A2",
         secondary_opportunities=[],
         error_boundaries=[
             "Fehlende Angaben bleiben sichtbar und verhindern eine verbindliche Zusage.",
@@ -1664,8 +1685,12 @@ def _generate_and_persist_final_analysis(
 
         stage = "recommendation_selection"
         stage_started = perf_counter()
+        recommendation_catalog = load_recommendation_catalog()
         recommendation = select_recommendation(
-            problem_family_ids, gates, confirmed_text=query_text
+            problem_family_ids,
+            gates,
+            catalog=recommendation_catalog,
+            confirmed_text=query_text,
         )
         confirmed_channels = extract_confirmed_channels(query_text)
         all_solution_workflows = load_solution_workflows()
@@ -1715,6 +1740,14 @@ def _generate_and_persist_final_analysis(
                     str(error),
                 )
         recommendation_context = recommendation.model_dump()
+        recommendation_context["failure_guardrails"] = [
+            {
+                "trigger": item.trigger,
+                "guardrail": item.guardrail,
+                "customer_language": item.customer_language,
+            }
+            for item in recommendation_catalog.failure_patterns
+        ]
         recommendation_context["output_structure"] = output_structure_context(
             output_structure_for(primary_solution_id) if primary_solution_id else None
         )
@@ -2099,16 +2132,24 @@ def _result_view(
         ]
     sample_output = core_output.get("sample_output")
     if not isinstance(sample_output, dict):
-        legacy_output = str(core_output.get("ai_output") or "Ein prüfbarer Entwurf")
+        legacy_output = str(core_output.get("ai_output") or "")
         sample_output = {
             "title": legacy_output,
-            "fields": [{"label": "Ergebnis", "value": legacy_output}],
+            "fields": (
+                [{"label": "Ergebnis", "value": legacy_output}]
+                if legacy_output
+                else []
+            ),
             "open_items": [],
             "attachments": [],
-            "preview_notice": "Vorschau – die endgültigen Angaben prüfst du selbst.",
+            "preview_notice": (
+                "Vorschau – die endgültigen Angaben prüfst du selbst."
+                if legacy_output
+                else ""
+            ),
         }
-    user_action = str(core_output.get("user_action") or core_output.get("ai_input") or "Vorhandene Angaben eingeben")
-    if not any(marker in user_action.casefold() for marker in ("du ", "dein", "dir ")):
+    user_action = str(core_output.get("user_action") or core_output.get("ai_input") or "")
+    if user_action and not any(marker in user_action.casefold() for marker in ("du ", "dein", "dir ")):
         user_action = f"Du gibst ein: {user_action}."
     implementation_path = core_output.get("implementation_path")
     if not isinstance(implementation_path, list) or len(implementation_path) < 2:
@@ -2135,7 +2176,8 @@ def _result_view(
         "future_process": core_output.get("future_process") or to_be_steps[:4],
         "sample_output": sample_output,
         "user_action": user_action,
-        "ai_task": core_output.get("ai_task") or "Angaben erkennen und ordnen",
+        "ai_task": core_output.get("ai_task") or "",
+        "software_rule": core_output.get("software_rule") or "",
         "visible_result": core_output.get("visible_result") or core_output.get("ai_output") or sample_output["title"],
         "human_check": legacy_human_check,
         "customer_benefits": core_output.get("customer_benefits") or [first["benefit"]],
@@ -2143,6 +2185,10 @@ def _result_view(
         or ([] if is_new_contract else [first["prerequisite"]]),
         "implementation_path": [str(item) for item in implementation_path][:4],
         "later_stage": core_output.get("later_stage") or core_output.get("later_automation") or "",
+        "open_details": core_output.get("open_details") or [],
+        "smallest_usable_version": core_output.get("smallest_usable_version") or "",
+        "not_automated": core_output.get("not_automated") or [],
+        "autonomy_level": core_output.get("autonomy_level"),
         "secondary_opportunities": secondary[:2],
         "human_decisions": [legacy_human_check],
         "error_boundaries": [str(item) for item in stored_error_boundaries][:3],

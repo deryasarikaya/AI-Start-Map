@@ -28,7 +28,7 @@ Der Recommendation Layer wählt aus bestätigtem Prozessproblem, Problemfamilie 
 4. Physische Objektidentität und realer Ablageort werden nie durch KI erraten.
 5. Hochriskante oder extern wirksame Entscheidungen benötigen menschliche Freigabe.
 6. Guardrails begrenzen passende Patterns nachvollziehbar, verdrängen sie aber nicht pauschal.
-7. Jede Empfehlung besitzt konkrete Eingabe, KI-Aufgabe, sichtbares Ergebnis und Human Check.
+7. Jede Empfehlung besitzt konkrete Nutzerhandlung, KI-Aufgabe, normale Software-/Regelaufgabe, sichtbares Ergebnis, Human Check und Nicht-Automationen; A0 benennt ausdrücklich, dass keine KI nötig ist.
 8. Keine Empfehlung wird allein aus einem semantischen Top-k gewählt.
 9. Rückfragen sind nur zulässig, wenn die Antwort Problemfamilie, Ursache, Gate, Risiko, Human Check, zulässiges Pattern oder primäre Empfehlung verändert.
 10. Normal sind null bis zwei Rückfragen, drei nur in komplexen Fällen, vier technische Obergrenze.
@@ -36,7 +36,7 @@ Der Recommendation Layer wählt aus bestätigtem Prozessproblem, Problemfamilie 
 
 ## Kundenausgabe
 
-Der Outputvertrag entspricht `docs/specs/product-output/requirements.md`: eine primäre Empfehlung, konkrete Ergebnisvorschau, direkte Du-Ansprache, kurze Vorher-/Nachher-Wirkung, null bis drei Voraussetzungen, Umsetzungsweg und null bis zwei sekundäre Möglichkeiten.
+Der Outputvertrag entspricht `docs/specs/product-output/requirements.md`: eine primäre Empfehlung, konkrete Ergebnisvorschau, direkte Du-Ansprache, drei bis sechs Zukunftsschritte, getrennte Rollen, offene Angaben, kleinste nutzbare Version, Autonomiestufe, Grenzen und null bis zwei sekundäre Möglichkeiten.
 
 ## Nicht-Ziele
 

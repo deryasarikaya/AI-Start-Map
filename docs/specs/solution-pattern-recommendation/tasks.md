@@ -2,7 +2,7 @@
 
 **Status:** Implemented, integrated, tested, documented and published
 **Datum:** 2026-08-06
-**Umsetzungsstatus:** Produktvertrag, Katalog, Loader, Retrieval, Agent-Pattern-Aufruf, Gate-Kaskade, A0 und deterministische Auswahl sind integriert; Kundenausgabe und Bericht werden im aktiven Qualitätslauf weiter konkretisiert. 149 Tests sind bestanden.
+**Umsetzungsstatus:** Produktvertrag v3, Katalog, Loader, Retrieval, Agent-Pattern-Aufruf, Gate-Kaskade, A0 und deterministische Auswahl sind integriert; Ergebnisseite und Bericht werden im aktiven Qualitätslauf weiter konkretisiert. 157 Tests und ein kontrollierter Live-Finalaufruf sind bestanden.
 
 | Bereich | Aufgabe | Status | Nachweis / Abhängigkeit |
 |---|---|---|---|
@@ -35,6 +35,11 @@
 | Batch 09 | Solution-Workflow-Index getrennt bauen und direkten Fallback erhalten. | Done | 27 positive Chunks, SP-04/Evaluationen ausgeschlossen, Index validiert |
 | Gate-Kaskade | GATE-01 bis GATE-06 mit `pass`/`fail`/`unknown`, Begründung, Zielgruppenfit und A0 umsetzen. | Done | `test_gate_cascade.py`, 149 Tests |
 | Gate-Kaskade | Legacy 91 und Batch 09 getrennt messen und Labelstatus bewahren. | Done | `scripts/evaluate.py`, keine gemittelte Kennzahl |
+| Output v3 | Rollen, offene Angaben, kleinste Version, Nicht-Automationen und A0–A2 strukturiert speichern. | Done | Pydantic-/Persistenz-/Contract-Tests |
+| Output v3 | OUT-Felder, Human Review, Kataloggrenzen und Vorschaukennzeichnung deterministisch anwenden. | Done | `test_output_contract_v3.py` |
+| Filter | Nutzer-, Beispiel- und Zukunftsbegriffe erlauben; erfundene Ist-Fakten feldbezogen neutralisieren. | Done | DEC-023, Grounding-Regression |
+| Legacy | Vorhandene Altanalysen prüfen, Shim-Platzhalter loggen und unsichtbar halten. | Done | DEC-024, lokale DB-Prüfung und View-Test |
+| Modell | Finalprompt auf 15 Regeln kürzen, `medium`, zwei Versuche und Zeitbudget live prüfen. | Done | DEC-025, 60,141 s, ein Versuch |
 
 ## Statuswerte
 

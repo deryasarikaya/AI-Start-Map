@@ -196,3 +196,29 @@ Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest
 - **Konsequenzen:** Kein KI-Bedarf, rein analoge Ausgangslage, fehlende kritische Prüfung oder gewünschte autonome Preis-, Zahlungs- oder Personalentscheidung führen konservativ zu A0. Unbekannte Voraussetzungen begrenzen auf A1. SP-04 erfordert einen echten physischen Gegenstand; Gebäude, Einsatzorte und Adressen gelten nicht als Objektfall. Hausmeister mit Sprache, Foto und Bon wird als SP-03 behandelt.
 - **Alternativen:** Ein einzelner Reifegradwert, automatisches PF-01 bei fehlendem Engpass und Auswahl hoher Autonomie wurden verworfen.
 - **Status:** Implemented, integrated and tested
+
+## DEC-023 – Feldbezogene Grounding-Filter ersetzen pauschales Verwerfen
+
+- **Datum:** 2026-08-06
+- **Entscheidung:** Ein Filterfehler verwirft nicht mehr die gesamte finale Analyse. Nicht belegte Ist-Details oder interne Referenzen werden nur im betroffenen Feld entfernt beziehungsweise als „noch offen“ neutralisiert; eine Unsicherheit wird ergänzt. Nutzerwörter sind erlaubt, Begriffe aus OUT-Vorschauen bleiben als Beispiel erlaubt und Katalogbegriffe sind im ausdrücklich zukünftigen Workflow zulässig. FAIL-01 bis FAIL-12 und die Stop Conditions der vorausgewählten Lösung werden als begründete Guardrails an den finalen Aufruf übergeben.
+- **Geänderte Wortlisten:** `SPECULATIVE_PROCESS_TERMS` bleibt ausschließlich als enger Ist-Fakt-Schutz für `abholnummer`, `ausweis`, `falschübergab`, `foto`, `identitätsprüf`, `ringordner`, `unterschrift` und `verwechslung`; `fotograf` wurde entfernt. Ein Treffer wird immer zugelassen, wenn der Nutzer den Begriff selbst verwendet hat. `SOLUTION_ONLY_UNCERTAINTY_TERMS` wurde vollständig geleert, weil `auftragskarte`, `automatis*`, `digital`, `fotodokument`, `software` und `statusübersicht` berechtigte Zukunfts-, Voraussetzungen- oder Unsicherheitsbegriffe sein können. `CUSTOMER_LANGUAGE_REPLACEMENTS` bleibt für nicht vom Nutzer verwendete Fachwörter aktiv; Nutzerwörter werden nicht ersetzt. Die Schema-Sperre wurde auf die vier nachweislich künstlichen Wörter `formulardoppie`, `nachschlageort`, `übergabevermerkgabel` und `handschriftenkapazität` reduziert. Distanzierte Rollen werden vor Validierung in Du-Sprache normalisiert.
+- **Regex-Änderungen:** `SUMMARY_META_PATTERN` und `AS_IS_META_PATTERN` neutralisieren oder entfernen nur betroffene Felder. `INTERNAL_REFERENCE_PATTERN`, interne IDs und interne Dateipfade werden feldweise zu „noch offen“. Die übrigen internen Referenzmuster und der konkrete Ist-Fakt-Schutz bleiben erhalten.
+- **Grund:** Pauschale Wortlisten entfernten berechtigte Spezifität und konnten nach einer einzigen problematischen Formulierung einen ansonsten verwertbaren Output als `AIServiceError` verwerfen.
+- **Konsequenzen:** Sicherheitsgrenzen bleiben erhalten, sind aber kontext- und feldbezogen. Die automatisierte Suite enthält getrennte Fälle für Nutzerwort, Beispielwort, Zukunftsformulierung, erfundenen Ist-Fakt, interne Referenz und fortgesetzte Restanalyse.
+- **Status:** Implemented and tested; reale Modellbeobachtung bleibt erforderlich
+
+## DEC-024 – Legacy-Shim bleibt, erzeugte Platzhalter bleiben unsichtbar
+
+- **Datum:** 2026-08-06
+- **Entscheidung:** `fill_legacy_core_output()` bleibt bestehen. In der lokal konfigurierten Datenbank `ai_start_map` wurden 35 Analysen gefunden, 17 davon mit `core_output`: 15 im alten und zwei im aktuellen Format. Der Shim protokolliert die Namen erfundener Felder ohne Inhalte; `customer_visible_dump()` und die Datenbank-View unterdrücken diese Platzhalter. Die v3-Felder `software_rule`, `open_details`, `smallest_usable_version`, `not_automated` und `autonomy_level` werden für Altanalysen nicht erfunden.
+- **Grund:** Entfernen würde vorhandene Altanalysen unlesbar machen; generische Sätze würden zugleich eine fachliche Präzision vortäuschen, die nicht gespeichert ist.
+- **Konsequenzen:** Neue Structured Outputs müssen den v3-Vertrag erfüllen. Alte Daten bleiben lesbar, können aber leere neue Abschnitte haben. Keine Datenmigration wurde ausgeführt.
+- **Status:** Implemented and tested
+
+## DEC-025 – FinalAnalysisResult nutzt medium Reasoning und zwei Versuche
+
+- **Datum:** 2026-08-06
+- **Entscheidung:** Für das konfigurierte `gpt-5-mini` verwendet nur `FinalAnalysisResult` `reasoning_effort=medium`, maximal zwei Anwendungsversuche und ein gemeinsames Zeitbudget von 120 Sekunden. Andere GPT-5-Aufrufe bleiben bei `minimal`; Follow-up bleibt bei einem Versuch. Der finale Prompt enthält genau 15 inhaltliche Kernregeln und wiederholt keine Pydantic-Längen- oder Typvorgaben.
+- **Grund:** Der umfangreichere Kundenvertrag benötigt mehr Sorgfalt; ein zweiter Versuch soll einen einzelnen Schema- oder Groundingfehler reparieren können.
+- **Messung:** Ein kontrollierter echter Hausmeister-Aufruf bestand am ersten Versuch in 60,141 Sekunden, ohne Retry, mit den sechs deterministischen OUT-SP03-Feldern. Stichprobe `n=1`; daraus wird weder eine belastbare Fehlerquote noch eine allgemeine Latenzzusage abgeleitet.
+- **Status:** Implemented, API-kompatibel live geprüft und automatisiert getestet

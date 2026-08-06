@@ -165,6 +165,11 @@ def _result(case: str) -> FinalAnalysisResult:
     values = cases[case]
     return FinalAnalysisResult(
         **values,
+        software_rule="Pflichtfelder und Status werden nach festen Regeln geführt.",
+        open_details=list(values["sample_output"].get("open_items", [])),
+        smallest_usable_version="Mit neuen Vorgängen und einem prüfbaren Entwurf beginnen.",
+        not_automated=["Verbindliche Freigabe", "Geschäftliche Entscheidung"],
+        autonomy_level="A2",
         customer_benefits=[
             "Du erkennst fehlende Angaben früher.",
             "Du erhältst ein einheitliches Arbeitsergebnis.",

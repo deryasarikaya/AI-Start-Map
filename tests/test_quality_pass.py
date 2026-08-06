@@ -135,6 +135,10 @@ def _shoe_result() -> FinalAnalysisResult:
             "Auftragsangaben, Zuordnung und Bearbeitungsstand liegen nicht an einer "
             "gemeinsamen verlässlichen Stelle."
         ),
+        software_rule="Nummer, Status und bestätigter Ablageort werden regelbasiert verbunden.",
+        smallest_usable_version="Neue Aufträge mit Nummer und bestätigtem Ablageort erfassen.",
+        not_automated=["Preisfreigabe", "Zusatzarbeit", "Fertigstellung", "Herausgabe"],
+        autonomy_level="A2",
         uncertainties=[
             "Die Zahl der gleichzeitig offenen Reparaturaufträge ist unbekannt.",
             "Der heutige Ablauf bei nicht erreichbaren Kunden ist nicht eindeutig.",
@@ -251,6 +255,10 @@ def _carpentry_result() -> FinalAnalysisResult:
         core_bottleneck=(
             "Aktuelle und veraltete Informationen sind über mehrere Kanäle verteilt."
         ),
+        software_rule="Version und Freigabestatus werden nach festen Regeln geführt.",
+        smallest_usable_version="Neue Änderungen in einer gemeinsamen Vorgangsakte sammeln.",
+        not_automated=["Technische Bewertung", "Konstruktive Freigabe"],
+        autonomy_level="A2",
         uncertainties=[
             "Es ist unbekannt, wie Änderungen heute eindeutig als aktuell markiert werden."
         ],
@@ -627,13 +635,13 @@ def test_carpentry_quality_flow_keeps_technical_approval_human(
             ).where(AutomationOpportunity.session_id == session_id)
         ).all()
     )
-    assert blueprints[1]["contract_version"] == "recommendation-v2"
+    assert blueprints[1]["contract_version"] == "recommendation-v3"
     assert blueprints[1]["sample_output"] is not None
     assert blueprints[2]["sample_output"] is None
     assert blueprints[3]["sample_output"] is None
 
 
-def test_unmentioned_shoe_repair_controls_are_removed_from_current_facts() -> None:
+def test_unmentioned_current_fact_is_removed_but_solution_uncertainty_remains() -> None:
     payload = _shoe_result().model_dump()
     payload["as_is_steps"].append("Bei der Abholung werden Ausweisdaten geprüft.")
     unsafe_result = FinalAnalysisResult.model_validate(payload)
@@ -661,8 +669,8 @@ def test_unmentioned_shoe_repair_controls_are_removed_from_current_facts() -> No
             "end_event": "Ein Gegenstand wird abgeholt",
         },
     )
-    assert all(
-        "auftragskarte" not in uncertainty.casefold()
+    assert any(
+        "auftragskarte" in uncertainty.casefold()
         for uncertainty in solution_uncertainty.uncertainties
     )
 
@@ -931,6 +939,9 @@ def test_final_prompt_separates_facts_patterns_inferences_and_recommendations(
     assert "B. RETRIEVED PATTERNS" in prompt
     assert "C. ALLOWED INFERENCES" in prompt
     assert "D. RECOMMENDATIONS" in prompt
+    assert sum(f"\n{index}." in f"\n{prompt}" for index in range(1, 16)) == 15
+    assert "max_length" not in prompt
+    assert "min_length" not in prompt
     assert isinstance(payload, dict)
     assert set(payload) == {
         "A_USER_FACTS",
@@ -940,26 +951,28 @@ def test_final_prompt_separates_facts_patterns_inferences_and_recommendations(
     }
 
 
-def test_process_summary_rejects_meta_text_and_repeated_title() -> None:
+def test_process_summary_is_neutralized_without_discarding_analysis() -> None:
     meta_payload = _carpentry_result().model_dump()
     meta_payload["process_summary"] = (
         "Aus den vorliegenden Angaben ergibt sich ein verteilter Ablauf."
     )
-    with pytest.raises(ValidationError):
-        FinalAnalysisResult.model_validate(meta_payload)
+    meta_result = FinalAnalysisResult.model_validate(meta_payload)
+    assert "Aus den vorliegenden Angaben" not in meta_result.process_summary
+    assert meta_result.primary_recommendation
 
     repeated_payload = _carpentry_result().model_dump()
     repeated_payload["process_summary"] = (
         "„Auftragsfreigabe bis Arbeitsvorbereitung“ umfasst mehrere Schritte."
     )
     repeated_result = FinalAnalysisResult.model_validate(repeated_payload)
-    with pytest.raises(openai_service.AIServiceError):
-        openai_service._validate_final_grounding(
-            repeated_result,
-            answers={"actual_steps": _carpentry_answers()["actual_steps"]},
-            selected_process={
-                "process_name": "Auftragsfreigabe bis Arbeitsvorbereitung",
-                "start_event": "Ein Auftrag ist freigegeben",
-                "end_event": "Geprüfte Arbeitsunterlagen liegen vor",
-            },
-        )
+    grounded = openai_service._validate_final_grounding(
+        repeated_result,
+        answers={"actual_steps": _carpentry_answers()["actual_steps"]},
+        selected_process={
+            "process_name": "Auftragsfreigabe bis Arbeitsvorbereitung",
+            "start_event": "Ein Auftrag ist freigegeben",
+            "end_event": "Geprüfte Arbeitsunterlagen liegen vor",
+        },
+    )
+    assert not grounded.process_summary.startswith("„Auftragsfreigabe")
+    assert grounded.primary_recommendation

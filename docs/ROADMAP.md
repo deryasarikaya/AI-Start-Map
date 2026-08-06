@@ -17,6 +17,7 @@ Diese Roadmap enthält nur verbleibende geplante Arbeit. Der implementierte Reco
 - Bereitstellung der gitignorierten produktiven Diagnose- und Agent-Pattern-Indizes für frischen Checkout beziehungsweise Deployment verifizieren.
 - Datenschutz-, Betriebs- und Deployment-Konfiguration vor einem öffentlichen Produktivbetrieb abschließend prüfen.
 - Die vorhandenen strukturierten Logs im Betrieb auf Nutzbarkeit und Datenminimierung prüfen.
+- Latenz, Validierungsfehler und tatsächliche Retry-Quote des v3-Finaloutputs über mehrere reale, datensparsam protokollierte Läufe messen; die Einzelmessung von 60,141 Sekunden ist keine belastbare Statistik.
 
 ### Produktarbeit
 

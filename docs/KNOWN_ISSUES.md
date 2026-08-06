@@ -60,10 +60,10 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 ## KI-005 – Kundensprache ist teilweise zu technisch oder zu lang
 
 - **Status:** Partially Fixed
-- **Beobachtung:** Der neue Vertrag begrenzt Titel, Listen und Textfelder, erzwingt direkte Du-Ansprache und zeigt eine konkrete Vorschau. Die tatsächliche Modellformulierung muss im Betrieb weiter beobachtet werden.
+- **Beobachtung:** `recommendation-v3` trennt Nutzer, KI, Regeln und Mensch, übernimmt OUT-Feldnamen deterministisch und zeigt offene Angaben, kleinste Version, Nicht-Automationen und Autonomiestufe. Der Prompt wurde auf 15 Kernregeln gekürzt; ein kontrollierter Live-Hausmeisteraufruf bestand. Die tatsächliche Modellformulierung muss über mehrere reale Fälle weiter beobachtet werden.
 - **Erwartetes Verhalten:** Kurze deutsche Sätze, ein klarer nächster Schritt und konkrete Beschreibung von Eingabe, KI-Aufgabe, Ergebnis und menschlicher Kontrolle.
-- **Mögliche Ursachen:** Noch zu verifizieren. Lange Structured Outputs, interne Fachbegriffe im Ausgangswissen und begrenzte sprachliche Normalisierung sind mögliche Faktoren.
-- **Nächster Prüfschritt:** Sichtbare Ausgaben der vier Referenzfälle und neuer realer Fälle weiter gegen die bestehenden Längen- und Verständlichkeitskriterien prüfen.
+- **Mögliche Ursachen:** Noch zu verifizieren. Trotz kürzerem Prompt bleibt der Structured Output umfangreich; Katalogformulierungen können ohne UI-Hierarchie weiterhin dicht wirken.
+- **Nächster Prüfschritt:** Die fünf Mentor-Demofälle vollständig im Browser gegen Verständlichkeit, erfundene Fakten und offene Angaben prüfen.
 - **Betroffene Dateien:** `app/openai_service.py`, `app/schemas.py`, `app/templates/results.html`, `app/templates/report.html`, `tests/test_product_finalization.py`.
 
 ## KI-006 – Ergebnisansicht und PDF waren zu groß oder textlastig

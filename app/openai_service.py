@@ -24,6 +24,7 @@ from app.schemas import (
     ProcessBoundaryResult,
     ProcessSuggestionResult,
     ProcessUnderstandingResult,
+    SampleOutputField,
 )
 
 
@@ -37,7 +38,7 @@ class AIServiceError(RuntimeError):
 StructuredResult = TypeVar("StructuredResult", bound=BaseModel)
 logger = logging.getLogger(__name__)
 OPENAI_REQUEST_TIMEOUT_SECONDS = 26.0
-FINAL_ANALYSIS_TIMEOUT_SECONDS = 60.0
+FINAL_ANALYSIS_TIMEOUT_SECONDS = 120.0
 OPENAI_RETRIEVAL_TIMEOUT_SECONDS = 6.0
 _openai_call_count: contextvars.ContextVar[int] = contextvars.ContextVar(
     "openai_call_count",
@@ -96,31 +97,62 @@ CUSTOMER_LANGUAGE_REPLACEMENTS = {
 }
 
 
-def _normalize_customer_language(value: object) -> object:
+def _normalize_customer_language(
+    value: object,
+    *,
+    allowed_user_text: str = "",
+) -> object:
     """Replace known internal jargon without changing factual content."""
 
     if isinstance(value, str):
         normalized = value
         for term, replacement in CUSTOMER_LANGUAGE_REPLACEMENTS.items():
+            if term in allowed_user_text:
+                continue
             normalized = re.sub(
                 rf"\b{re.escape(term)}\b",
                 replacement,
                 normalized,
                 flags=re.IGNORECASE,
             )
+        normalized = re.sub(
+            r"\b(?:der Nutzer|die Nutzerin|der Unternehmer|der Mitarbeiter|die Person)\b",
+            "Du",
+            normalized,
+            flags=re.IGNORECASE,
+        )
+        normalized = re.sub(
+            r"\bman sollte\b",
+            "Du solltest",
+            normalized,
+            flags=re.IGNORECASE,
+        )
         return normalized
     if isinstance(value, list):
-        return [_normalize_customer_language(item) for item in value]
+        return [
+            _normalize_customer_language(item, allowed_user_text=allowed_user_text)
+            for item in value
+        ]
     if isinstance(value, dict):
         return {
-            key: _normalize_customer_language(item)
+            key: _normalize_customer_language(
+                item,
+                allowed_user_text=allowed_user_text,
+            )
             for key, item in value.items()
         }
     return value
 
 
-def _normalize_final_analysis_payload(value: object) -> object:
-    normalized = _normalize_customer_language(value)
+def _normalize_final_analysis_payload(
+    value: object,
+    *,
+    allowed_user_text: str = "",
+) -> object:
+    normalized = _normalize_customer_language(
+        value,
+        allowed_user_text=allowed_user_text,
+    )
     if not isinstance(normalized, dict):
         return normalized
     steps = normalized.get("as_is_steps")
@@ -133,15 +165,24 @@ def _normalize_final_analysis_payload(value: object) -> object:
             continue
         index_map[old_index] = len(kept_steps)
         kept_steps.append(step)
-    if kept_steps:
-        normalized["as_is_steps"] = kept_steps
-        problem_indexes = normalized.get("as_is_problem_step_indexes")
-        if isinstance(problem_indexes, list):
-            normalized["as_is_problem_step_indexes"] = [
-                index_map[index]
-                for index in problem_indexes
-                if isinstance(index, int) and index in index_map
-            ]
+    normalized["as_is_steps"] = kept_steps
+    problem_indexes = normalized.get("as_is_problem_step_indexes")
+    if isinstance(problem_indexes, list):
+        normalized["as_is_problem_step_indexes"] = [
+            index_map[index]
+            for index in problem_indexes
+            if isinstance(index, int) and index in index_map
+        ]
+    summary = normalized.get("process_summary")
+    if isinstance(summary, str) and re.search(
+        r"^(?:aus den vorliegenden angaben|auf grundlage der daten|quelle:)",
+        summary,
+        re.IGNORECASE,
+    ):
+        normalized["process_summary"] = (
+            " ".join(str(item) for item in kept_steps)
+            or "Der heutige Ablauf bleibt an dieser Stelle noch offen."
+        )
     return normalized
 
 
@@ -267,7 +308,7 @@ def _parse_structured_output(
     model = _structured_output_model()
     is_final_analysis = result_type is FinalAnalysisResult
     is_follow_up = result_type is FollowUpResult
-    maximum_attempts = 1 if is_final_analysis or is_follow_up else 2
+    maximum_attempts = 1 if is_follow_up else 2
     request_timeout = (
         FINAL_ANALYSIS_TIMEOUT_SECONDS
         if is_final_analysis
@@ -281,7 +322,10 @@ def _parse_structured_output(
     )
     model_options: dict[str, object] = {}
     if model.casefold().startswith("gpt-5"):
-        model_options = {"reasoning_effort": "minimal", "verbosity": "low"}
+        model_options = {
+            "reasoning_effort": "medium" if is_final_analysis else "minimal",
+            "verbosity": "low",
+        }
     for attempt in range(maximum_attempts):
         retry_instruction = (
             "\n\nDie vorherige Ausgabe war nicht vollständig regelkonform. "
@@ -338,7 +382,14 @@ def _parse_structured_output(
                 raise ValueError("Das Modell hat die strukturierte Antwort abgelehnt")
             response_payload = json.loads(message.get("content") or "")
             if is_final_analysis:
-                response_payload = _normalize_final_analysis_payload(response_payload)
+                user_fact_text = json.dumps(
+                    payload.get("A_USER_FACTS", {}),
+                    ensure_ascii=False,
+                ).casefold()
+                response_payload = _normalize_final_analysis_payload(
+                    response_payload,
+                    allowed_user_text=user_fact_text,
+                )
             elif is_follow_up:
                 response_payload = _normalize_follow_up_payload(response_payload)
             validation_started = perf_counter()
@@ -414,20 +465,12 @@ SPECULATIVE_PROCESS_TERMS = (
     "ausweis",
     "falschübergab",
     "foto",
-    "fotograf",
     "identitätsprüf",
     "ringordner",
     "unterschrift",
     "verwechslung",
 )
-SOLUTION_ONLY_UNCERTAINTY_TERMS = (
-    "auftragskarte",
-    "automatis",
-    "digital",
-    "fotodokument",
-    "software",
-    "statusübersicht",
-)
+SOLUTION_ONLY_UNCERTAINTY_TERMS: tuple[str, ...] = ()
 
 
 def _combined_user_facts(
@@ -461,7 +504,7 @@ def _validate_final_grounding(
     result: FinalAnalysisResult,
     answers: dict[str, str],
     selected_process: dict[str, str],
-) -> None:
+) -> FinalAnalysisResult:
     user_facts = _combined_user_facts(answers, selected_process)
     unsupported_terms = {
         term for term in SPECULATIVE_PROCESS_TERMS if term not in user_facts
@@ -486,6 +529,9 @@ def _validate_final_grounding(
                 for index in result.as_is_problem_step_indexes
                 if index in index_map
             ]
+        else:
+            result.as_is_steps = []
+            result.as_is_problem_step_indexes = []
         result.uncertainties = [
             uncertainty
             for uncertainty in result.uncertainties
@@ -494,33 +540,13 @@ def _validate_final_grounding(
             )
         ]
         if any(term in result.process_summary.casefold() for term in unsupported_terms):
-            result.process_summary = " ".join(result.as_is_steps)
-    unsupported_solution_terms = {
-        term for term in SOLUTION_ONLY_UNCERTAINTY_TERMS if term not in user_facts
-    }
-    if unsupported_solution_terms:
-        result.uncertainties = [
-            uncertainty
-            for uncertainty in result.uncertainties
-            if not any(
-                term in uncertainty.casefold()
-                for term in unsupported_solution_terms
+            result.process_summary = (
+                " ".join(result.as_is_steps)
+                or "Der heutige Ablauf bleibt an dieser Stelle noch offen."
             )
-        ]
-    existing_process_text = " ".join(
-        [result.process_summary, *result.as_is_steps, *result.uncertainties]
-    ).casefold()
-    for term in SPECULATIVE_PROCESS_TERMS:
-        if term in existing_process_text and term not in user_facts:
-            raise AIServiceError(
-                "Die Analyse enthielt eine nicht belegte Aussage zum heutigen Ablauf."
-            )
-    uncertainty_text = " ".join(result.uncertainties).casefold()
-    for term in SOLUTION_ONLY_UNCERTAINTY_TERMS:
-        if term in uncertainty_text and term not in user_facts:
-            raise AIServiceError(
-                "Die Unsicherheiten bezogen sich auf eine erst vorgeschlagene Lösung."
-            )
+        warning = "Ein nicht belegtes Detail im heutigen Ablauf bleibt noch offen."
+        if warning not in result.uncertainties:
+            result.uncertainties = [*result.uncertainties[:3], warning]
     process_name = selected_process["process_name"].strip().casefold()
     summary_start = result.process_summary.strip().casefold()
     summary_without_quote = summary_start.lstrip("„\"'")
@@ -529,9 +555,83 @@ def _validate_final_grounding(
         summary_start.startswith(process_name)
         or quoted_name.search(summary_without_quote)
     ):
-        raise AIServiceError(
-            "Die Zusammenfassung wiederholte den Prozessnamen anstelle der Analyse."
+        result.process_summary = (
+            " ".join(result.as_is_steps)
+            or "Der heutige Ablauf bleibt an dieser Stelle noch offen."
         )
+    return result
+
+
+def _apply_recommendation_contract(
+    result: FinalAnalysisResult,
+    recommendation_context: dict[str, object] | None,
+    *,
+    user_fact_text: str,
+) -> FinalAnalysisResult:
+    """Apply deterministic OUT fields and catalog boundaries after generation."""
+
+    context = recommendation_context or {}
+    autonomy_level = context.get("autonomy_level")
+    if autonomy_level in {"A0", "A1", "A2", "A3", "A4", "A5"}:
+        result.autonomy_level = autonomy_level
+
+    output_structure = context.get("output_structure")
+    if isinstance(output_structure, dict) and output_structure.get("status") != "missing":
+        raw_fields = output_structure.get("fields")
+        if isinstance(raw_fields, list):
+            existing = {
+                item.label.casefold(): item.value for item in result.sample_output.fields
+            }
+            contracted_fields: list[SampleOutputField] = []
+            for field in raw_fields[:6]:
+                if not isinstance(field, dict) or not field.get("label"):
+                    continue
+                label = str(field["label"])
+                value = existing.get(label.casefold(), "noch offen")
+                normalized_value = value.casefold()
+                if (
+                    normalized_value not in {"noch offen", "nicht angegeben", "zu prüfen"}
+                    and normalized_value not in user_fact_text
+                    and not normalized_value.startswith("beispiel:")
+                ):
+                    value = f"Beispiel: {value}"
+                contracted_fields.append(
+                    SampleOutputField(label=label, value=value[:140])
+                )
+            if contracted_fields:
+                result.sample_output.fields = contracted_fields
+        structure_name = output_structure.get("name")
+        if structure_name:
+            result.sample_output.title = str(structure_name)[:80]
+        human_review = str(output_structure.get("human_review") or "").strip()
+        if human_review:
+            result.human_check = (
+                human_review
+                if re.search(r"\b(?:du|dein|deine|dir)\b", human_review, re.IGNORECASE)
+                else f"Du prüfst: {human_review}"
+            )[:200]
+        prohibited_decisions = output_structure.get("system_must_not_decide")
+        if isinstance(prohibited_decisions, list) and prohibited_decisions:
+            result.not_automated = [
+                str(item)[:160] for item in prohibited_decisions[:5]
+            ]
+
+    primary = context.get("primary")
+    if isinstance(primary, dict):
+        smallest_entry = str(primary.get("smallest_entry") or "").strip()
+        if smallest_entry:
+            result.smallest_usable_version = smallest_entry[:220]
+        deterministic_components = primary.get("deterministic_components")
+        if isinstance(deterministic_components, list) and deterministic_components:
+            result.software_rule = "; ".join(
+                str(item) for item in deterministic_components[:2]
+            )[:180]
+    if autonomy_level == "A0":
+        a0_recommendation = str(context.get("a0_recommendation") or "").strip()
+        result.ai_task = "Für diesen ersten Schritt ist keine KI-Aufgabe notwendig."
+        result.software_rule = a0_recommendation[:180]
+        result.smallest_usable_version = a0_recommendation[:220]
+    return result
 
 
 def generate_process_suggestions(
@@ -656,58 +756,25 @@ def generate_final_analysis(
     recommendation_context: dict[str, object] | None = None,
 ) -> FinalAnalysisResult:
     result = _parse_structured_output(
-        system_prompt=(
-            COMMON_GROUNDING_RULES
-            + "\n\nTrenne strikt: A. USER FACTS sind die einzigen Fakten über "
-            "den Betrieb. B. RETRIEVED PATTERNS sind internes Vergleichswissen und "
-            "dürfen nie als bestehender Ablauf erscheinen. C. ALLOWED INFERENCES "
-            "sind nur logisch zwingende Verbindungen zwischen belegten Schritten; "
-            "kennzeichne fehlende Details stattdessen als Unsicherheit. D. "
-            "RECOMMENDATIONS beschreibt die deterministisch vorausgewählte Lösung.\n\n"
-            "Rekonstruiere den Ist-Ablauf, benenne Symptom, Ursache und Auswirkung "
-            "des Kernengpasses getrennt. Erzeuge genau eine dominante Hauptlösung aus "
-            "der deterministischen Vorauswahl. primary_recommendation ist höchstens "
-            "ungefähr 12 bis 14 Wörter; promise ist ein kurzer Satz mit dem greifbaren "
-            "Ergebnis; short_reason umfasst höchstens zwei kurze Sätze. before_process "
-            "enthält höchstens drei bestätigte Ist-Schritte, future_process drei oder "
-            "vier kurze neue Schritte. user_action und human_check sprechen mit du an. "
-            "ai_task und visible_result sind je ein kurzer Satz. customer_benefits "
-            "enthält ein bis drei Punkte, required_prerequisites null bis drei echte "
-            "Voraussetzungen und implementation_path zwei bis vier Umsetzungsschritte. "
-            "Das ist kein Wochentest und keine Hausaufgabe. later_stage ist optional "
-            "genau ein Ausbau. secondary_opportunities enthält nur fachlich passende "
-            "weitere Möglichkeiten, null bis maximal zwei, niemals Füllvorschläge. "
-            "error_boundaries enthält null bis drei echte Fehlergrenzen aus der "
-            "vorausgewählten Lösung, keine allgemeinen Testhinweise. "
-            "sample_output ist eine klar gekennzeichnete Vorschau des konkreten "
-            "Arbeitsergebnisses. Verwende bestätigte Fakten; fehlende Werte erscheinen "
-            "neutral als ‚noch offen‘. Keine generischen CRM- oder Chatbot-Empfehlungen, "
-            "keine erfundenen Geld- oder Zeitwerte und keine erfundenen APIs. "
-            "In process_summary und as_is_steps dürfen nur USER FACTS und logisch "
-            "zwingende Verbindungen stehen. Baue keine vorgeschlagenen Tools, "
-            "Dokumente, Prüfungen oder Kontrollen rückwirkend in den Ist-Ablauf ein. "
-            "Behaupte kein Sicherheitsproblem, das nicht genannt wurde. "
-            "Unsicherheiten betreffen nur entscheidende fehlende Angaben zum heutigen "
-            "Ablauf oder zur Bewertung einer Empfehlung; gib höchstens vier aus. "
-            "Eine Unsicherheit darf keine erst vorgeschlagene Software, Dokumentation, "
-            "Kontrolle oder andere Lösung als bestehenden Ablauf voraussetzen. "
-            "So wenig Ordnung wie zwingend nötig, so früh konkrete KI-Unterstützung "
-            "wie realistisch möglich; Automatisierung erst nach bestätigten Daten und "
-            "klaren Freigaben. Erzeuge einen kurzen Soll-Ablauf für die nächste "
-            "realistische Reifestufe. Markiere belegte Problemstellen im Ist-Ablauf über ihre "
-            "nullbasierten Schrittpositionen. Wenn "
-            "physische Gegenstände bearbeitet werden, prüfe insbesondere eine zentrale "
-            "digitale Auftragskarte, eindeutige Zuordnung, Status und Ablageort, eine "
-            "Benachrichtigung nach menschlicher Fertigmeldung sowie dokumentierte "
-            "Änderungen und Kundenfreigaben. Fotos sind höchstens eine optionale "
-            "Ergänzung und niemals ungefragt Pflicht oder Kernlösung. "
-            "Medizinische, rechtliche, finanzielle, technische und kreative "
-            "Entscheidungen dürfen nicht autonom automatisiert werden. Prüfe vor der Ausgabe "
-            "jedes sichtbare Feld erneut darauf, dass es nur den Nutzerprozess "
-            "beschreibt und keinerlei interne Wissensreferenz enthält. Beginne die "
-            "Zusammenfassung direkt mit dem Ablauf und wiederhole weder den Titel "
-            "noch eine Meta-Einleitung. Verwende klare deutsche Alltagssprache."
-        ),
+        system_prompt="""
+Du formulierst eine konkrete Prozessdiagnose in deutscher Alltagssprache.
+
+1. A. USER FACTS sind die einzigen Tatsachen über den heutigen Betrieb.
+2. Die bestätigte Diagnose trennt Engpass, Begründung, Ursache und Auswirkung.
+3. C. ALLOWED INFERENCES bleiben als fachliche Ableitung oder Unsicherheit erkennbar.
+4. D. RECOMMENDATIONS bestimmt Lösung, Gates, Autonomiestufe und Stop Conditions; ändere diese Auswahl nicht.
+5. B. RETRIEVED PATTERNS ist nur internes Vergleichswissen und darf nie als Nutzerfakt oder Quelle erscheinen.
+6. process_summary, before_process und as_is_steps enthalten nur belegte heutige Handlungen; fehlende Schritte bleiben offen.
+7. future_process und to_be_steps beschreiben ausdrücklich einen möglichen zukünftigen Ablauf, nicht den Ist-Zustand.
+8. Übernimm Feldnamen und Human Review aus output_structure; Nutzerwerte stammen ausschließlich aus A, sonst steht „noch offen“.
+9. Katalog-Beispielwerte dürfen nur im klar als Vorschau gekennzeichneten sample_output stehen und nie als Nutzerfakt erscheinen.
+10. Trenne user_action, ai_task, software_rule und human_check konkret nach Verantwortung.
+11. not_automated und error_boundaries nennen die menschlichen Entscheidungsgrenzen aus Gates, FAIL-Regeln und Stop Conditions.
+12. Bei A0 empfiehlst du die einfache Regel oder vorhandene Funktion und behauptest keine notwendige KI-Aufgabe.
+13. Erfinde keine Software, API, Integration, Messzahl, Zeit-, Geld- oder Nutzenzusage.
+14. Verwende keine internen IDs, Quellenhinweise oder unnötigen technischen Begriffe.
+15. Gib genau eine dominante Empfehlung; sekundäre Möglichkeiten erscheinen nur, wenn D sie fachlich trägt.
+""".strip(),
         payload={
             "A_USER_FACTS": {
                 "ausgewaehlter_ablauf": selected_process,
@@ -734,5 +801,10 @@ def generate_final_analysis(
         },
         result_type=FinalAnalysisResult,
     )
-    _validate_final_grounding(result, answers, selected_process)
-    return result
+    user_fact_text = _combined_user_facts(answers, selected_process)
+    result = _apply_recommendation_contract(
+        result,
+        recommendation_context,
+        user_fact_text=user_fact_text,
+    )
+    return _validate_final_grounding(result, answers, selected_process)

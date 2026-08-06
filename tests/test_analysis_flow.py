@@ -72,6 +72,10 @@ def _final_result() -> FinalAnalysisResult:
         process_summary="Eine Anfrage wird aufgenommen, geprüft und bestätigt.",
         as_is_steps=["Anfrage aufnehmen", "Angaben prüfen", "Auftrag bestätigen"],
         core_bottleneck="Die Auftragsangaben werden mehrfach manuell übertragen.",
+        software_rule="Pflichtangaben und Freigabestatus werden regelbasiert geprüft.",
+        smallest_usable_version="Neue Anfragen in einem einheitlichen Entwurf erfassen.",
+        not_automated=["Auftragsbestätigung", "Ausnahmeentscheidung"],
+        autonomy_level="A2",
         uncertainties=["Die tatsächliche Fallzahl ist unbekannt."],
         opportunities=[
             AutomationOpportunityResult(
@@ -495,7 +499,7 @@ def test_concise_output_and_presentation_metadata_are_stored(
             ).where(AutomationOpportunity.session_id == session_id)
         ).all()
     )
-    assert blueprints[1]["contract_version"] == "recommendation-v2"
+    assert blueprints[1]["contract_version"] == "recommendation-v3"
     assert blueprints[1]["sample_output"] is not None
     assert blueprints[1]["implementation_path"]
     assert blueprints[2]["sample_output"] is None
@@ -603,7 +607,7 @@ def test_model_prompt_context_contains_no_internal_metadata() -> None:
         ("sample_output", "Aus einem Referenzfall übernommen"),
     ],
 )
-def test_visible_analysis_fields_reject_internal_references(
+def test_visible_analysis_fields_neutralize_internal_references(
     field_name: str,
     marker: str,
 ) -> None:
@@ -615,8 +619,15 @@ def test_visible_analysis_fields_reject_internal_references(
     else:
         payload[field_name] = marker
 
-    with pytest.raises(ValidationError):
-        FinalAnalysisResult.model_validate(payload)
+    result = FinalAnalysisResult.model_validate(payload)
+    if field_name == "as_is_steps":
+        assert result.as_is_steps[0] == "noch offen"
+    elif field_name == "sample_output":
+        assert result.sample_output.fields[0].value == "noch offen"
+    else:
+        assert getattr(result, field_name) == "noch offen"
+    assert result.visible_result
+    assert any("internes" in item for item in result.uncertainties)
 
 
 @pytest.mark.parametrize(

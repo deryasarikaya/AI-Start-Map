@@ -76,8 +76,8 @@ def test_follow_up_payload_is_normalized_to_today_without_repair_call() -> None:
     }
 
 
-def test_final_analysis_uses_dedicated_sixty_second_timeout() -> None:
-    assert openai_service.FINAL_ANALYSIS_TIMEOUT_SECONDS == 60.0
+def test_final_analysis_allows_two_medium_reasoning_attempts() -> None:
+    assert openai_service.FINAL_ANALYSIS_TIMEOUT_SECONDS == 120.0
 
 
 def _fact(value: str) -> FactRecord:
@@ -122,6 +122,10 @@ def _analysis_result(
         )
     ]
     return FinalAnalysisResult(
+        software_rule="Pflichtangaben und Freigabestatus werden regelbasiert geprüft.",
+        smallest_usable_version="Einen neuen Vorgang als prüfbaren Entwurf erfassen.",
+        not_automated=["Fachliche Freigabe"],
+        autonomy_level="A2",
         core_problem=core_problem,
         first_change=first_change,
         ai_support=ai_support,

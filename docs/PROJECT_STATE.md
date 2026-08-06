@@ -8,7 +8,7 @@
 
 AI Start Map ist als diagnostische Webanwendung für Solo-Selbstständige und kleine Betriebe implementiert. Die Anwendung betrachtet einen konkreten Geschäftsprozess, trennt bestätigte Fakten von fachlicher Ableitung und Vergleichswissen und liefert genau eine dominante Hauptempfehlung.
 
-Das Kundenergebnis zeigt den besten KI-Hebel, einen kurzen Grund, Heute/Mit KI, Eingabe, KI-Aufgabe, sichtbares Ergebnis, menschliche Prüfung, eine konkrete Ergebnisvorschau, bis zu drei Nutzenpunkte, nur echte Voraussetzungen und einen Umsetzungsweg. Es gibt keinen Wochentest. Weitere Möglichkeiten sind optional und auf zwei begrenzt.
+Das Kundenergebnis basiert auf `recommendation-v3` und zeigt Engpass, Begründung, konkrete Empfehlung, drei bis sechs Zukunftsschritte, getrennte Rollen für Nutzer, KI, normale Software/Regeln und Mensch, sichtbares Ergebnis, Vorschau, offene Angaben, Voraussetzungen, kleinste nutzbare Version, späteren Ausbau, Nicht-Automationen, Autonomiestufe und Unsicherheiten. Es gibt keinen Wochentest. Weitere Möglichkeiten sind optional und auf zwei begrenzt.
 
 AI Start Map führt keine Unternehmensprozesse autonom aus. Preis-, Vertrags-, Zahlungs-, Qualitäts-, Personal-, Sicherheits-, Herausgabe- und Freigabeentscheidungen bleiben beim Menschen.
 
@@ -31,7 +31,10 @@ Texteingabe bleibt immer verfügbar. Die numerische Session-ID wird in der öffe
 - `app/llm_classification.py` klassifiziert die bestätigte Erzählung primär per Structured Output in null bis drei Katalog-Problemfamilien und die bestehenden sechs Rohsignale. Eine leere Familienliste ist die belegbare A0-Entscheidung „keine KI nötig“. Bei `AIServiceError` bleiben Keyword-Klassifikation und Gate-Inferenz der konservative Fallback.
 - `app/recommendation_service.py` übersetzt die Rohsignale deterministisch in `GATE-01` bis `GATE-06` mit `pass`, `fail` oder `unknown` und deutscher Begründung. Zielgruppenfit, Fehlerfolgen und menschliche Prüfung werden gesondert bewertet.
 - Der deterministische Selector liefert A0 oder eine Hauptlösung, höchstens zwei sekundäre Kandidaten, Ausschlussgründe, Voraussetzungen, Stop Conditions, Autonomiestufe und Freigabegrenzen. SP-04 ist ohne bestätigten angenommenen, gelagerten, bearbeiteten oder abgeholten Gegenstand ausgeschlossen.
-- Der Selector ist in den produktiven Analysepfad integriert. Seine Vorauswahl wird dem finalen Structured-Output-Aufruf getrennt von Nutzerfakten und RAG-Evidenz übergeben.
+- Der Selector ist in den produktiven Analysepfad integriert. Seine Vorauswahl, Output-Struktur, Stop Conditions und die zwölf katalogbasierten Failure Guardrails werden dem finalen Structured-Output-Aufruf getrennt von Nutzerfakten und RAG-Evidenz übergeben.
+- Der finale Prompt enthält 15 inhaltliche Kernregeln statt wiederholter Schema- und Längenvorgaben. `gpt-5-mini` läuft für `FinalAnalysisResult` mit `reasoning_effort=medium`, maximal zwei Versuchen und 120 Sekunden Gesamtbudget.
+- OUT-Feldnamen, Human Review, Nicht-Automationen, Autonomiestufe, kleinste Version und regelbasierte Komponenten werden nach dem Modellaufruf deterministisch aus Runtime-Kontext und Katalog nachgeführt. Nicht belegte Vorschauwerte werden als Beispiel markiert oder bleiben „noch offen“.
+- Breite Lösungswortfilter verwerfen keine Analyse mehr. Erfundene Ist-Fakten in den weiterhin begrenzt geprüften Risikobegriffen und interne Referenzen neutralisieren nur das betroffene Feld und ergänzen einen offenen Hinweis.
 - Der neue Kernoutput wird ohne Migration in bestehendem JSONB gespeichert. Alte Analysen mit früherem Kernoutput bleiben über die View-Abbildung lesbar.
 
 ## Diagnose-RAG und Agent
@@ -56,7 +59,8 @@ Texteingabe bleibt immer verfügbar. Die numerische Session-ID wird in der öffe
 
 - Python, FastAPI, Jinja2, PostgreSQL, SQLAlchemy 2.x, Alembic und Pydantic.
 - Die fünf Tabellen `sessions`, `interview_questions`, `process_options`, `analyses` und `automation_opportunities` bleiben unverändert.
-- Neue Analysen speichern eine primäre Opportunity-Zeile und null bis zwei optionale sekundäre Zeilen.
+- Neue Analysen speichern eine primäre Opportunity-Zeile und null bis zwei optionale sekundäre Zeilen; `recommendation-v3` bleibt in bestehendem JSONB.
+- In der lokal konfigurierten Anwendungsdatenbank wurden 35 Analysen gefunden: 17 mit `core_output`, davon 15 im alten und zwei im neuen Format. Deshalb bleibt der Legacy-Shim aktiv. Er protokolliert nur erfundene Platzhalter, die Kundensicht unterdrückt sie, und kein v3-Feld wird für Altanalysen erfunden.
 - Keine Datenbankmigration und keine neue Produktionsabhängigkeit wurden benötigt. Der kleine Solution-FAISS-Index wurde getrennt mit 27 Workflows und `text-embedding-3-small` gebaut; seine generierten Artefakte bleiben gitignoriert.
 - Die finale Analyse läuft weiterhin synchron im FastAPI-Request; Queue oder Background-Worker sind nicht implementiert.
 
@@ -71,11 +75,12 @@ Texteingabe bleibt immer verfügbar. Die numerische Session-ID wird in der öffe
 ## Verifikation
 
 - Das reproduzierbare Evaluation-Harness weist 91 Legacy-Fälle und 30 Batch-09-Fälle getrennt aus und mittelt ihre Werte nicht. Alle 40 vorbelegten Legacy-Zuordnungen stehen auf `confirmed: false`; Batch 09 bleibt `research_proposed`.
-- Vollständige Testsuite: `149 passed` am 2026-08-06; die Demo-Tests mocken den vorgeschalteten Klassifikator.
+- Vollständige Testsuite: `157 passed` am 2026-08-06; die Demo-Tests mocken den vorgeschalteten Klassifikator.
 - Phase-1-RAG-Regression: vier isolierte Tests für leere Chunks, zwei vollständige Promote-Backups, mtime-Cache-Invalidierung und fehlende Dateien bestanden.
 - Keyword-Evaluation nach Phase 1: PF Top-1 28 %, PF Top-3 38 %, SP Top-1 30 %, PF-01-Default 48 %, verbotene Inhalte 0 von 91; damit gegenüber der Keyword-Baseline fachlich unverändert.
 - Aktuelle Keyword-Messung mit Gate-Kaskade: Legacy 91 weiterhin PF Top-1 28 %, irgendein PF-Treffer 38 %, SP Top-1 30 %, PF-01 48 %, verbotene Auswahltexte 0/91. Batch 09 getrennt: 25 Fälle mit vorgeschlagenen nicht bestätigten Labels, PF Top-1 40 %, irgendein PF-Treffer 48 %, SP Top-1 36 %, PF-01 33 %, verbotene Auswahltexte 0/30. Die schwache Keyword-Baseline bleibt nur Fallback.
 - Vorhandenes LLM-Eval-Artefakt: PF Top-1 65 %, PF Top-3 85 %, SP Top-1 70 %, PF-01-Default 3 %, zwei Klassifikatorfehler und ein Treffer eines verbotenen Begriffs. Dieser kostenpflichtige Lauf wurde in der aktuellen Sicherungsarbeit nicht wiederholt; seine Labels sind weiterhin unbestätigte Vorschläge.
+- Kontrollierter Live-Vertragstest für den Hausmeisterfall: `gpt-5-mini`, `medium`, ein Versuch, 60,141 Sekunden, kein Retry, validiertes Ergebnis mit A1 und den sechs deterministischen OUT-SP03-Feldern. Diese Einzelbeobachtung ist keine belastbare Fehler- oder Latenzstatistik.
 - Python-Kompilierung: `python -m compileall app scripts` bestanden.
 - App-Start gegen die separate Testdatenbank geprüft; Landingpage antwortete mit HTTP 200.
 - Visuell geprüft: Ergebnis bei Desktop- und schmalem Mobile-Viewport; Karten stapeln, lange Texte brechen um, kein horizontaler Seitenüberlauf, Touch-Ziele 48–58 Pixel.

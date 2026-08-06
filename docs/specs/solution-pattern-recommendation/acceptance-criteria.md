@@ -34,8 +34,12 @@ Jede sichtbare Empfehlung enthält:
 
 1. Nutzerhandlung,
 2. KI-Aufgabe,
-3. sichtbares Ergebnis,
-4. Human Check.
+3. normale Software- oder Regelaufgabe,
+4. sichtbares Ergebnis,
+5. Human Check,
+6. offene Angaben,
+7. kleinste nutzbare Version,
+8. Nicht-Automationen und Autonomiestufe.
 
 Zusätzlich enthält sie eine Ergebnisvorschau, ein bis drei Nutzenpunkte, null bis drei Voraussetzungen, zwei bis vier Umsetzungsschritte und optional null bis zwei nachrangige Möglichkeiten. Wochentest und genau drei Opportunities sind nicht Bestandteil der Abnahme.
 
@@ -43,7 +47,7 @@ Zusätzlich enthält sie eine Ergebnisvorschau, ein bis drei Nutzenpunkte, null 
 
 - Sichtbare Texte verwenden direkte Du-Ansprache; distanzierte Ersatzrollen sind unzulässig, wenn der Kunde gemeint ist.
 - Primärtitel bleibt ungefähr innerhalb 12–14 Wörtern; Begründung maximal zwei kurze Sätze.
-- Vorher umfasst maximal drei, der neue Ablauf drei oder vier Schritte; Nutzen maximal drei, Voraussetzungen maximal drei, sekundäre Möglichkeiten maximal zwei.
+- Vorher umfasst maximal drei, der neue Ablauf drei bis sechs Schritte; Nutzen maximal drei, Voraussetzungen maximal drei, sekundäre Möglichkeiten maximal zwei.
 - Genau eine Hauptlösung dominiert; die Vorschau ist zentral; weitere Möglichkeiten bleiben eingeklappt.
 - Der Druckbericht umfasst zwei Seiten plus eine optionale dritte Seite.
 - Die vertikale HTML-/CSS-Prozesslinie wird verwendet; Mermaid bleibt ausgeschlossen.

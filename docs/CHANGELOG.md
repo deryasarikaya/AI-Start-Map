@@ -4,6 +4,15 @@
 
 Diese Datei dokumentiert nur tatsächlich ausgeführte und verifizierte Änderungen. Roadmap-Punkte gelten nicht als umgesetzt.
 
+## 2026-08-06 – Konkreten Kundenoutput und Grounding verbessert
+
+- `recommendation-v3` um normale Software-/Regelaufgabe, offene Angaben, kleinste nutzbare Version, Nicht-Automationen und Autonomiestufe erweitert und ohne Migration im bestehenden JSONB gespeichert.
+- OUT-Feldnamen, Human Review, Kataloggrenzen, A0–A2, kleinste Version und regelbasierte Komponenten nach der Modellantwort deterministisch angewendet; unbelegte Vorschauwerte bleiben offen oder werden als Beispiel markiert.
+- Finalen Prompt auf 15 Kernregeln gekürzt; `gpt-5-mini` für den finalen Output auf `medium`, maximal zwei Versuche und 120 Sekunden Gesamtbudget gestellt.
+- Breite Lösungswortliste entfernt und Ist-Fakt-, interne Referenz-, Meta- und Kundensprachfilter feldbezogen gemacht. Ein einzelnes unsicheres Feld verwirft nicht mehr die vollständige Analyse.
+- 15 alte und zwei neue lokale `core_output`-Payloads nachgewiesen; Legacy-Shim beibehalten, Platzhalter protokolliert und aus der Kundensicht entfernt, ohne neue v3-Felder zu erfinden.
+- Kontrollierter Live-Hausmeisteraufruf bestand beim ersten Versuch in 60,141 Sekunden. Vollständige automatisierte Suite: `157 passed`.
+
 ## 2026-08-06 – Begründete Gate-Kaskade und A0 integriert
 
 - `GATE-01` bis `GATE-06` werden nach der Klassifikation deterministisch als `pass`, `fail` oder `unknown` mit Begründung ausgewertet.
