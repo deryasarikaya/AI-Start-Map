@@ -130,15 +130,16 @@ Das Diagnose-RAG liefert Vergleichswissen zu Symptomen, Ursachen, Bedingungen, R
 
 Der Katalog hält für jedes Pattern stabile ID, passende Problemfamilien, Signale, Voraussetzungen, Ausschlüsse, Risiken, Nutzerhandlung, KI-Aufgabe, sichtbares Ergebnis und Human Check. `app/recommendation_service.py` prüft die Einträge gegen Gates und Matrix. Der Speicherpfad ist `knowledge/runtime/recommendation_catalog.json`; Evaluationsfälle liegen getrennt unter `knowledge/evaluation/` und werden niemals indexiert.
 
-## Warum zunächst kein neuer FAISS-Solution-Index empfohlen wird
+## Begrenzter Batch-09-Solution-Index
 
-Der Katalog umfasst zunächst nur zehn strukturierte Patterns. Deterministische Filterung und Ranking über explizite Felder sind dafür nachvollziehbarer und leichter zu testen als ein weiterer semantischer Top-k. Ein zusätzlicher Index würde die belegte Konkurrenz unspezifischer Treffer nicht automatisch lösen und erhöht Build-, Deployment- und Evaluationsaufwand. Eine spätere semantische Erweiterung bleibt möglich, benötigt aber einen nachgewiesenen Qualitätsgewinn und eine eigene Entscheidung.
+Der Katalog mit zehn Patterns bleibt deterministisch und besitzt die Entscheidungshoheit. Der getrennte Batch-09-Index enthält nur 27 positive Workflowvarianten und rankt erst nach der Pattern-Auswahl. Das ausgewählte Pattern ist der einzige harte Filter; bestätigte Kanäle und Betriebstyp sind kleine Soft-Boosts. Fehlt der gitignorierte Index, lädt die Runtime bis zu zwei Varianten desselben Patterns deterministisch. Der Mehrwert des semantischen Rankings wird getrennt gemessen und nicht vorausgesetzt.
 
 ## Integrationspunkte
 
 - `app/llm_classification.py`: LLM-Klassifikator für Problemfamilien und Gates mit Keyword-Fallback.
 - `app/routes.py`: Orchestrierung von Klassifikation, Gates, Retrieval, Selector, Agent-Patterns, Logging und Persistenz.
 - `app/rag_service.py`: reservierte Analyse-Chunktypen und separater Agent-Pattern-Abruf.
+- `app/solution_knowledge.py`: Batch-09-Loader, Output-Mapping, Hypothesenwissen und deterministische Workflow-Auswahl.
 - `app/openai_service.py`: getrennte Recommendation-Payload und kompakter Outputprompt.
 - `app/schemas.py`: neuer Kundenvertrag und Legacy-Abbildung.
 - `app/templates/` und `app/static/styles.css`: Hauptseite und variabler Druckbericht.

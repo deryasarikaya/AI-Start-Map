@@ -4,6 +4,16 @@
 
 Diese Datei dokumentiert nur tatsächlich ausgeführte und verifizierte Änderungen. Roadmap-Punkte gelten nicht als umgesetzt.
 
+## 2026-08-06 – Batch-09-Knowledge-Rollen integriert
+
+- Kontrollierte Runtime-Kopien für 27 Inference Patterns, 28 Solution Workflows und 10 Output-Strukturen reproduzierbar aus dem unveränderten Kandidaten-Batch erzeugt und mit Pydantic validiert.
+- 30 Batch-09-Evaluationen ausschließlich unter `knowledge/evaluation/` abgelegt und ihren Indexausschluss getestet.
+- Beispielwerte aus dem Runtime-Kontext entfernt, den SP-04-Workflow als dokumentarischen Ausschluss belassen und seine physischen Pflichtfelder auf menschliche Bestätigung verschärft.
+- Einen getrennten Solution-Workflow-Index mit 27 positiven Workflows gebaut; harte Filterung nur nach ausgewähltem Solution Pattern, kleine Soft-Boosts für sichere Metadaten und deterministischer Fallback bei fehlendem Index.
+- Den unkalibrierten Source-Strength-Abzug von 0,15/0,08 neutralisiert und als reine Transparenzmetadaten beibehalten.
+- Batch-09-Inference-Patterns in den Interviewkontext eingebunden, ohne Hypothesen zu Nutzerfakten zu machen oder Fragebudgets zu erweitern.
+- Vollständige Suite mit 135 Tests bestanden; der separate 27-Chunk-Solution-Index wurde gebaut und validiert.
+
 ## 2026-08-06 – Batch 09 fachlich geprüft
 
 - Die vollständige Kandidatenlieferung formal auf 27 Inference Patterns, 28 Workflows, 10 Output-Strukturen, 30 Evaluationen, 20 Quellen, eindeutige IDs, gültige PF-/SP-Referenzen und vollständige `source_refs` geprüft.

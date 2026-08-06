@@ -34,6 +34,7 @@ Die öffentliche Journey nutzt ein signiertes Sitzungscookie. Die interne numeri
 | `app/agent_service.py` | Getrennter Process State, drei interne Werkzeuge und deterministische Aktionsentscheidung |
 | `app/rag_service.py` | Korpusladen, Indexbau/-validierung, FAISS-Retrieval, Ranking und Promptbereinigung |
 | `app/recommendation_service.py` | Validiert den strukturierten Recommendation-Katalog, klassifiziert Problemfamilien, bewertet sechs getrennte Gates und liefert die im Analysepfad verwendete deterministische Vorauswahl. |
+| `app/solution_knowledge.py` | Validiert Batch-09-Output-Strukturen, Inference Patterns und Solution Workflows; entfernt Beispielwerte aus dem Laufzeitkontext und bietet deterministische Fallback-Auswahl. |
 | `app/llm_classification.py` | Ordnet die bestätigte Erzählung per Structured Output Problemfamilien und bestehenden Gate-Werten zu; bei API-Fehlern nutzt es die unveränderte Keyword-/Gate-Heuristik als Fallback. |
 | `app/openai_service.py` | OpenAI Structured Outputs, Embeddings, Prompts, Normalisierung und Grounding |
 | `app/schemas.py` | Pydantic-Schemas und sichtbare Sicherheits-/Qualitätsvalidierung |
@@ -82,7 +83,9 @@ _generate_and_persist_final_analysis()
 
 `app/rag_service.py` verwendet explizite Allow-Lists. Pfade oder Inhalte mit `evaluation`, `evaluation_cases` oder `never_index` werden abgewiesen. Testindizes werden getrennt gebaut und erst nach Validierung bewusst promoviert.
 
-Die Umordnung der Dateien hat die produktiven FAISS-Artefakte nicht verändert und keinen Index neu gebaut. Der bestehende Diagnoseindex bleibt vorübergehend lauffähig, basiert jedoch weiterhin auf dem alten, archivierten Korpus. Die Archivquellen werden von den bisherigen Diagnose- und Agent-Pattern-Loadern für Kompatibilität und reproduzierbare Indexprüfungen noch gelesen. Ein späterer Ersatz oder Neubau nach eigener Batch-09-Prüfung ist geplant, aber nicht integriert.
+Bei der vorherigen Umordnung wurden die damaligen produktiven FAISS-Artefakte nicht verändert. Der bestehende Diagnoseindex bleibt vorübergehend lauffähig, basiert jedoch weiterhin auf dem alten, archivierten Korpus. Die Archivquellen werden von den bisherigen Diagnose- und Agent-Pattern-Loadern für Kompatibilität und reproduzierbare Indexprüfungen noch gelesen. Ein Ersatz oder Neubau dieses Diagnoseindex ist weiterhin nicht integriert.
+
+Der neue `data/solution_workflow_index/` ist davon getrennt. Er enthält 27 runtime-freigegebene Batch-09-Workflows; der dokumentarische SP-04-Ausschluss und alle Evaluationen fehlen. Das harte Filter ist ausschließlich das bereits deterministisch ausgewählte Solution Pattern. Betriebstyp und bestätigte Kanäle wirken nur als kleine Soft-Boosts. Der frühere unkalibrierte pauschale Source-Strength-Abzug wurde neutralisiert; Quellenstärke bleibt Metadatum.
 
 ### Laufzeit-Retrieval
 
@@ -118,6 +121,8 @@ RAG-Evidenz wird im Agentenstate als eigener Typ geführt und niemals in bestät
 `retrieve_agent_patterns()` liest im Interviewpfad den separaten Agent-Pattern-Index. `_agent_pattern_context()` begrenzt die Suche auf Entscheidungs-, Frage-, Widerspruchs-, Stop-, Werkzeug- und Guardrail-Muster und auf drei Treffer. Die bereinigten Inhalte unterstützen den Kontext einer tatsächlich zulässigen Rückfrage; bei Retrievalfehlern bleibt der deterministische Controller arbeitsfähig. Die Patterns ersetzen keine Python-Sicherheitsregel und wählen die finale Recommendation nicht.
 
 Die Fragevorlagen aus `knowledge/runtime/patterns/next_question_patterns.jsonl` werden direkt durch `question_templates()` gelesen. Dies ist von semantischem Agent-Pattern-Retrieval zu unterscheiden. Weitere Quellen des bestehenden Agent-Pattern-Korpus liegen vorübergehend unter `knowledge/archive/research_batches/batch_04_agentic_interview/`.
+
+Die 27 Batch-09-Inference-Patterns werden typisiert direkt geladen. Nach der semantischen Problemfamilienklassifikation können sie eine beobachtbare Rückfrage oder klar als unbestätigt markierten Fragekontext liefern. Sie werden weder in `confirmed_user_facts` kopiert noch als Ground Truth behandelt.
 
 ## Agentenlogik
 
@@ -190,7 +195,7 @@ Es gibt keine serverseitige PDF-Bibliothek. Der `mailto:`-Kontakt hängt den Ber
 
 - Alle produktseitig ausgeführten Test- und Demo-Fälle liegen getrennt unter `knowledge/evaluation/`.
 - Historische Originale in archivierten Research-Batches sind Provenienzartefakte und werden nicht indexiert.
-- Das Repository dokumentiert und testet insgesamt 91 getrennte Evaluationen außerhalb der Indizes.
+- Das Repository dokumentiert und testet 91 Legacy-Evaluationen sowie 30 getrennte Batch-09-Evaluationen außerhalb der Indizes.
 - `scripts/evaluate.py` führt sie reproduzierbar durch Klassifikation, Gates und Selector. Vorgeschlagene Labels werden getrennt von bestätigter Ground Truth ausgewiesen; aktuell steht jeder Label-Eintrag auf `confirmed: false`.
 - `tests/test_agent_architecture.py` prüft Korpustrennung, Indexausschluss, Agentenpolicy, Budgets und Evidenztrennung.
 - `tests/test_analysis_flow.py` prüft Journey, RAG-Bereinigung, Persistenz, Opportunities und Blueprint.
@@ -199,7 +204,7 @@ Es gibt keine serverseitige PDF-Bibliothek. Der `mailto:`-Kontakt hängt den Ber
 - `tests/test_ux_journey.py` prüft die vollständige sichtbare Journey und den Kundenbericht.
 - `tests/test_recommendation_catalog.py` und `tests/test_recommendation_experience.py` prüfen Katalog, Selector, vier Referenzfälle, direkte Ansprache und Feldgrenzen.
 - `tests/test_llm_classification.py` prüft Katalogkontext, typisierte Ergebnisse, Begrenzung auf drei Familien und den unveränderten Keyword-Fallback ausschließlich mit gemockten OpenAI-Aufrufen.
-- Letzter vollständiger Lauf am 2026-08-06: 121 Tests bestanden.
+- Letzter vollständiger Lauf am 2026-08-06: 135 Tests bestanden.
 
 ## Aktuelle Architektur
 
@@ -233,4 +238,4 @@ Jinja2/FastAPI UI
 → PostgreSQL und Kundenausgabe
 ```
 
-Der verbleibende Zielpunkt ist ein begrenzter, sicher evaluierter Function-Calling-Loop. Er ist nicht Teil des aktuellen integrierten Stands. Deterministische Sicherheits-, Budget-, Fakten- und Freigaberegeln bleiben auch bei einer späteren Einführung verbindlich. Der Recommendation Layer selbst benötigt weiterhin keinen zusätzlichen Solution-FAISS-Index.
+Der verbleibende Zielpunkt ist ein begrenzter, sicher evaluierter Function-Calling-Loop. Er ist nicht Teil des aktuellen integrierten Stands. Deterministische Sicherheits-, Budget-, Fakten- und Freigaberegeln bleiben auch bei einer späteren Einführung verbindlich. Der kleine Solution-Workflow-Index ergänzt den deterministischen Selector nur um die Auswahl einer passenden Workflowvariante. Er besitzt keine Entscheidungshoheit; bei fehlendem Index ist die direkte Auswahl innerhalb desselben Solution Patterns der sichere Fallback.

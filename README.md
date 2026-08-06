@@ -35,7 +35,7 @@ Das Ergebnis beschreibt KI konkret über Eingabe, KI-Aufgabe, Ergebnis und mensc
 - HTML, CSS und JavaScript
 - PostgreSQL, SQLAlchemy und Alembic
 - OpenAI Structured Outputs
-- zwei getrennte FAISS-Indizes
+- drei getrennte FAISS-Indizes mit sicherem deterministischem Fallback für das kleine Solution-Wissen
 - pytest
 
 ## Voraussetzungen
@@ -62,9 +62,10 @@ Die vorhandenen produktiven Indizes müssen für den normalen Start nicht neu ge
 ## Wissen und Agent
 
 - Diagnoseindex: 634 freigegebene Chunks aus dem bisherigen, jetzt unter `knowledge/archive/` liegenden Korpus. Der produktive Index wurde bei der Umordnung nicht neu gebaut.
-- Agent-Pattern-Index: 205 optionale Patterns; die direkt geladene Fragevorlage liegt unter `knowledge/runtime/patterns/`, weitere bisherige Quellen unter `knowledge/archive/`.
-- Strukturierter Recommendation-Katalog: `knowledge/runtime/recommendation_catalog.json` mit zwölf Problemfamilien, zehn Solution Patterns und einer validierten Zuordnungsmatrix ohne zusätzlichen Vektorindex.
-- Evaluationen: 91 getrennte Fälle unter `knowledge/evaluation/`, die niemals indexiert werden. Vorbelegte erwartete Labels bleiben bis zur fachlichen Bestätigung ausdrücklich Vorschläge und keine Ground Truth.
+- Agent-Pattern-Index: 205 optionale Patterns; direkt geladene Fragevorlagen und 27 geprüfte Batch-09-Inference-Patterns liegen getrennt unter `knowledge/runtime/patterns/`. Inference-Patterns bleiben immer unbestätigte Hypothesen.
+- Strukturierter Recommendation-Katalog: `knowledge/runtime/recommendation_catalog.json` mit zwölf Problemfamilien, zehn Solution Patterns und einer validierten Zuordnungsmatrix. Zehn Batch-09-Output-Strukturen werden deterministisch geladen.
+- Solution-Wissen: 28 kontrollierte Runtime-Workflows; 27 positive Workflows liegen im getrennten `solution_workflow_index`, der dokumentarische SP-04-Ausschluss nicht. Bei fehlendem Index greift eine direkte deterministische Auswahl desselben Solution Patterns.
+- Evaluationen: 91 Legacy-Fälle plus 30 getrennte Batch-09-Fälle unter `knowledge/evaluation/`, die niemals indexiert werden. Alle Labels bleiben bis zur fachlichen Bestätigung Vorschläge und keine Ground Truth.
 - Agentenaktionen: `ASK`, `CLARIFY`, `RETRIEVE`, `ANALYZE`, `STOP`.
 - Werkzeuge: `extract_process_state`, `search_diagnostic_knowledge`, `evaluate_readiness_and_next_action`.
 

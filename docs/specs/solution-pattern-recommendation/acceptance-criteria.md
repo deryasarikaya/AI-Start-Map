@@ -62,6 +62,8 @@ Zusätzlich enthält sie eine Ergebnisvorschau, ein bis drei Nutzenpunkte, null 
 - Eine Voraussetzung wird nur verlangt, wenn sie die Eignung, Sicherheit oder menschliche Prüfung tatsächlich verändert.
 - Rückfragen werden nur gestellt, wenn ihre Antwort Problemfamilie, Reifegrad, Lösung oder Freigabe verändert.
 - Kein semantischer Retrievaltreffer kann allein ein Sicherheits- oder Freigabegate aufheben.
+- Output-Strukturen werden deterministisch nach Solution Pattern gewählt; Beispielwerte werden nie zu Kundenwerten.
+- Inference Patterns bleiben unbestätigte Hypothesen. Solution-Retrieval darf nur innerhalb des bereits gewählten Patterns Varianten ranken.
 
 ## Technischer Nachweis vor Abnahme
 

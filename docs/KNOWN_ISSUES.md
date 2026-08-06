@@ -125,8 +125,8 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 - **Status:** Investigating
 - **Beobachtung:** Die produktiven FAISS-Artefakte wurden bei der Knowledge-Umordnung nicht verändert. Der Diagnoseindex bleibt lauffähig, basiert aber weiterhin auf dem bisherigen Korpus. Dessen Quellen liegen nun unter `knowledge/archive/` und werden von den bestehenden Loadern für Kompatibilität und reproduzierbare Indexprüfungen weiter gelesen.
 - **Erwartetes Verhalten:** Ein späterer, fachlich freigegebener Zielkorpus besitzt einen reproduzierbar gebauten und validierten Diagnoseindex; Evaluationen bleiben ausgeschlossen.
-- **Mögliche Ursachen:** Der aktuelle Auftrag ordnet Dateien und Pfade, autorisiert aber weder Batch-09-Integration noch Index-Neubau.
-- **Nächster Prüfschritt:** Die geprüften Batch-09-Rollen kontrolliert integrieren; den alten Diagnoseindex dabei höchstens als klaren Legacy-Fallback verwenden. Ein Ersatz oder Neubau bleibt von einem nachgewiesenen fachlichen Mehrwert abhängig.
+- **Mögliche Ursachen:** Der Legacy-Index enthält weiterhin frühere Zielgruppenbeispiele; Batch 09 liefert bewusst Lösungs- statt vollständiges Diagnosewissen.
+- **Nächster Prüfschritt:** Im finalen Analysepfad messen, ob Legacy-Diagnose-Retrieval noch einen sicheren Mehrwert liefert; andernfalls auf klaren Fallback reduzieren oder entfernen.
 - **Betroffene Dateien:** `app/rag_service.py`, `knowledge/archive/`, `knowledge/candidates/batch_09/RESEARCH_AUFTRAG.md`, `data/vector_index/`.
 
 ## KI-008 – Batch-09-Antwortzweige und Branchenvarianten sind noch nicht real kalibriert
@@ -134,7 +134,7 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 - **Status:** Investigating
 - **Beobachtung:** Formale Prüfung und Fachstichprobe sind bestanden. Die Antwortzweige der Inference Patterns sind jedoch schematisch, und die konkreten Branchenworkflows sind quellenbasierte Synthesen statt bestätigte Beobachtungen realer AI-Start-Map-Betriebe.
 - **Erwartetes Verhalten:** Patterns steuern nur überprüfbare Hypothesen und notwendige Rückfragen; Runtime-Auswahl und sichtbarer Output bleiben an bestätigte Nutzerfakten und deterministische Grenzen gebunden.
-- **Nächster Prüfschritt:** Kontrollierte Runtime-Kopien integrieren und die fünf Mentor-Demofälle sowie spätere echte Interviews getrennt auswerten.
+- **Nächster Prüfschritt:** Die integrierten Runtime-Kopien mit den fünf Mentor-Demofällen sowie späteren echten Interviews getrennt auswerten.
 - **Betroffene Dateien:** `knowledge/candidates/batch_09/`, `docs/BATCH_09_FACHPRUEFUNG.md`.
 
 ## UX-001 – Reale Geräte- und Druckabnahme ist noch nicht vollständig bestätigt

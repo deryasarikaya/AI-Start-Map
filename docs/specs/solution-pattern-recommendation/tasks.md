@@ -31,6 +31,8 @@
 | RAG-Zuverlässigkeit | Nach Promptbereinigung leere Chunks ohne Zuordnungsverschiebung überspringen. | Done | Isolierter Regressionstest bestanden |
 | RAG-Zuverlässigkeit | Vor jedem Index-Promote getrennte vollständige Diagnose-/Agenten-Backups erzeugen. | Done | Zwei Promotes, zwei validierbare Backups und validierbare Produktion getestet |
 | RAG-Zuverlässigkeit | FAISS-Indizes pro Prozess und Verzeichnis mit mtime-Invalidierung cachen. | Done | Wiederverwendung, Reload nach Dateiänderung und Fehlerpfad für fehlende Dateien getestet |
+| Batch 09 | Output-Strukturen, Inference Patterns, Workflows und Evaluationen nach Datenrolle trennen. | Done | Pydantic-Loader, reproduzierbare Promotion und 30 ausgeschlossene Evaluationen |
+| Batch 09 | Solution-Workflow-Index getrennt bauen und direkten Fallback erhalten. | Done | 27 positive Chunks, SP-04/Evaluationen ausgeschlossen, Index validiert |
 
 ## Statuswerte
 

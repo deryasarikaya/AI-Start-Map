@@ -108,7 +108,7 @@ Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest
 - **Datum:** 2026-08-05 (Aufnahmedatum)
 - **Entscheidung:** Zuerst entsteht ein kleiner, hochwertiger und fachlich geprüfter Solution-Pattern-Katalog. Erst danach wird er technisch durch Codex integriert.
 - **Grund:** Ungeprüfte Lösungsmuster würden die Recommendation-Qualität nicht verlässlich verbessern und könnten neue Fehlentscheidungen erzeugen.
-- **Konsequenzen:** Der fachlich geprüfte Katalog liegt versioniert unter `knowledge/runtime/`; ein zusätzlicher Solution-Index bleibt ausgeschlossen.
+- **Konsequenzen:** Der fachlich geprüfte Katalog liegt versioniert unter `knowledge/runtime/`; ein späterer Variantenindex darf seine Entscheidungshoheit nicht ersetzen.
 - **Alternativen:** Sofortige automatische Generierung und Indexierung vieler Solution Patterns wurde nicht gewählt.
 - **Status:** Implemented and tested
 
@@ -119,7 +119,7 @@ Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest
 - **Grund:** Zehn strukturierte Patterns lassen sich nachvollziehbarer filtern und testen als über einen weiteren semantischen Top-k; ein zusätzlicher Index löst die belegte Konkurrenz defensiver Treffer nicht automatisch.
 - **Konsequenzen:** Der Diagnoseindex bleibt unverändert. Der JSON-Katalog wird direkt geladen und seine Auswahl getrennt als Recommendation-Kontext an die finale Analyse übergeben.
 - **Alternativen:** Neuer Solution-FAISS-Index oder unmittelbare Auswahl allein aus Diagnose-Top-k wurden für den ersten Schritt nicht gewählt.
-- **Status:** Implemented, integrated and tested
+- **Status:** Teilweise superseded durch DEC-021; die Trennung und deterministische Entscheidungshoheit bleiben gültig
 
 ## DEC-014 – Solution-Auswahl nutzt getrennte Gates
 
@@ -152,7 +152,7 @@ Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest
 - **Datum:** 2026-08-06
 - **Entscheidung:** Zwölf Problemfamilien und zehn Solution Patterns werden direkt aus validierten Dateien geladen; sechs getrennte Gates filtern und priorisieren. Diagnose-RAG entscheidet nicht allein.
 - **Grund:** Semantisches Top-k kann konkrete Lösungen verdrängen und vermischt heute Reifedimensionen.
-- **Konsequenzen:** Kein Solution-FAISS-Index, keine Embeddings, keine Migration.
+- **Konsequenzen:** Der Katalog und die Gates wählen weiterhin die Lösung. Ein später ergänzter Solution-Workflow-Index darf nur Varianten innerhalb des bereits gewählten Patterns ranken; keine Migration.
 - **Status:** Implemented, integrated, tested and documented
 
 ## DEC-018 – HTML/CSS-Prozesslinie bleibt verbindlich
@@ -179,3 +179,11 @@ Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest
 - **Konsequenzen:** Bestehende Loaderpfade werden angepasst. Der produktive Diagnoseindex wird nicht neu gebaut und bleibt vorübergehend auf seiner bisherigen, jetzt archivierten Quellenbasis. Archivquellen dürfen für diese Übergangskompatibilität weiter gelesen werden, ohne dadurch neue fachliche Runtime-Quellen zu werden.
 - **Alternativen:** Eine gemeinsame Ablage nach Research-Batch oder die unzutreffende Behauptung, das Archiv werde technisch gar nicht verwendet, wurden verworfen.
 - **Status:** Implemented and tested
+
+## DEC-021 – Batch-09-Rollen getrennt laden und Solution-Retrieval begrenzen
+
+- **Datum:** 2026-08-06
+- **Entscheidung:** Output-Strukturen werden deterministisch geladen, Inference Patterns bleiben unbestätigtes Rückfragewissen und 27 positive Solution Workflows liegen in einem eigenen kleinen Index. Der dokumentarische SP-04-Eintrag und Evaluationen werden nicht indexiert.
+- **Grund:** Die drei Datentypen besitzen unterschiedliche Vertrauens- und Laufzeitrollen. Semantische Suche kann eine Branchenvariante auswählen, darf aber weder Gates noch den Katalog-Selector ersetzen.
+- **Konsequenzen:** Harte Filterung nur nach dem bereits gewählten Solution Pattern; Kanäle und Betriebstyp nur als Soft-Boost. Bei fehlendem Index greift direkte deterministische Auswahl. Der ungemessene Source-Strength-Abzug von 0,15/0,08 ist neutralisiert.
+- **Status:** Implemented, integrated and tested; fachliche Kalibrierung mit echten Betrieben bleibt offen

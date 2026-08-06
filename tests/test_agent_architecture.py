@@ -307,7 +307,7 @@ def test_tool_loop_and_autonomous_execution_are_stopped() -> None:
     )
 
 
-def test_low_strength_sources_are_deterministically_downranked() -> None:
+def test_uncalibrated_source_strength_penalty_is_neutralized() -> None:
     high = rag_service.KnowledgeChunk(
         chunk_id="high",
         chunk_type="diagnostic_pattern",
@@ -327,7 +327,7 @@ def test_low_strength_sources_are_deterministically_downranked() -> None:
     ranked = rag_service._rank_with_source_strength(
         [0.80, 0.85], [0, 1], [high, low]
     )
-    assert [chunk.chunk_id for chunk in ranked] == ["high", "low"]
+    assert [chunk.chunk_id for chunk in ranked] == ["low", "high"]
 
 
 def _retrieval_chunk(chunk_id: str, chunk_type: str) -> rag_service.KnowledgeChunk:

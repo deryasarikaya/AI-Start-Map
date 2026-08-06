@@ -1,6 +1,6 @@
 # Fachprüfung Batch 09
 
-**Status:** Review abgeschlossen; ausgewählte Inhalte für eine kontrollierte Runtime-Übernahme geeignet, noch nicht integriert
+**Status:** Review abgeschlossen; kontrollierte Runtime-Kopien integriert und getestet
 
 **Prüfdatum:** 2026-08-06
 
@@ -74,9 +74,9 @@ Am Research-Original wurden keine stillen inhaltlichen Änderungen vorgenommen. 
 
 | Bereich | research_proposed | reviewed | runtime_approved |
 |---|---:|---:|---:|
-| 27 Inference Patterns | ja | Stichprobe 9/27 | nein; nur nach typisierter Hypothesenlogik |
-| 28 Solution Workflows | ja | Stichprobe 10/28 | nein; erst nach Rollen-Normalisierung und Ausschluss SP-04 |
-| 10 Output-Strukturen | ja | 10/10 | bedingt; nach Pydantic-Validierung und SP-04-Verschärfung |
+| 27 Inference Patterns | ja | Stichprobe 9/27 | ja; ausschließlich als unbestätigte Hypothesen und Rückfragewissen |
+| 28 Solution Workflows | ja | Stichprobe 10/28 | ja; 27 positive Workflows, SP-04 nur dokumentarisch |
+| 10 Output-Strukturen | ja | 10/10 | ja; Pydantic-validiert und SP-04 menschlich verschärft |
 | 30 Evaluationen | ja | 30 strukturell, 12 fachlich | nein; Evaluation bleibt niemals Runtime-Wissen |
 
-`reviewed` bedeutet hier eine nachvollziehbare Fach- und Strukturprüfung, nicht bestätigte Wahrheit. `runtime_approved` wird erst gesetzt, wenn die kontrollierte Kopie geladen, getestet und im tatsächlichen Laufzeitpfad verwendet wird.
+`reviewed` bedeutet hier eine nachvollziehbare Fach- und Strukturprüfung, nicht bestätigte Wahrheit. `runtime_approved` kennzeichnet ausschließlich die kontrollierten Kopien unter `knowledge/runtime/`; die unveränderten Kandidaten bleiben `research_proposed`. Branchenbehauptungen werden dadurch nicht zu bestätigten Nutzerfakten.

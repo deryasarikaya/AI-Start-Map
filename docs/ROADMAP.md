@@ -32,7 +32,7 @@ Diese Roadmap enthält nur verbleibende geplante Arbeit. Der implementierte Reco
 
 ### Technische Arbeit
 
-- Die geprüften Batch-09-Rollen kontrolliert integrieren und den alten Diagnoseindex nur bei belegtem Bedarf als Legacy-Fallback verwenden; ein Neubau bleibt von einem gemessenen Mehrwert abhängig.
+- Den messbaren Mehrwert des kleinen Solution-Workflow-Indexes gegenüber der deterministischen Variantenwahl an Mentor- und späteren Realfällen bewerten.
 - Datenschutzarmes Korrelations- und Aufbewahrungskonzept für persistentes Tracing entscheiden, bevor eine neue Observability-Komponente entsteht.
 - Robustheit von Agent-Pattern-Treffern gegen reale Interviewformulierungen evaluieren; deterministische Guardrails unverändert beibehalten.
 - Rückwärtskompatible View-Abbildung mit älteren produktiven Analysen beobachten und bei belegten Altformaten ergänzen.

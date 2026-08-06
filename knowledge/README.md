@@ -10,7 +10,11 @@ knowledge/
 ├── README.md
 ├── runtime/
 │   ├── recommendation_catalog.json
-│   └── patterns/next_question_patterns.jsonl
+│   ├── output_structures.jsonl
+│   ├── patterns/
+│   │   ├── next_question_patterns.jsonl
+│   │   └── inference_patterns.jsonl
+│   └── solution_knowledge/solution_workflows.jsonl
 ├── candidates/
 │   ├── diagnostic_patterns_rb03.jsonl
 │   ├── legal_guardrails.jsonl
@@ -36,6 +40,14 @@ Hier liegen ausschließlich Dateien, die das Produkt direkt lädt:
 - `patterns/next_question_patterns.jsonl`: direkt geladene Fragevorlagen;
   verwendet durch `app/agent_service.py` und als eine Quelle des bestehenden
   Agent-Pattern-Korpus.
+- `patterns/inference_patterns.jsonl`: 27 kontrollierte Hypothesen- und
+  Rückfragemuster. Sie werden nie als Nutzerfakt übernommen.
+- `output_structures.jsonl`: zehn deterministisch geladene Ergebnisstrukturen;
+  Beispielwerte bleiben im Loader und werden nicht an den Kundenpayload
+  weitergereicht.
+- `solution_knowledge/solution_workflows.jsonl`: 28 kontrollierte Workflows.
+  Davon sind 27 positive Workflows indexierbar; SP-04 bleibt ein
+  dokumentarischer Ausschluss.
 
 ## `candidates/`
 
@@ -53,7 +65,8 @@ integriert und nicht indexiert:
 ## `evaluation/`
 
 `expected_labels.json` und die vier Dateien `cases_*.json` bilden zusammen 91
-Test- und Demo-Fälle. Sie sind ausschließlich für Evaluation und Demo-Fixtures
+Legacy-Test- und Demo-Fälle. `batch_09_evaluation_cases.jsonl` enthält 30
+getrennte Fälle für die neue Zielgruppe. Sie sind ausschließlich für Evaluation und Demo-Fixtures
 bestimmt und dürfen niemals indexiert werden. `scripts/evaluate.py` und die
 Demo-Route lesen sie direkt; sie sind kein Produktwissen.
 
@@ -83,4 +96,4 @@ freigegebener Ersatz oder Neubau sind getrennte Vorhaben und nicht Teil dieser
 Änderung.
 
 Evaluationsdateien bleiben durch explizite Allow-Lists und verbotene
-Indexmarker außerhalb beider Indizes.
+Indexmarker außerhalb aller drei Indizes.

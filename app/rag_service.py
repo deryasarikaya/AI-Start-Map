@@ -27,6 +27,15 @@ MANIFEST_FILE = INDEX_DIRECTORY / "manifest.json"
 DIAGNOSTIC_TEST_INDEX_DIRECTORY = ROOT_DIRECTORY / "data" / "vector_index_test"
 AGENT_INDEX_DIRECTORY = ROOT_DIRECTORY / "data" / "agent_pattern_index"
 AGENT_TEST_INDEX_DIRECTORY = ROOT_DIRECTORY / "data" / "agent_pattern_index_test"
+SOLUTION_INDEX_DIRECTORY = ROOT_DIRECTORY / "data" / "solution_workflow_index"
+SOLUTION_TEST_INDEX_DIRECTORY = ROOT_DIRECTORY / "data" / "solution_workflow_index_test"
+SOLUTION_WORKFLOW_FILE = (
+    ROOT_DIRECTORY
+    / "knowledge"
+    / "runtime"
+    / "solution_knowledge"
+    / "solution_workflows.jsonl"
+)
 INDEX_BACKUP_DIRECTORY = ROOT_DIRECTORY / "data" / "index_backups"
 INDEX_FILE_NAME = "knowledge.faiss"
 METADATA_FILE_NAME = "chunks.json"
@@ -94,7 +103,7 @@ class DuplicateReport:
     near_duplicates: tuple[tuple[str, str, float], ...]
 
 
-IndexKind = Literal["diagnostic", "agent"]
+IndexKind = Literal["diagnostic", "agent", "solution"]
 IndexCacheSignature = tuple[int, int]
 IndexCacheEntry = tuple[IndexCacheSignature, Any, list[KnowledgeChunk]]
 
@@ -361,6 +370,32 @@ def load_agent_pattern_chunks() -> list[KnowledgeChunk]:
     return chunks
 
 
+def load_solution_workflow_chunks() -> list[KnowledgeChunk]:
+    if not SOLUTION_WORKFLOW_FILE.is_file():
+        raise RagConfigurationError(
+            f"Solution-Workflow-Datei fehlt: {SOLUTION_WORKFLOW_FILE}"
+        )
+    chunks = [
+        chunk
+        for chunk in _parse_jsonl_file(SOLUTION_WORKFLOW_FILE)
+        if chunk.metadata.get("batch_scope") == "in_scope"
+    ]
+    if len(chunks) != 27:
+        raise RagConfigurationError(
+            "Der Solution-Korpus muss 27 positive Workflows enthalten; "
+            "der dokumentarische SP-04-Ausschluss darf nicht indexiert werden."
+        )
+    if any(
+        chunk.metadata.get("quality_status") != "runtime_approved"
+        for chunk in chunks
+    ):
+        raise RagConfigurationError(
+            "Nur runtime-freigegebene Solution Workflows dürfen indexiert werden."
+        )
+    _validate_chunks(chunks)
+    return chunks
+
+
 def _normalized_tokens(content: str) -> set[str]:
     return {
         token.casefold()
@@ -437,11 +472,12 @@ def build_vector_index(
     index_kind: IndexKind = "diagnostic",
     output_directory: Path = INDEX_DIRECTORY,
 ) -> bool:
-    chunks = (
-        load_diagnostic_chunks()
-        if index_kind == "diagnostic"
-        else load_agent_pattern_chunks()
-    )
+    if index_kind == "diagnostic":
+        chunks = load_diagnostic_chunks()
+    elif index_kind == "agent":
+        chunks = load_agent_pattern_chunks()
+    else:
+        chunks = load_solution_workflow_chunks()
     embedding_model = get_embedding_model()
     corpus_hash = _corpus_hash(chunks, embedding_model)
     index_file, metadata_file, manifest_file = _index_paths(output_directory)
@@ -695,15 +731,13 @@ def _rank_with_source_strength(
     positions: Iterable[int],
     chunks: list[KnowledgeChunk],
 ) -> list[KnowledgeChunk]:
-    penalties = {"low": 0.15, "derived_from_low": 0.08}
+    # Source strength bleibt als Transparenzmetadatum erhalten. Der frühere
+    # pauschale Abzug von 0,15 beziehungsweise 0,08 war nicht gegen die
+    # Retrieval-Evaluation kalibriert und wird deshalb neutralisiert.
     ranked = sorted(
         (
             (
-                float(score)
-                - penalties.get(
-                    str(chunks[position].metadata.get("source_strength", "")),
-                    0.0,
-                ),
+                float(score),
                 position,
             )
             for score, position in zip(scores, positions, strict=True)
@@ -713,6 +747,47 @@ def _rank_with_source_strength(
         reverse=True,
     )
     return [chunks[position] for _adjusted_score, position in ranked]
+
+
+def retrieve_solution_workflows(
+    query: str,
+    *,
+    solution_pattern_id: str,
+    business_type: str | None = None,
+    channels: set[str] | None = None,
+    top_k: int = 2,
+) -> list[KnowledgeChunk]:
+    if top_k < 1:
+        raise ValueError("top_k muss positiv sein.")
+    index, chunks = _load_index_from(SOLUTION_INDEX_DIRECTORY)
+    query_vector = np.asarray(embed_texts([query]), dtype="float32")
+    if query_vector.ndim != 2 or query_vector.shape[0] != 1:
+        raise RagConfigurationError("Die Lösungssuche konnte nicht vorbereitet werden.")
+    faiss.normalize_L2(query_vector)
+    scores, positions = index.search(query_vector, len(chunks))
+    normalized_business = (business_type or "").casefold()
+    confirmed_channels = {item.casefold() for item in channels or set()}
+    ranked: list[tuple[float, KnowledgeChunk]] = []
+    for score, position in zip(scores[0], positions[0], strict=True):
+        if position < 0:
+            continue
+        chunk = chunks[position]
+        if chunk.metadata.get("solution_pattern_id") != solution_pattern_id:
+            continue
+        adjusted_score = float(score)
+        if (
+            normalized_business
+            and str(chunk.metadata.get("business_type", "")).casefold()
+            == normalized_business
+        ):
+            adjusted_score += 0.03
+        metadata_channels = {
+            item.casefold() for item in _as_string_list(chunk.metadata.get("channels"))
+        }
+        adjusted_score += min(0.03, 0.01 * len(confirmed_channels & metadata_channels))
+        ranked.append((adjusted_score, chunk))
+    ranked.sort(key=lambda item: (-item[0], item[1].chunk_id))
+    return [chunk for _score, chunk in ranked[:top_k]]
 
 
 def retrieve_chunks(

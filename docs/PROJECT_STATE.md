@@ -1,7 +1,7 @@
 # AI Start Map – Projektstand
 
 **Last Updated:** 2026-08-06
-**Verifizierter Code-Stand:** Branch `feature/gate-cascade-quality`; Knowledge nach Runtime, Candidates, Evaluation und Archive geordnet; Phase-1-RAG-Zuverlässigkeit und semantische Problemklassifikation integriert; vollständige Suite mit 121 Tests grün
+**Verifizierter Code-Stand:** Branch `feature/gate-cascade-quality`; Batch-09-Knowledge-Rollen kontrolliert integriert; semantische Problemklassifikation und deterministischer Selector aktiv
 **Pflegehinweis:** Diese Datei beschreibt den bestätigten heutigen Stand. Planung, offene Probleme, Entscheidungen und Änderungshistorie stehen in den übrigen Dokumenten unter `docs/`.
 
 ## Produktstand
@@ -39,7 +39,9 @@ Texteingabe bleibt immer verfügbar. Die numerische Session-ID wird in der öffe
 - Der Diagnoseindex umfasst laut Manifest 634 Chunks; der getrennte Agent-Pattern-Index umfasst 205 Patterns.
 - Die Knowledge-Struktur trennt direkt geladene Dateien unter `knowledge/runtime/`, noch nicht integrierte Fachkandidaten unter `knowledge/candidates/`, niemals indexierbare Test- und Demo-Fälle unter `knowledge/evaluation/` und Herkunftsartefakte unter `knowledge/archive/`.
 - Der bestehende Diagnoseindex wurde nicht neu gebaut und basiert weiterhin auf dem bisherigen Korpus, dessen Quellen jetzt archiviert sind. `app/rag_service.py` liest diese Archivquellen vorübergehend weiter, damit Indexprüfung und bestehende Buildpfade funktionieren; `archive/` ist daher noch nicht technisch unbenutzt.
-- Die vollständige Batch-09-Lieferung liegt unverändert als Kandidat vor. Ihre Mengen, IDs, Quellenreferenzen und Evaluationsverteilung sind formal geprüft; neun Inference Patterns, zehn Workflows, alle zehn Output-Strukturen und zwölf Evaluationen wurden fachlich näher gelesen. Noch sind keine Batch-09-Loader, Runtime-Kopien oder Indexinhalte integriert. Reviewgrenzen stehen in `docs/BATCH_09_FACHPRUEFUNG.md`.
+- Die vollständige Batch-09-Lieferung bleibt unverändert als Kandidat erhalten. Kontrolliert generierte Runtime-Kopien enthalten 27 Inference Patterns, 28 Solution Workflows und 10 Output-Strukturen; 30 Evaluationen liegen ausschließlich unter `knowledge/evaluation/`. Herkunft, Normalisierungen und Reviewgrenzen stehen in `docs/BATCH_09_FACHPRUEFUNG.md`.
+- `app/solution_knowledge.py` validiert und lädt die drei Runtime-Rollen. Output-Beispielwerte werden nicht in den Modell- oder Kundenkontext weitergegeben; SP-04 bleibt ein dokumentarischer Ausschluss.
+- Der getrennte Solution-Workflow-Index enthält 27 positive Workflows. Eine Anfrage wird aus bestätigter Problemfamilie, ausgewähltem Solution Pattern, konkretem Engpass und erkannten digitalen Kanälen gebildet. Fehlt der Index, bleibt die deterministische Auswahl innerhalb desselben Patterns arbeitsfähig.
 - Diagnose- und Agentenindex werden pro Prozess und Indexverzeichnis im Speicher wiederverwendet. Ändert sich die mtime der FAISS- oder Metadatendatei, wird der betroffene Cache beim nächsten Abruf neu geladen; fehlende Dateien bleiben ein Konfigurationsfehler.
 - Vor jeder Übernahme validierter Testindizes werden beide aktuellen Produktionsindizes vollständig unter `data/index_backups/<timestamp>/diagnostic/` und `data/index_backups/<timestamp>/agent/` gesichert. Jeder Promote erzeugt ein neues Backup; das historische Pre-Batch-04-Archiv bleibt unverändert.
 - Die Analyse-Retrieval-Auswahl reserviert Diagnosemuster, konkretes Automationsmuster, Implementierungsvoraussetzung und Guardrail, bevor weitere Treffer auffüllen.
@@ -48,14 +50,14 @@ Texteingabe bleibt immer verfügbar. Die numerische Session-ID wird in der öffe
 - `retrieve_agent_patterns()` wird im Interviewpfad kontrolliert aufgerufen. Erlaubte Entscheidungs-, Frage-, Widerspruchs-, Stop-, Werkzeug- und Guardrail-Muster unterstützen den internen Fragekontext.
 - Budgets, No-Repeat, Schleifenstopp, Fact-Immutability, Stopwunsch, Verbot autonomer Ausführung und kritische Freigabegrenzen bleiben deterministisch in Python.
 - Echtes OpenAI Function Calling ist nicht integriert. Der bestehende sichere Controller mit optionalem Pattern-Retrieval wurde bewusst beibehalten; Function Calling bleibt ein getrennt zu evaluierender Schritt.
-- Evaluationen bleiben außerhalb beider Indizes. RAG- und Agentenwissen werden niemals zu Nutzerfakten.
+- Evaluationen bleiben außerhalb aller drei Indizes. RAG-, Agenten- und Solution-Wissen werden niemals zu Nutzerfakten.
 
 ## Technik und Persistenz
 
 - Python, FastAPI, Jinja2, PostgreSQL, SQLAlchemy 2.x, Alembic und Pydantic.
 - Die fünf Tabellen `sessions`, `interview_questions`, `process_options`, `analyses` und `automation_opportunities` bleiben unverändert.
 - Neue Analysen speichern eine primäre Opportunity-Zeile und null bis zwei optionale sekundäre Zeilen.
-- Keine Datenbankmigration, kein Solution-FAISS-Index, keine neuen Embeddings und keine neue Produktionsabhängigkeit wurden benötigt.
+- Keine Datenbankmigration und keine neue Produktionsabhängigkeit wurden benötigt. Der kleine Solution-FAISS-Index wurde getrennt mit 27 Workflows und `text-embedding-3-small` gebaut; seine generierten Artefakte bleiben gitignoriert.
 - Die finale Analyse läuft weiterhin synchron im FastAPI-Request; Queue oder Background-Worker sind nicht implementiert.
 
 ## Ergebnisoberfläche und Bericht
@@ -69,7 +71,7 @@ Texteingabe bleibt immer verfügbar. Die numerische Session-ID wird in der öffe
 ## Verifikation
 
 - Das reproduzierbare Evaluation-Harness umfasst 91 getrennte Fälle. Alle 91 Label-Einträge stehen auf `confirmed: false`; 40 vorbelegte PF-/SP-Zuordnungen sind Vorschläge und keine bestätigte Ground Truth.
-- Vollständige Testsuite: `121 passed` am 2026-08-06; die Demo-Tests mocken den vorgeschalteten Klassifikator.
+- Vollständige Testsuite: `135 passed` am 2026-08-06; die Demo-Tests mocken den vorgeschalteten Klassifikator.
 - Phase-1-RAG-Regression: vier isolierte Tests für leere Chunks, zwei vollständige Promote-Backups, mtime-Cache-Invalidierung und fehlende Dateien bestanden.
 - Keyword-Evaluation nach Phase 1: PF Top-1 28 %, PF Top-3 38 %, SP Top-1 30 %, PF-01-Default 48 %, verbotene Inhalte 0 von 91; damit gegenüber der Keyword-Baseline fachlich unverändert.
 - Vorhandenes LLM-Eval-Artefakt: PF Top-1 65 %, PF Top-3 85 %, SP Top-1 70 %, PF-01-Default 3 %, zwei Klassifikatorfehler und ein Treffer eines verbotenen Begriffs. Dieser kostenpflichtige Lauf wurde in der aktuellen Sicherungsarbeit nicht wiederholt; seine Labels sind weiterhin unbestätigte Vorschläge.

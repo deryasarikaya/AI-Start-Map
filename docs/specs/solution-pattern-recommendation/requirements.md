@@ -18,6 +18,7 @@ Der Recommendation Layer wählt aus bestätigtem Prozessproblem, Problemfamilie 
 - kompakter neuer Kundenausgabevertrag und rückwärtskompatible Darstellung alter Analysen,
 - Falltests für Hausmeister, Schuhmacher, Blumenladen und Massagesalon.
 - technische Trennung von direkt geladenem Katalog und Fragepatterns, noch nicht integrierten Fachkandidaten, niemals indexierbaren Evaluationen und archivierten Herkunftsartefakten.
+- deterministische Batch-09-Output-Strukturen, unbestätigte Inference Patterns und getrenntes Solution-Workflow-Wissen mit sicherem direktem Fallback.
 
 ## Verbindliche Regeln
 
@@ -40,7 +41,7 @@ Der Outputvertrag entspricht `docs/specs/product-output/requirements.md`: eine p
 ## Nicht-Ziele
 
 - keine autonome Prozessausführung oder kritische Entscheidung,
-- kein neuer FAISS-Solution-Index, keine neuen Embeddings und keine Evaluation als Produktwissen,
+- kein Solution-Index mit eigener Entscheidungshoheit und keine Evaluation als Produktwissen,
 - keine neue Datenbanktabelle oder Migration ohne zwingenden Bedarf,
 - keine erfundenen Anbieter, APIs, Tools oder Einsparungszahlen,
 - kein Function Calling, wenn der bestehende sichere Controller nicht sauber erweitert werden kann.

@@ -23,6 +23,9 @@ Dieses Register ist die verbindliche Übersicht der Projekt-, Produkt- und Entwi
 | `docs/DOCUMENTATION_GUIDE.md` | Cheat Sheet und Pflegeprozess | Active | Detaillierte Dokumentationspflege | 2026-08-05 | 2026-08-05 | `.agents/skills/documentation-update/SKILL.md` |
 | `docs/product/AI_Start_Map_Fachgrundlage_Painpoints_Solutions_2026-08-05.md` | Fachliche Pain-Point-, Reifegrad- und Solution-Pattern-Grundlage | Active | Fachliche Grundlage für Pain Points, Reifegrad und Solution Patterns; keine Laufzeitlogik | 2026-08-05 | 2026-08-05 | `docs/specs/solution-pattern-recommendation/` |
 | `knowledge/runtime/recommendation_catalog.json` | Maschinenlesbare Problemfamilien, Solution Patterns und Matrix | Active | Direkt geladener, nicht indexierter Recommendation-Katalog | 2026-08-06 | 2026-08-06 | Fachgrundlage und Recommendation-Spec |
+| `knowledge/runtime/output_structures.jsonl` | Zehn deterministische Batch-09-Ergebnisstrukturen | Active | Runtime-Quelle für Feldstruktur und Human Check | 2026-08-06 | 2026-08-06 | `docs/BATCH_09_FACHPRUEFUNG.md` |
+| `knowledge/runtime/patterns/inference_patterns.jsonl` | 27 unbestätigte Hypothesen- und Rückfragemuster | Active | Kontrolliertes Agentenwissen, niemals Nutzerfakten | 2026-08-06 | 2026-08-06 | `docs/BATCH_09_FACHPRUEFUNG.md` |
+| `knowledge/runtime/solution_knowledge/solution_workflows.jsonl` | 28 kontrollierte Workflowvarianten | Active | Runtime-Quelle für Solution-Varianten; SP-04 nur dokumentarisch | 2026-08-06 | 2026-08-06 | Solution-Katalog und Fachprüfung |
 | `docs/flows/UX_FLOW.md` | Sichtbarer Nutzerflow und UX-Verträge | Active | Verbindliche Recommendation-Zielreise; Ist-Status im Projektstand | 2026-08-06 | 2026-08-06 | Product-Output- und Recommendation-Spec |
 | `docs/flows/PROCESSING_FLOW.md` | Processing-Zustände, Fehler- und Retry-Verhalten | Active | Aktueller Processing-Flow | 2026-08-06 | 2026-08-06 | `docs/ARCHITECTURE.md` |
 | `docs/specs/product-output/requirements.md` | Verbindlicher Product-Output-Vertrag | Active | Neuer kompakter Kundenoutput und Kompatibilitätsregeln | 2026-08-06 | 2026-08-06 | Recommendation-Spec und Fachgrundlage |
@@ -58,7 +61,7 @@ Dieses Register ist die verbindliche Übersicht der Projekt-, Produkt- und Entwi
 | `knowledge/archive/notes/AGENT_EVALUATION_REPORT.md` | Historischer Evaluationsbericht | Archived | Historischer Nachweis, nicht heutiger Teststand | 2026-07-26 | 2026-08-06 | `docs/PROJECT_STATE.md`, Tests |
 | `knowledge/archive/notes/RAG_INVENTORY.md` | RAG-Inventar vom 26.07.2026 | Archived | Historisches Inventar; aktueller Laufzeitstand in `docs/ARCHITECTURE.md` | 2026-07-26 | 2026-08-06 | Fachgrundlage, `docs/ARCHITECTURE.md` |
 | `knowledge/archive/notes/RAG_MERGE_PLAN.md` | Früherer Merge- und Build-Plan | Superseded | Keine aktuelle Planungs-Source-of-Truth | 2026-07-26 | 2026-08-06 | `docs/ARCHITECTURE.md`, `docs/ROADMAP.md` |
-| `knowledge/candidates/batch_09/RESEARCH_AUFTRAG.md` | Research-Auftrag für einen möglichen späteren Zielkorpus | Planned Candidate | Keine integrierte Runtime-Quelle | 2026-08-06 | 2026-08-06 | `docs/ROADMAP.md`, `docs/KNOWN_ISSUES.md` |
+| `knowledge/candidates/batch_09/` | Unveränderte Batch-09-Researchlieferung und Herkunft | Preserved Candidate | Herkunftsquelle; kontrollierte Kopien liegen unter `knowledge/runtime/` und `knowledge/evaluation/` | 2026-08-06 | 2026-08-06 | `docs/BATCH_09_FACHPRUEFUNG.md` |
 | `knowledge/README.md` | Verzeichnisführer für Knowledge-Artefakte | Active | Status und Grenzen der Knowledge-Ordner | 2026-08-06 | 2026-08-06 | `docs/ARCHITECTURE.md`, `docs/PROJECT_STATE.md` |
 
 ## Bewusst außerhalb von `docs/`
