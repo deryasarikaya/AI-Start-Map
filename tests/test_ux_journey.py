@@ -278,12 +278,14 @@ def test_complete_public_journey_and_customer_report(
     assert report.status_code == 200
     for text in (
         "AI START MAP",
-        "Derya Sarikaya",
-        "deryaxsarikaya@gmail.com",
-        "DEIN BESTER KI-HEBEL",
-        "MIT KI",
-        "VORSCHAU",
-        "UMSETZUNG",
+        "Deine Empfehlung",
+        "DAS IST DER ERKANNTE ENGPASS",
+        "DAS IST DIE EMPFOHLENE LÖSUNG",
+        "DAS KÖNNTE DEIN ZUKÜNFTIGER ABLAUF SEIN",
+        "Software / Regeln",
+        "BEISPIELAUSGABE · VORSCHAU",
+        "DAS PRÜFST DU SELBST",
+        "Wird nicht automatisiert",
         "Drucken / als PDF speichern",
     ):
         assert text in report.text

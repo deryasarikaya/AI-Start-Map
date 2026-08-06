@@ -89,7 +89,7 @@ Die Demos nutzen dieselbe Analyse- und Ergebnispipeline wie die normale Reise. F
 
 ## PDF und Kontakt
 
-Die kundenverständliche Druckansicht nutzt zwei Seiten für Hauptlösung und Umsetzung. Eine dritte Seite erscheint nur bei fachlich vorhandenen weiteren Möglichkeiten. Sie wird über den Browser-Druckdialog (`window.print()`) als PDF gespeichert. Interne IDs, Prompts, Modellnamen, Logs, Scores und fremde Unternehmensdaten werden nicht ausgegeben. Der Kontakt zu Derya erfolgt über einen Mailto-Link; die gespeicherte PDF muss anschließend selbst angehängt werden.
+Die kundenverständliche Druckansicht nutzt zwei logische Kernseiten: zuerst Engpass, Empfehlung, Zukunftsablauf, Rollen und gekennzeichnete Vorschau, danach Human Check, kleinsten Einstieg, Voraussetzungen, Grenzen und späteren Ausbau. Eine dritte Seite erscheint nur bei fachlich vorhandenen weiteren Möglichkeiten; sehr lange Inhalte dürfen auf zusätzliche A4-Seiten umbrechen. Gespeichert wird über den Browser-Druckdialog (`window.print()`). Interne IDs, Prompts, Modellnamen, Logs, Scores und fremde Unternehmensdaten werden nicht ausgegeben. Der Kontakt zu Derya erfolgt über einen Mailto-Link; die gespeicherte PDF muss anschließend selbst angehängt werden.
 
 ## Projektdokumentation
 

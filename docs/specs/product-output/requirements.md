@@ -64,4 +64,4 @@ Der Vertrag `recommendation-v3` wird ohne Migration in `analyses.uncertainties.c
 
 ## Druckbericht
 
-Die Browser-Druckansicht verwendet weiter `window.print()`. Seite 1 zeigt beste Lösung, Vorher/Nachher, KI-Ablauf, Vorschau und Human Check. Seite 2 zeigt Umsetzung, Voraussetzungen, offene Punkte, Fehlergrenzen und menschliche Entscheidungen. Eine dritte Seite erscheint nur bei fachlich vorhandenen sekundären Möglichkeiten; ein alleiniger späterer Ausbau bleibt auf Seite 2.
+Die Browser-Druckansicht verwendet weiter `window.print()`. Seite 1 zeigt Diagnosehinweis, Engpass, Empfehlung, zukünftigen Ablauf, Rollen und eindeutig gekennzeichnete Beispielausgabe. Seite 2 zeigt Human Check, kleinste nutzbare Version, Umsetzungsweg, Voraussetzungen, offene Angaben, Nicht-Automationen, Fehlergrenzen und späteren Ausbau. Eine dritte logische Seite erscheint nur bei fachlich vorhandenen sekundären Möglichkeiten. Lange Inhalte dürfen sauber auf zusätzliche physische Seiten umbrechen; leere Seiten, abgeschnittene Inhalte und übergroße Karten sind unzulässig.

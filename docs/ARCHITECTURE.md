@@ -194,7 +194,9 @@ Es existiert kein echtes OpenAI Function Calling. Das Modell erhält Daten und i
 
 ## PDF-Erstellung
 
-`app/templates/report.html` rendert zwei Kernseiten. Eine dritte Seite wird nur bei mindestens einer fachlich vorhandenen sekundären Möglichkeit erzeugt; ein alleiniger späterer Ausbau bleibt auf Seite 2. `app/static/styles.css` enthält Print-Regeln. Der Browser öffnet mit `window.print()` den Druckdialog; der Nutzer speichert dort selbst als PDF.
+`app/templates/report.html` rendert denselben strukturierten v3-Inhalt wie die Ergebnisansicht in zwei logischen Kernseiten. Seite 1 enthält Diagnosehinweis, Engpass, Hauptempfehlung, Zukunftsablauf, Rollen und gekennzeichnete Vorschau. Seite 2 enthält Human Check, kleinsten Einstieg, Umsetzungsweg, Voraussetzungen, Nicht-Automationen, offene Angaben, Fehlergrenzen und späteren Ausbau. Eine dritte logische Seite wird nur bei mindestens einer fachlich vorhandenen sekundären Möglichkeit erzeugt. Sehr lange Inhalte dürfen innerhalb einer logischen Seite auf weitere physische A4-Seiten umbrechen; Listenelemente und kompakte Karten bleiben dabei möglichst zusammen.
+
+`app/static/styles.css` setzt A4-Ränder, kompakte Drucktypografie und kontrollierte `break-inside`-Grenzen. Der Browser öffnet mit `window.print()` den Druckdialog; der Nutzer speichert dort selbst als PDF.
 
 Es gibt keine serverseitige PDF-Bibliothek. Der `mailto:`-Kontakt hängt den Bericht nicht automatisch an und behauptet dies auch nicht.
 

@@ -70,13 +70,13 @@ Texteingabe bleibt immer verfügbar. Die numerische Session-ID wird in der öffe
 - Nutzer-, KI-, Software-/Regel- und Menschenrolle stehen direkt am zukünftigen Ablauf; fehlende Angaben werden in der Vorschau und unter den Grenzen sichtbar offen gehalten.
 - Weitere Möglichkeiten und Diagnosekontext bleiben nachgeordnet.
 - Mermaid bleibt ausgeschlossen. Validierte strukturierte Schritte werden als responsive HTML-/CSS-Darstellung gerendert.
-- Der Browserbericht nutzt zwei Kernseiten. Seite 3 wird nur bei mindestens einer sekundären Möglichkeit gerendert; ein alleiniger späterer Ausbau bleibt auf Seite 2.
+- Der Browserbericht spiegelt den v3-Vertrag: Seite 1 enthält Diagnosehinweis, Engpass, Empfehlung, Zukunftsablauf, Rollen und gekennzeichnete Vorschau; Seite 2 Human Check, kleinsten Einstieg, Voraussetzungen, Grenzen, offene Angaben und späteren Ausbau. Seite 3 wird nur bei mindestens einer sekundären Möglichkeit gerendert.
 - PDF-Speicherung erfolgt weiterhin über `window.print()`; Kontakt bleibt ein normaler `mailto:`-Link ohne behaupteten automatischen Anhang.
 
 ## Verifikation
 
 - Das reproduzierbare Evaluation-Harness weist 91 Legacy-Fälle und 30 Batch-09-Fälle getrennt aus und mittelt ihre Werte nicht. Alle 40 vorbelegten Legacy-Zuordnungen stehen auf `confirmed: false`; Batch 09 bleibt `research_proposed`.
-- Vollständige Testsuite: `164 passed` am 2026-08-06; die Demo-Tests mocken den vorgeschalteten Klassifikator.
+- Vollständige Testsuite: `169 passed` am 2026-08-06; die Demo-Tests mocken den vorgeschalteten Klassifikator.
 - Phase-1-RAG-Regression: vier isolierte Tests für leere Chunks, zwei vollständige Promote-Backups, mtime-Cache-Invalidierung und fehlende Dateien bestanden.
 - Keyword-Evaluation nach Phase 1: PF Top-1 28 %, PF Top-3 38 %, SP Top-1 30 %, PF-01-Default 48 %, verbotene Inhalte 0 von 91; damit gegenüber der Keyword-Baseline fachlich unverändert.
 - Aktuelle Keyword-Messung mit Gate-Kaskade: Legacy 91 weiterhin PF Top-1 28 %, irgendein PF-Treffer 38 %, SP Top-1 30 %, PF-01 48 %, verbotene Auswahltexte 0/91. Batch 09 getrennt: 25 Fälle mit vorgeschlagenen nicht bestätigten Labels, PF Top-1 40 %, irgendein PF-Treffer 48 %, SP Top-1 36 %, PF-01 33 %, verbotene Auswahltexte 0/30. Die schwache Keyword-Baseline bleibt nur Fallback.
@@ -85,7 +85,7 @@ Texteingabe bleibt immer verfügbar. Die numerische Session-ID wird in der öffe
 - Python-Kompilierung: `python -m compileall app scripts` bestanden.
 - App-Start gegen die separate Testdatenbank geprüft; Landingpage antwortete mit HTTP 200.
 - Visuell geprüft: überarbeitete Ergebnisansicht bei Desktop- und schmalem Mobile-Viewport; H1 40/32 Pixel, H2 24 Pixel mobil, Karten und Rollen stapeln, lange Texte brechen um, kein horizontaler Seitenüberlauf, Hauptaktionen 48–55 Pixel.
-- Visuell geprüft: Bericht ohne sekundäre Möglichkeit rendert zwei Seiten und verschiebt den späteren Ausbau auf Seite 2.
+- Visuell geprüft: Bericht ohne sekundäre Möglichkeit rendert zwei vollständige A4-Seiten und hält den späteren Ausbau auf Seite 2. Ein künstlich langer Sechs-Seiten-Fall enthielt keine leere Seite, abgeschnittene Karte oder Überlagerung.
 - Nicht behauptet: vollständige Freigabe auf physischem Android/iPhone, Safari sowie allen nativen Druckdialogen.
 
 ## Weiterhin offen

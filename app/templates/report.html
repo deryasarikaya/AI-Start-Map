@@ -4,28 +4,72 @@
 <div class="print-toolbar"><p>Wähle im Druckdialog „Als PDF speichern“.</p><button class="primary-button" type="button" onclick="window.print()">Drucken / als PDF speichern</button></div>
 <article class="customer-report">
     <section class="report-page report-page-one">
-        <header class="report-header"><div><p class="eyebrow">AI START MAP</p><h1>Deine beste Lösung</h1><p>{{ process.process_name }} · {{ analysis_date }}</p></div><div class="report-contact"><strong>Derya Sarikaya</strong><span>deryaxsarikaya@gmail.com</span></div></header>
-        <div class="report-primary"><p class="section-kicker">DEIN BESTER KI-HEBEL</p><h2>{{ result.primary_recommendation }}</h2><p class="report-promise">{{ result.promise }}</p><p>{{ result.short_reason }}</p></div>
-        <div class="report-comparison"><section><p class="section-kicker">HEUTE</p><ol>{% for step in result.before_process %}<li>{{ step }}</li>{% endfor %}</ol></section><section><p class="section-kicker">MIT KI</p><ol>{% for step in result.future_process %}<li>{{ step }}</li>{% endfor %}</ol></section></div>
-        <div class="report-support"><dl><dt>Du gibst ein</dt><dd>{{ result.user_action }}</dd><dt>KI verarbeitet</dt><dd>{{ result.ai_task }}</dd><dt>Du erhältst</dt><dd>{{ result.visible_result }}</dd><dt>Du prüfst</dt><dd>{{ result.human_check }}</dd></dl></div>
-        <div class="report-sample"><p class="section-kicker">VORSCHAU · {{ result.sample_output.title }}</p><dl>{% for field in result.sample_output.fields %}<dt>{{ field.label }}</dt><dd>{{ field.value }}</dd>{% endfor %}</dl><p class="preview-notice">{{ result.sample_output.preview_notice }}</p></div>
+        <header class="report-header">
+            <div><p class="eyebrow">AI START MAP</p><h1>Deine Empfehlung</h1><p>{{ process.process_name }} · {{ analysis_date }}</p></div>
+            <p class="report-disclaimer">Diese Auswertung ist eine Diagnose und ein möglicher Umsetzungsweg – keine bereits fertige Implementierung.</p>
+        </header>
+
+        <section class="report-bottleneck" aria-labelledby="report-bottleneck-title">
+            <p class="section-kicker">DAS IST DER ERKANNTE ENGPASS</p>
+            <h2 id="report-bottleneck-title">{{ result.bottleneck.cause }}</h2>
+            <p>{{ result.short_reason }}</p>
+        </section>
+
+        <section class="report-primary" aria-labelledby="report-recommendation-title">
+            <div class="report-title-row"><p class="section-kicker">{% if result.autonomy_level == 'A0' %}EINFACHER NÄCHSTER SCHRITT{% else %}DAS IST DIE EMPFOHLENE LÖSUNG{% endif %}</p>{% if result.autonomy_level %}<span class="autonomy-badge">Autonomiestufe {{ result.autonomy_level }}</span>{% endif %}</div>
+            <h2 id="report-recommendation-title">{{ result.primary_recommendation }}</h2>
+            <p class="report-promise">{{ result.promise }}</p>
+        </section>
+
+        <section class="report-future" aria-labelledby="report-future-title">
+            <p class="section-kicker">DAS KÖNNTE DEIN ZUKÜNFTIGER ABLAUF SEIN</p>
+            <h2 id="report-future-title">So würde der neue Ablauf aussehen</h2>
+            <ol class="report-flow">{% for step in result.future_process %}<li><span>{{ loop.index }}</span><p>{{ step }}</p></li>{% endfor %}</ol>
+        </section>
+
+        <section class="report-support" aria-label="Rollen im zukünftigen Ablauf">
+            <dl>
+                <dt>Du</dt><dd>{{ result.user_action }}</dd>
+                <dt>KI</dt><dd>{{ result.ai_task }}</dd>
+                <dt>Software / Regeln</dt><dd>{% if result.software_rule %}{{ result.software_rule }}{% else %}Für diese ältere Auswertung ist keine eigene Regelaufgabe gespeichert.{% endif %}</dd>
+                <dt>Menschliche Prüfung</dt><dd>{{ result.human_check }}</dd>
+            </dl>
+        </section>
+
+        <section class="report-sample" aria-labelledby="report-output-title">
+            <div class="report-title-row"><div><p class="section-kicker">BEISPIELAUSGABE · VORSCHAU</p><h3 id="report-output-title">{% if result.sample_output.title %}{{ result.sample_output.title }}{% else %}Konkretes Ergebnis noch offen{% endif %}</h3></div><span class="preview-badge">Vorschau</span></div>
+            {% if result.sample_output.fields %}<dl>{% for field in result.sample_output.fields %}<dt>{{ field.label }}</dt><dd>{{ field.value }}</dd>{% endfor %}</dl>{% else %}<p>Für diese ältere Auswertung ist keine belastbare Vorschau gespeichert.</p>{% endif %}
+            {% if result.sample_output.attachments %}<p><strong>Mögliche Anlagen:</strong> {{ result.sample_output.attachments|join(', ') }}</p>{% endif %}
+            <p class="preview-notice">{% if result.sample_output.preview_notice %}{{ result.sample_output.preview_notice }}{% else %}Dies ist eine Vorschau. Fehlende Angaben bleiben noch offen.{% endif %}</p>
+        </section>
     </section>
 
     <section class="report-page report-page-two">
-        <header class="report-page-heading"><p class="eyebrow">UMSETZUNG</p><h2>So kann dein Einstieg aussehen</h2></header>
-        <ol class="report-plan">{% for step in result.implementation_path %}<li>{{ step }}</li>{% endfor %}</ol>
-        {% if result.required_prerequisites %}<div class="report-block"><h3>Das brauchst du</h3><ul>{% for item in result.required_prerequisites %}<li>{{ item }}</li>{% endfor %}</ul></div>{% endif %}
-        <div class="report-grid"><section><h3>Was du prüfst und entscheidest</h3><p>{{ result.human_check }}</p></section>{% if result.error_boundaries %}<section><h3>Fehlergrenzen</h3><ul>{% for item in result.error_boundaries %}<li>{{ item }}</li>{% endfor %}</ul></section>{% endif %}</div>
-        {% if result.sample_output.open_items or result.uncertainties %}<div class="report-block"><h3>Offene Punkte</h3><ul>{% for item in result.sample_output.open_items %}<li>{{ item }}</li>{% endfor %}{% for item in result.uncertainties %}<li>{{ item }}</li>{% endfor %}</ul></div>{% endif %}
-        {% if result.later_stage and not result.secondary_opportunities %}<div class="report-later"><p class="section-kicker">SPÄTERER AUSBAU</p><p>{{ result.later_stage }}</p></div>{% endif %}
-        <footer><h3>Du möchtest das gemeinsam umsetzen?</h3><p>Sende die gespeicherte PDF an Derya Sarikaya: <strong>deryaxsarikaya@gmail.com</strong></p></footer>
+        <header class="report-page-heading"><p class="eyebrow">SICHERER EINSTIEG</p><h2>Was du selbst prüfst und wie du klein beginnst</h2></header>
+
+        <div class="report-grid report-review-grid">
+            <section><p class="section-kicker">DAS PRÜFST DU SELBST</p><h3>Die Entscheidung bleibt bei dir</h3><p>{{ result.human_check }}</p></section>
+            <section><p class="section-kicker">SO KLEIN KANN DER ERSTE SCHRITT SEIN</p><h3>Kleinste nutzbare Version</h3><p>{% if result.smallest_usable_version %}{{ result.smallest_usable_version }}{% elif result.implementation_path %}{{ result.implementation_path[0] }}{% else %}Für diese ältere Auswertung ist noch kein belastbarer Einstieg gespeichert.{% endif %}</p></section>
+        </div>
+
+        {% if result.implementation_path %}<section class="report-block"><h3>Umsetzungsweg</h3><ol class="report-plan">{% for step in result.implementation_path %}<li>{{ step }}</li>{% endfor %}</ol></section>{% endif %}
+
+        <div class="report-grid report-boundaries">
+            <section><h3>Voraussetzungen</h3>{% if result.required_prerequisites %}<ul>{% for item in result.required_prerequisites %}<li>{{ item }}</li>{% endfor %}</ul>{% else %}<p>Keine zusätzlichen Voraussetzungen angegeben.</p>{% endif %}</section>
+            <section><h3>Wird nicht automatisiert</h3>{% if result.not_automated %}<ul>{% for item in result.not_automated %}<li>{{ item }}</li>{% endfor %}</ul>{% else %}<p>Für diese ältere Auswertung sind keine eigenen Grenzen gespeichert.</p>{% endif %}</section>
+        </div>
+
+        {% if result.open_details or result.sample_output.open_items or result.uncertainties %}<section class="report-block"><h3>Offene Angaben und Unsicherheiten</h3><ul>{% for item in result.open_details %}<li>{{ item }}</li>{% endfor %}{% for item in result.sample_output.open_items %}<li>{{ item }}</li>{% endfor %}{% for item in result.uncertainties %}<li>{{ item }}</li>{% endfor %}</ul></section>{% endif %}
+        {% if result.error_boundaries %}<section class="report-block"><h3>Fehler- und Prüfgrenzen</h3><ul>{% for item in result.error_boundaries %}<li>{{ item }}</li>{% endfor %}</ul></section>{% endif %}
+        {% if result.later_stage and not result.secondary_opportunities %}<section class="report-later"><p class="section-kicker">SPÄTERE AUSBAUSTUFE</p><p>{{ result.later_stage }}</p></section>{% endif %}
+        <footer><p><strong>AI Start Map</strong> · Diagnose und Entscheidungsvorbereitung. Die Umsetzung und jede fachliche Freigabe bleiben bei dir.</p></footer>
     </section>
 
     {% if result.secondary_opportunities %}<section class="report-page report-page-three">
-        <header class="report-page-heading"><p class="eyebrow">SPÄTERE MÖGLICHKEITEN</p><h2>Was danach sinnvoll werden kann</h2></header>
+        <header class="report-page-heading"><p class="eyebrow">OPTIONALE WEITERE MÖGLICHKEITEN</p><h2>Was danach sinnvoll werden kann</h2></header>
+        <p>Diese Möglichkeiten sind nachrangig. Zuerst muss die Hauptlösung mit den bestätigten Angaben zuverlässig funktionieren.</p>
         {% for item in result.secondary_opportunities %}<article class="report-block"><h3>{{ item.title }}</h3><p>{{ item.description }}</p></article>{% endfor %}
-        {% if result.later_stage %}<div class="report-later"><p class="section-kicker">SPÄTERER AUSBAU</p><p>{{ result.later_stage }}</p></div>{% endif %}
-        <p>Diese Möglichkeiten sind nachrangig, weil zuerst die Hauptlösung und ihre bestätigten Daten tragen müssen.</p>
+        {% if result.later_stage %}<section class="report-later"><p class="section-kicker">SPÄTERE AUSBAUSTUFE</p><p>{{ result.later_stage }}</p></section>{% endif %}
     </section>{% endif %}
 </article>
 {% endblock %}

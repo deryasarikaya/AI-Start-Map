@@ -68,11 +68,11 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 
 ## KI-006 – Ergebnisansicht und PDF waren zu groß oder textlastig
 
-- **Status:** Partially Fixed
-- **Beobachtung:** Die Hauptseite folgt jetzt einer festen achtteiligen Leserichtung von Engpass bis späterer Ausbaustufe. Desktop und ein schmaler Mobile-Viewport wurden im echten Browser geprüft: lange Überschriften und Ablauftexte brechen um, die Seite hat keinen horizontalen Überlauf, H1 liegt bei 40 beziehungsweise 32 Pixeln und die Hauptaktionen bei 48–55 Pixeln Höhe. Der Bericht wird im nächsten Qualitätspaket gesondert überarbeitet und erneut visuell geprüft.
+- **Status:** Verified Fixed
+- **Beobachtung:** Die Hauptseite folgt einer festen achtteiligen Leserichtung von Engpass bis späterer Ausbaustufe. Desktop und ein schmaler Mobile-Viewport wurden im echten Browser geprüft: lange Überschriften und Ablauftexte brechen um, die Seite hat keinen horizontalen Überlauf, H1 liegt bei 40 beziehungsweise 32 Pixeln und die Hauptaktionen bei 48–55 Pixeln Höhe. Der Bericht enthält denselben fachlichen Vertrag und wurde als echtes PDF geprüft: ein normaler Fall umfasst zwei vollständige A4-Seiten; ein absichtlich langer Fall bricht ohne leere oder abgeschnittene Seiten über sechs Seiten um.
 - **Erwartetes Verhalten:** Der Kernoutput ist schnell scanbar; Vertiefungen bleiben optional; eine dritte Seite entsteht nur bei echten weiteren Möglichkeiten.
 - **Mögliche Ursachen:** Noch zu verifizieren. Viele strukturierte Pflichtfelder, lange Modellausgaben und feste Berichtssektionen können sich kumulieren.
-- **Nächster Prüfschritt:** Druckansicht überarbeiten, exemplarisch als PDF rendern und anschließend die browserübergreifende Geräte- und Druckmatrix unter UX-001 weiterführen.
+- **Nächster Prüfschritt:** Die browserübergreifende Geräte- und Druckmatrix bleibt unter UX-001 offen; die Mentor-Demofälle müssen den Bericht noch mit ihren tatsächlichen Laufzeitdaten prüfen.
 - **Betroffene Dateien:** `app/templates/results.html`, `app/templates/report.html`, `app/static/styles.css`, `app/routes.py`.
 
 ## KI-007 – Problem erkannt, konkreter KI-Workflow nicht immer optimal
