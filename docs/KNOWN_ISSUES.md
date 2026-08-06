@@ -53,7 +53,7 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 - **Status:** Verified Fixed
 - **Beobachtung:** Katalog, Loader, Matrix und Selector sind implementiert, in den Analysepfad integriert und automatisiert getestet.
 - **Erwartetes Verhalten:** Der Recommendation Layer wählt aus einem fachlich freigegebenen strukturierten Katalog über Applicability- und Exclusion-Gates passende konkrete Workflows aus und begründet sie.
-- **Mögliche Ursachen:** Die fachliche Grundlage wurde bewusst vor die technische Integration gestellt. Der aktuelle Laufzeitpfad besitzt deshalb weiterhin keinen normalisierten Solution-Katalog.
+- **Historische Ursache:** Die fachliche Grundlage wurde zunächst vor die technische Integration gestellt; der normalisierte Katalog fehlte deshalb im früheren Laufzeitpfad.
 - **Nächster Prüfschritt:** Inhalt nur bei fachlich bestätigten Änderungen versioniert weiterpflegen.
 - **Betroffene Dateien:** `knowledge/structured/recommendation_catalog.json`, `app/recommendation_service.py`, `app/routes.py` und Katalogtests.
 
@@ -63,7 +63,7 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 - **Beobachtung:** Der neue Vertrag begrenzt Titel, Listen und Textfelder, erzwingt direkte Du-Ansprache und zeigt eine konkrete Vorschau. Die tatsächliche Modellformulierung muss im Betrieb weiter beobachtet werden.
 - **Erwartetes Verhalten:** Kurze deutsche Sätze, ein klarer nächster Schritt und konkrete Beschreibung von Eingabe, KI-Aufgabe, Ergebnis und menschlicher Kontrolle.
 - **Mögliche Ursachen:** Noch zu verifizieren. Lange Structured Outputs, interne Fachbegriffe im Ausgangswissen und begrenzte sprachliche Normalisierung sind mögliche Faktoren.
-- **Nächster Prüfschritt:** Sichtbare Ausgaben der drei Zielbeispiele markieren, Längen- und Verständlichkeitskriterien festlegen und daraus Tests ableiten.
+- **Nächster Prüfschritt:** Sichtbare Ausgaben der vier Referenzfälle und neuer realer Fälle weiter gegen die bestehenden Längen- und Verständlichkeitskriterien prüfen.
 - **Betroffene Dateien:** `app/openai_service.py`, `app/schemas.py`, `app/templates/results.html`, `app/templates/report.html`, `tests/test_product_finalization.py`.
 
 ## KI-006 – Ergebnisansicht und PDF waren zu groß oder textlastig
