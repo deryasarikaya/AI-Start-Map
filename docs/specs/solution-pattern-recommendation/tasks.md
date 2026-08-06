@@ -28,6 +28,9 @@
 | Dokumentation | Projektstand, Architektur, Entscheidungen, Issues, Changelog, Roadmap und INDEX nach Implementierung aktualisieren. | Done | Documentation-Update-Skill |
 | Code Review | Produktionsdiff auf Scope, Sicherheitsgrenzen, Knowledge-Trennung und unnötige Abstraktion prüfen. | Done | Abschlussdiff, `git diff --check` und Secret-/Artefaktprüfung bestanden |
 | Release | Relevante Tests, Migrationen falls beschlossen, App-Start und Deployment-Artefakte verifizieren. | Done | Keine Migration; `107 passed`, HTTP 200, Commit `4ed51ab` gepusht |
+| RAG-Zuverlässigkeit | Nach Promptbereinigung leere Chunks ohne Zuordnungsverschiebung überspringen. | Done | Isolierter Regressionstest bestanden |
+| RAG-Zuverlässigkeit | Vor jedem Index-Promote getrennte vollständige Diagnose-/Agenten-Backups erzeugen. | Done | Zwei Promotes, zwei validierbare Backups und validierbare Produktion getestet |
+| RAG-Zuverlässigkeit | FAISS-Indizes pro Prozess und Verzeichnis mit mtime-Invalidierung cachen. | Done | Wiederverwendung, Reload nach Dateiänderung und Fehlerpfad für fehlende Dateien getestet |
 
 ## Statuswerte
 

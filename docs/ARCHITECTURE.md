@@ -84,7 +84,7 @@ _generate_and_persist_final_analysis()
 
 `retrieve_chunks()`:
 
-1. lädt FAISS-Index und `chunks.json`,
+1. lädt FAISS-Index und `chunks.json` beim ersten Abruf je Indexverzeichnis in einen Prozess-Cache,
 2. erzeugt ein Query-Embedding,
 3. normalisiert den Vektor,
 4. führt eine FAISS-Ähnlichkeitssuche aus,
@@ -92,6 +92,20 @@ _generate_and_persist_final_analysis()
 6. berücksichtigt Quellenstärke,
 7. reserviert in der Analyse je ein Diagnose-, Automations-, Voraussetzungs- und Guardrail-Muster und füllt danach divers auf,
 8. entfernt über `format_chunks_for_prompt()` interne IDs, YAML-Metadaten, URLs und Quellenmarker.
+
+Der Cache prüft vor jedem Abruf die mtimes von FAISS- und Metadatendatei. Bei
+einer Änderung wird der betroffene Index neu geladen; fehlende Dateien und
+inkonsistente Index-/Metadatenpaare behalten ihre bisherigen
+`RagConfigurationError`-Pfade. Ein nach der Bereinigung leerer Chunk wird im
+Diagnosewerkzeug übersprungen, ohne die Zuordnung der verbleibenden Chunks zu
+verschieben.
+
+`promote_test_indexes()` validiert vor dem Promote beide Test- und beide
+Produktionsindizes. Anschließend sichert es den vollständigen Diagnose- und
+Agentenindex getrennt unter `data/index_backups/<timestamp>/` und validiert die
+promovierten Produktionsindizes erneut. Zeitstempel und Kollisionssuffix
+verhindern das Überschreiben bestehender Backups; das historische Verzeichnis
+`data/vector_index_backup_pre_batch04/` wird nicht verändert.
 
 RAG-Evidenz wird im Agentenstate als eigener Typ geführt und niemals in bestätigte Nutzerfakten kopiert. Die OpenAI-Prompts trennen Nutzerfakten, internes Vergleichswissen, erlaubte Ableitungen und Empfehlungen in benannte Bereiche.
 

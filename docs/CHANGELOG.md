@@ -21,6 +21,14 @@ Diese Datei dokumentiert nur tatsächlich ausgeführte und verifizierte Änderun
 - Visuell in Chrome geprüft: Desktop, schmale Mobile-Ansicht, 48–58-Pixel-Touchziele, lange deutsche Texte, fehlender horizontaler Überlauf und zweiseitiger Bericht ohne künstliche dritte Seite.
 - Superseded Root-Kompatibilitätsdatei `UX_FLOW.md` entfernt und den Dokumentationstest auf die aktive Source of Truth unter `docs/flows/UX_FLOW.md` umgestellt.
 
+## 2026-08-06 – RAG-Index-Zuverlässigkeit abgesichert
+
+- Diagnosewissen überspringt nach der Promptbereinigung leere Chunks einzeln; gültige Chunks bleiben ihrem ursprünglichen Datensatz zugeordnet.
+- Jeder Index-Promote validiert Test und Produktion, sichert Diagnose- und Agentenindex vollständig in einem neuen Zeitstempelordner und validiert die promovierte Produktion erneut. Das historische Pre-Batch-04-Archiv bleibt unverändert.
+- Diagnose- und Agentenindex werden pro Prozess und Indexverzeichnis gecacht und nach einer mtime-Änderung der FAISS- oder Metadatendatei neu geladen. Fehlende Dateien bleiben ein Konfigurationsfehler.
+- Vier neue RAG-Regressionstests bestanden; `python -m compileall app scripts`, App-Import und die Keyword-Evaluation mit unveränderten 28 % PF Top-1, 30 % SP Top-1 und 48 % PF-01-Default bestanden.
+- Die vollständige Suite im vorhandenen uncommittierten Klassifikations-Arbeitsstand ergab `119 passed, 2 failed`; beide Fehler betreffen Demo-Tests ohne Mock für den bereits vorgeschalteten LLM-Klassifikator und wurden in dieser Phase nicht verändert.
+
 ## 2026-08-06 – Kompakten Recommendation-Vertrag beschlossen
 
 - Wochentest und Pflicht zu genau drei Opportunities aus dem verbindlichen Zielvertrag entfernt.

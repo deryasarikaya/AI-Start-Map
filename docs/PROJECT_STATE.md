@@ -1,7 +1,7 @@
 # AI Start Map – Projektstand
 
 **Last Updated:** 2026-08-06
-**Verifizierter Code-Stand:** Branch `feature/recommendation-experience`; Integrations-Commit `4ed51ab` gepusht; vollständige Testsuite bestanden
+**Verifizierter Code-Stand:** Branch `feature/gate-cascade-quality`; Phase-1-RAG-Zuverlässigkeit implementiert und gezielt getestet; vollständiger Lauf durch zwei vorbestehende Klassifikations-Testfehler nicht vollständig grün
 **Pflegehinweis:** Diese Datei beschreibt den bestätigten heutigen Stand. Planung, offene Probleme, Entscheidungen und Änderungshistorie stehen in den übrigen Dokumenten unter `docs/`.
 
 ## Produktstand
@@ -36,7 +36,10 @@ Texteingabe bleibt immer verfügbar. Die numerische Session-ID wird in der öffe
 ## Diagnose-RAG und Agent
 
 - Der Diagnoseindex umfasst laut Manifest 634 Chunks; der getrennte Agent-Pattern-Index umfasst 205 Patterns.
+- Diagnose- und Agentenindex werden pro Prozess und Indexverzeichnis im Speicher wiederverwendet. Ändert sich die mtime der FAISS- oder Metadatendatei, wird der betroffene Cache beim nächsten Abruf neu geladen; fehlende Dateien bleiben ein Konfigurationsfehler.
+- Vor jeder Übernahme validierter Testindizes werden beide aktuellen Produktionsindizes vollständig unter `data/index_backups/<timestamp>/diagnostic/` und `data/index_backups/<timestamp>/agent/` gesichert. Jeder Promote erzeugt ein neues Backup; das historische Pre-Batch-04-Archiv bleibt unverändert.
 - Die Analyse-Retrieval-Auswahl reserviert Diagnosemuster, konkretes Automationsmuster, Implementierungsvoraussetzung und Guardrail, bevor weitere Treffer auffüllen.
+- Chunks, deren Inhalt nach der Promptbereinigung leer ist, werden einzeln übersprungen; gültige Chunks behalten ihre Originalzuordnung.
 - Konkrete Solution-Auswahl erfolgt nicht aus zufälligem Top-k, sondern aus Problemfamilien, Gates und Katalog.
 - `retrieve_agent_patterns()` wird im Interviewpfad kontrolliert aufgerufen. Erlaubte Entscheidungs-, Frage-, Widerspruchs-, Stop-, Werkzeug- und Guardrail-Muster unterstützen den internen Fragekontext.
 - Budgets, No-Repeat, Schleifenstopp, Fact-Immutability, Stopwunsch, Verbot autonomer Ausführung und kritische Freigabegrenzen bleiben deterministisch in Python.
@@ -62,6 +65,8 @@ Texteingabe bleibt immer verfügbar. Die numerische Session-ID wird in der öffe
 ## Verifikation
 
 - Vollständige Testsuite: `107 passed` am 2026-08-06.
+- Phase-1-RAG-Regression: vier isolierte Tests für leere Chunks, zwei vollständige Promote-Backups, mtime-Cache-Invalidierung und fehlende Dateien bestanden; Gesamtlauf im vorhandenen uncommittierten Klassifikations-Arbeitsstand: `119 passed, 2 failed`. Die zwei Fehler betreffen bestehende Demo-Tests, die den neu vorgeschalteten LLM-Klassifikator noch nicht mocken, nicht die RAG-Zuverlässigkeitsänderungen.
+- Keyword-Evaluation nach Phase 1: PF Top-1 28 %, PF Top-3 38 %, SP Top-1 30 %, PF-01-Default 48 %, verbotene Inhalte 0 von 91; damit gegenüber der Keyword-Baseline fachlich unverändert.
 - Python-Kompilierung: `python -m compileall -q app` bestanden.
 - App-Start gegen die separate Testdatenbank geprüft; Landingpage antwortete mit HTTP 200.
 - Visuell geprüft: Ergebnis bei Desktop- und schmalem Mobile-Viewport; Karten stapeln, lange Texte brechen um, kein horizontaler Seitenüberlauf, Touch-Ziele 48–58 Pixel.

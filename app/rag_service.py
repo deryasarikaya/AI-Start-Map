@@ -5,8 +5,10 @@ import json
 import os
 import re
 from dataclasses import asdict, dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from shutil import copy2
+from threading import Lock
 from typing import Any, Iterable, Literal
 
 import faiss
@@ -24,6 +26,7 @@ MANIFEST_FILE = INDEX_DIRECTORY / "manifest.json"
 DIAGNOSTIC_TEST_INDEX_DIRECTORY = ROOT_DIRECTORY / "data" / "vector_index_test"
 AGENT_INDEX_DIRECTORY = ROOT_DIRECTORY / "data" / "agent_pattern_index"
 AGENT_TEST_INDEX_DIRECTORY = ROOT_DIRECTORY / "data" / "agent_pattern_index_test"
+INDEX_BACKUP_DIRECTORY = ROOT_DIRECTORY / "data" / "index_backups"
 INDEX_FILE_NAME = "knowledge.faiss"
 METADATA_FILE_NAME = "chunks.json"
 MANIFEST_FILE_NAME = "manifest.json"
@@ -82,6 +85,11 @@ class DuplicateReport:
 
 
 IndexKind = Literal["diagnostic", "agent"]
+IndexCacheSignature = tuple[int, int]
+IndexCacheEntry = tuple[IndexCacheSignature, Any, list[KnowledgeChunk]]
+
+_INDEX_CACHE: dict[Path, IndexCacheEntry] = {}
+_INDEX_CACHE_LOCK = Lock()
 
 
 def _metadata_value(raw_value: str) -> Any:
@@ -497,13 +505,24 @@ def validate_index(
 def promote_test_indexes() -> None:
     validate_index(DIAGNOSTIC_TEST_INDEX_DIRECTORY, expected_kind="diagnostic")
     validate_index(AGENT_TEST_INDEX_DIRECTORY, expected_kind="agent")
-    backup_directory = ROOT_DIRECTORY / "data" / "vector_index_backup_pre_batch04"
-    backup_directory.mkdir(parents=True, exist_ok=True)
-    for source in INDEX_DIRECTORY.glob("*"):
-        if source.is_file():
-            destination = backup_directory / source.name
-            if not destination.exists():
-                copy2(source, destination)
+    validate_index(INDEX_DIRECTORY, expected_kind="diagnostic")
+    validate_index(AGENT_INDEX_DIRECTORY, expected_kind="agent")
+
+    timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S.%fZ")
+    backup_directory = INDEX_BACKUP_DIRECTORY / timestamp
+    suffix = 1
+    while backup_directory.exists():
+        backup_directory = INDEX_BACKUP_DIRECTORY / f"{timestamp}-{suffix:02d}"
+        suffix += 1
+    for label, source_directory in (
+        ("diagnostic", INDEX_DIRECTORY),
+        ("agent", AGENT_INDEX_DIRECTORY),
+    ):
+        target_directory = backup_directory / label
+        target_directory.mkdir(parents=True, exist_ok=False)
+        for name in (INDEX_FILE_NAME, METADATA_FILE_NAME, MANIFEST_FILE_NAME):
+            copy2(source_directory / name, target_directory / name)
+
     for source_directory, target_directory in (
         (DIAGNOSTIC_TEST_INDEX_DIRECTORY, INDEX_DIRECTORY),
         (AGENT_TEST_INDEX_DIRECTORY, AGENT_INDEX_DIRECTORY),
@@ -513,6 +532,22 @@ def promote_test_indexes() -> None:
             temporary_target = target_directory / f"{name}.tmp"
             copy2(source_directory / name, temporary_target)
             temporary_target.replace(target_directory / name)
+        _invalidate_index_cache(target_directory)
+
+    validate_index(INDEX_DIRECTORY, expected_kind="diagnostic")
+    validate_index(AGENT_INDEX_DIRECTORY, expected_kind="agent")
+
+
+def _index_cache_signature(index_file: Path, metadata_file: Path) -> IndexCacheSignature:
+    return (index_file.stat().st_mtime_ns, metadata_file.stat().st_mtime_ns)
+
+
+def _invalidate_index_cache(directory: Path | None = None) -> None:
+    with _INDEX_CACHE_LOCK:
+        if directory is None:
+            _INDEX_CACHE.clear()
+            return
+        _INDEX_CACHE.pop(directory.resolve(), None)
 
 
 def _load_index_from(directory: Path) -> tuple[Any, list[KnowledgeChunk]]:
@@ -521,12 +556,22 @@ def _load_index_from(directory: Path) -> tuple[Any, list[KnowledgeChunk]]:
         raise RagConfigurationError(
             "Der Wissensindex fehlt. Führe zuerst python scripts/build_index.py aus."
         )
-    raw_chunks = json.loads(metadata_file.read_text(encoding="utf-8"))
-    chunks = [KnowledgeChunk(**raw_chunk) for raw_chunk in raw_chunks]
-    index = faiss.read_index(str(index_file))
-    if index.ntotal != len(chunks):
-        raise RagConfigurationError("Wissensindex und Metadaten passen nicht zusammen.")
-    return index, chunks
+    cache_key = directory.resolve()
+    signature = _index_cache_signature(index_file, metadata_file)
+    with _INDEX_CACHE_LOCK:
+        cached = _INDEX_CACHE.get(cache_key)
+        if cached is not None and cached[0] == signature:
+            return cached[1], cached[2]
+
+        raw_chunks = json.loads(metadata_file.read_text(encoding="utf-8"))
+        chunks = [KnowledgeChunk(**raw_chunk) for raw_chunk in raw_chunks]
+        index = faiss.read_index(str(index_file))
+        if index.ntotal != len(chunks):
+            raise RagConfigurationError(
+                "Wissensindex und Metadaten passen nicht zusammen."
+            )
+        _INDEX_CACHE[cache_key] = (signature, index, chunks)
+        return index, chunks
 
 
 def _load_index() -> tuple[Any, list[KnowledgeChunk]]:

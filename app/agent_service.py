@@ -361,16 +361,22 @@ def search_diagnostic_knowledge(query: str, *, phase: str = "analysis") -> list[
         len(chunks),
         [chunk.chunk_type for chunk in chunks],
     )
-    prompt_contents = format_chunks_for_prompt(chunks)
-    return [
-        RagEvidence(
-            chunk_id=chunk.chunk_id,
-            chunk_type=chunk.chunk_type,
-            content=prompt_content,
-            source_strength=str(chunk.metadata.get("source_strength", "not_assessed")),
+    evidence: list[RagEvidence] = []
+    for chunk in chunks:
+        prompt_contents = format_chunks_for_prompt([chunk])
+        if not prompt_contents:
+            continue
+        evidence.append(
+            RagEvidence(
+                chunk_id=chunk.chunk_id,
+                chunk_type=chunk.chunk_type,
+                content=prompt_contents[0],
+                source_strength=str(
+                    chunk.metadata.get("source_strength", "not_assessed")
+                ),
+            )
         )
-        for chunk, prompt_content in zip(chunks, prompt_contents, strict=True)
-    ]
+    return evidence
 
 
 def _answered_gaps(state: ProcessState) -> set[str]:
