@@ -4,6 +4,17 @@
 
 Diese Datei dokumentiert nur tatsächlich ausgeführte und verifizierte Änderungen. Roadmap-Punkte gelten nicht als umgesetzt.
 
+## 2026-08-06 – Katalog v2 und Research-Grundlage aufgenommen
+
+- Research Batches 05 bis 08 und die zugehörige Forschungsgrundlage unter `knowledge/` abgelegt. Keine Datei wurde in einen Vektorindex aufgenommen; `DIAGNOSTIC_JSONL_FILES` und `AGENT_PATTERN_FILES` bleiben unverändert.
+- Batch 08 bleibt unveränderte, zeitkritische Tool- und Architektur-Researchgrundlage und ist weder in den Laufzeitkatalog noch in einen produktiven Index integriert.
+- `knowledge/structured/recommendation_catalog.json` auf `2026-08-06-v2` gehoben: neue Blöcke `genai_capabilities` (GAI-01…09), `decision_gates` (GATE-01…06), `failure_patterns` (FAIL-01…12), `autonomy_levels` (A0…A5) und `non_genai_mechanisms`; je Solution Pattern zehn neue Felder aus Batch 06; je Problemfamilie `genai_role`, `non_genai_requirement` und `human_boundary`.
+- Vier durch Batch 06 verengte Zuordnungen übernommen: `SP-01` ohne `PF-11`/`PF-12`, `SP-04` und `SP-07` ohne `PF-04`. Sieben bereits vorher abweichende `supplementary`-Einträge wurden nur gemeldet, nicht geändert.
+- `app/recommendation_service.py` um die entsprechenden Modelle und Referenzprüfungen erweitert, inklusive Autonomiegrenze je Solution Pattern gegen die Obergrenze seiner GenAI-Fähigkeiten.
+- Der Laufzeitpfad nutzt die neuen Felder noch nicht; `select_recommendation` ist unverändert. Die LLM-gestützte Gate-Kaskade ist bewusst ein getrennter nächster Schritt.
+- `scripts/merge_catalog_v2.py` als nachvollziehbarer, wiederholbarer Merge abgelegt (`--dry-run` zeigt den Diff).
+- Reproduzierbarer Dry-Run, Katalog-Ladeprüfung, Python-Kompilierung und 21 Katalog-/Referenzfalltests erfolgreich ausgeführt.
+
 ## 2026-08-06 – Recommendation Experience integriert und geprüft
 
 - Integrations-Commit `4ed51ab` auf `origin/feature/recommendation-experience` veröffentlicht.

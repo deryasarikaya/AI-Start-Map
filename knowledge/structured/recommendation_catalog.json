@@ -1,44 +1,2433 @@
 {
-  "version": "2026-08-06",
-  "source": "docs/product/AI_Start_Map_Fachgrundlage_Painpoints_Solutions_2026-08-05.md",
+  "version": "2026-08-06-v2",
+  "source": "docs/product/AI_Start_Map_Fachgrundlage_Painpoints_Solutions_2026-08-05.md; knowledge/raw/AI_Start_Map_Research_GenAI_Unterstuetzung_Kleinunternehmen_2026-08-06.md",
   "problem_families": [
-    {"problem_family_id":"PF-01","name":"Verteilte Vorgangsinformationen","definition":"Angaben, Medien und Entscheidungen zu einem Auftrag liegen ohne gemeinsamen Vorgangsanker in mehreren Kanälen.","typical_statements":["Ich muss alles zusammensuchen."],"symptoms":["Suche vor Angebot oder Rechnung","fehlende Anhänge"],"common_causes":["kein gemeinsamer Auftragsschlüssel","parallele Ablagen"],"processes":["Anfrage","Auftrag","Außeneinsatz","Rechnung"],"industries":["Handwerk","Außendienst","Reparatur"],"channels":["WhatsApp","E-Mail","Fotos","Papier"],"digital_starting_state":"teilweise digital, aber nicht vorgangsbezogen verbunden","consequences":["Suchzeit","verspätete Rechnung"],"boundaries":["PF-03 betrifft Übertragung","PF-05 physische Objekte"],"evidence_refs":["K-04_case_evidence","RB03-P12"],"confidence":"high"},
-    {"problem_family_id":"PF-02","name":"Unzuverlässige Anfrageerfassung","definition":"Neue Anfragen werden nicht zuverlässig zu einem prüfbaren Vorgang mit Mindestinformationen.","typical_statements":["Anfragen gehen unter."],"symptoms":["verpasste Anfragen","unvollständige Angaben"],"common_causes":["Kommunikationskanal dient als Aufgabenliste","Pflichtangaben fehlen"],"processes":["Anfrage","Serviceaufnahme","Reparaturannahme"],"industries":["Dienstleistung","Reparatur","Salon"],"channels":["E-Mail","Telefon","WhatsApp","Instagram"],"digital_starting_state":"digitaler Kanal vorhanden, Vorgangsregister fehlt","consequences":["Umsatzverlust","Rückfragen"],"boundaries":["PF-01 betrifft Informationen innerhalb eines Vorgangs"],"evidence_refs":["K-01_case_evidence","RB03-PP04"],"confidence":"high"},
-    {"problem_family_id":"PF-03","name":"Mehrfachübertragung","definition":"Dieselbe Information wird manuell zwischen Nachricht, Dokument, Papier, Liste oder Anwendung übertragen.","typical_statements":["Ich tippe alles noch einmal ab."],"symptoms":["Copy-paste","Tippfehler"],"common_causes":["keine strukturierte Erfassung","unklare führende Quelle"],"processes":["Bestellung","Angebot","Rechnung"],"industries":["Handwerk","Handel","Fertigung"],"channels":["PDF","E-Mail","Papier","Tabelle"],"digital_starting_state":"digital fragmentiert oder analog-digital gemischt","consequences":["Zeitverlust","Fehler"],"boundaries":["PF-12 betrifft das Strukturieren unstrukturierter Inhalte"],"evidence_refs":["K-02_case_evidence","RB03-P16"],"confidence":"high"},
-    {"problem_family_id":"PF-04","name":"Unsichtbarer Status und offene Schritte","definition":"Bearbeitungsstand, nächste Handlung und Blockade eines Vorgangs sind nicht verlässlich sichtbar.","typical_statements":["Ich weiß nicht, ob das erledigt ist."],"symptoms":["vergessene Arbeit","Doppelarbeit"],"common_causes":["Status im Kopf oder Chat","kein realer Statusauslöser"],"processes":["Reparatur","Produktion","Service","Übergabe"],"industries":["Werkstatt","Produktion","mobile Dienste"],"channels":["Papierkarte","Board","Tabelle","Chat"],"digital_starting_state":"analog bis zu unverbundenen Tools","consequences":["Verzögerung","Rückfragen"],"boundaries":["PF-05 fragt nach Objekt und Ort"],"evidence_refs":["C-02_case_evidence","RB03-P05"],"confidence":"high"},
-    {"problem_family_id":"PF-05","name":"Fehlende Objekt- und Ortszuordnung","definition":"Ein reales Objekt ist nicht zweifelsfrei mit Auftrag, Kunde, Status und physischem Ort verbunden.","typical_statements":["Ich finde den Gegenstand nicht."],"symptoms":["lange Suche","falsche Herausgabe"],"common_causes":["Kennung nur auf losem Zettel","Ortswechsel nicht erfasst"],"processes":["Reparaturannahme","Lagerung","Abholung"],"industries":["Schuhreparatur","Fahrradreparatur","Reinigung"],"channels":["Anhänger","Ticket","Regal","Zone"],"digital_starting_state":"physische Kennzeichnung bleibt unabhängig vom Digitalgrad nötig","consequences":["Haftung","Vertrauensverlust"],"boundaries":["PF-04 betrifft den Bearbeitungsstatus"],"evidence_refs":["RB02-C01-E01","RB03-P01"],"confidence":"high"},
-    {"problem_family_id":"PF-06","name":"Termin- und Kapazitätskonflikte","definition":"Zusagen berücksichtigen Personal, Qualifikation, Ort, Dauer, Material oder Ausnahmen nicht zuverlässig.","typical_statements":["Der Kalender ist frei, aber ich habe niemanden."],"symptoms":["Doppelbuchung","manuelle Umplanung"],"common_causes":["Kalender bildet nur Zeit ab","wechselnde Verfügbarkeit"],"processes":["Terminbuchung","Disposition","Liefertermin"],"industries":["Massage","Reinigung","mobile Dienste"],"channels":["Kalender","WhatsApp","Telefon"],"digital_starting_state":"digitale Anfrage, aber unvollständiges Kapazitätsmodell","consequences":["Kundenfrust","Überlastung"],"boundaries":["PF-02 betrifft die Vollständigkeit der Anfrage"],"evidence_refs":["M-01_appointment_capacity_evidence","RB03-P13"],"confidence":"high"},
-    {"problem_family_id":"PF-07","name":"Ungeklärte Änderungen und Freigaben","definition":"Befund, Änderung, Preis, Version und Zustimmung bleiben nicht als zusammenhängender Freigabeschritt dokumentiert.","typical_statements":["Der Aufwand war höher."],"symptoms":["Arbeit ohne Freigabe","Preisstreit"],"common_causes":["Freigabe über separaten Kanal","kein Änderungsprotokoll"],"processes":["Reparatur","Zusatzarbeit","Produktion"],"industries":["Werkstatt","Handwerk","Druck"],"channels":["E-Mail","Chat","Foto","Angebot"],"digital_starting_state":"digital vorhanden, aber Version und Zustimmung nicht gekoppelt","consequences":["Nacharbeit","Kundenkonflikt"],"boundaries":["PF-04 betrifft normalen Status"],"evidence_refs":["RB03-P06","RB03-P14"],"confidence":"high"},
-    {"problem_family_id":"PF-08","name":"Lücke zwischen Außendienst und Rechnung","definition":"Zeit, Material, Fotos, Beleg und Zusatzarbeit erreichen Rechnung und Büro verspätet oder unvollständig.","typical_statements":["Vor der Rechnung suche ich alles zusammen."],"symptoms":["verspätete Rechnung","vergessene Positionen"],"common_causes":["kein gemeinsamer Einsatzdatensatz","Erfassung erst später"],"processes":["Einsatz","Inspektion","Rechnungsgrundlage"],"industries":["Hausmeister","Monteure","Reinigung"],"channels":["Smartphone","Sprache","Fotos","Bon"],"digital_starting_state":"smartphonefähig, Prozessverknüpfung fehlt","consequences":["Liquiditätsverzögerung","Suchzeit"],"boundaries":["PF-01 ist allgemeine Informationsverteilung"],"evidence_refs":["C-01_automation_patterns","RB03-P10"],"confidence":"high"},
-    {"problem_family_id":"PF-09","name":"Unklarer Zahlungs- und Belegstatus","definition":"Rechnung, Zahlung, Beleg, Fälligkeit und Ausnahme liegen getrennt oder erfordern manuelles Nachfassen.","typical_statements":["Ich vergesse Erinnerungen."],"symptoms":["verspätete Zahlung","fehlender Beleg"],"common_causes":["keine eindeutige Zuordnung","Fälligkeit nicht als Aufgabe"],"processes":["Rechnung","Zahlung","Beleg"],"industries":["Dienstleistung","Salon","Reparatur"],"channels":["Überweisung","E-Mail","Foto","Buchhaltung"],"digital_starting_state":"digitale Zahlung plus manueller Abgleich","consequences":["Liquiditätsproblem","Verwaltungsaufwand"],"boundaries":["PF-08 erzeugt die Rechnungsgrundlage"],"evidence_refs":["K-07_case_evidence","RB03-PP08"],"confidence":"high"},
-    {"problem_family_id":"PF-10","name":"Fehlende Material- und Produktionssicht","definition":"Material, Bestand, Charge, Variante, Zwischenstufe und Auftrag sind nicht konsistent verbunden.","typical_statements":["Ich weiß nicht, in welcher Stufe der Auftrag ist."],"symptoms":["Fehlteile","unsichtbarer Arbeitsstand"],"common_causes":["fehlende Variantenlogik","getrennte Systeme"],"processes":["Beschaffung","Fertigung","Versand"],"industries":["Textil","Druck","3D-Druck"],"channels":["Tabelle","Papierjobtasche","Fachsoftware"],"digital_starting_state":"digital, aber fragmentiert oder fachlich unpassend","consequences":["Lieferverzug","Qualitätsfehler"],"boundaries":["PF-05 verfolgt ein einzelnes Kundenobjekt"],"evidence_refs":["C-02_case_evidence","RB03-PP03"],"confidence":"high"},
-    {"problem_family_id":"PF-11","name":"Abhängigkeit von einer Person","definition":"Wissen, Planung, Ausnahmen und Koordination sind an eine einzelne Person gebunden.","typical_statements":["Ohne mich geht nichts."],"symptoms":["Unterbrechungen","fehlende Vertretung"],"common_causes":["persönliche Kanäle","Entscheidungen nicht dokumentiert"],"processes":["Anfrage","Disposition","Übergabe"],"industries":["Solo- und Mikrobetriebe"],"channels":["privates Telefon","WhatsApp","Gedächtnis"],"digital_starting_state":"Digitalgrad beliebig; Zugriff und Eigentum sind das Problem","consequences":["Überlastung","Ausfallrisiko"],"boundaries":["PF-04 betrifft den Vorgangsstatus"],"evidence_refs":["RB02-C29-E01","RB03-P15"],"confidence":"high"},
-    {"problem_family_id":"PF-12","name":"Unstrukturierte Dokumente und freie Texte","definition":"PDF, E-Mail, Bon, Diktat oder Nachricht werden nicht in einen prüfbaren Datensatz überführt.","typical_statements":["Aus dem Diktat schreibe ich später den Bericht."],"symptoms":["manuelle Extraktion","fehlende Pflichtfelder"],"common_causes":["kein Zielschema","keine Unsicherheitsmarkierung"],"processes":["Auftragseingang","Beleg","Bericht"],"industries":["Handwerk","Buchhaltung","Hausverwaltung"],"channels":["PDF","Foto","E-Mail","Sprache"],"digital_starting_state":"digitaler Rohinhalt vorhanden, bestätigte Struktur fehlt","consequences":["Zeitverlust","Übertragungsfehler"],"boundaries":["PF-03 beschreibt den Medienbruch"],"evidence_refs":["K-12_automation_pattern","RB03-C32-01"],"confidence":"high"}
+    {
+      "problem_family_id": "PF-01",
+      "name": "Verteilte Vorgangsinformationen",
+      "definition": "Angaben, Medien und Entscheidungen zu einem Auftrag liegen ohne gemeinsamen Vorgangsanker in mehreren Kanälen.",
+      "typical_statements": [
+        "Ich muss alles zusammensuchen."
+      ],
+      "symptoms": [
+        "Suche vor Angebot oder Rechnung",
+        "fehlende Anhänge"
+      ],
+      "common_causes": [
+        "kein gemeinsamer Auftragsschlüssel",
+        "parallele Ablagen"
+      ],
+      "processes": [
+        "Anfrage",
+        "Auftrag",
+        "Außeneinsatz",
+        "Rechnung"
+      ],
+      "industries": [
+        "Handwerk",
+        "Außendienst",
+        "Reparatur"
+      ],
+      "channels": [
+        "WhatsApp",
+        "E-Mail",
+        "Fotos",
+        "Papier"
+      ],
+      "digital_starting_state": "teilweise digital, aber nicht vorgangsbezogen verbunden",
+      "consequences": [
+        "Suchzeit",
+        "verspätete Rechnung"
+      ],
+      "boundaries": [
+        "PF-03 betrifft Übertragung",
+        "PF-05 physische Objekte"
+      ],
+      "evidence_refs": [
+        "K-04_case_evidence",
+        "RB03-P12"
+      ],
+      "confidence": "high",
+      "genai_role": "Inhalte zuordnen, Verlauf zusammenfassen, offene Punkte extrahieren",
+      "non_genai_requirement": "gemeinsamer Vorgangsanker und Ablage",
+      "human_boundary": "Zuordnung und aktueller Stand bestätigen"
+    },
+    {
+      "problem_family_id": "PF-02",
+      "name": "Unzuverlässige Anfrageerfassung",
+      "definition": "Neue Anfragen werden nicht zuverlässig zu einem prüfbaren Vorgang mit Mindestinformationen.",
+      "typical_statements": [
+        "Anfragen gehen unter."
+      ],
+      "symptoms": [
+        "verpasste Anfragen",
+        "unvollständige Angaben"
+      ],
+      "common_causes": [
+        "Kommunikationskanal dient als Aufgabenliste",
+        "Pflichtangaben fehlen"
+      ],
+      "processes": [
+        "Anfrage",
+        "Serviceaufnahme",
+        "Reparaturannahme"
+      ],
+      "industries": [
+        "Dienstleistung",
+        "Reparatur",
+        "Salon"
+      ],
+      "channels": [
+        "E-Mail",
+        "Telefon",
+        "WhatsApp",
+        "Instagram"
+      ],
+      "digital_starting_state": "digitaler Kanal vorhanden, Vorgangsregister fehlt",
+      "consequences": [
+        "Umsatzverlust",
+        "Rückfragen"
+      ],
+      "boundaries": [
+        "PF-01 betrifft Informationen innerhalb eines Vorgangs"
+      ],
+      "evidence_refs": [
+        "K-01_case_evidence",
+        "RB03-PP04"
+      ],
+      "confidence": "high",
+      "genai_role": "klassifizieren, Kerndaten extrahieren, Missing Info und Antwortentwurf",
+      "non_genai_requirement": "verantwortlicher Eingang, Deduplizierung, Status",
+      "human_boundary": "Annahme, Ablehnung, Priorität, Zusage"
+    },
+    {
+      "problem_family_id": "PF-03",
+      "name": "Mehrfachübertragung",
+      "definition": "Dieselbe Information wird manuell zwischen Nachricht, Dokument, Papier, Liste oder Anwendung übertragen.",
+      "typical_statements": [
+        "Ich tippe alles noch einmal ab."
+      ],
+      "symptoms": [
+        "Copy-paste",
+        "Tippfehler"
+      ],
+      "common_causes": [
+        "keine strukturierte Erfassung",
+        "unklare führende Quelle"
+      ],
+      "processes": [
+        "Bestellung",
+        "Angebot",
+        "Rechnung"
+      ],
+      "industries": [
+        "Handwerk",
+        "Handel",
+        "Fertigung"
+      ],
+      "channels": [
+        "PDF",
+        "E-Mail",
+        "Papier",
+        "Tabelle"
+      ],
+      "digital_starting_state": "digital fragmentiert oder analog-digital gemischt",
+      "consequences": [
+        "Zeitverlust",
+        "Fehler"
+      ],
+      "boundaries": [
+        "PF-12 betrifft das Strukturieren unstrukturierter Inhalte"
+      ],
+      "evidence_refs": [
+        "K-02_case_evidence",
+        "RB03-P16"
+      ],
+      "confidence": "high",
+      "genai_role": "Dokument/Nachricht in Zielstruktur überführen",
+      "non_genai_requirement": "führende Quelle, Schnittstelle, Validierungsregeln",
+      "human_boundary": "kritische Felder bestätigen"
+    },
+    {
+      "problem_family_id": "PF-04",
+      "name": "Unsichtbarer Status und offene Schritte",
+      "definition": "Bearbeitungsstand, nächste Handlung und Blockade eines Vorgangs sind nicht verlässlich sichtbar.",
+      "typical_statements": [
+        "Ich weiß nicht, ob das erledigt ist."
+      ],
+      "symptoms": [
+        "vergessene Arbeit",
+        "Doppelarbeit"
+      ],
+      "common_causes": [
+        "Status im Kopf oder Chat",
+        "kein realer Statusauslöser"
+      ],
+      "processes": [
+        "Reparatur",
+        "Produktion",
+        "Service",
+        "Übergabe"
+      ],
+      "industries": [
+        "Werkstatt",
+        "Produktion",
+        "mobile Dienste"
+      ],
+      "channels": [
+        "Papierkarte",
+        "Board",
+        "Tabelle",
+        "Chat"
+      ],
+      "digital_starting_state": "analog bis zu unverbundenen Tools",
+      "consequences": [
+        "Verzögerung",
+        "Rückfragen"
+      ],
+      "boundaries": [
+        "PF-05 fragt nach Objekt und Ort"
+      ],
+      "evidence_refs": [
+        "C-02_case_evidence",
+        "RB03-P05"
+      ],
+      "confidence": "high",
+      "genai_role": "Historie zusammenfassen, nächste Aktion und Blockade vorschlagen",
+      "non_genai_requirement": "wenige Statuswerte, Ereignislogik, Verantwortlicher",
+      "human_boundary": "Status und Abschluss bestätigen"
+    },
+    {
+      "problem_family_id": "PF-05",
+      "name": "Fehlende Objekt- und Ortszuordnung",
+      "definition": "Ein reales Objekt ist nicht zweifelsfrei mit Auftrag, Kunde, Status und physischem Ort verbunden.",
+      "typical_statements": [
+        "Ich finde den Gegenstand nicht."
+      ],
+      "symptoms": [
+        "lange Suche",
+        "falsche Herausgabe"
+      ],
+      "common_causes": [
+        "Kennung nur auf losem Zettel",
+        "Ortswechsel nicht erfasst"
+      ],
+      "processes": [
+        "Reparaturannahme",
+        "Lagerung",
+        "Abholung"
+      ],
+      "industries": [
+        "Schuhreparatur",
+        "Fahrradreparatur",
+        "Reinigung"
+      ],
+      "channels": [
+        "Anhänger",
+        "Ticket",
+        "Regal",
+        "Zone"
+      ],
+      "digital_starting_state": "physische Kennzeichnung bleibt unabhängig vom Digitalgrad nötig",
+      "consequences": [
+        "Haftung",
+        "Vertrauensverlust"
+      ],
+      "boundaries": [
+        "PF-04 betrifft den Bearbeitungsstatus"
+      ],
+      "evidence_refs": [
+        "RB02-C01-E01",
+        "RB03-P01"
+      ],
+      "confidence": "high",
+      "genai_role": "Sonderwünsche strukturieren, Suchhinweise aus bestätigten Daten",
+      "non_genai_requirement": "physische ID, echter Ablageort, Scan-/Buchungsregel",
+      "human_boundary": "Identität, Ort und Herausgabe prüfen"
+    },
+    {
+      "problem_family_id": "PF-06",
+      "name": "Termin- und Kapazitätskonflikte",
+      "definition": "Zusagen berücksichtigen Personal, Qualifikation, Ort, Dauer, Material oder Ausnahmen nicht zuverlässig.",
+      "typical_statements": [
+        "Der Kalender ist frei, aber ich habe niemanden."
+      ],
+      "symptoms": [
+        "Doppelbuchung",
+        "manuelle Umplanung"
+      ],
+      "common_causes": [
+        "Kalender bildet nur Zeit ab",
+        "wechselnde Verfügbarkeit"
+      ],
+      "processes": [
+        "Terminbuchung",
+        "Disposition",
+        "Liefertermin"
+      ],
+      "industries": [
+        "Massage",
+        "Reinigung",
+        "mobile Dienste"
+      ],
+      "channels": [
+        "Kalender",
+        "WhatsApp",
+        "Telefon"
+      ],
+      "digital_starting_state": "digitale Anfrage, aber unvollständiges Kapazitätsmodell",
+      "consequences": [
+        "Kundenfrust",
+        "Überlastung"
+      ],
+      "boundaries": [
+        "PF-02 betrifft die Vollständigkeit der Anfrage"
+      ],
+      "evidence_refs": [
+        "M-01_appointment_capacity_evidence",
+        "RB03-P13"
+      ],
+      "confidence": "high",
+      "genai_role": "Anfrage verstehen, fehlende Daten erkennen, Optionen formulieren",
+      "non_genai_requirement": "aktuelle Kapazitäts- und Kalenderlogik",
+      "human_boundary": "verbindlichen Termin zusagen"
+    },
+    {
+      "problem_family_id": "PF-07",
+      "name": "Ungeklärte Änderungen und Freigaben",
+      "definition": "Befund, Änderung, Preis, Version und Zustimmung bleiben nicht als zusammenhängender Freigabeschritt dokumentiert.",
+      "typical_statements": [
+        "Der Aufwand war höher."
+      ],
+      "symptoms": [
+        "Arbeit ohne Freigabe",
+        "Preisstreit"
+      ],
+      "common_causes": [
+        "Freigabe über separaten Kanal",
+        "kein Änderungsprotokoll"
+      ],
+      "processes": [
+        "Reparatur",
+        "Zusatzarbeit",
+        "Produktion"
+      ],
+      "industries": [
+        "Werkstatt",
+        "Handwerk",
+        "Druck"
+      ],
+      "channels": [
+        "E-Mail",
+        "Chat",
+        "Foto",
+        "Angebot"
+      ],
+      "digital_starting_state": "digital vorhanden, aber Version und Zustimmung nicht gekoppelt",
+      "consequences": [
+        "Nacharbeit",
+        "Kundenkonflikt"
+      ],
+      "boundaries": [
+        "PF-04 betrifft normalen Status"
+      ],
+      "evidence_refs": [
+        "RB03-P06",
+        "RB03-P14"
+      ],
+      "confidence": "high",
+      "genai_role": "Befund strukturieren, Soll/Ist erklären, Kundenfrage entwerfen",
+      "non_genai_requirement": "Versionierung, Stoppstatus, Freigabeberechtigung",
+      "human_boundary": "Technik, Preis, Termin und Zustimmung"
+    },
+    {
+      "problem_family_id": "PF-08",
+      "name": "Lücke zwischen Außendienst und Rechnung",
+      "definition": "Zeit, Material, Fotos, Beleg und Zusatzarbeit erreichen Rechnung und Büro verspätet oder unvollständig.",
+      "typical_statements": [
+        "Vor der Rechnung suche ich alles zusammen."
+      ],
+      "symptoms": [
+        "verspätete Rechnung",
+        "vergessene Positionen"
+      ],
+      "common_causes": [
+        "kein gemeinsamer Einsatzdatensatz",
+        "Erfassung erst später"
+      ],
+      "processes": [
+        "Einsatz",
+        "Inspektion",
+        "Rechnungsgrundlage"
+      ],
+      "industries": [
+        "Hausmeister",
+        "Monteure",
+        "Reinigung"
+      ],
+      "channels": [
+        "Smartphone",
+        "Sprache",
+        "Fotos",
+        "Bon"
+      ],
+      "digital_starting_state": "smartphonefähig, Prozessverknüpfung fehlt",
+      "consequences": [
+        "Liquiditätsverzögerung",
+        "Suchzeit"
+      ],
+      "boundaries": [
+        "PF-01 ist allgemeine Informationsverteilung"
+      ],
+      "evidence_refs": [
+        "C-01_automation_patterns",
+        "RB03-P10"
+      ],
+      "confidence": "high",
+      "genai_role": "Sprache/Fotos/Bon zu Einsatznotiz verbinden",
+      "non_genai_requirement": "Einsatzanker, mobile Ablage, Rechnungsregeln",
+      "human_boundary": "Zeit, Material, Leistung und Abnahme"
+    },
+    {
+      "problem_family_id": "PF-09",
+      "name": "Unklarer Zahlungs- und Belegstatus",
+      "definition": "Rechnung, Zahlung, Beleg, Fälligkeit und Ausnahme liegen getrennt oder erfordern manuelles Nachfassen.",
+      "typical_statements": [
+        "Ich vergesse Erinnerungen."
+      ],
+      "symptoms": [
+        "verspätete Zahlung",
+        "fehlender Beleg"
+      ],
+      "common_causes": [
+        "keine eindeutige Zuordnung",
+        "Fälligkeit nicht als Aufgabe"
+      ],
+      "processes": [
+        "Rechnung",
+        "Zahlung",
+        "Beleg"
+      ],
+      "industries": [
+        "Dienstleistung",
+        "Salon",
+        "Reparatur"
+      ],
+      "channels": [
+        "Überweisung",
+        "E-Mail",
+        "Foto",
+        "Buchhaltung"
+      ],
+      "digital_starting_state": "digitale Zahlung plus manueller Abgleich",
+      "consequences": [
+        "Liquiditätsproblem",
+        "Verwaltungsaufwand"
+      ],
+      "boundaries": [
+        "PF-08 erzeugt die Rechnungsgrundlage"
+      ],
+      "evidence_refs": [
+        "K-07_case_evidence",
+        "RB03-PP08"
+      ],
+      "confidence": "high",
+      "genai_role": "Belege auslesen, Erinnerungen formulieren, Ausnahme zusammenfassen",
+      "non_genai_requirement": "Rechnungs-/Zahlungsquelle, Fristen, GoBD-Prozess",
+      "human_boundary": "Betrag, Zuordnung, Versand, Eskalation"
+    },
+    {
+      "problem_family_id": "PF-10",
+      "name": "Fehlende Material- und Produktionssicht",
+      "definition": "Material, Bestand, Charge, Variante, Zwischenstufe und Auftrag sind nicht konsistent verbunden.",
+      "typical_statements": [
+        "Ich weiß nicht, in welcher Stufe der Auftrag ist."
+      ],
+      "symptoms": [
+        "Fehlteile",
+        "unsichtbarer Arbeitsstand"
+      ],
+      "common_causes": [
+        "fehlende Variantenlogik",
+        "getrennte Systeme"
+      ],
+      "processes": [
+        "Beschaffung",
+        "Fertigung",
+        "Versand"
+      ],
+      "industries": [
+        "Textil",
+        "Druck",
+        "3D-Druck"
+      ],
+      "channels": [
+        "Tabelle",
+        "Papierjobtasche",
+        "Fachsoftware"
+      ],
+      "digital_starting_state": "digital, aber fragmentiert oder fachlich unpassend",
+      "consequences": [
+        "Lieferverzug",
+        "Qualitätsfehler"
+      ],
+      "boundaries": [
+        "PF-05 verfolgt ein einzelnes Kundenobjekt"
+      ],
+      "evidence_refs": [
+        "C-02_case_evidence",
+        "RB03-PP03"
+      ],
+      "confidence": "high",
+      "genai_role": "Auftrag in Aufgaben/Stücklistenvorschlag zerlegen, Widersprüche markieren",
+      "non_genai_requirement": "Artikel-/Variantenlogik, Bestandsereignisse",
+      "human_boundary": "Mengen, Qualität, Charge, Versand"
+    },
+    {
+      "problem_family_id": "PF-11",
+      "name": "Abhängigkeit von einer Person",
+      "definition": "Wissen, Planung, Ausnahmen und Koordination sind an eine einzelne Person gebunden.",
+      "typical_statements": [
+        "Ohne mich geht nichts."
+      ],
+      "symptoms": [
+        "Unterbrechungen",
+        "fehlende Vertretung"
+      ],
+      "common_causes": [
+        "persönliche Kanäle",
+        "Entscheidungen nicht dokumentiert"
+      ],
+      "processes": [
+        "Anfrage",
+        "Disposition",
+        "Übergabe"
+      ],
+      "industries": [
+        "Solo- und Mikrobetriebe"
+      ],
+      "channels": [
+        "privates Telefon",
+        "WhatsApp",
+        "Gedächtnis"
+      ],
+      "digital_starting_state": "Digitalgrad beliebig; Zugriff und Eigentum sind das Problem",
+      "consequences": [
+        "Überlastung",
+        "Ausfallrisiko"
+      ],
+      "boundaries": [
+        "PF-04 betrifft den Vorgangsstatus"
+      ],
+      "evidence_refs": [
+        "RB02-C29-E01",
+        "RB03-P15"
+      ],
+      "confidence": "high",
+      "genai_role": "Übergaben, Q&A über bestätigtes Wissen, Standardantwortentwürfe",
+      "non_genai_requirement": "gemeinsamer Zugriff, Rollen, Dokumentationsregel",
+      "human_boundary": "Ausnahmen und sensible Entscheidungen"
+    },
+    {
+      "problem_family_id": "PF-12",
+      "name": "Unstrukturierte Dokumente und freie Texte",
+      "definition": "PDF, E-Mail, Bon, Diktat oder Nachricht werden nicht in einen prüfbaren Datensatz überführt.",
+      "typical_statements": [
+        "Aus dem Diktat schreibe ich später den Bericht."
+      ],
+      "symptoms": [
+        "manuelle Extraktion",
+        "fehlende Pflichtfelder"
+      ],
+      "common_causes": [
+        "kein Zielschema",
+        "keine Unsicherheitsmarkierung"
+      ],
+      "processes": [
+        "Auftragseingang",
+        "Beleg",
+        "Bericht"
+      ],
+      "industries": [
+        "Handwerk",
+        "Buchhaltung",
+        "Hausverwaltung"
+      ],
+      "channels": [
+        "PDF",
+        "Foto",
+        "E-Mail",
+        "Sprache"
+      ],
+      "digital_starting_state": "digitaler Rohinhalt vorhanden, bestätigte Struktur fehlt",
+      "consequences": [
+        "Zeitverlust",
+        "Übertragungsfehler"
+      ],
+      "boundaries": [
+        "PF-03 beschreibt den Medienbruch"
+      ],
+      "evidence_refs": [
+        "K-12_automation_pattern",
+        "RB03-C32-01"
+      ],
+      "confidence": "high",
+      "genai_role": "OCR/Verstehen, Felder extrahieren, Unsicherheit markieren",
+      "non_genai_requirement": "Zielschema, Originalablage, harte Validierung",
+      "human_boundary": "kritische Daten und Weiterverarbeitung"
+    }
   ],
   "solution_patterns": [
-    {"solution_id":"SP-01","name":"Gemeinsamer Anfrageeingang mit Missing-Info-Prüfung","problem_family_ids":["PF-01","PF-02","PF-03","PF-11","PF-12"],"applicable_if":["Anfragen kommen als freie digitale oder erfasste Inhalte an"],"not_applicable_if":["Notfallbewertung ohne feste Regeln","unklare Kapazität bei automatischer Annahme"],"suitable_industries":["Dienstleistung","Reparatur","Social-Commerce"],"suitable_processes":["Anfrage","Aufnahme"],"input_channels":["E-Mail","Webformular","WhatsApp","Telefonnotiz"],"minimum_information":["Kontakt","Anliegen","Leistung","Rückkanal"],"user_action":"Du leitest Anfragen an einen festen Eingang oder erfasst den Anruf kurz.","ai_task":"Die KI ordnet Kerndaten, zeigt fehlende Angaben und bereitet eine Antwort vor.","visible_output":"Eine Anfragekarte mit Status, offenen Angaben und Antwortentwurf.","human_check":"Du entscheidest über Dringlichkeit, Annahme, Termin und Antwort.","technical_prerequisites":["strukturierter Zieldatensatz","Korrekturmöglichkeit"],"organizational_prerequisites":["verantwortlicher Eingang"],"security_guardrails":["keine automatische Annahme","Daten minimieren"],"smallest_entry":"Ein gemeinsames Minimalformular und menschliche Sichtung.","later_stage":"Bestätigte Anfragen an Planung oder Auftragsakte übergeben.","failure_modes":["Nachricht als Auftrag behandeln","Doppelanfrage falsch zusammenführen"],"evidence_refs":["K-01_case_evidence","RB03-PP04"],"customer_language":"Alle Anfragen landen an einer Stelle; du entscheidest, welche du annimmst.","sample_output_type":"Anfragekarte"},
-    {"solution_id":"SP-02","name":"Einfache Vorgangsakte mit Status und nächstem Schritt","problem_family_ids":["PF-01","PF-04","PF-11"],"applicable_if":["ein klarer Vorgang existiert"],"not_applicable_if":["physisches Objekt ohne Kennzeichnung"],"suitable_industries":["Dienstleistung","Reparatur","Produktion"],"suitable_processes":["Auftrag","Übergabe"],"input_channels":["bestätigte Anfrage","Kurzerfassung"],"minimum_information":["Vorgangs-ID","Status","Verantwortung","nächster Schritt"],"user_action":"Du aktualisierst den Status nur bei einem realen Ereignis.","ai_task":"Die KI fasst Notizen zusammen und erkennt offene Punkte.","visible_output":"Eine Vorgangskarte mit Stand, Blockade und nächster Aktion.","human_check":"Du bestätigst Status, Abschluss, Meldung und Ausnahmen.","technical_prerequisites":["gemeinsame Liste"],"organizational_prerequisites":["wenige Statuswerte"],"security_guardrails":["rollenbasierter Zugriff"],"smallest_entry":"Wenige Statuswerte und eine Verantwortung pro Vorgang.","later_stage":"Meldungen nach bestätigten Ereignissen vorbereiten.","failure_modes":["Status per Vermutung","zu viele Statuswerte"],"evidence_refs":["RB03-P05","RB03-P15"],"customer_language":"Du siehst bei jedem Auftrag Stand, Verantwortung und offenen Schritt.","sample_output_type":"Auftragskarte"},
-    {"solution_id":"SP-03","name":"Mobile Einsatzdokumentation aus Sprache, Fotos und Bon","problem_family_ids":["PF-01","PF-03","PF-08","PF-09","PF-12"],"applicable_if":["mobile digitale Rohdaten entstehen","Einsatz ist verankerbar"],"not_applicable_if":["keine Einsatzzuordnung und kein leichter Anker","kein nutzbarer Erfassungskanal"],"suitable_industries":["Hausmeister","Montage","Reinigung","Außendienst"],"suitable_processes":["Einsatz","Inspektion","Rechnungsvorbereitung"],"input_channels":["Sprachnachricht","Fotos","Bonfoto","mobiles Formular"],"minimum_information":["Einsatzanker","Datum","Ort","Tätigkeit"],"user_action":"Du schickst nach dem Einsatz eine Sprachnachricht, Fotos und den Bon.","ai_task":"Die KI ordnet Sprache, Fotos und Bon dem Einsatz zu und markiert Unsicherheit.","visible_output":"Eine prüfbare Einsatznotiz mit Anhängen und offenen Angaben.","human_check":"Du prüfst Zuordnung, Zeit, Material, Zusatzarbeit und Beleg.","technical_prerequisites":["mobiler Eingang","sichere Dateiablage"],"organizational_prerequisites":["leichter Einsatzanker"],"security_guardrails":["keine Rechnung ohne Freigabe","Originalbeleg erhalten"],"smallest_entry":"Einsatzanker und mobile Einsatznotiz in einem Einstieg einführen.","later_stage":"Nach Bestätigung einen Rechnungsentwurf vorbereiten.","failure_modes":["falsche Einsatzzuordnung","Bon falsch gelesen","Zusatzarbeit ungeprüft"],"evidence_refs":["C-01_automation_patterns","RB03-P10","RB03-P12"],"customer_language":"Aus Sprache, Fotos und Bon entsteht deine fertige Einsatznotiz.","sample_output_type":"Einsatznotiz"},
-    {"solution_id":"SP-04","name":"Objekt-ID und echter Ablageort","problem_family_ids":["PF-04","PF-05"],"applicable_if":["physisches Kundenobjekt wird bearbeitet"],"not_applicable_if":["rein digitale Dienstleistung"],"suitable_industries":["Schuhreparatur","Fahrradreparatur","Reinigung","Vermietung"],"suitable_processes":["Annahme","Lagerung","Rückgabe"],"input_channels":["Annahmeformular","Etikett","Papierbeleg"],"minimum_information":["Objekt-ID","Kunde","Objektmerkmal","realer Ort","Status"],"user_action":"Du gibst Objekt und Auftrag dieselbe Kennung und aktualisierst den realen Ort.","ai_task":"Die KI ordnet Wünsche, Preisgrenze und offene Angaben; sie errät nie den Ort.","visible_output":"Eine Auftragskarte mit eindeutiger Objekt- und Ortszuordnung.","human_check":"Du prüfst Kennzeichnung, Zustand, Ort, Fertigmeldung und Herausgabe.","technical_prerequisites":["robustes Label oder Anhänger"],"organizational_prerequisites":["definierte Zonen oder Fächer"],"security_guardrails":["keine Herausgabe ohne Berechtigung","Ort nie erraten"],"smallest_entry":"Dieselbe Nummer auf Objekt, Beleg und Auftragsliste plus Ortsfeld.","later_stage":"Übergänge erfassen und Meldung nach Fertigprüfung vorbereiten.","failure_modes":["Label löst sich","Systemstatus ersetzt Ortsprüfung"],"evidence_refs":["RB02-C01-E01","RB03-P01"],"customer_language":"Jeder Gegenstand erhält eine Nummer; du bestätigst, wo er wirklich liegt.","sample_output_type":"Auftragskarte"},
-    {"solution_id":"SP-05","name":"Termin-Anfrage mit Kapazitätsprüfung","problem_family_ids":["PF-02","PF-06"],"applicable_if":["mehrere Ressourcen oder wechselnde Kapazität bestimmen Zusagen"],"not_applicable_if":["einfache stabile Einzelressource"],"suitable_industries":["Massage","Reinigung","mobile Dienste"],"suitable_processes":["Terminanfrage","Disposition"],"input_channels":["Webanfrage","WhatsApp","Telefon","Kalender"],"minimum_information":["Leistung","Dauer","Personen","Ort","Wunschzeit"],"user_action":"Du führst Terminwünsche zusammen und prüfst die reale Kapazität.","ai_task":"Die KI erkennt fehlende Angaben und schlägt passende Optionen vor.","visible_output":"Eine Terminanfrage mit Optionen und Kapazitätsstatus.","human_check":"Du bestätigst Personal, Ausnahme und den verbindlichen Termin.","technical_prerequisites":["aktuelle Kapazitätsdaten oder manueller Prüfschritt"],"organizational_prerequisites":["Zusagegrenzen definieren"],"security_guardrails":["keine automatische Zusage bei Unsicherheit"],"smallest_entry":"Alle Kanäle in einer Anfrageliste mit Mindestfeldern zusammenführen.","later_stage":"Bestätigte Termine regelbasiert in den Kalender übernehmen.","failure_modes":["Anfrage als Zusage","veraltete Personaldaten","Mehrpersonenleistung falsch"],"evidence_refs":["M-01_appointment_capacity_evidence","RB03-P13"],"customer_language":"Die KI schlägt Zeiten vor; du bestätigst erst bei echter Kapazität.","sample_output_type":"Terminanfrage"},
-    {"solution_id":"SP-06","name":"Dokument-zu-Datensatz mit Unsicherheitsprüfung","problem_family_ids":["PF-03","PF-09","PF-12"],"applicable_if":["Zielschema und Originalbezug sind klar"],"not_applicable_if":["kein Zielschema","hochkritisches Dokument ohne Fachprüfung"],"suitable_industries":["Handwerk","Buchhaltung","Fertigung"],"suitable_processes":["Dokumenteingang","Beleg","Bestellung"],"input_channels":["PDF","E-Mail","Foto","Scan","Sprache"],"minimum_information":["Dokumenttyp","Zielvorgang","Zielfelder","Prüfregeln"],"user_action":"Du lädst das Dokument hoch und prüfst die vorgeschlagenen Angaben.","ai_task":"Die KI extrahiert Felder und markiert Unsicherheit und Widersprüche.","visible_output":"Ein bestätigbarer Datensatz neben dem Original.","human_check":"Du prüfst Zuordnung, Beträge, Mengen und kritische Felder.","technical_prerequisites":["sichere Ablage","Zielschema","Validierung"],"organizational_prerequisites":["kritische Felder und Prüfrolle"],"security_guardrails":["keine Buchung nur aus KI-Ausgabe","Original erhalten"],"smallest_entry":"Einen Dokumenttyp mit wenigen Zielfeldern einführen.","later_stage":"Bestätigte Daten an das führende System übergeben.","failure_modes":["falscher Dokumenttyp","Datums- oder Betragsfehler","falscher Vorgang"],"evidence_refs":["RB02-C26-E01","RB03-L08"],"customer_language":"Die KI übernimmt Angaben und zeigt dir unsichere Stellen zur Prüfung.","sample_output_type":"Datensatz"},
-    {"solution_id":"SP-07","name":"Zusatzarbeit mit dokumentierter Freigabe","problem_family_ids":["PF-04","PF-07","PF-08"],"applicable_if":["Abweichungen verändern Leistung, Preis oder Termin"],"not_applicable_if":["vollständig standardisierter Auftrag"],"suitable_industries":["Handwerk","Reparatur","Produktion"],"suitable_processes":["Zusatzarbeit","Änderung"],"input_channels":["Foto","Diktat","Angebot","Kundenkanal"],"minimum_information":["Auftrag","Abweichung","Auswirkung","Freigaberolle"],"user_action":"Du meldest die Abweichung und pausierst bis zur Entscheidung.","ai_task":"Die KI strukturiert Befund und bereitet Änderungsfrage und Entwurf vor.","visible_output":"Ein Änderungsfall mit Version, Status und Entscheidung.","human_check":"Du prüfst Technik, Preis, Termin, Zustimmung und Wiederaufnahme.","technical_prerequisites":["versionierte Auftragsakte","Freigabestatus"],"organizational_prerequisites":["klare Schwellen und Berechtigungen"],"security_guardrails":["keine autonome Preisentscheidung"],"smallest_entry":"Eine standardisierte Änderungsnotiz mit Freigabe, Ablehnung oder Rückfrage.","later_stage":"Nach Freigabe Auftrag und Rechnungsentwurf aktualisieren.","failure_modes":["falsche Kontaktperson","Arbeit läuft trotz Stopp","alte Version aktiv"],"evidence_refs":["RB03-P06","RB03-P14"],"customer_language":"Die KI bereitet die Änderung vor; du entscheidest, bevor es weitergeht.","sample_output_type":"Änderungsnotiz"},
-    {"solution_id":"SP-08","name":"Einfaches Material- und Produktionsboard","problem_family_ids":["PF-04","PF-10"],"applicable_if":["Artikel, Variante und Prozessstufen sind identifizierbar"],"not_applicable_if":["hochregulierte Charge ohne Fachsystem","Varianten unbekannt"],"suitable_industries":["Druck","Textil","Lebensmittel","3D-Druck"],"suitable_processes":["Produktion","Materialfluss"],"input_channels":["Auftrag","Stückliste","Produktionsereignis"],"minimum_information":["Auftrag","Variante","Material","Stufe","Freigabe"],"user_action":"Du bestätigst Materialentnahme und Stufenwechsel an klaren Übergaben.","ai_task":"Die KI bereitet Aufgaben vor und markiert fehlendes Material oder Widersprüche.","visible_output":"Ein Board mit Auftrag, Materialstatus, Schritt und Blockade.","human_check":"Du prüfst Stückliste, Menge, Priorität, Qualität und Versand.","technical_prerequisites":["Artikel- und Variantenidentität"],"organizational_prerequisites":["wenige reale Buchungsereignisse"],"security_guardrails":["keine automatische Bestandskorrektur","keine Qualitätsfreigabe"],"smallest_entry":"Eine Produktfamilie mit wenigen Status und manuellem Abgleich.","later_stage":"Bestätigte Bestandsbewegungen und Vorschläge ergänzen.","failure_modes":["falsche Variante","Papier und System weichen ab"],"evidence_refs":["C-02_automation_patterns","RB03-PP03"],"customer_language":"Du siehst Material, aktuellen Schritt und Blockade je Auftrag.","sample_output_type":"Auftrags- und Materialstatus"},
-    {"solution_id":"SP-09","name":"Geprüfte Rechnungsgrundlage und Zahlungsnachverfolgung","problem_family_ids":["PF-03","PF-08","PF-09"],"applicable_if":["bestätigte Leistung und eindeutige Zahlungszuordnung existieren"],"not_applicable_if":["Preis oder Leistung ungeklärt","rechtliche Eskalation ohne Fachprüfung"],"suitable_industries":["Außendienst","Reparatur","Dienstleistung"],"suitable_processes":["Rechnung","Zahlung"],"input_channels":["Leistungsnachweis","Rechnungssystem","Zahlungsstatus"],"minimum_information":["Kunde","Leistung","Datum","Preisquelle","Fälligkeit"],"user_action":"Du gibst den Leistungsnachweis frei und prüfst Entwurf und offene Fälle.","ai_task":"Die KI schlägt Positionen vor, markiert Belege und erstellt Erinnerungsentwürfe.","visible_output":"Ein Rechnungsentwurf oder eine Liste offener Zahlungen.","human_check":"Du prüfst Preis, Steuer, Leistung, Versand und Eskalation.","technical_prerequisites":["führende Rechnungs- und Zahlungsquelle"],"organizational_prerequisites":["Fälligkeit und Ausnahmen festgelegt"],"security_guardrails":["keine autonome Mahnung","keine falsche Zahlungszuordnung"],"smallest_entry":"Aus bestätigten Leistungen nur einen Entwurf erzeugen.","later_stage":"Zahlungen abgleichen und Erinnerungsentwurf vorlegen.","failure_modes":["Zahlung falsch zugeordnet","unbestätigte Arbeit berechnet"],"evidence_refs":["K-07_case_evidence","RB03-PP08"],"customer_language":"Aus bestätigten Leistungen entsteht ein Entwurf, den du prüfst.","sample_output_type":"Rechnungsentwurf"},
-    {"solution_id":"SP-10","name":"Übergabe- und Wissensnotiz im Vorgang","problem_family_ids":["PF-01","PF-04","PF-11"],"applicable_if":["Vorgangskontext und Vertretung existieren"],"not_applicable_if":["sensible Fachentscheidung ohne Prüfung","kein Vorgangskontext"],"suitable_industries":["kleine Teams","Werkstatt","Kundenservice"],"suitable_processes":["Übergabe","Vertretung"],"input_channels":["Notiz","Diktat","E-Mail"],"minimum_information":["Vorgang","Ereignis","Verantwortung","nächster Schritt"],"user_action":"Du sprichst oder notierst nach einer wichtigen Entscheidung kurz den Stand.","ai_task":"Die KI strukturiert Notiz, offene Aufgabe und bestätigte Historie.","visible_output":"Eine kompakte Übergabenotiz im richtigen Vorgang.","human_check":"Du bestätigst Entscheidung, Zugriff, Verantwortung und Übernahme.","technical_prerequisites":["Vorgangsakte","Rollen"],"organizational_prerequisites":["Dokumentationsregel für Entscheidungen"],"security_guardrails":["keine privaten Chats sammeln","sensible Daten minimieren"],"smallest_entry":"Was ist passiert, was ist offen, wer übernimmt.","later_stage":"Standardantworten und Übergabeübersicht ergänzen.","failure_modes":["fremde Vorgänge vermischt","veraltete Notiz als aktuelle Entscheidung"],"evidence_refs":["RB02-C29-E01","RB03-P15"],"customer_language":"Die KI fasst den Stand kurz zusammen; du bestätigst die Übergabe.","sample_output_type":"Übergabenotiz"}
+    {
+      "solution_id": "SP-01",
+      "name": "Gemeinsamer Anfrageeingang mit Missing-Info-Prüfung",
+      "problem_family_ids": [
+        "PF-01",
+        "PF-02",
+        "PF-03"
+      ],
+      "applicable_if": [
+        "Anfragen kommen als freie digitale oder erfasste Inhalte an"
+      ],
+      "not_applicable_if": [
+        "Notfallbewertung ohne feste Regeln",
+        "unklare Kapazität bei automatischer Annahme"
+      ],
+      "suitable_industries": [
+        "Dienstleistung",
+        "Reparatur",
+        "Social-Commerce"
+      ],
+      "suitable_processes": [
+        "Anfrage",
+        "Aufnahme"
+      ],
+      "input_channels": [
+        "E-Mail",
+        "Webformular",
+        "WhatsApp",
+        "Telefonnotiz"
+      ],
+      "minimum_information": [
+        "Kontakt",
+        "Anliegen",
+        "Leistung",
+        "Rückkanal"
+      ],
+      "user_action": "Du leitest Anfragen an einen festen Eingang oder erfasst den Anruf kurz.",
+      "ai_task": "Die KI ordnet Kerndaten, zeigt fehlende Angaben und bereitet eine Antwort vor.",
+      "visible_output": "Eine Anfragekarte mit Status, offenen Angaben und Antwortentwurf.",
+      "human_check": "Du entscheidest über Dringlichkeit, Annahme, Termin und Antwort.",
+      "technical_prerequisites": [
+        "strukturierter Zieldatensatz",
+        "Korrekturmöglichkeit"
+      ],
+      "organizational_prerequisites": [
+        "verantwortlicher Eingang"
+      ],
+      "security_guardrails": [
+        "keine automatische Annahme",
+        "Daten minimieren"
+      ],
+      "smallest_entry": "Ein gemeinsames Minimalformular und menschliche Sichtung.",
+      "later_stage": "Bestätigte Anfragen an Planung oder Auftragsakte übergeben.",
+      "failure_modes": [
+        "Nachricht als Auftrag behandeln",
+        "Doppelanfrage falsch zusammenführen"
+      ],
+      "evidence_refs": [
+        "K-01_case_evidence",
+        "RB03-PP04"
+      ],
+      "customer_language": "Alle Anfragen landen an einer Stelle; du entscheidest, welche du annimmst.",
+      "sample_output_type": "Anfragekarte",
+      "genai_capability_ids": [
+        "GAI-01",
+        "GAI-03",
+        "GAI-05",
+        "GAI-06"
+      ],
+      "deterministic_components": [
+        "Anfrage-ID",
+        "Deduplizierung",
+        "Status",
+        "Verantwortlichkeit",
+        "Frist"
+      ],
+      "human_decisions": [
+        "Annahme",
+        "Ablehnung",
+        "Priorität",
+        "Termin",
+        "Preis"
+      ],
+      "positive_variants": [
+        "Hausgerätereparatur",
+        "Handwerkerbetrieb",
+        "Druckerei"
+      ],
+      "counterexample": "Ein Betrieb erhält kaum Anfragen und verliert keine; ein neuer KI-Eingang schafft mehr Pflege als Nutzen.",
+      "pilot": {
+        "scope": "30 echte Anfragen eines Kanals",
+        "output": "Anfragekarte und Missing-Info-Liste",
+        "no_action": "kein automatischer Versand"
+      },
+      "metrics": [
+        "Erfassungszeit",
+        "Vollständigkeit",
+        "übersehene Anfragen",
+        "Feldkorrekturen"
+      ],
+      "stop_conditions": [
+        "mehr Nacharbeit als vorher",
+        "kritische Fehlklassifikationen"
+      ],
+      "autonomy_level_min": "A2",
+      "autonomy_level_max": "A2"
+    },
+    {
+      "solution_id": "SP-02",
+      "name": "Einfache Vorgangsakte mit Status und nächstem Schritt",
+      "problem_family_ids": [
+        "PF-01",
+        "PF-04",
+        "PF-11"
+      ],
+      "applicable_if": [
+        "ein klarer Vorgang existiert"
+      ],
+      "not_applicable_if": [
+        "physisches Objekt ohne Kennzeichnung"
+      ],
+      "suitable_industries": [
+        "Dienstleistung",
+        "Reparatur",
+        "Produktion"
+      ],
+      "suitable_processes": [
+        "Auftrag",
+        "Übergabe"
+      ],
+      "input_channels": [
+        "bestätigte Anfrage",
+        "Kurzerfassung"
+      ],
+      "minimum_information": [
+        "Vorgangs-ID",
+        "Status",
+        "Verantwortung",
+        "nächster Schritt"
+      ],
+      "user_action": "Du aktualisierst den Status nur bei einem realen Ereignis.",
+      "ai_task": "Die KI fasst Notizen zusammen und erkennt offene Punkte.",
+      "visible_output": "Eine Vorgangskarte mit Stand, Blockade und nächster Aktion.",
+      "human_check": "Du bestätigst Status, Abschluss, Meldung und Ausnahmen.",
+      "technical_prerequisites": [
+        "gemeinsame Liste"
+      ],
+      "organizational_prerequisites": [
+        "wenige Statuswerte"
+      ],
+      "security_guardrails": [
+        "rollenbasierter Zugriff"
+      ],
+      "smallest_entry": "Wenige Statuswerte und eine Verantwortung pro Vorgang.",
+      "later_stage": "Meldungen nach bestätigten Ereignissen vorbereiten.",
+      "failure_modes": [
+        "Status per Vermutung",
+        "zu viele Statuswerte"
+      ],
+      "evidence_refs": [
+        "RB03-P05",
+        "RB03-P15"
+      ],
+      "customer_language": "Du siehst bei jedem Auftrag Stand, Verantwortung und offenen Schritt.",
+      "sample_output_type": "Auftragskarte",
+      "genai_capability_ids": [
+        "GAI-04",
+        "GAI-05",
+        "GAI-08"
+      ],
+      "deterministic_components": [
+        "Vorgangs-ID",
+        "Statuswerte",
+        "Verantwortlicher",
+        "Zeitstempel",
+        "Audit Trail"
+      ],
+      "human_decisions": [
+        "Statusänderung",
+        "Abschluss",
+        "Blockade aufheben"
+      ],
+      "positive_variants": [
+        "Kfz-Werkstatt",
+        "Schuhreparatur",
+        "Textildruck"
+      ],
+      "counterexample": "Ein einmaliger Vorgang ohne Übergaben braucht keine dauerhafte Akte.",
+      "pilot": {
+        "scope": "20 laufende Vorgänge",
+        "output": "vorbereitete Tagesübersicht",
+        "no_action": "kein automatischer Statuswechsel"
+      },
+      "metrics": [
+        "Suchzeit",
+        "Rückfragen",
+        "vergessene Schritte",
+        "Vorschlagskorrekturen"
+      ],
+      "stop_conditions": [
+        "Historie ist unvollständig",
+        "Statusvorschläge werden häufig falsch übernommen"
+      ],
+      "autonomy_level_min": "A2",
+      "autonomy_level_max": "A2"
+    },
+    {
+      "solution_id": "SP-03",
+      "name": "Mobile Einsatzdokumentation aus Sprache, Fotos und Bon",
+      "problem_family_ids": [
+        "PF-01",
+        "PF-03",
+        "PF-08",
+        "PF-09",
+        "PF-12"
+      ],
+      "applicable_if": [
+        "mobile digitale Rohdaten entstehen",
+        "Einsatz ist verankerbar"
+      ],
+      "not_applicable_if": [
+        "keine Einsatzzuordnung und kein leichter Anker",
+        "kein nutzbarer Erfassungskanal"
+      ],
+      "suitable_industries": [
+        "Hausmeister",
+        "Montage",
+        "Reinigung",
+        "Außendienst"
+      ],
+      "suitable_processes": [
+        "Einsatz",
+        "Inspektion",
+        "Rechnungsvorbereitung"
+      ],
+      "input_channels": [
+        "Sprachnachricht",
+        "Fotos",
+        "Bonfoto",
+        "mobiles Formular"
+      ],
+      "minimum_information": [
+        "Einsatzanker",
+        "Datum",
+        "Ort",
+        "Tätigkeit"
+      ],
+      "user_action": "Du schickst nach dem Einsatz eine Sprachnachricht, Fotos und den Bon.",
+      "ai_task": "Die KI ordnet Sprache, Fotos und Bon dem Einsatz zu und markiert Unsicherheit.",
+      "visible_output": "Eine prüfbare Einsatznotiz mit Anhängen und offenen Angaben.",
+      "human_check": "Du prüfst Zuordnung, Zeit, Material, Zusatzarbeit und Beleg.",
+      "technical_prerequisites": [
+        "mobiler Eingang",
+        "sichere Dateiablage"
+      ],
+      "organizational_prerequisites": [
+        "leichter Einsatzanker"
+      ],
+      "security_guardrails": [
+        "keine Rechnung ohne Freigabe",
+        "Originalbeleg erhalten"
+      ],
+      "smallest_entry": "Einsatzanker und mobile Einsatznotiz in einem Einstieg einführen.",
+      "later_stage": "Nach Bestätigung einen Rechnungsentwurf vorbereiten.",
+      "failure_modes": [
+        "falsche Einsatzzuordnung",
+        "Bon falsch gelesen",
+        "Zusatzarbeit ungeprüft"
+      ],
+      "evidence_refs": [
+        "C-01_automation_patterns",
+        "RB03-P10",
+        "RB03-P12"
+      ],
+      "customer_language": "Aus Sprache, Fotos und Bon entsteht deine fertige Einsatznotiz.",
+      "sample_output_type": "Einsatznotiz",
+      "genai_capability_ids": [
+        "GAI-01",
+        "GAI-02",
+        "GAI-05",
+        "GAI-06"
+      ],
+      "deterministic_components": [
+        "Einsatz-ID",
+        "Upload-Zuordnung",
+        "Pflichtfelder",
+        "Preisquelle",
+        "Originalablage"
+      ],
+      "human_decisions": [
+        "Zeit",
+        "Material",
+        "Leistung",
+        "Zusatzarbeit",
+        "Abnahme"
+      ],
+      "positive_variants": [
+        "Hausmeisterservice",
+        "Elektroservice",
+        "mobile Kfz-Reparatur"
+      ],
+      "counterexample": "Wenn im Feld weder Smartphone noch zuverlässige spätere Zuordnung möglich sind, muss zuerst ein einfacher nummerierter Nachweis entstehen.",
+      "pilot": {
+        "scope": "5 bis 10 echte Einsätze",
+        "output": "Einsatznotizentwurf",
+        "no_action": "keine Rechnungserzeugung oder Buchung"
+      },
+      "metrics": [
+        "Dokumentationszeit",
+        "Vollständigkeit",
+        "Korrekturen je Feld",
+        "Tage bis Rechnungsbereitschaft"
+      ],
+      "stop_conditions": [
+        "Medien werden falsch zugeordnet",
+        "kritische Angaben werden erfunden"
+      ],
+      "autonomy_level_min": "A2",
+      "autonomy_level_max": "A2"
+    },
+    {
+      "solution_id": "SP-04",
+      "name": "Objekt-ID und echter Ablageort",
+      "problem_family_ids": [
+        "PF-05"
+      ],
+      "applicable_if": [
+        "physisches Kundenobjekt wird bearbeitet"
+      ],
+      "not_applicable_if": [
+        "rein digitale Dienstleistung"
+      ],
+      "suitable_industries": [
+        "Schuhreparatur",
+        "Fahrradreparatur",
+        "Reinigung",
+        "Vermietung"
+      ],
+      "suitable_processes": [
+        "Annahme",
+        "Lagerung",
+        "Rückgabe"
+      ],
+      "input_channels": [
+        "Annahmeformular",
+        "Etikett",
+        "Papierbeleg"
+      ],
+      "minimum_information": [
+        "Objekt-ID",
+        "Kunde",
+        "Objektmerkmal",
+        "realer Ort",
+        "Status"
+      ],
+      "user_action": "Du gibst Objekt und Auftrag dieselbe Kennung und aktualisierst den realen Ort.",
+      "ai_task": "Die KI ordnet Wünsche, Preisgrenze und offene Angaben; sie errät nie den Ort.",
+      "visible_output": "Eine Auftragskarte mit eindeutiger Objekt- und Ortszuordnung.",
+      "human_check": "Du prüfst Kennzeichnung, Zustand, Ort, Fertigmeldung und Herausgabe.",
+      "technical_prerequisites": [
+        "robustes Label oder Anhänger"
+      ],
+      "organizational_prerequisites": [
+        "definierte Zonen oder Fächer"
+      ],
+      "security_guardrails": [
+        "keine Herausgabe ohne Berechtigung",
+        "Ort nie erraten"
+      ],
+      "smallest_entry": "Dieselbe Nummer auf Objekt, Beleg und Auftragsliste plus Ortsfeld.",
+      "later_stage": "Übergänge erfassen und Meldung nach Fertigprüfung vorbereiten.",
+      "failure_modes": [
+        "Label löst sich",
+        "Systemstatus ersetzt Ortsprüfung"
+      ],
+      "evidence_refs": [
+        "RB02-C01-E01",
+        "RB03-P01"
+      ],
+      "customer_language": "Jeder Gegenstand erhält eine Nummer; du bestätigst, wo er wirklich liegt.",
+      "sample_output_type": "Auftragskarte",
+      "genai_capability_ids": [
+        "GAI-01",
+        "GAI-05"
+      ],
+      "deterministic_components": [
+        "physische Kennung",
+        "Auftrags-ID",
+        "Lagerort",
+        "Scan- oder Buchungsereignis"
+      ],
+      "human_decisions": [
+        "Identität",
+        "Ort",
+        "Herausgabe"
+      ],
+      "positive_variants": [
+        "Schuhreparatur",
+        "Textilreinigung",
+        "Schmuckreparatur"
+      ],
+      "counterexample": "GenAI darf keinen physischen Standort aus Notizen erraten; ohne Kennung ist eine KI-first-Lösung ungeeignet.",
+      "pilot": {
+        "scope": "ID und Ortsfeld ohne KI einführen",
+        "output": "optional strukturierte Annahmenotiz",
+        "no_action": "keine Standort- oder Herausgabeentscheidung"
+      },
+      "metrics": [
+        "Suchzeit",
+        "Fehlzuordnungen",
+        "fehlende Annahmefelder"
+      ],
+      "stop_conditions": [
+        "Kennzeichnung wird nicht konsequent genutzt"
+      ],
+      "autonomy_level_min": "A0",
+      "autonomy_level_max": "A2"
+    },
+    {
+      "solution_id": "SP-05",
+      "name": "Termin-Anfrage mit Kapazitätsprüfung",
+      "problem_family_ids": [
+        "PF-02",
+        "PF-06"
+      ],
+      "applicable_if": [
+        "mehrere Ressourcen oder wechselnde Kapazität bestimmen Zusagen"
+      ],
+      "not_applicable_if": [
+        "einfache stabile Einzelressource"
+      ],
+      "suitable_industries": [
+        "Massage",
+        "Reinigung",
+        "mobile Dienste"
+      ],
+      "suitable_processes": [
+        "Terminanfrage",
+        "Disposition"
+      ],
+      "input_channels": [
+        "Webanfrage",
+        "WhatsApp",
+        "Telefon",
+        "Kalender"
+      ],
+      "minimum_information": [
+        "Leistung",
+        "Dauer",
+        "Personen",
+        "Ort",
+        "Wunschzeit"
+      ],
+      "user_action": "Du führst Terminwünsche zusammen und prüfst die reale Kapazität.",
+      "ai_task": "Die KI erkennt fehlende Angaben und schlägt passende Optionen vor.",
+      "visible_output": "Eine Terminanfrage mit Optionen und Kapazitätsstatus.",
+      "human_check": "Du bestätigst Personal, Ausnahme und den verbindlichen Termin.",
+      "technical_prerequisites": [
+        "aktuelle Kapazitätsdaten oder manueller Prüfschritt"
+      ],
+      "organizational_prerequisites": [
+        "Zusagegrenzen definieren"
+      ],
+      "security_guardrails": [
+        "keine automatische Zusage bei Unsicherheit"
+      ],
+      "smallest_entry": "Alle Kanäle in einer Anfrageliste mit Mindestfeldern zusammenführen.",
+      "later_stage": "Bestätigte Termine regelbasiert in den Kalender übernehmen.",
+      "failure_modes": [
+        "Anfrage als Zusage",
+        "veraltete Personaldaten",
+        "Mehrpersonenleistung falsch"
+      ],
+      "evidence_refs": [
+        "M-01_appointment_capacity_evidence",
+        "RB03-P13"
+      ],
+      "customer_language": "Die KI schlägt Zeiten vor; du bestätigst erst bei echter Kapazität.",
+      "sample_output_type": "Terminanfrage",
+      "genai_capability_ids": [
+        "GAI-01",
+        "GAI-05",
+        "GAI-08",
+        "GAI-06"
+      ],
+      "deterministic_components": [
+        "Kalender",
+        "Personal",
+        "Qualifikation",
+        "Dauer",
+        "Wegzeit",
+        "Material",
+        "Sperrzeiten"
+      ],
+      "human_decisions": [
+        "verbindliche Buchung",
+        "Ausnahme",
+        "Personaleinsatz"
+      ],
+      "positive_variants": [
+        "SHK/HVAC",
+        "Brunnenservice",
+        "Schädlingsbekämpfung"
+      ],
+      "counterexample": "Ohne aktuelle Kapazitätsdaten kann KI keine belastbaren Slots nennen.",
+      "pilot": {
+        "scope": "KI formuliert drei geprüfte Optionen",
+        "output": "Terminvorschlag",
+        "no_action": "keine automatische Buchung"
+      },
+      "metrics": [
+        "Abstimmungsschleifen",
+        "Fehlbuchungen",
+        "Zeit bis Bestätigung"
+      ],
+      "stop_conditions": [
+        "Kapazitätsdaten sind veraltet",
+        "Constraints werden verletzt"
+      ],
+      "autonomy_level_min": "A2",
+      "autonomy_level_max": "A2"
+    },
+    {
+      "solution_id": "SP-06",
+      "name": "Dokument-zu-Datensatz mit Unsicherheitsprüfung",
+      "problem_family_ids": [
+        "PF-03",
+        "PF-09",
+        "PF-12"
+      ],
+      "applicable_if": [
+        "Zielschema und Originalbezug sind klar"
+      ],
+      "not_applicable_if": [
+        "kein Zielschema",
+        "hochkritisches Dokument ohne Fachprüfung"
+      ],
+      "suitable_industries": [
+        "Handwerk",
+        "Buchhaltung",
+        "Fertigung"
+      ],
+      "suitable_processes": [
+        "Dokumenteingang",
+        "Beleg",
+        "Bestellung"
+      ],
+      "input_channels": [
+        "PDF",
+        "E-Mail",
+        "Foto",
+        "Scan",
+        "Sprache"
+      ],
+      "minimum_information": [
+        "Dokumenttyp",
+        "Zielvorgang",
+        "Zielfelder",
+        "Prüfregeln"
+      ],
+      "user_action": "Du lädst das Dokument hoch und prüfst die vorgeschlagenen Angaben.",
+      "ai_task": "Die KI extrahiert Felder und markiert Unsicherheit und Widersprüche.",
+      "visible_output": "Ein bestätigbarer Datensatz neben dem Original.",
+      "human_check": "Du prüfst Zuordnung, Beträge, Mengen und kritische Felder.",
+      "technical_prerequisites": [
+        "sichere Ablage",
+        "Zielschema",
+        "Validierung"
+      ],
+      "organizational_prerequisites": [
+        "kritische Felder und Prüfrolle"
+      ],
+      "security_guardrails": [
+        "keine Buchung nur aus KI-Ausgabe",
+        "Original erhalten"
+      ],
+      "smallest_entry": "Einen Dokumenttyp mit wenigen Zielfeldern einführen.",
+      "later_stage": "Bestätigte Daten an das führende System übergeben.",
+      "failure_modes": [
+        "falscher Dokumenttyp",
+        "Datums- oder Betragsfehler",
+        "falscher Vorgang"
+      ],
+      "evidence_refs": [
+        "RB02-C26-E01",
+        "RB03-L08"
+      ],
+      "customer_language": "Die KI übernimmt Angaben und zeigt dir unsichere Stellen zur Prüfung.",
+      "sample_output_type": "Datensatz",
+      "genai_capability_ids": [
+        "GAI-02",
+        "GAI-03",
+        "GAI-05"
+      ],
+      "deterministic_components": [
+        "Zielschema",
+        "Datentypen",
+        "Wertebereiche",
+        "Summenprüfung",
+        "Originalbezug",
+        "Version"
+      ],
+      "human_decisions": [
+        "kritische Feldwerte",
+        "Buchung",
+        "Zahlung",
+        "Vertragsinterpretation"
+      ],
+      "positive_variants": [
+        "Belege im Außendienst",
+        "Lieferdokumente in Kleinproduktion",
+        "Rechnungen im Handwerksbetrieb"
+      ],
+      "counterexample": "Ein sauberer Standardexport aus bestehender Software sollte direkt importiert und nicht erneut mit GenAI interpretiert werden.",
+      "pilot": {
+        "scope": "50 repräsentative Dokumente",
+        "output": "strukturierter Datensatz mit Unsicherheit",
+        "no_action": "keine Buchung oder Zahlung"
+      },
+      "metrics": [
+        "Feldgenauigkeit",
+        "kritische Fehler",
+        "Bearbeitungszeit",
+        "Unsicherheitsquote"
+      ],
+      "stop_conditions": [
+        "kritische Fehler werden nicht markiert"
+      ],
+      "autonomy_level_min": "A2",
+      "autonomy_level_max": "A2"
+    },
+    {
+      "solution_id": "SP-07",
+      "name": "Zusatzarbeit mit dokumentierter Freigabe",
+      "problem_family_ids": [
+        "PF-07",
+        "PF-08"
+      ],
+      "applicable_if": [
+        "Abweichungen verändern Leistung, Preis oder Termin"
+      ],
+      "not_applicable_if": [
+        "vollständig standardisierter Auftrag"
+      ],
+      "suitable_industries": [
+        "Handwerk",
+        "Reparatur",
+        "Produktion"
+      ],
+      "suitable_processes": [
+        "Zusatzarbeit",
+        "Änderung"
+      ],
+      "input_channels": [
+        "Foto",
+        "Diktat",
+        "Angebot",
+        "Kundenkanal"
+      ],
+      "minimum_information": [
+        "Auftrag",
+        "Abweichung",
+        "Auswirkung",
+        "Freigaberolle"
+      ],
+      "user_action": "Du meldest die Abweichung und pausierst bis zur Entscheidung.",
+      "ai_task": "Die KI strukturiert Befund und bereitet Änderungsfrage und Entwurf vor.",
+      "visible_output": "Ein Änderungsfall mit Version, Status und Entscheidung.",
+      "human_check": "Du prüfst Technik, Preis, Termin, Zustimmung und Wiederaufnahme.",
+      "technical_prerequisites": [
+        "versionierte Auftragsakte",
+        "Freigabestatus"
+      ],
+      "organizational_prerequisites": [
+        "klare Schwellen und Berechtigungen"
+      ],
+      "security_guardrails": [
+        "keine autonome Preisentscheidung"
+      ],
+      "smallest_entry": "Eine standardisierte Änderungsnotiz mit Freigabe, Ablehnung oder Rückfrage.",
+      "later_stage": "Nach Freigabe Auftrag und Rechnungsentwurf aktualisieren.",
+      "failure_modes": [
+        "falsche Kontaktperson",
+        "Arbeit läuft trotz Stopp",
+        "alte Version aktiv"
+      ],
+      "evidence_refs": [
+        "RB03-P06",
+        "RB03-P14"
+      ],
+      "customer_language": "Die KI bereitet die Änderung vor; du entscheidest, bevor es weitergeht.",
+      "sample_output_type": "Änderungsnotiz",
+      "genai_capability_ids": [
+        "GAI-01",
+        "GAI-02",
+        "GAI-05",
+        "GAI-06"
+      ],
+      "deterministic_components": [
+        "Version",
+        "Stoppstatus",
+        "Berechtigung",
+        "Freigabeereignis",
+        "Zeitstempel"
+      ],
+      "human_decisions": [
+        "Diagnose",
+        "Preis",
+        "Termin",
+        "Fortsetzung",
+        "Zustimmung"
+      ],
+      "positive_variants": [
+        "Kfz-Reparatur",
+        "Möbelrestaurierung",
+        "Elektroservice"
+      ],
+      "counterexample": "Bei sicherheitskritischer technischer Diagnose darf ein Modell nicht die fachliche Bewertung ersetzen.",
+      "pilot": {
+        "scope": "Änderungsnotiz und Kommunikationsentwurf",
+        "output": "prüfbare Freigabeanfrage",
+        "no_action": "keine Fortsetzung ohne dokumentiertes Ja"
+      },
+      "metrics": [
+        "Zeit bis Freigabe",
+        "Streitfälle",
+        "fehlende Nachweise"
+      ],
+      "stop_conditions": [
+        "Arbeit wird trotz fehlender Freigabe ausgelöst"
+      ],
+      "autonomy_level_min": "A2",
+      "autonomy_level_max": "A2"
+    },
+    {
+      "solution_id": "SP-08",
+      "name": "Einfaches Material- und Produktionsboard",
+      "problem_family_ids": [
+        "PF-04",
+        "PF-10"
+      ],
+      "applicable_if": [
+        "Artikel, Variante und Prozessstufen sind identifizierbar"
+      ],
+      "not_applicable_if": [
+        "hochregulierte Charge ohne Fachsystem",
+        "Varianten unbekannt"
+      ],
+      "suitable_industries": [
+        "Druck",
+        "Textil",
+        "Lebensmittel",
+        "3D-Druck"
+      ],
+      "suitable_processes": [
+        "Produktion",
+        "Materialfluss"
+      ],
+      "input_channels": [
+        "Auftrag",
+        "Stückliste",
+        "Produktionsereignis"
+      ],
+      "minimum_information": [
+        "Auftrag",
+        "Variante",
+        "Material",
+        "Stufe",
+        "Freigabe"
+      ],
+      "user_action": "Du bestätigst Materialentnahme und Stufenwechsel an klaren Übergaben.",
+      "ai_task": "Die KI bereitet Aufgaben vor und markiert fehlendes Material oder Widersprüche.",
+      "visible_output": "Ein Board mit Auftrag, Materialstatus, Schritt und Blockade.",
+      "human_check": "Du prüfst Stückliste, Menge, Priorität, Qualität und Versand.",
+      "technical_prerequisites": [
+        "Artikel- und Variantenidentität"
+      ],
+      "organizational_prerequisites": [
+        "wenige reale Buchungsereignisse"
+      ],
+      "security_guardrails": [
+        "keine automatische Bestandskorrektur",
+        "keine Qualitätsfreigabe"
+      ],
+      "smallest_entry": "Eine Produktfamilie mit wenigen Status und manuellem Abgleich.",
+      "later_stage": "Bestätigte Bestandsbewegungen und Vorschläge ergänzen.",
+      "failure_modes": [
+        "falsche Variante",
+        "Papier und System weichen ab"
+      ],
+      "evidence_refs": [
+        "C-02_automation_patterns",
+        "RB03-PP03"
+      ],
+      "customer_language": "Du siehst Material, aktuellen Schritt und Blockade je Auftrag.",
+      "sample_output_type": "Auftrags- und Materialstatus",
+      "genai_capability_ids": [
+        "GAI-01",
+        "GAI-04",
+        "GAI-05",
+        "GAI-08"
+      ],
+      "deterministic_components": [
+        "Artikel",
+        "Varianten",
+        "Stückliste",
+        "Bestand",
+        "Charge",
+        "Qualitätsstatus"
+      ],
+      "human_decisions": [
+        "Mengen",
+        "Qualität",
+        "Charge",
+        "Versand"
+      ],
+      "positive_variants": [
+        "Kabelkonfektionierung",
+        "Etikettendruck",
+        "individueller Möbelbau"
+      ],
+      "counterexample": "Bei fehlenden oder widersprüchlichen Stammdaten muss zuerst die fachliche Struktur verbessert werden.",
+      "pilot": {
+        "scope": "Auftragszerlegung für eine Produktfamilie",
+        "output": "Aufgaben- und Missing-Info-Vorschlag",
+        "no_action": "keine Bestandskorrektur oder Qualitätsfreigabe"
+      },
+      "metrics": [
+        "Planungszeit",
+        "Fehlteile",
+        "Variantenfehler",
+        "Korrekturquote"
+      ],
+      "stop_conditions": [
+        "Stammdaten sind unzuverlässig"
+      ],
+      "autonomy_level_min": "A2",
+      "autonomy_level_max": "A2"
+    },
+    {
+      "solution_id": "SP-09",
+      "name": "Geprüfte Rechnungsgrundlage und Zahlungsnachverfolgung",
+      "problem_family_ids": [
+        "PF-03",
+        "PF-08",
+        "PF-09"
+      ],
+      "applicable_if": [
+        "bestätigte Leistung und eindeutige Zahlungszuordnung existieren"
+      ],
+      "not_applicable_if": [
+        "Preis oder Leistung ungeklärt",
+        "rechtliche Eskalation ohne Fachprüfung"
+      ],
+      "suitable_industries": [
+        "Außendienst",
+        "Reparatur",
+        "Dienstleistung"
+      ],
+      "suitable_processes": [
+        "Rechnung",
+        "Zahlung"
+      ],
+      "input_channels": [
+        "Leistungsnachweis",
+        "Rechnungssystem",
+        "Zahlungsstatus"
+      ],
+      "minimum_information": [
+        "Kunde",
+        "Leistung",
+        "Datum",
+        "Preisquelle",
+        "Fälligkeit"
+      ],
+      "user_action": "Du gibst den Leistungsnachweis frei und prüfst Entwurf und offene Fälle.",
+      "ai_task": "Die KI schlägt Positionen vor, markiert Belege und erstellt Erinnerungsentwürfe.",
+      "visible_output": "Ein Rechnungsentwurf oder eine Liste offener Zahlungen.",
+      "human_check": "Du prüfst Preis, Steuer, Leistung, Versand und Eskalation.",
+      "technical_prerequisites": [
+        "führende Rechnungs- und Zahlungsquelle"
+      ],
+      "organizational_prerequisites": [
+        "Fälligkeit und Ausnahmen festgelegt"
+      ],
+      "security_guardrails": [
+        "keine autonome Mahnung",
+        "keine falsche Zahlungszuordnung"
+      ],
+      "smallest_entry": "Aus bestätigten Leistungen nur einen Entwurf erzeugen.",
+      "later_stage": "Zahlungen abgleichen und Erinnerungsentwurf vorlegen.",
+      "failure_modes": [
+        "Zahlung falsch zugeordnet",
+        "unbestätigte Arbeit berechnet"
+      ],
+      "evidence_refs": [
+        "K-07_case_evidence",
+        "RB03-PP08"
+      ],
+      "customer_language": "Aus bestätigten Leistungen entsteht ein Entwurf, den du prüfst.",
+      "sample_output_type": "Rechnungsentwurf",
+      "genai_capability_ids": [
+        "GAI-02",
+        "GAI-05",
+        "GAI-06"
+      ],
+      "deterministic_components": [
+        "Preis",
+        "Steuer",
+        "Rechnungsnummer",
+        "Fälligkeit",
+        "Zahlungseingang",
+        "Originalablage"
+      ],
+      "human_decisions": [
+        "Leistungsfreigabe",
+        "Preis",
+        "Versand",
+        "Eskalation"
+      ],
+      "positive_variants": [
+        "Elektroservice",
+        "Hausmeisterservice",
+        "Teppichreinigung"
+      ],
+      "counterexample": "Ohne bestätigten Leistungsnachweis darf ein sprachlicher Bericht nicht direkt zur Rechnung werden.",
+      "pilot": {
+        "scope": "10 bestätigte Leistungsnachweise",
+        "output": "Rechnungspositionsentwurf",
+        "no_action": "kein Versand und keine Buchung"
+      },
+      "metrics": [
+        "Zeit bis Entwurf",
+        "Korrekturen",
+        "vergessene Leistungen",
+        "Days-to-Invoice"
+      ],
+      "stop_conditions": [
+        "Preise werden erfunden",
+        "unbestätigte Leistungen übernommen"
+      ],
+      "autonomy_level_min": "A2",
+      "autonomy_level_max": "A2"
+    },
+    {
+      "solution_id": "SP-10",
+      "name": "Übergabe- und Wissensnotiz im Vorgang",
+      "problem_family_ids": [
+        "PF-01",
+        "PF-04",
+        "PF-11"
+      ],
+      "applicable_if": [
+        "Vorgangskontext und Vertretung existieren"
+      ],
+      "not_applicable_if": [
+        "sensible Fachentscheidung ohne Prüfung",
+        "kein Vorgangskontext"
+      ],
+      "suitable_industries": [
+        "kleine Teams",
+        "Werkstatt",
+        "Kundenservice"
+      ],
+      "suitable_processes": [
+        "Übergabe",
+        "Vertretung"
+      ],
+      "input_channels": [
+        "Notiz",
+        "Diktat",
+        "E-Mail"
+      ],
+      "minimum_information": [
+        "Vorgang",
+        "Ereignis",
+        "Verantwortung",
+        "nächster Schritt"
+      ],
+      "user_action": "Du sprichst oder notierst nach einer wichtigen Entscheidung kurz den Stand.",
+      "ai_task": "Die KI strukturiert Notiz, offene Aufgabe und bestätigte Historie.",
+      "visible_output": "Eine kompakte Übergabenotiz im richtigen Vorgang.",
+      "human_check": "Du bestätigst Entscheidung, Zugriff, Verantwortung und Übernahme.",
+      "technical_prerequisites": [
+        "Vorgangsakte",
+        "Rollen"
+      ],
+      "organizational_prerequisites": [
+        "Dokumentationsregel für Entscheidungen"
+      ],
+      "security_guardrails": [
+        "keine privaten Chats sammeln",
+        "sensible Daten minimieren"
+      ],
+      "smallest_entry": "Was ist passiert, was ist offen, wer übernimmt.",
+      "later_stage": "Standardantworten und Übergabeübersicht ergänzen.",
+      "failure_modes": [
+        "fremde Vorgänge vermischt",
+        "veraltete Notiz als aktuelle Entscheidung"
+      ],
+      "evidence_refs": [
+        "RB02-C29-E01",
+        "RB03-P15"
+      ],
+      "customer_language": "Die KI fasst den Stand kurz zusammen; du bestätigst die Übergabe.",
+      "sample_output_type": "Übergabenotiz",
+      "genai_capability_ids": [
+        "GAI-01",
+        "GAI-04",
+        "GAI-07"
+      ],
+      "deterministic_components": [
+        "Vorgangszuordnung",
+        "Berechtigung",
+        "Aktualität",
+        "Verantwortungsübernahme"
+      ],
+      "human_decisions": [
+        "Ausnahme",
+        "sensible Information",
+        "Verantwortung"
+      ],
+      "positive_variants": [
+        "wachsender HVAC-Betrieb",
+        "Kfz-Werkstatt",
+        "Druckproduktion"
+      ],
+      "counterexample": "Unbestätigte oder private Chatverläufe dürfen nicht als gemeinsames Unternehmenswissen indexiert werden.",
+      "pilot": {
+        "scope": "zwei Wochen in einem Prozess",
+        "output": "strukturierte Übergaben",
+        "no_action": "keine automatische Verantwortungsübertragung"
+      },
+      "metrics": [
+        "Rückfragen",
+        "Suchzeit",
+        "Übergabefehler",
+        "Nutzungsquote"
+      ],
+      "stop_conditions": [
+        "veraltete oder unberechtigte Informationen erscheinen"
+      ],
+      "autonomy_level_min": "A2",
+      "autonomy_level_max": "A2"
+    }
   ],
   "matrix": [
-    {"problem_family_id":"PF-01","primary_solution_ids":["SP-02","SP-03"],"supplementary_solution_ids":["SP-01","SP-10"],"hard_prerequisite":"gemeinsamer Vorgangsanker"},
-    {"problem_family_id":"PF-02","primary_solution_ids":["SP-01"],"supplementary_solution_ids":["SP-05"],"hard_prerequisite":"Mindestfelder und verantwortlicher Eingang"},
-    {"problem_family_id":"PF-03","primary_solution_ids":["SP-06"],"supplementary_solution_ids":["SP-03","SP-09"],"hard_prerequisite":"führende Quelle und Zielschema"},
-    {"problem_family_id":"PF-04","primary_solution_ids":["SP-02"],"supplementary_solution_ids":["SP-07","SP-10"],"hard_prerequisite":"wenige Statuswerte mit realem Auslöser"},
-    {"problem_family_id":"PF-05","primary_solution_ids":["SP-04"],"supplementary_solution_ids":["SP-02"],"hard_prerequisite":"ID direkt am Objekt und überprüfbarer Ort"},
-    {"problem_family_id":"PF-06","primary_solution_ids":["SP-05"],"supplementary_solution_ids":["SP-01"],"hard_prerequisite":"relevante Constraints und manuelle Zusagegrenze"},
-    {"problem_family_id":"PF-07","primary_solution_ids":["SP-07"],"supplementary_solution_ids":["SP-02","SP-09"],"hard_prerequisite":"Stop-Ereignis und freigabeberechtigte Person"},
-    {"problem_family_id":"PF-08","primary_solution_ids":["SP-03"],"supplementary_solution_ids":["SP-09","SP-06"],"hard_prerequisite":"Einsatzanker und mobile Erfassung"},
-    {"problem_family_id":"PF-09","primary_solution_ids":["SP-09"],"supplementary_solution_ids":["SP-06"],"hard_prerequisite":"eindeutige Rechnung-/Zahlungszuordnung"},
-    {"problem_family_id":"PF-10","primary_solution_ids":["SP-08"],"supplementary_solution_ids":["SP-02","SP-07"],"hard_prerequisite":"Artikel/Variante und kontrollierte Ereignisse"},
-    {"problem_family_id":"PF-11","primary_solution_ids":["SP-10"],"supplementary_solution_ids":["SP-01","SP-02"],"hard_prerequisite":"gemeinsamer Zugriff und Vertretungsregel"},
-    {"problem_family_id":"PF-12","primary_solution_ids":["SP-06"],"supplementary_solution_ids":["SP-01","SP-03"],"hard_prerequisite":"Zielschema und Human Check"}
+    {
+      "problem_family_id": "PF-01",
+      "primary_solution_ids": [
+        "SP-02",
+        "SP-03"
+      ],
+      "supplementary_solution_ids": [
+        "SP-01",
+        "SP-10"
+      ],
+      "hard_prerequisite": "gemeinsamer Vorgangsanker"
+    },
+    {
+      "problem_family_id": "PF-02",
+      "primary_solution_ids": [
+        "SP-01"
+      ],
+      "supplementary_solution_ids": [
+        "SP-05"
+      ],
+      "hard_prerequisite": "Mindestfelder und verantwortlicher Eingang"
+    },
+    {
+      "problem_family_id": "PF-03",
+      "primary_solution_ids": [
+        "SP-06"
+      ],
+      "supplementary_solution_ids": [
+        "SP-03",
+        "SP-09"
+      ],
+      "hard_prerequisite": "führende Quelle und Zielschema"
+    },
+    {
+      "problem_family_id": "PF-04",
+      "primary_solution_ids": [
+        "SP-02"
+      ],
+      "supplementary_solution_ids": [
+        "SP-10"
+      ],
+      "hard_prerequisite": "wenige Statuswerte mit realem Auslöser"
+    },
+    {
+      "problem_family_id": "PF-05",
+      "primary_solution_ids": [
+        "SP-04"
+      ],
+      "supplementary_solution_ids": [
+        "SP-02"
+      ],
+      "hard_prerequisite": "ID direkt am Objekt und überprüfbarer Ort"
+    },
+    {
+      "problem_family_id": "PF-06",
+      "primary_solution_ids": [
+        "SP-05"
+      ],
+      "supplementary_solution_ids": [
+        "SP-01"
+      ],
+      "hard_prerequisite": "relevante Constraints und manuelle Zusagegrenze"
+    },
+    {
+      "problem_family_id": "PF-07",
+      "primary_solution_ids": [
+        "SP-07"
+      ],
+      "supplementary_solution_ids": [
+        "SP-02",
+        "SP-09"
+      ],
+      "hard_prerequisite": "Stop-Ereignis und freigabeberechtigte Person"
+    },
+    {
+      "problem_family_id": "PF-08",
+      "primary_solution_ids": [
+        "SP-03"
+      ],
+      "supplementary_solution_ids": [
+        "SP-09",
+        "SP-06"
+      ],
+      "hard_prerequisite": "Einsatzanker und mobile Erfassung"
+    },
+    {
+      "problem_family_id": "PF-09",
+      "primary_solution_ids": [
+        "SP-09"
+      ],
+      "supplementary_solution_ids": [
+        "SP-06"
+      ],
+      "hard_prerequisite": "eindeutige Rechnung-/Zahlungszuordnung"
+    },
+    {
+      "problem_family_id": "PF-10",
+      "primary_solution_ids": [
+        "SP-08"
+      ],
+      "supplementary_solution_ids": [
+        "SP-02",
+        "SP-07"
+      ],
+      "hard_prerequisite": "Artikel/Variante und kontrollierte Ereignisse"
+    },
+    {
+      "problem_family_id": "PF-11",
+      "primary_solution_ids": [
+        "SP-10"
+      ],
+      "supplementary_solution_ids": [
+        "SP-02"
+      ],
+      "hard_prerequisite": "gemeinsamer Zugriff und Vertretungsregel"
+    },
+    {
+      "problem_family_id": "PF-12",
+      "primary_solution_ids": [
+        "SP-06"
+      ],
+      "supplementary_solution_ids": [
+        "SP-03"
+      ],
+      "hard_prerequisite": "Zielschema und Human Check"
+    }
+  ],
+  "genai_capabilities": [
+    {
+      "capability_id": "GAI-01",
+      "name": "Freie Sprache in Struktur überführen",
+      "input_modalities": [
+        "text",
+        "audio"
+      ],
+      "output_type": "structured_draft",
+      "suitable_tasks": [
+        "Anfragekarte",
+        "Einsatznotiz",
+        "Übergabe",
+        "Auftragsnotiz"
+      ],
+      "required_process_foundation": [
+        "Vorgangsanker",
+        "Zielschema",
+        "Pflichtfelder"
+      ],
+      "human_review": [
+        "kritische Felder",
+        "Zuordnung",
+        "fehlende Fakten"
+      ],
+      "failure_modes": [
+        "erfundene Pflichtangabe",
+        "falsche Zuordnung",
+        "Bedeutungsverlust bei Transkription"
+      ],
+      "measurement": [
+        "Erfassungszeit",
+        "Feldkorrekturen",
+        "Vollständigkeit"
+      ],
+      "autonomy_ceiling": "A2",
+      "evidence_refs": [
+        "SRC-OECD-GENAI-2025",
+        "SRC-NIST-GAI-2024"
+      ],
+      "customer_language": "GenAI kann freie Sprache in einen strukturierten Entwurf überführen, wenn Vorgang, Zielschema und Pflichtfelder feststehen. Fehlende Fakten dürfen nicht ergänzt werden; kritische Felder und Zuordnung bleiben prüfpflichtig."
+    },
+    {
+      "capability_id": "GAI-02",
+      "name": "Multimodale Inhalte gemeinsam auswerten",
+      "input_modalities": [
+        "text",
+        "audio",
+        "image",
+        "document"
+      ],
+      "output_type": "multimodal_case_draft",
+      "suitable_tasks": [
+        "Einsatzdokumentation",
+        "Befundnotiz",
+        "Belegzuordnung"
+      ],
+      "required_process_foundation": [
+        "gemeinsame Einsatz-ID",
+        "Originaldateien",
+        "zulässige Dateiformate"
+      ],
+      "human_review": [
+        "Bildinterpretation",
+        "Belegwerte",
+        "Zeit und Material"
+      ],
+      "failure_modes": [
+        "Medien aus verschiedenen Vorgängen vermischt",
+        "unleserlicher Bon als sicher behandelt",
+        "Foto überinterpretiert"
+      ],
+      "measurement": [
+        "Dokumentationszeit",
+        "Korrekturen je Medium",
+        "Anteil korrekt markierter Unsicherheiten"
+      ],
+      "autonomy_ceiling": "A2",
+      "evidence_refs": [
+        "SRC-OPENAI-DOCS-2026",
+        "SRC-NIST-GAI-2024"
+      ],
+      "customer_language": "GenAI kann Sprache, Fotos und Dokumente eines eindeutig verankerten Vorgangs zusammenführen. Originale bleiben erhalten; Bild- und Beleginterpretationen sind Vorschläge, keine Prozesswahrheit."
+    },
+    {
+      "capability_id": "GAI-03",
+      "name": "Klassifizieren und vorsortieren",
+      "input_modalities": [
+        "text",
+        "document"
+      ],
+      "output_type": "classification_suggestion",
+      "suitable_tasks": [
+        "Anfrageart",
+        "Dokumenttyp",
+        "Thema",
+        "Bearbeitungskorb"
+      ],
+      "required_process_foundation": [
+        "kleine Kategorienmenge",
+        "Fallback-Kategorie",
+        "Korrekturweg"
+      ],
+      "human_review": [
+        "Dringlichkeit",
+        "Annahme oder Ablehnung",
+        "Ausnahmefälle"
+      ],
+      "failure_modes": [
+        "erzwungene falsche Kategorie",
+        "Notfall falsch priorisiert",
+        "neue Kategorie nicht erkannt"
+      ],
+      "measurement": [
+        "Trefferquote",
+        "Fallback-Quote",
+        "kritische Fehlklassifikationen"
+      ],
+      "autonomy_ceiling": "A2",
+      "evidence_refs": [
+        "SRC-OECD-GENAI-2025",
+        "SRC-NIST-GAI-2024"
+      ],
+      "customer_language": "GenAI kann eine verständliche Kategorie vorschlagen. Notfälle, verbindliche Prioritäten und Annahmeentscheidungen werden nicht autonom bestimmt; eine Fallback-Kategorie ist Pflicht."
+    },
+    {
+      "capability_id": "GAI-04",
+      "name": "Zusammenfassen und Übergaben vorbereiten",
+      "input_modalities": [
+        "text",
+        "document"
+      ],
+      "output_type": "current_state_summary",
+      "suitable_tasks": [
+        "Tagesübersicht",
+        "Übergabe",
+        "Entscheidungsverlauf",
+        "offene Punkte"
+      ],
+      "required_process_foundation": [
+        "bestätigte Historie",
+        "Zeitstempel",
+        "Aktualitätsregel"
+      ],
+      "human_review": [
+        "aktueller Status",
+        "nächster Verantwortlicher",
+        "Ausnahmen"
+      ],
+      "failure_modes": [
+        "veralteten Stand als aktuell ausgegeben",
+        "zwei Vorgänge vermischt",
+        "wichtige Ausnahme ausgelassen"
+      ],
+      "measurement": [
+        "Suchzeit",
+        "Rückfragen",
+        "Aktualitätsfehler"
+      ],
+      "autonomy_ceiling": "A2",
+      "evidence_refs": [
+        "SRC-OECD-GENAI-2025",
+        "SRC-NIST-GAI-2024"
+      ],
+      "customer_language": "GenAI kann bestätigte Verläufe in Status, Entscheidung, Blockade und nächsten Schritt verdichten. Aktualität und Vorgangstrennung müssen technisch gesichert und menschlich prüfbar sein."
+    },
+    {
+      "capability_id": "GAI-05",
+      "name": "Fehlende oder widersprüchliche Angaben markieren",
+      "input_modalities": [
+        "text",
+        "audio",
+        "image",
+        "document",
+        "structured_data"
+      ],
+      "output_type": "missing_info_and_conflict_list",
+      "suitable_tasks": [
+        "Pflichtfeldprüfung",
+        "Rückfragevorbereitung",
+        "Plausibilitätshinweis"
+      ],
+      "required_process_foundation": [
+        "Pflichtfelder",
+        "Wertebereiche",
+        "fachliche Regeln"
+      ],
+      "human_review": [
+        "fachliche Widersprüche",
+        "kritische Lücken"
+      ],
+      "failure_modes": [
+        "Lücke mit erfundenem Wert geschlossen",
+        "weicher Hinweis als harte Regel behandelt",
+        "kritischen Konflikt übersehen"
+      ],
+      "measurement": [
+        "erkannte Lücken",
+        "False-Positive-Quote",
+        "Rückläufer"
+      ],
+      "autonomy_ceiling": "A2",
+      "evidence_refs": [
+        "SRC-NIST-GAI-2024",
+        "SRC-HBS-JAGGED-2023"
+      ],
+      "customer_language": "GenAI ergänzt harte Schema- und Werteprüfungen durch Hinweise auf fehlende oder widersprüchliche Angaben. Harte Prüfungen bleiben deterministisch; Lücken werden markiert oder erfragt, nie erfunden."
+    },
+    {
+      "capability_id": "GAI-06",
+      "name": "Entwürfe erzeugen",
+      "input_modalities": [
+        "text",
+        "structured_data"
+      ],
+      "output_type": "reviewable_draft",
+      "suitable_tasks": [
+        "Kundenantwort",
+        "Einsatzbericht",
+        "Angebotsbaustein",
+        "Rechnungsposition",
+        "Erinnerung"
+      ],
+      "required_process_foundation": [
+        "bestätigte Fakten",
+        "Vorlage",
+        "Tonalität",
+        "zulässiger Zweck"
+      ],
+      "human_review": [
+        "Preis",
+        "Vertrag",
+        "Versand",
+        "rechtliche Aussage"
+      ],
+      "failure_modes": [
+        "plausible Erfindung",
+        "falscher Ton",
+        "unbestätigte Zusage"
+      ],
+      "measurement": [
+        "Bearbeitungszeit",
+        "Verwendungsquote",
+        "inhaltliche Korrekturen"
+      ],
+      "autonomy_ceiling": "A2",
+      "evidence_refs": [
+        "SRC-OECD-GENAI-2025",
+        "SRC-HBS-JAGGED-2023"
+      ],
+      "customer_language": "GenAI kann aus bestätigten Daten prüfbare Texte und Dokumentbausteine vorbereiten. Außenwirkung, Preis, Vertrag und rechtlich relevante Aussagen bleiben freigabepflichtig."
+    },
+    {
+      "capability_id": "GAI-07",
+      "name": "Wissensassistenz mit RAG",
+      "input_modalities": [
+        "query",
+        "document_corpus"
+      ],
+      "output_type": "grounded_answer_with_sources",
+      "suitable_tasks": [
+        "Vereinbarung finden",
+        "Arbeitsanweisung finden",
+        "offene Schritte erklären"
+      ],
+      "required_process_foundation": [
+        "versionierte Quellen",
+        "Berechtigungen",
+        "Quellenanzeige",
+        "Aktualitätsmetadaten"
+      ],
+      "human_review": [
+        "kritische Antwort",
+        "Quellenpassung",
+        "Aktualität"
+      ],
+      "failure_modes": [
+        "veraltete Quelle",
+        "irrelevanter Treffer",
+        "RAG-Evidenz als Nutzerfakt ausgegeben"
+      ],
+      "measurement": [
+        "Quellentrefferquote",
+        "Antwortkorrektheit",
+        "Suchzeit"
+      ],
+      "autonomy_ceiling": "A2",
+      "evidence_refs": [
+        "SRC-NIST-GAI-2024",
+        "SRC-EDPB-LLM-2024"
+      ],
+      "customer_language": "RAG kann bestätigte interne Quellen auffindbar machen und Antworten grounden. Retrieval-Evidenz ist Vergleichs- oder Quellenwissen und darf nie unbesehen als Nutzerfakt übernommen werden."
+    },
+    {
+      "capability_id": "GAI-08",
+      "name": "Optionen und nächste Schritte vorschlagen",
+      "input_modalities": [
+        "text",
+        "structured_data"
+      ],
+      "output_type": "ranked_options",
+      "suitable_tasks": [
+        "Rückfragen",
+        "Bearbeitungsschritte",
+        "Terminoptionen",
+        "Antwortvarianten"
+      ],
+      "required_process_foundation": [
+        "valide Eingangsdaten",
+        "Entscheidungsrahmen",
+        "Constraints"
+      ],
+      "human_review": [
+        "Zusage",
+        "Priorität",
+        "Ausnahme",
+        "Außenwirkung"
+      ],
+      "failure_modes": [
+        "nicht verfügbare Option",
+        "Constraint ignoriert",
+        "Vorschlag als Zusage ausgegeben"
+      ],
+      "measurement": [
+        "Akzeptanzquote",
+        "Korrekturquote",
+        "Abstimmungsschleifen"
+      ],
+      "autonomy_ceiling": "A2",
+      "evidence_refs": [
+        "SRC-HBS-JAGGED-2023",
+        "SRC-NIST-GAI-2024"
+      ],
+      "customer_language": "GenAI kann Optionen formulieren und erklären. Verfügbarkeit und harte Constraints müssen aus strukturierten Systemen kommen; der Vorschlag ist keine Entscheidung oder Zusage."
+    },
+    {
+      "capability_id": "GAI-09",
+      "name": "Übersetzen und zielgruppengerecht anpassen",
+      "input_modalities": [
+        "text",
+        "audio"
+      ],
+      "output_type": "adapted_text_draft",
+      "suitable_tasks": [
+        "mehrsprachige Kundenkommunikation",
+        "einfache Sprache",
+        "Tonalitätsanpassung"
+      ],
+      "required_process_foundation": [
+        "bestätigter Ausgangstext",
+        "Zielsprache",
+        "Adressat"
+      ],
+      "human_review": [
+        "Vertrag",
+        "Sicherheit",
+        "Fachterminologie"
+      ],
+      "failure_modes": [
+        "Bedeutungsverschiebung",
+        "falsche Fachbegriffe",
+        "rechtliche Nuance verloren"
+      ],
+      "measurement": [
+        "Korrekturquote",
+        "Verständlichkeit",
+        "Bearbeitungszeit"
+      ],
+      "autonomy_ceiling": "A2",
+      "evidence_refs": [
+        "SRC-OECD-GENAI-2025",
+        "SRC-NIST-GAI-2024"
+      ],
+      "customer_language": "GenAI kann bestätigte Inhalte übersetzen und adressatengerecht formulieren. Vertrags-, Sicherheits- und andere kritische Texte benötigen Fachprüfung, weil Bedeutungen verschoben werden können."
+    }
+  ],
+  "decision_gates": [
+    {
+      "gate_id": "GATE-01",
+      "name": "Aufgabenfit",
+      "question": "Besteht die Reibung wesentlich aus Verstehen, Extrahieren, Klassifizieren, Zusammenfassen, Entwerfen, Suchen oder Übersetzen?",
+      "on_pass": "GenAI-Fähigkeit weiter prüfen",
+      "on_fail": "Prozessverbesserung, Regel oder Standardsoftware priorisieren"
+    },
+    {
+      "gate_id": "GATE-02",
+      "name": "Vorgangsanker",
+      "question": "Kann jeder Input eindeutig Kunde, Auftrag, Objekt, Einsatz oder Datum zugeordnet werden?",
+      "on_pass": "Zieloutput prüfen",
+      "on_fail": "zuerst minimalen Vorgangsanker schaffen"
+    },
+    {
+      "gate_id": "GATE-03",
+      "name": "Zieloutput",
+      "question": "Sind brauchbares Ergebnis, Felder, Kategorien oder Vorlage definiert?",
+      "on_pass": "Prüfbarkeit prüfen",
+      "on_fail": "zuerst Zielschema definieren"
+    },
+    {
+      "gate_id": "GATE-04",
+      "name": "Prüfbarkeit",
+      "question": "Kann ein Mensch die Ausgabe schnell auf Korrektheit prüfen und korrigieren?",
+      "on_pass": "Fehlerfolgen bewerten",
+      "on_fail": "kein operativer Einsatz; höchstens risikoarmer Lernversuch"
+    },
+    {
+      "gate_id": "GATE-05",
+      "name": "Fehlerfolgen",
+      "question": "Welche Folgen hat ein falscher Output für Geld, Recht, Sicherheit, Vertrauen oder reale Gegenstände?",
+      "on_pass": "angemessene Freigabe- und Kontrollstufe setzen",
+      "on_fail": "hoch riskante autonome Nutzung ausschließen"
+    },
+    {
+      "gate_id": "GATE-06",
+      "name": "Daten und Berechtigung",
+      "question": "Sind Verarbeitung, Anbieter, Zugriff, Speicherung und Löschung geklärt?",
+      "on_pass": "kleinen Pilot definieren",
+      "on_fail": "Einführung bis zur Klärung stoppen"
+    }
+  ],
+  "failure_patterns": [
+    {
+      "failure_id": "FAIL-01",
+      "name": "Falsche Vorgangszuordnung",
+      "trigger": "Nachrichten, Fotos oder Bons haben keinen sicheren gemeinsamen Anker",
+      "harm": "fremde Informationen gelangen in Auftrag, Bericht oder Rechnung",
+      "detection": "Originale und Zuordnungsereignis vergleichen",
+      "guardrail": "ohne eindeutige ID keine Zusammenführung; Nutzer muss Zuordnung bestätigen",
+      "blocks_autonomy": [
+        "A2",
+        "A3",
+        "A4",
+        "A5"
+      ],
+      "customer_language": "Medien ohne sicheren Vorgangsanker dürfen nicht automatisch zusammengeführt werden. Eine semantisch plausible Zuordnung ersetzt keine bestätigte Einsatz- oder Auftrags-ID."
+    },
+    {
+      "failure_id": "FAIL-02",
+      "name": "Erfundene Pflichtangabe",
+      "trigger": "Schema verlangt ein Feld, das im Input fehlt",
+      "harm": "plausibler, aber falscher Datensatz",
+      "detection": "jede Ausgabe gegen Quellen-Spans und Missing-Info prüfen",
+      "guardrail": "null/unknown oder Rückfrage statt Ergänzung",
+      "blocks_autonomy": [
+        "A2",
+        "A3",
+        "A4",
+        "A5"
+      ],
+      "customer_language": "Ein Pflichtfeld darf nicht durch Raten gefüllt werden. Fehlende Fakten werden als unbekannt markiert oder gezielt erfragt."
+    },
+    {
+      "failure_id": "FAIL-03",
+      "name": "Falscher Belegwert",
+      "trigger": "Foto ist unscharf, abgeschnitten oder Layout mehrdeutig",
+      "harm": "falscher Betrag, Händler oder Steuerwert",
+      "detection": "Confidence, Summenprüfung und Originalsicht",
+      "guardrail": "kritische Werte einzeln bestätigen; keine automatische Buchung oder Zahlung",
+      "blocks_autonomy": [
+        "A3",
+        "A4",
+        "A5"
+      ],
+      "customer_language": "Belegextraktion ist ein Vorschlag. Betrag, Datum und Steuerwerte brauchen harte Prüfungen und bei Unsicherheit menschliche Bestätigung."
+    },
+    {
+      "failure_id": "FAIL-04",
+      "name": "Terminversprechen ohne Kapazitätswahrheit",
+      "trigger": "Modell formuliert freie Optionen ohne aktuelle Kalender-, Personal-, Dauer- oder Wegzeitdaten",
+      "harm": "Doppelbuchung oder nicht erfüllbare Zusage",
+      "detection": "jede Option gegen Constraint-Service prüfen",
+      "guardrail": "LLM formuliert nur geprüfte Slots; Versand nach Freigabe",
+      "blocks_autonomy": [
+        "A2",
+        "A3",
+        "A4",
+        "A5"
+      ],
+      "customer_language": "Ein Sprachmodell kennt keine reale Verfügbarkeit. Terminoptionen müssen deterministisch berechnet und vor Zusage menschlich bestätigt werden."
+    },
+    {
+      "failure_id": "FAIL-05",
+      "name": "Veraltete RAG-Quelle",
+      "trigger": "veraltete Version rankt hoch oder Aktualitätsmetadaten fehlen",
+      "harm": "falsche Arbeitsanweisung oder Vereinbarung",
+      "detection": "Version, Gültigkeit und Quelle anzeigen",
+      "guardrail": "abgelaufene Quellen filtern; kritische Antwort mit Quellenprüfung",
+      "blocks_autonomy": [
+        "A3",
+        "A4",
+        "A5"
+      ],
+      "customer_language": "Semantische Ähnlichkeit beweist keine Aktualität. RAG-Treffer brauchen Version, Gültigkeit und sichtbaren Quellenbezug."
+    },
+    {
+      "failure_id": "FAIL-06",
+      "name": "Autonome Kundenkommunikation",
+      "trigger": "Entwurf wird ohne Sichtprüfung gesendet",
+      "harm": "falsche Zusage, Tonfehler, Vertrauens- oder Rechtsfolge",
+      "detection": "Outbound-Audit und Freigabestatus",
+      "guardrail": "A2-Entwurf; Außenwirkung nur nach explizitem Ja",
+      "blocks_autonomy": [
+        "A3",
+        "A4",
+        "A5"
+      ],
+      "customer_language": "Kundenkommunikation mit Preis, Termin, Mahnung, Reklamation oder Vertrag bleibt als Startfall immer freigabepflichtig."
+    },
+    {
+      "failure_id": "FAIL-07",
+      "name": "RAG-Wissen wird zum Nutzerfakt",
+      "trigger": "ähnlicher Vergleichsfall enthält Details, die der Nutzer nicht genannt hat",
+      "harm": "Diagnose und Empfehlung beruhen auf erfundener Ausgangslage",
+      "detection": "jede Nutzerbehauptung gegen user_facts prüfen",
+      "guardrail": "RAG nur als Vergleichsevidenz; Fakten, Ableitungen und Evidenz getrennt halten",
+      "blocks_autonomy": [
+        "A2",
+        "A3",
+        "A4",
+        "A5"
+      ],
+      "customer_language": "Vergleichswissen darf Fragen und Hypothesen liefern, aber keine zusätzlichen Tatsachen über den Nutzer."
+    },
+    {
+      "failure_id": "FAIL-08",
+      "name": "Ungeprüfte Statusänderung",
+      "trigger": "KI-Zusammenfassung wird als reales Ereignis behandelt",
+      "harm": "Auftrag fälschlich fertig, freigegeben oder bezahlt",
+      "detection": "Status nur aus autorisiertem Ereignis ändern",
+      "guardrail": "LLM darf Status vorschlagen, nie als Wahrheit schreiben",
+      "blocks_autonomy": [
+        "A3",
+        "A4",
+        "A5"
+      ],
+      "customer_language": "Ein Status ist Prozesswahrheit und entsteht durch ein reales, berechtigtes Ereignis, nicht durch eine plausible Zusammenfassung."
+    },
+    {
+      "failure_id": "FAIL-09",
+      "name": "Schatten-IT und Datenabfluss",
+      "trigger": "Mitarbeitende kopieren sensible Daten in nicht freigegebene Consumer-Tools",
+      "harm": "Datenschutz-, Geheimnis- und Sicherheitsrisiko",
+      "detection": "Datenklassen, freigegebene Tools und Zugriffsprotokolle",
+      "guardrail": "freigegebene Konten, Datenminimierung, Schulung und Löschregeln",
+      "blocks_autonomy": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5"
+      ],
+      "customer_language": "Ohne geklärten Anbieter, Datenzweck, Speicherung, Training, Zugriff und Löschung darf keine sensible betriebliche Information verarbeitet werden."
+    },
+    {
+      "failure_id": "FAIL-10",
+      "name": "Prompt Injection aus Dokumenten",
+      "trigger": "eingelesener Inhalt enthält Anweisungen an das Modell oder Tool",
+      "harm": "Datenabfluss oder unzulässige Aktion",
+      "detection": "Inhalt und Steueranweisung trennen; Tool-Aufrufe protokollieren",
+      "guardrail": "Dokumente sind untrusted data; Allowlist, minimale Rechte und Freigabe vor Tools",
+      "blocks_autonomy": [
+        "A3",
+        "A4",
+        "A5"
+      ],
+      "customer_language": "Dokumentinhalte sind Daten, keine vertrauenswürdigen Systemanweisungen. Tool-Nutzung braucht enge Allowlist, minimale Rechte und gegebenenfalls menschliche Freigabe."
+    },
+    {
+      "failure_id": "FAIL-11",
+      "name": "KI für eine deterministische Aufgabe",
+      "trigger": "LLM berechnet Preis, Steuer, Frist, Bestand oder ID",
+      "harm": "unnötige Varianz und nicht reproduzierbare Fehler",
+      "detection": "Aufgabe gegen Mechanismus-Matrix prüfen",
+      "guardrail": "Berechnung und Prozesswahrheit in Code oder Fachsoftware",
+      "blocks_autonomy": [
+        "A2",
+        "A3",
+        "A4",
+        "A5"
+      ],
+      "customer_language": "Wenn eine eindeutige Regel existiert, ist deterministischer Code die richtige Schicht. GenAI darf erklären oder vorbereiten, aber nicht rechnen oder Wahrheit setzen."
+    },
+    {
+      "failure_id": "FAIL-12",
+      "name": "Automation vor Prozessbasis",
+      "trigger": "KI-Workflow wird eingeführt, obwohl ID, Status, Rollen oder Zielschema fehlen",
+      "harm": "Chaos wird schneller und schwerer prüfbar",
+      "detection": "sechs Entscheidungsgates aus Batch 05",
+      "guardrail": "nur die minimal zwingende Prozessbasis vorziehen; danach kleinen A2-Pilot testen",
+      "blocks_autonomy": [
+        "A2",
+        "A3",
+        "A4",
+        "A5"
+      ],
+      "customer_language": "Automation darf fehlende Prozesswahrheit nicht verdecken. Gleichzeitig wird nur so viel Ordnung vorgeschaltet, wie für einen sicheren konkreten KI-Pilot notwendig ist."
+    }
+  ],
+  "autonomy_levels": [
+    {
+      "level": "A0",
+      "name": "Keine KI",
+      "description": "Eine klare Regel oder Standardsoftware loest das Problem besser.",
+      "recommend": "ausdruecklich empfehlen, wenn passend"
+    },
+    {
+      "level": "A1",
+      "name": "Persoenliche Assistenz",
+      "description": "Du gibst etwas ein, die KI erstellt einen einmaligen Entwurf.",
+      "recommend": "niedrigster Einstieg"
+    },
+    {
+      "level": "A2",
+      "name": "Eingebetteter Entwurf",
+      "description": "Die KI verarbeitet Vorgangsdaten, ein Mensch bestaetigt jeden Output.",
+      "recommend": "Standardziel fuer AI Start Map"
+    },
+    {
+      "level": "A3",
+      "name": "Kontrollierter Workflow",
+      "description": "Ein bestaetigter Output loest regelbasierte Folgeaktionen aus.",
+      "recommend": "erst nach Pilot und Messung"
+    },
+    {
+      "level": "A4",
+      "name": "Begrenzte Agentenaktion",
+      "description": "Die KI waehlt Werkzeuge in engen Grenzen, Freigabe vor Aussenwirkung.",
+      "recommend": "nur bei stabilen Prozessen"
+    },
+    {
+      "level": "A5",
+      "name": "Autonome Aussenwirkung",
+      "description": "Die KI sendet, bucht, bezahlt oder entscheidet selbst.",
+      "recommend": "nicht als Einstieg empfehlen"
+    }
+  ],
+  "non_genai_mechanisms": [
+    {
+      "task": "Eindeutige Auftrags- oder Objekt-ID",
+      "mechanism": "Datenmodell / Barcode / QR / klare Arbeitsregel"
+    },
+    {
+      "task": "Statuswechsel nach realem Ereignis",
+      "mechanism": "Workflow-Regel und menschliche Bestätigung"
+    },
+    {
+      "task": "Preis-, Steuer- oder Summenberechnung",
+      "mechanism": "deterministische Berechnung"
+    },
+    {
+      "task": "Terminprüfung gegen Personal, Dauer und Fahrtzeit",
+      "mechanism": "Constraint-Logik / Kalenderdaten"
+    },
+    {
+      "task": "Fälligkeit und Erinnerungstermin",
+      "mechanism": "Regel / Scheduler"
+    },
+    {
+      "task": "Zahlungseingang zuordnen",
+      "mechanism": "strukturierter Abgleich mit Toleranz- und Ausnahmefällen"
+    },
+    {
+      "task": "Zugriffsrechte",
+      "mechanism": "Rollen- und Berechtigungssystem"
+    },
+    {
+      "task": "Originalbeleg erhalten",
+      "mechanism": "Dokumentenablage und Aufbewahrungsregel"
+    },
+    {
+      "task": "Nachricht tatsächlich senden",
+      "mechanism": "freigegebene Systemaktion"
+    },
+    {
+      "task": "Physischer Lagerort",
+      "mechanism": "Kennzeichnung und bestätigtes Scan-/Buchungsereignis"
+    }
   ]
 }

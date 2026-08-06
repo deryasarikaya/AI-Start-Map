@@ -1,0 +1,8 @@
+source_id,title,organization,checked_at,url
+SRC-OPENAI-DOCS-2026,OpenAI API Documentation,OpenAI,2026-08-06,https://platform.openai.com/docs
+SRC-N8N-HITL-2026,Human-in-the-loop for tools,n8n,2026-08-06,https://docs.n8n.io/build/integrate-ai/ai-examples/human-in-the-loop-for-tools
+SRC-N8N-FALLBACK-2026,Set a human fallback for AI workflows,n8n,2026-08-06,https://docs.n8n.io/build/integrate-ai/ai-examples/set-a-human-fallback-for-ai-workflows
+SRC-AWS-TEXTRACT-2026,AnalyzeExpense API,Amazon Web Services,2026-08-06,https://docs.aws.amazon.com/textract/latest/APIReference/API_AnalyzeExpense.html
+SRC-AZURE-DOCINT-2026,Azure Document Intelligence overview,Microsoft,2026-08-06,https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/overview?view=doc-intel-4.0.0
+SRC-POSTGRES-DOCS,PostgreSQL Documentation,PostgreSQL Global Development Group,2026-08-06,https://www.postgresql.org/docs/
+SRC-FAISS,FAISS Documentation,Meta,2026-08-06,https://faiss.ai/

@@ -1,7 +1,7 @@
 # Design – Solution-Pattern-Recommendation
 
 **Status:** Active – implemented, integrated and tested
-**Datum:** 2026-08-06
+**Datum:** 2026-08-06 (Revision: Katalog v2)
 **Geltung:** Verbindliches Design; Implementierungs-, Integrations- und Teststatus werden getrennt geführt.
 
 ## Verbindlicher Zielpfad
@@ -16,6 +16,21 @@ bestätigte Nutzerfakten
 → Pydantic-, Grounding- und Sprachvalidierung
 → JSONB-Persistenz und kurze HTML-/Druckdarstellung
 ```
+
+## Katalog v2 und Research-Grundlage
+
+Katalogversion `2026-08-06-v2` ergänzt die bestehenden zwölf Problemfamilien,
+zehn Solution Patterns und die Matrix um neun GenAI-Capabilities `GAI-01` bis
+`GAI-09`, sechs fachliche Gates `GATE-01` bis `GATE-06`, zwölf Failure Patterns
+`FAIL-01` bis `FAIL-12`, die Autonomiestufen `A0` bis `A5` und zehn
+Nicht-GenAI-Mechanismen. Problemfamilien und Solution Patterns tragen die
+zugehörigen Research-Felder aus Batch 05 bis 07.
+
+Diese Felder werden geladen und auf IDs, Referenzen und Autonomiegrenzen
+validiert. Der bestehende Selector nutzt sie noch nicht fachlich; seine Logik
+bleibt in diesem Datenpaket unverändert. Batch 08 wird unverändert als
+zeitkritische Tool- und Architektur-Researchgrundlage versioniert, ist aber
+weder in den Laufzeitkatalog noch in einen produktiven Index integriert.
 
 Problemfamilien und Patterns liegen als versionierte JSON-Dateien außerhalb aller Evaluationspfade. Der Loader validiert Anzahl, IDs, Referenzen und Kernfelder. Der Selector liefert Auswahl, Ausschlussgründe, Voraussetzungen, Fehlergrenzen und Freigabegrenzen. Der neue Kernoutput liegt in bestehendem JSONB; die View-Schicht liest neue und alte Analysen. Neue Seiten zeigen keinen Wochentest.
 

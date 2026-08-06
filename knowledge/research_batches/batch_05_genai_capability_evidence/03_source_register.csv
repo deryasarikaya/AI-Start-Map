@@ -1,0 +1,8 @@
+source_id,title,organization,year,url,used_for
+SRC-OECD-GENAI-2025,Generative AI and the SME Workforce,OECD,2025,https://www.oecd.org/en/publications/generative-ai-and-the-sme-workforce_2d08b99d-en.html,"SME-Nutzung; Nutzen; Hemmnisse"
+SRC-EUROSTAT-AI-2025,Use of artificial intelligence in enterprises,Eurostat,2025,https://ec.europa.eu/eurostat/statistics-explained/index.php?title=Use_of_artificial_intelligence_in_enterprises,"Einführungsstand und Hemmnisse; Unternehmen ab 10 Beschäftigten"
+SRC-HBS-JAGGED-2023,Navigating the Jagged Technological Frontier,Harvard Business School,2023,https://www.hbs.edu/faculty/Pages/item.aspx?num=64700,"Aufgabenfit und Leistungsgrenzen"
+SRC-NIST-GAI-2024,Artificial Intelligence Risk Management Framework: Generative AI Profile,NIST,2024,https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence,"Risiko und Kontrollen"
+SRC-EDPB-LLM-2024,AI Privacy Risks and Mitigations for LLMs,EDPB,2024,https://www.edpb.europa.eu/documents/support-pool-of-experts/ai-privacy-risks-mitigations-large-language-models-llms_en,"Datenschutzrisiken"
+SRC-BSI-GENAI,Generative KI – Informationen und Empfehlungen,BSI,2026,https://www.bsi.bund.de/DE/Themen/Unternehmen-und-Organisationen/Informationen-und-Empfehlungen/Kuenstliche-Intelligenz/kuenstliche-intelligenz_node.html,"Informationssicherheit"
+SRC-OPENAI-DOCS-2026,OpenAI API documentation,OpenAI,2026,https://platform.openai.com/docs,"multimodale und strukturierte Modellausgabe"

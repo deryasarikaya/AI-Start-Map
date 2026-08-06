@@ -12,6 +12,7 @@ ROOT_DIRECTORY = Path(__file__).resolve().parents[1]
 CATALOG_FILE = ROOT_DIRECTORY / "knowledge" / "structured" / "recommendation_catalog.json"
 Confidence = Literal["low", "medium", "high"]
 GateLevel = Literal["unknown", "low", "medium", "high"]
+AutonomyLevelId = Literal["A0", "A1", "A2", "A3", "A4", "A5"]
 
 
 class CatalogModel(BaseModel):
@@ -33,6 +34,17 @@ class ProblemFamily(CatalogModel):
     boundaries: list[str] = Field(min_length=1)
     evidence_refs: list[str] = Field(min_length=1)
     confidence: Confidence
+    # Batch 05/Forschungsgrundlage Abschnitt 6: Was GenAI hier leisten kann,
+    # was ohne GenAI hergestellt werden muss, und wo der Mensch entscheidet.
+    genai_role: str
+    non_genai_requirement: str
+    human_boundary: str
+
+
+class PilotDefinition(CatalogModel):
+    scope: str
+    output: str
+    no_action: str
 
 
 class SolutionPattern(CatalogModel):
@@ -58,6 +70,65 @@ class SolutionPattern(CatalogModel):
     evidence_refs: list[str] = Field(min_length=1)
     customer_language: str
     sample_output_type: str
+    # Batch 06: validierte Umsetzungs- und Abgrenzungsfelder.
+    genai_capability_ids: list[str] = Field(min_length=1)
+    deterministic_components: list[str] = Field(min_length=1)
+    human_decisions: list[str] = Field(min_length=1)
+    positive_variants: list[str] = Field(min_length=1)
+    counterexample: str
+    pilot: PilotDefinition
+    metrics: list[str] = Field(min_length=1)
+    stop_conditions: list[str] = Field(min_length=1)
+    # Untergrenze kann A0 sein: manche Muster sind bewusst zuerst eine Regel
+    # oder Kennzeichnung und erst danach KI-gestuetzt.
+    autonomy_level_min: AutonomyLevelId
+    autonomy_level_max: AutonomyLevelId
+
+
+class GenAiCapability(CatalogModel):
+    capability_id: str
+    name: str
+    input_modalities: list[str] = Field(min_length=1)
+    output_type: str
+    suitable_tasks: list[str] = Field(min_length=1)
+    required_process_foundation: list[str] = Field(min_length=1)
+    human_review: list[str] = Field(min_length=1)
+    failure_modes: list[str] = Field(min_length=1)
+    measurement: list[str] = Field(min_length=1)
+    autonomy_ceiling: AutonomyLevelId
+    evidence_refs: list[str] = Field(min_length=1)
+    customer_language: str
+
+
+class DecisionGate(CatalogModel):
+    gate_id: str
+    name: str
+    question: str
+    on_pass: str
+    on_fail: str
+
+
+class FailurePattern(CatalogModel):
+    failure_id: str
+    name: str
+    trigger: str
+    harm: str
+    detection: str
+    guardrail: str
+    blocks_autonomy: list[AutonomyLevelId] = Field(min_length=1)
+    customer_language: str
+
+
+class AutonomyLevel(CatalogModel):
+    level: AutonomyLevelId
+    name: str
+    description: str
+    recommend: str
+
+
+class NonGenAiMechanism(CatalogModel):
+    task: str
+    mechanism: str
 
 
 class ProblemSolutionMapping(CatalogModel):
@@ -73,6 +144,11 @@ class RecommendationCatalog(CatalogModel):
     problem_families: list[ProblemFamily]
     solution_patterns: list[SolutionPattern]
     matrix: list[ProblemSolutionMapping]
+    genai_capabilities: list[GenAiCapability]
+    decision_gates: list[DecisionGate]
+    failure_patterns: list[FailurePattern]
+    autonomy_levels: list[AutonomyLevel]
+    non_genai_mechanisms: list[NonGenAiMechanism] = Field(min_length=1)
 
     @model_validator(mode="after")
     def validate_catalog(self) -> "RecommendationCatalog":
@@ -93,6 +169,37 @@ class RecommendationCatalog(CatalogModel):
         for mapping in self.matrix:
             if not set(mapping.primary_solution_ids + mapping.supplementary_solution_ids) <= solution_set:
                 raise ValueError(f"Ungültige Solution-ID in {mapping.problem_family_id}.")
+        capability_ids = [item.capability_id for item in self.genai_capabilities]
+        gate_ids = [item.gate_id for item in self.decision_gates]
+        failure_ids = [item.failure_id for item in self.failure_patterns]
+        if capability_ids != [f"GAI-{index:02d}" for index in range(1, 10)]:
+            raise ValueError("Der Katalog muss GAI-01 bis GAI-09 genau einmal enthalten.")
+        if gate_ids != [f"GATE-{index:02d}" for index in range(1, 7)]:
+            raise ValueError("Der Katalog muss GATE-01 bis GATE-06 genau einmal enthalten.")
+        if failure_ids != [f"FAIL-{index:02d}" for index in range(1, 13)]:
+            raise ValueError("Der Katalog muss FAIL-01 bis FAIL-12 genau einmal enthalten.")
+        if [item.level for item in self.autonomy_levels] != [
+            f"A{index}" for index in range(6)
+        ]:
+            raise ValueError("Der Katalog muss die Autonomiestufen A0 bis A5 enthalten.")
+        capability_set = set(capability_ids)
+        for pattern in self.solution_patterns:
+            if not set(pattern.genai_capability_ids) <= capability_set:
+                raise ValueError(f"Ungültige GenAI-Fähigkeit in {pattern.solution_id}.")
+            ceilings = [
+                item.autonomy_ceiling
+                for item in self.genai_capabilities
+                if item.capability_id in pattern.genai_capability_ids
+            ]
+            if pattern.autonomy_level_min > pattern.autonomy_level_max:
+                raise ValueError(
+                    f"{pattern.solution_id} hat eine ungültige Autonomiespanne."
+                )
+            if ceilings and pattern.autonomy_level_max > min(ceilings):
+                raise ValueError(
+                    f"{pattern.solution_id} überschreitet die Autonomiegrenze "
+                    f"seiner Fähigkeiten ({min(ceilings)})."
+                )
         if "evaluation" in self.source.casefold():
             raise ValueError("Evaluationen dürfen kein Produktwissen sein.")
         return self
