@@ -40,6 +40,7 @@ Dieses Register ist die verbindliche Übersicht der Projekt-, Produkt- und Entwi
 | `docs/RESEARCH_BATCHES_05_08_INTEGRATION.md` | Bewertung und teilweise umgesetzter Einbauplan für Research 05–08 | Partially Implemented Historical Plan | Keine aktuelle Source of Truth | 2026-08-06 | 2026-08-06 | Recommendation-Spec, `docs/PROJECT_STATE.md` |
 | `docs/BRIEFING_ZWEITMEINUNG.md` | Historisches Briefing für externe Einschätzung | Historical Snapshot | Keine aktuelle Source of Truth | 2026-08-06 | 2026-08-06 | `docs/PROJECT_STATE.md`, `docs/CODE_REVIEW_2026-08-06.md` |
 | `docs/WETTBEWERB_KIHELFER24.md` | Zeitgebundene Wettbewerbsanalyse | Historical Market Review | Keine Implementierungs-Source-of-Truth | 2026-08-06 | 2026-08-06 | `docs/PROJECT_STATE.md`, Recommendation-Spec |
+| `docs/BATCH_09_FACHPRUEFUNG.md` | Formale und fachliche Prüfung der Batch-09-Kandidaten vor Runtime-Integration | Active Review | Source of Truth für Reviewumfang, Einschränkungen und Freigabestatus von Batch 09 | 2026-08-06 | 2026-08-06 | `knowledge/candidates/batch_09/`, Recommendation-Spec |
 
 ## Future Features
 

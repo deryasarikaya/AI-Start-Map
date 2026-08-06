@@ -14,7 +14,7 @@ knowledge/
 ├── candidates/
 │   ├── diagnostic_patterns_rb03.jsonl
 │   ├── legal_guardrails.jsonl
-│   └── batch_09/RESEARCH_AUFTRAG.md
+│   └── batch_09/
 ├── evaluation/
 │   ├── expected_labels.json
 │   └── cases_*.json
@@ -44,8 +44,11 @@ integriert und nicht indexiert:
 
 - `diagnostic_patterns_rb03.jsonl`: 49 Diagnosemuster aus Research Batch 03.
 - `legal_guardrails.jsonl`: zwölf rechtliche Leitplanken aus Batch 03.
-- `batch_09/RESEARCH_AUFTRAG.md`: geplanter Research-Auftrag. Es wurden weder
-  Batch-09-Ergebnisse integriert noch Loader oder Indizes dafür geändert.
+- `batch_09/`: vollständige unveränderte Research-Lieferung mit 27 Inference
+  Patterns, 28 Workflows, 10 Output-Strukturen, 30 Evaluationen und 20 Quellen.
+  Die Lieferung wurde formal und stichprobenartig fachlich geprüft, ist aber
+  noch keine Runtime-Quelle. Reviewstatus und Grenzen stehen in
+  `docs/BATCH_09_FACHPRUEFUNG.md`.
 
 ## `evaluation/`
 

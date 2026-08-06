@@ -4,6 +4,13 @@
 
 Diese Datei dokumentiert nur tatsächlich ausgeführte und verifizierte Änderungen. Roadmap-Punkte gelten nicht als umgesetzt.
 
+## 2026-08-06 – Batch 09 fachlich geprüft
+
+- Die vollständige Kandidatenlieferung formal auf 27 Inference Patterns, 28 Workflows, 10 Output-Strukturen, 30 Evaluationen, 20 Quellen, eindeutige IDs, gültige PF-/SP-Referenzen und vollständige `source_refs` geprüft.
+- Neun Inference Patterns, zehn Workflows, alle zehn Output-Strukturen und zwölf Evaluationen fachlich näher gelesen.
+- Rollen-Normalisierung, dokumentarischen SP-04-Ausschluss, strengere menschliche Bestätigung der physischen Zuordnung und ein fragliches Evaluationslabel als Bedingungen vor Runtime-Übernahme dokumentiert.
+- Keine Kandidatendatei still verändert und noch keine Batch-09-Datei in einen Runtime-Loader oder Index aufgenommen.
+
 ## 2026-08-06 – Klickbaren Ergebnisprototyp als Idee festgehalten
 
 - Das unveränderte Ideenpapier unter `docs/future-features/clickable-result-prototype.md` abgelegt und im Dokumentationsregister als nicht geplant und nicht umgesetzt verlinkt.
