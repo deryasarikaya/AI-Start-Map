@@ -161,3 +161,12 @@ Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest
 - **Entscheidung:** Mermaid wird nicht wieder eingeführt; validierte Schritte bleiben als vertikale HTML-/CSS-Linie sichtbar.
 - **Grund:** Zuverlässige deutsche Umbrüche, Mobile, Druck und Sicherheit.
 - **Status:** Implemented, visually checked and documented
+
+## DEC-019 – Semantische Klassifikation vor deterministischer Auswahl
+
+- **Datum:** 2026-08-06
+- **Entscheidung:** Die bestätigte Nutzererzählung wird primär per Structured Output einer bis drei gültigen Problemfamilien und den bestehenden typisierten Gate-Werten zugeordnet. Der Katalog begrenzt die IDs; der Selector und alle Sicherheitsgrenzen bleiben deterministisch.
+- **Grund:** Die gemessene Keyword-Baseline erreicht nur 28 % PF Top-1 und fällt in 48 % der Fälle auf `PF-01` zurück. Freie Erzählungen benötigen semantische Zuordnung, ohne die Entscheidungshoheit des Selectors an das Modell abzugeben.
+- **Konsequenzen:** Bei `AIServiceError` bleiben die unveränderte Keyword-Klassifikation und alte Gate-Inferenz der Fallback. Die fachliche GATE-01-bis-GATE-06-Kaskade und der A0-Ausgang sind damit noch nicht integriert und bleiben ein getrenntes Vorhaben.
+- **Alternativen:** Keyword-Matching als primärer Pfad und freie Solution-Auswahl durch das LLM wurden nicht gewählt.
+- **Status:** Implemented, integrated, tested and documented

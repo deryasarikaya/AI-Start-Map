@@ -24,9 +24,9 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 ## KI-001 – Recommendation-Auswahl braucht noch reale Kalibrierung
 
 - **Status:** Partially Fixed
-- **Beobachtung:** Katalog, sechs Gates und Selector wählen die Lösung nun außerhalb des Diagnose-Top-k. Ein reproduzierbares Harness misst 91 getrennte Evaluationsfälle; seine 40 vorbelegten PF-/SP-Zuordnungen sind jedoch noch unbestätigte Vorschläge. Die vier verbindlichen Referenzfälle bestehen; reale Interviews können dennoch weitere Klassifikations- und Priorisierungsfehler zeigen.
+- **Beobachtung:** Katalog, sechs Gates und Selector wählen die Lösung nun außerhalb des Diagnose-Top-k. Die semantische Klassifikation erreicht im vorhandenen unbestätigten Eval-Artefakt PF Top-1 65 %, PF Top-3 85 %, SP Top-1 70 % und 3 % PF-01-Default, enthält aber zwei Klassifikatorfehler und einen Treffer eines verbotenen Begriffs. Die 40 vorbelegten PF-/SP-Zuordnungen sind weiterhin unbestätigte Vorschläge. Die vier verbindlichen Referenzfälle bestehen; reale Interviews können weitere Fehler zeigen.
 - **Erwartetes Verhalten:** Aus bestätigtem Problem, Ursache, Reifegrad und Voraussetzungen wird ein kleiner, konkreter und betrieblich passender erster Workflow gewählt.
-- **Mögliche Ursachen:** Die deterministische Klassifikation verwendet bewusst kleine Wortmarker; branchenspezifische Umschreibungen und widersprüchliche reale Angaben sind noch nicht ausreichend kalibriert.
+- **Mögliche Ursachen:** Semantische Klassifikation und bestehende Gate-Werte sind noch nicht anhand bestätigter Ground Truth und realer Interviews kalibriert; API-Fehler fallen bewusst auf die schwächere Keyword-Heuristik zurück.
 - **Nächster Prüfschritt:** Vorgeschlagene Labels fachlich prüfen, erst danach als Ground Truth bestätigen, und zusätzlich reale Interviews anonymisiert gegen Katalog, Gates und sichtbaren Output auswerten.
 - **Betroffene Dateien:** `app/recommendation_service.py`, `app/openai_service.py`, `tests/test_recommendation_catalog.py`, `tests/test_recommendation_experience.py`.
 
@@ -80,7 +80,7 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 - **Status:** Partially Fixed
 - **Beobachtung:** Die Diagnose kann Symptom und Engpass korrekt benennen, während `ai_support`, `first_change` oder die erste Opportunity zu allgemein beziehungsweise nicht die beste konkrete Lösung ist.
 - **Erwartetes Verhalten:** Der gewählte Workflow passt zur Ursache, nutzt vorhandene Eingaben, erzeugt einen prüfbaren Output und benennt die menschliche Kontrolle.
-- **Mögliche Ursachen:** Die strukturelle Ursache ist behoben; verbleibendes Risiko liegt in heuristischer Problemfamilienklassifikation und Modellformulierung bei bisher ungesehenen Fällen.
+- **Mögliche Ursachen:** Die strukturelle Ursache ist behoben; verbleibendes Risiko liegt in semantischer Klassifikation, Keyword-Fallback und Modellformulierung bei bisher ungesehenen Fällen.
 - **Nächster Prüfschritt:** Neue reale Fehlfälle als getrennte Diagnose- und Solution-Auswahltests ergänzen.
 - **Betroffene Dateien:** `app/openai_service.py`, `app/rag_service.py`, `app/schemas.py`, `tests/test_quality_pass.py`, `tests/test_product_finalization.py`.
 

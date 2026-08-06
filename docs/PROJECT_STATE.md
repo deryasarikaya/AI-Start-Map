@@ -1,7 +1,7 @@
 # AI Start Map – Projektstand
 
 **Last Updated:** 2026-08-06
-**Verifizierter Code-Stand:** Branch `feature/gate-cascade-quality`; Phase-1-RAG-Zuverlässigkeit implementiert und gezielt getestet; vollständiger Lauf durch zwei vorbestehende Klassifikations-Testfehler nicht vollständig grün
+**Verifizierter Code-Stand:** Branch `feature/gate-cascade-quality`; Phase-1-RAG-Zuverlässigkeit und semantische Problemklassifikation integriert; vollständige Suite mit 121 Tests grün
 **Pflegehinweis:** Diese Datei beschreibt den bestätigten heutigen Stand. Planung, offene Probleme, Entscheidungen und Änderungshistorie stehen in den übrigen Dokumenten unter `docs/`.
 
 ## Produktstand
@@ -28,6 +28,7 @@ Texteingabe bleibt immer verfügbar. Die numerische Session-ID wird in der öffe
 
 - `knowledge/structured/recommendation_catalog.json` enthält exakt zwölf Problemfamilien `PF-01` bis `PF-12`, zehn Solution Patterns `SP-01` bis `SP-10` und die vollständige Zuordnungsmatrix.
 - `app/recommendation_service.py` validiert Anzahl, IDs, Referenzen, Kernfelder und Evaluationstrennung.
+- `app/llm_classification.py` klassifiziert die bestätigte Erzählung primär per Structured Output in ein bis drei Katalog-Problemfamilien und die bestehenden sechs Gate-Werte. Bei `AIServiceError` bleiben Keyword-Klassifikation und alte Gate-Inferenz der konservative Fallback.
 - Vorgangsanker, Kanaleignung, Prozess-/Datenreife, Fehlerauswirkung, Regelstabilität und menschliche Freigabe bleiben getrennte typisierte Gates.
 - Der deterministische Selector liefert Hauptlösung, höchstens zwei sekundäre Kandidaten, Ausschlussgründe, Voraussetzungen und Freigabegrenzen.
 - Der Selector ist in den produktiven Analysepfad integriert. Seine Vorauswahl wird dem finalen Structured-Output-Aufruf getrennt von Nutzerfakten und RAG-Evidenz übergeben.
@@ -65,9 +66,10 @@ Texteingabe bleibt immer verfügbar. Die numerische Session-ID wird in der öffe
 ## Verifikation
 
 - Das reproduzierbare Evaluation-Harness umfasst 91 getrennte Fälle. Alle 91 Label-Einträge stehen auf `confirmed: false`; 40 vorbelegte PF-/SP-Zuordnungen sind Vorschläge und keine bestätigte Ground Truth.
-- Vollständige Testsuite: `107 passed` am 2026-08-06.
-- Phase-1-RAG-Regression: vier isolierte Tests für leere Chunks, zwei vollständige Promote-Backups, mtime-Cache-Invalidierung und fehlende Dateien bestanden; Gesamtlauf im vorhandenen uncommittierten Klassifikations-Arbeitsstand: `119 passed, 2 failed`. Die zwei Fehler betreffen bestehende Demo-Tests, die den neu vorgeschalteten LLM-Klassifikator noch nicht mocken, nicht die RAG-Zuverlässigkeitsänderungen.
+- Vollständige Testsuite: `121 passed` am 2026-08-06; die Demo-Tests mocken den vorgeschalteten Klassifikator.
+- Phase-1-RAG-Regression: vier isolierte Tests für leere Chunks, zwei vollständige Promote-Backups, mtime-Cache-Invalidierung und fehlende Dateien bestanden.
 - Keyword-Evaluation nach Phase 1: PF Top-1 28 %, PF Top-3 38 %, SP Top-1 30 %, PF-01-Default 48 %, verbotene Inhalte 0 von 91; damit gegenüber der Keyword-Baseline fachlich unverändert.
+- Vorhandenes LLM-Eval-Artefakt: PF Top-1 65 %, PF Top-3 85 %, SP Top-1 70 %, PF-01-Default 3 %, zwei Klassifikatorfehler und ein Treffer eines verbotenen Begriffs. Dieser kostenpflichtige Lauf wurde in der aktuellen Sicherungsarbeit nicht wiederholt; seine Labels sind weiterhin unbestätigte Vorschläge.
 - Python-Kompilierung: `python -m compileall -q app` bestanden.
 - App-Start gegen die separate Testdatenbank geprüft; Landingpage antwortete mit HTTP 200.
 - Visuell geprüft: Ergebnis bei Desktop- und schmalem Mobile-Viewport; Karten stapeln, lange Texte brechen um, kein horizontaler Seitenüberlauf, Touch-Ziele 48–58 Pixel.

@@ -48,11 +48,8 @@ from app.openai_service import (
 from app.questions import INTRO_QUESTIONS, PROCESS_QUESTIONS
 from app.rag_service import RagConfigurationError
 from app.rag_service import format_chunks_for_prompt, retrieve_agent_patterns
-from app.recommendation_service import (
-    classify_problem_families,
-    infer_decision_gates,
-    select_recommendation,
-)
+from app.llm_classification import classify_narrative
+from app.recommendation_service import select_recommendation
 from app.schemas import (
     FinalAnalysisResult,
     contains_internal_reference,
@@ -1592,8 +1589,14 @@ def _generate_and_persist_final_analysis(
         stage = "retrieval"
         stage_started = perf_counter()
         query_text = _query_text(all_questions, process)
-        problem_family_ids = classify_problem_families(query_text)
-        gates = infer_decision_gates(query_text)
+        classification = classify_narrative(query_text)
+        problem_family_ids = classification.problem_family_ids
+        gates = classification.gates
+        logger.info(
+            "analysis.classification method=%s problem_families=%s",
+            classification.method,
+            problem_family_ids,
+        )
         retrieval_query = (
             f"{query_text}\n\nDiagnostischer Fokus: Ursache, Problemfamilie, "
             "konkretes Lösungsmuster, Voraussetzung und Guardrail; Kanaleignung, "

@@ -34,6 +34,7 @@ Die öffentliche Journey nutzt ein signiertes Sitzungscookie. Die interne numeri
 | `app/agent_service.py` | Getrennter Process State, drei interne Werkzeuge und deterministische Aktionsentscheidung |
 | `app/rag_service.py` | Korpusladen, Indexbau/-validierung, FAISS-Retrieval, Ranking und Promptbereinigung |
 | `app/recommendation_service.py` | Validiert den strukturierten Recommendation-Katalog, klassifiziert Problemfamilien, bewertet sechs getrennte Gates und liefert die im Analysepfad verwendete deterministische Vorauswahl. |
+| `app/llm_classification.py` | Ordnet die bestätigte Erzählung per Structured Output Problemfamilien und bestehenden Gate-Werten zu; bei API-Fehlern nutzt es die unveränderte Keyword-/Gate-Heuristik als Fallback. |
 | `app/openai_service.py` | OpenAI Structured Outputs, Embeddings, Prompts, Normalisierung und Grounding |
 | `app/schemas.py` | Pydantic-Schemas und sichtbare Sicherheits-/Qualitätsvalidierung |
 | `app/models.py` | SQLAlchemy-Modelle der fünf Tabellen |
@@ -57,7 +58,8 @@ Die finale Analyse läuft über:
 
 ```text
 _generate_and_persist_final_analysis()
-→ classify_problem_families() und infer_decision_gates()
+→ classify_narrative()
+  → Structured Output oder bei AIServiceError Keyword-/Gate-Fallback
 → _retrieval_context(..., "analysis")
 → _diagnostic_agent_state()
 → select_recommendation()
@@ -165,6 +167,7 @@ Der Process State wird derzeit bei Bedarf aus den bestehenden Tabellen rekonstru
 
 `app/openai_service.py` verwendet:
 
+- Structured Outputs für die semantische Problemfamilien- und Gate-Klassifikation,
 - Structured Outputs für Prozessoptionen, benutzerdefinierte Prozessgrenzen, Prozessverständnis, Rückfragen und finale Analyse,
 - Pydantic-Modelle als erwartete Ergebnisstruktur,
 - Embeddings für Diagnose- und optionales Agent-Pattern-Retrieval,
@@ -193,7 +196,8 @@ Es gibt keine serverseitige PDF-Bibliothek. Der `mailto:`-Kontakt hängt den Ber
 - `tests/test_quality_pass.py` prüft Grounding, menschliche Freigaben, Prompttrennung und Qualitätsfälle.
 - `tests/test_ux_journey.py` prüft die vollständige sichtbare Journey und den Kundenbericht.
 - `tests/test_recommendation_catalog.py` und `tests/test_recommendation_experience.py` prüfen Katalog, Selector, vier Referenzfälle, direkte Ansprache und Feldgrenzen.
-- Letzter vollständiger Lauf am 2026-08-06: 107 Tests bestanden.
+- `tests/test_llm_classification.py` prüft Katalogkontext, typisierte Ergebnisse, Begrenzung auf drei Familien und den unveränderten Keyword-Fallback ausschließlich mit gemockten OpenAI-Aufrufen.
+- Letzter vollständiger Lauf am 2026-08-06: 121 Tests bestanden.
 
 ## Aktuelle Architektur
 
@@ -203,6 +207,7 @@ Jinja2/FastAPI UI
 → deterministische Agentenregeln
 → kontrolliertes Agent-Pattern-Retrieval bei Rückfragen
 → aktives Diagnose-RAG mit reservierten Analyse-Typen
+→ semantische Problemklassifikation mit deterministischem Fallback
 → strukturierter Katalog und sechs Gates
 → deterministische Solution-Vorauswahl
 → OpenAI Structured Output

@@ -1,14 +1,16 @@
 # Design – Solution-Pattern-Recommendation
 
 **Status:** Active – implemented, integrated and tested
-**Datum:** 2026-08-06 (Revision: Katalog v2)
+**Datum:** 2026-08-06 (Revision: Katalog v2 und LLM-Klassifikation mit deterministischem Fallback)
 **Geltung:** Verbindliches Design; Implementierungs-, Integrations- und Teststatus werden getrennt geführt.
 
 ## Verbindlicher Zielpfad
 
 ```text
 bestätigte Nutzerfakten
-→ deterministische Problemfamilienklassifikation
+→ LLM-Klassifikation von Problemfamilien und Gates (Structured Output,
+  Katalogdefinitionen als Kontext, deterministischer Keyword-Fallback
+  nur bei API-Fehlern)
 → sechs getrennte Gates
 → validierter Solution-Katalog
 → primäre Empfehlung plus 0–2 sekundäre Kandidaten
@@ -32,6 +34,31 @@ bleibt in diesem Datenpaket unverändert. Batch 08 wird unverändert als
 zeitkritische Tool- und Architektur-Researchgrundlage versioniert, ist aber
 weder in den Laufzeitkatalog noch in einen produktiven Index integriert.
 
+## Klassifikation: LLM mit deterministischem Fallback
+
+Die frühere deterministische Stichwort-Klassifikation ist als primärer Pfad
+abgelöst. Gemessene Ursachen (Baseline 2026-08-06, 91 Evaluationsfälle):
+48 % Default-Fallback auf `PF-01`, PF Top-1 28 %, SP Top-1 30 %, `PF-03` und
+`PF-11` ohne Regel technisch unerreichbar, Gates zu 82–99 % auf demselben Wert.
+
+Neuer verbindlicher Pfad (`app/llm_classification.py`):
+
+- Ein Structured-Output-Aufruf erhält die bestätigte Erzählung sowie die zwölf
+  Problemfamilien-Definitionen (`definition`, `typical_statements`, `symptoms`,
+  `common_causes`) und die sechs Gate-Definitionen aus Katalog v2 als Kontext.
+- Das Modell liefert ein bis drei Problemfamilien-IDs als Enum (keine
+  erfundenen IDs möglich), je Familie ein wörtliches Belegzitat aus der
+  Erzählung, sechs Gate-Werte mit `unknown` als ausdrücklich erlaubtem Wert
+  sowie `physical_object` und `real_location_known`.
+- Die Stichwort-Funktionen `classify_problem_families()` und
+  `infer_decision_gates()` bleiben unverändert erhalten und dienen
+  ausschließlich als Fallback bei API-Fehlern (`AIServiceError`). Der genutzte
+  Pfad wird geloggt.
+- Selector, Matrix, Ausschlussregeln, UI, Bericht, Regex-Filter, Agent-Layer
+  und Indizes bleiben unverändert. Der Agent-Layer nutzt weiterhin die
+  deterministische Gate-Heuristik; seine Umstellung ist eine getrennte
+  Entscheidung.
+
 Problemfamilien und Patterns liegen als versionierte JSON-Dateien außerhalb aller Evaluationspfade. Der Loader validiert Anzahl, IDs, Referenzen und Kernfelder. Der Selector liefert Auswahl, Ausschlussgründe, Voraussetzungen, Fehlergrenzen und Freigabegrenzen. Der neue Kernoutput liegt in bestehendem JSONB; die View-Schicht liest neue und alte Analysen. Neue Seiten zeigen keinen Wochentest.
 
 Das Analyse-Retrieval balanciert Diagnose, konkretes `automation_pattern`, Voraussetzung und Guardrail. Agentenpatterns unterstützen nur die Wahl einer entscheidungsrelevanten Lücke oder Aktion. Budgets, No-Repeat, Schleifenstopp, Faktenintegrität, Stop-Wunsch und Sicherheitsgrenzen bleiben deterministisch in Python.
@@ -40,7 +67,7 @@ Die vertikale HTML-/CSS-Prozesslinie bleibt verbindlich. Mermaid wird wegen unzu
 
 ## Implementierter Ist-Zustand
 
-Die Laufzeit nutzt aktives Diagnose-RAG, deterministische Python-Guardrails, kontrolliertes Agent-Pattern-Retrieval, den direkt geladenen Katalog, sechs typisierte Gates, den deterministischen Selector und einen finalen Structured-Output-Prompt. Der Selector-Kontext bleibt technisch von Nutzerfakten, Ableitungen und RAG-Evidenz getrennt.
+Die Laufzeit nutzt aktives Diagnose-RAG, deterministische Python-Guardrails, kontrolliertes Agent-Pattern-Retrieval, den direkt geladenen Katalog, LLM-Klassifikation von Problemfamilien und Gates mit deterministischem Fallback, den deterministischen Selector und einen finalen Structured-Output-Prompt. Der Selector-Kontext bleibt technisch von Nutzerfakten, Ableitungen und RAG-Evidenz getrennt.
 
 ## Behobene strukturelle Ursachen der defensiven Empfehlungen
 
@@ -109,6 +136,7 @@ Der Katalog umfasst zunächst nur zehn strukturierte Patterns. Deterministische 
 
 ## Integrationspunkte
 
+- `app/llm_classification.py`: LLM-Klassifikator für Problemfamilien und Gates mit Keyword-Fallback.
 - `app/routes.py`: Orchestrierung von Klassifikation, Gates, Retrieval, Selector, Agent-Patterns, Logging und Persistenz.
 - `app/rag_service.py`: reservierte Analyse-Chunktypen und separater Agent-Pattern-Abruf.
 - `app/openai_service.py`: getrennte Recommendation-Payload und kompakter Outputprompt.
@@ -126,7 +154,7 @@ Der Katalog umfasst zunächst nur zehn strukturierte Patterns. Deterministische 
 ## Verifizierte technische Entscheidungen
 
 - Keine neue Tabelle oder Migration; neuer Output liegt im vorhandenen JSONB.
-- Klassifikation und Gates laufen vor `select_recommendation()` in der finalen Analyseorchestrierung.
+- Klassifikation und Gates laufen vor `select_recommendation()` in der finalen Analyseorchestrierung; primär per LLM, bei API-Fehlern deterministisch.
 - Alte Kernoutputs werden nur beim Lesen beziehungsweise bei Legacy-Fixtures auf den neuen Vertrag abgebildet.
 - Agent-Patterns unterstützen den Rückfragekontext und beeinflussen die Solution-Auswahl nicht.
 - Echtes Function Calling ist nicht integriert und bleibt ein getrennter nächster Schritt.

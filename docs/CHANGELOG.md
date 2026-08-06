@@ -4,6 +4,14 @@
 
 Diese Datei dokumentiert nur tatsächlich ausgeführte und verifizierte Änderungen. Roadmap-Punkte gelten nicht als umgesetzt.
 
+## 2026-08-06 – Semantische Problemklassifikation integriert
+
+- `app/llm_classification.py` klassifiziert die bestätigte Erzählung per Structured Output in ein bis drei gültige Problemfamilien und die bestehenden sechs typisierten Gates; Katalogdefinitionen dienen als Kontext.
+- `app/routes.py` verwendet diesen Klassifikator vor dem unveränderten deterministischen Selector. Bei `AIServiceError` greifen ausschließlich die bestehenden Keyword-Funktionen und die alte Gate-Inferenz als Fallback.
+- Selector, Sicherheitsgrenzen, Agent-Layer, UI, Regex-Filter und produktive Indizes bleiben unverändert.
+- Zehn Klassifikator- und drei parametrisierte Demo-Tests verwenden ausschließlich Mocks und bestanden.
+- Der bereits vorhandene, nicht erneut kostenpflichtig ausgeführte LLM-Eval-Stand umfasst 91 Fälle: PF Top-1 65 %, PF Top-3 85 %, SP Top-1 70 % und PF-01-Default 3 %. Das Artefakt enthält zwei Klassifikatorfehler und einen Treffer eines verbotenen Begriffs; die zugrunde liegenden Labels bleiben unbestätigte Vorschläge.
+
 ## 2026-08-06 – Recommendation-Evaluation reproduzierbar gemacht
 
 - `scripts/evaluate.py` führt die 91 getrennten Evaluationsfälle standardmäßig ohne LLM-Kosten durch `classify_problem_families` → `infer_decision_gates` → `select_recommendation` und misst Default-Quote, Gate-Streuung, verbotene Inhalte und Trefferquoten.
