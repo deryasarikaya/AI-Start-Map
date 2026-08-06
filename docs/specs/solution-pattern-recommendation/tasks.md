@@ -2,7 +2,7 @@
 
 **Status:** Implemented, integrated, tested, documented and published
 **Datum:** 2026-08-06
-**Umsetzungsstatus:** Produktvertrag v3, Katalog, Loader, Retrieval, Agent-Pattern-Aufruf, Gate-Kaskade, A0 und deterministische Auswahl sind integriert; Ergebnisseite und Bericht werden im aktiven Qualitätslauf weiter konkretisiert. 157 Tests und ein kontrollierter Live-Finalaufruf sind bestanden.
+**Umsetzungsstatus:** Produktvertrag v3, Katalog, Loader, Retrieval, Agent-Pattern-Aufruf, Gate-Kaskade, A0 und deterministische Auswahl sind integriert. Die Ergebnisseite ist responsiv überarbeitet und im Browser geprüft; die Druckansicht folgt als eigenes Qualitätspaket. Ein kontrollierter Live-Finalaufruf ist bestanden.
 
 | Bereich | Aufgabe | Status | Nachweis / Abhängigkeit |
 |---|---|---|---|
@@ -40,6 +40,7 @@
 | Filter | Nutzer-, Beispiel- und Zukunftsbegriffe erlauben; erfundene Ist-Fakten feldbezogen neutralisieren. | Done | DEC-023, Grounding-Regression |
 | Legacy | Vorhandene Altanalysen prüfen, Shim-Platzhalter loggen und unsichtbar halten. | Done | DEC-024, lokale DB-Prüfung und View-Test |
 | Modell | Finalprompt auf 15 Regeln kürzen, `medium`, zwei Versuche und Zeitbudget live prüfen. | Done | DEC-025, 60,141 s, ein Versuch |
+| Ergebnisansicht | Achtteilige Leserichtung, kompakte Typografie, responsive Rollen und Vorschau umsetzen. | Done | Layout-Regressionen und echte Desktop-/Mobile-Browserprüfung |
 
 ## Statuswerte
 

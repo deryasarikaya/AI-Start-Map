@@ -188,6 +188,10 @@ Der Legacy-Shim bleibt erforderlich, weil die lokal konfigurierte Anwendungsdate
 
 Es existiert kein echtes OpenAI Function Calling. Das Modell erhält Daten und internes Vergleichswissen als strukturierte Prompt-Payload, ruft aber keine Agentenwerkzeuge selbst auf.
 
+## Ergebnisdarstellung
+
+`app/templates/results.html` rendert den validierten Kernoutput in einer festen achtteiligen Leserichtung: Engpass, Empfehlung, Zukunftsablauf, konkretes Ergebnis, Human Check, kleinster Einstieg, Voraussetzungen und Grenzen sowie späterer Ausbau. Die Darstellung erfindet keine eigene fachliche Struktur, sondern verwendet die gespeicherten v3-Felder und unterdrückt Legacy-Shim-Platzhalter über die View-Abbildung. `app/static/styles.css` begrenzt Text auf ungefähr 72 Zeichen, hält den Ablauf vertikal und stapelt Rollen und Aktionen auf schmalen Viewports.
+
 ## PDF-Erstellung
 
 `app/templates/report.html` rendert zwei Kernseiten. Eine dritte Seite wird nur bei mindestens einer fachlich vorhandenen sekundären Möglichkeit erzeugt; ein alleiniger späterer Ausbau bleibt auf Seite 2. `app/static/styles.css` enthält Print-Regeln. Der Browser öffnet mit `window.print()` den Druckdialog; der Nutzer speichert dort selbst als PDF.

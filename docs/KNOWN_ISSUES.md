@@ -68,11 +68,11 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 
 ## KI-006 – Ergebnisansicht und PDF waren zu groß oder textlastig
 
-- **Status:** Verified Fixed
-- **Beobachtung:** Hauptseite und Bericht nutzen den kompakten Vertrag. Desktop, schmale Mobile-Ansicht und der zweiseitige Bericht ohne sekundäre Möglichkeit wurden visuell geprüft.
+- **Status:** Partially Fixed
+- **Beobachtung:** Die Hauptseite folgt jetzt einer festen achtteiligen Leserichtung von Engpass bis späterer Ausbaustufe. Desktop und ein schmaler Mobile-Viewport wurden im echten Browser geprüft: lange Überschriften und Ablauftexte brechen um, die Seite hat keinen horizontalen Überlauf, H1 liegt bei 40 beziehungsweise 32 Pixeln und die Hauptaktionen bei 48–55 Pixeln Höhe. Der Bericht wird im nächsten Qualitätspaket gesondert überarbeitet und erneut visuell geprüft.
 - **Erwartetes Verhalten:** Der Kernoutput ist schnell scanbar; Vertiefungen bleiben optional; eine dritte Seite entsteht nur bei echten weiteren Möglichkeiten.
 - **Mögliche Ursachen:** Noch zu verifizieren. Viele strukturierte Pflichtfelder, lange Modellausgaben und feste Berichtssektionen können sich kumulieren.
-- **Nächster Prüfschritt:** Browserübergreifende Geräte- und Druckmatrix bleibt unter UX-001 offen.
+- **Nächster Prüfschritt:** Druckansicht überarbeiten, exemplarisch als PDF rendern und anschließend die browserübergreifende Geräte- und Druckmatrix unter UX-001 weiterführen.
 - **Betroffene Dateien:** `app/templates/results.html`, `app/templates/report.html`, `app/static/styles.css`, `app/routes.py`.
 
 ## KI-007 – Problem erkannt, konkreter KI-Workflow nicht immer optimal

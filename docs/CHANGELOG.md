@@ -4,6 +4,14 @@
 
 Diese Datei dokumentiert nur tatsächlich ausgeführte und verifizierte Änderungen. Roadmap-Punkte gelten nicht als umgesetzt.
 
+## 2026-08-06 – Ergebnisansicht lesbarer gegliedert
+
+- Die Kundenseite in eine feste Reihenfolge aus Engpass, Empfehlung, Zukunftsablauf, konkretem Ergebnis, menschlicher Prüfung, kleinstem Einstieg, Voraussetzungen und Grenzen sowie späterem Ausbau gebracht.
+- H1 auf 34–40 Pixel am Desktop und 28–32 Pixel auf schmalen Viewports begrenzt, Textbreite auf etwa 72 Zeichen reduziert und Kartenhierarchie zugunsten ruhiger, scanbarer Abschnitte zurückgenommen.
+- Rollen, Zielworkflow und Ergebnisvorschau responsiv und ohne interne IDs dargestellt; fehlende v3-Felder älterer Analysen bleiben als ehrlich gekennzeichnete Altanalyse-Lücken sichtbar.
+- Im echten Browser bei Desktop- und Mobile-Breite geprüft: kein horizontaler Überlauf, lange Texte brechen um, relevante Aktionen sind 48–55 Pixel hoch.
+- Vollständige automatisierte Suite nach der Layoutänderung: `164 passed`.
+
 ## 2026-08-06 – Konkreten Kundenoutput und Grounding verbessert
 
 - `recommendation-v3` um normale Software-/Regelaufgabe, offene Angaben, kleinste nutzbare Version, Nicht-Automationen und Autonomiestufe erweitert und ohne Migration im bestehenden JSONB gespeichert.

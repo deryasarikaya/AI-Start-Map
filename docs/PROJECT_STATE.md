@@ -19,8 +19,8 @@ AI Start Map führt keine Unternehmensprozesse autonom aus. Preis-, Vertrags-, Z
 3. Bestätigung oder Korrektur einer kurzen vertikalen HTML-/CSS-Prozesslinie.
 4. Normal null bis zwei, bei komplexen Fällen höchstens drei und technisch maximal vier entscheidungsrelevante Rückfragen.
 5. Sichtbarer Analysezustand mit Statusabfrage und Retry.
-6. Eine kompakte Hauptlösung mit Vorher/Nachher, Vier-Schritt-KI-Ablauf und greifbarer Vorschau.
-7. Eingeklappter Umsetzungsweg, optionale weitere Möglichkeiten, Details, Druckbericht und Kontakt per `mailto:`.
+6. Eine kompakte Hauptlösung in der festen Reihenfolge Engpass, Empfehlung, zukünftiger Ablauf, konkretes Ergebnis, menschliche Prüfung, kleinster Einstieg, Voraussetzungen und Grenzen sowie späterer Ausbau.
+7. Optionale weitere Möglichkeiten, Druckbericht, neuer Ablauf und Kontakt per `mailto:`.
 
 Texteingabe bleibt immer verfügbar. Die numerische Session-ID wird in der öffentlichen Journey nicht angezeigt. Alle sichtbaren Ergebnistexte verwenden direkte Du-Ansprache.
 
@@ -66,8 +66,9 @@ Texteingabe bleibt immer verfügbar. Die numerische Session-ID wird in der öffe
 
 ## Ergebnisoberfläche und Bericht
 
-- Die Hauptseite zeigt genau eine dominante Empfehlung, kurze Begründung, Heute/Mit KI, vier Rollen im KI-Ablauf, konkrete Musterkarte, Nutzen, optionale Voraussetzungen und eine klare Umsetzungsaktion.
-- Weitere Möglichkeiten und Diagnosekontext sind progressiv eingeklappt.
+- Die Hauptseite zeigt genau eine dominante Empfehlung und führt in acht scanbaren Abschnitten von Engpass und Zukunftsablauf über Ergebnisvorschau und Human Check bis zum kleinsten Einstieg, Grenzen und späteren Ausbau.
+- Nutzer-, KI-, Software-/Regel- und Menschenrolle stehen direkt am zukünftigen Ablauf; fehlende Angaben werden in der Vorschau und unter den Grenzen sichtbar offen gehalten.
+- Weitere Möglichkeiten und Diagnosekontext bleiben nachgeordnet.
 - Mermaid bleibt ausgeschlossen. Validierte strukturierte Schritte werden als responsive HTML-/CSS-Darstellung gerendert.
 - Der Browserbericht nutzt zwei Kernseiten. Seite 3 wird nur bei mindestens einer sekundären Möglichkeit gerendert; ein alleiniger späterer Ausbau bleibt auf Seite 2.
 - PDF-Speicherung erfolgt weiterhin über `window.print()`; Kontakt bleibt ein normaler `mailto:`-Link ohne behaupteten automatischen Anhang.
@@ -75,7 +76,7 @@ Texteingabe bleibt immer verfügbar. Die numerische Session-ID wird in der öffe
 ## Verifikation
 
 - Das reproduzierbare Evaluation-Harness weist 91 Legacy-Fälle und 30 Batch-09-Fälle getrennt aus und mittelt ihre Werte nicht. Alle 40 vorbelegten Legacy-Zuordnungen stehen auf `confirmed: false`; Batch 09 bleibt `research_proposed`.
-- Vollständige Testsuite: `157 passed` am 2026-08-06; die Demo-Tests mocken den vorgeschalteten Klassifikator.
+- Vollständige Testsuite: `164 passed` am 2026-08-06; die Demo-Tests mocken den vorgeschalteten Klassifikator.
 - Phase-1-RAG-Regression: vier isolierte Tests für leere Chunks, zwei vollständige Promote-Backups, mtime-Cache-Invalidierung und fehlende Dateien bestanden.
 - Keyword-Evaluation nach Phase 1: PF Top-1 28 %, PF Top-3 38 %, SP Top-1 30 %, PF-01-Default 48 %, verbotene Inhalte 0 von 91; damit gegenüber der Keyword-Baseline fachlich unverändert.
 - Aktuelle Keyword-Messung mit Gate-Kaskade: Legacy 91 weiterhin PF Top-1 28 %, irgendein PF-Treffer 38 %, SP Top-1 30 %, PF-01 48 %, verbotene Auswahltexte 0/91. Batch 09 getrennt: 25 Fälle mit vorgeschlagenen nicht bestätigten Labels, PF Top-1 40 %, irgendein PF-Treffer 48 %, SP Top-1 36 %, PF-01 33 %, verbotene Auswahltexte 0/30. Die schwache Keyword-Baseline bleibt nur Fallback.
@@ -83,7 +84,7 @@ Texteingabe bleibt immer verfügbar. Die numerische Session-ID wird in der öffe
 - Kontrollierter Live-Vertragstest für den Hausmeisterfall: `gpt-5-mini`, `medium`, ein Versuch, 60,141 Sekunden, kein Retry, validiertes Ergebnis mit A1 und den sechs deterministischen OUT-SP03-Feldern. Diese Einzelbeobachtung ist keine belastbare Fehler- oder Latenzstatistik.
 - Python-Kompilierung: `python -m compileall app scripts` bestanden.
 - App-Start gegen die separate Testdatenbank geprüft; Landingpage antwortete mit HTTP 200.
-- Visuell geprüft: Ergebnis bei Desktop- und schmalem Mobile-Viewport; Karten stapeln, lange Texte brechen um, kein horizontaler Seitenüberlauf, Touch-Ziele 48–58 Pixel.
+- Visuell geprüft: überarbeitete Ergebnisansicht bei Desktop- und schmalem Mobile-Viewport; H1 40/32 Pixel, H2 24 Pixel mobil, Karten und Rollen stapeln, lange Texte brechen um, kein horizontaler Seitenüberlauf, Hauptaktionen 48–55 Pixel.
 - Visuell geprüft: Bericht ohne sekundäre Möglichkeit rendert zwei Seiten und verschiebt den späteren Ausbau auf Seite 2.
 - Nicht behauptet: vollständige Freigabe auf physischem Android/iPhone, Safari sowie allen nativen Druckdialogen.
 

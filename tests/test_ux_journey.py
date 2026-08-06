@@ -258,17 +258,16 @@ def test_complete_public_journey_and_customer_report(
     assert analyzed.json()["redirect_url"] == "/results"
     results = client.get("/results")
     for text in (
-        "DEIN BESTER KI-HEBEL",
-        "Heute und mit KI",
-        "So funktioniert es",
-        "DU GIBST EIN",
-        "DU ERHÄLTST",
-        "VORSCHAU DEINES ERGEBNISSES",
-        "Das bringt dir das",
-        "So setzt du das um",
-        "So läuft es heute",
-        "Offene Punkte",
-        "Ergebnis als PDF speichern",
+        "Das ist der erkannte Engpass",
+        "EMPFOHLENE LÖSUNG",
+        "DAS KÖNNTE DEIN ZUKÜNFTIGER ABLAUF SEIN",
+        "Normale Software oder Regeln",
+        "DIESES KONKRETE ERGEBNIS ERHÄLTST DU",
+        "DAS PRÜFST DU SELBST",
+        "SO KLEIN KANN DER ERSTE SCHRITT SEIN",
+        "VORAUSSETZUNGEN UND GRENZEN",
+        "Bestätigten heutigen Ablauf ansehen",
+        "Bericht öffnen und als PDF speichern",
         "Umsetzung mit Derya besprechen",
     ):
         assert text in results.text

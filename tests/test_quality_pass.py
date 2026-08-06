@@ -576,7 +576,7 @@ def test_shoe_repair_quality_flow_contains_only_grounded_current_steps(
         assert forbidden not in lower_text
     assert "Auftragsangaben, Zuordnung und Bearbeitungsstand" in result_text
     assert "Kunden nach Fertigmeldung benachrichtigen" in result_text
-    assert "So funktioniert es" in result_text
+    assert "So würde der neue Ablauf aussehen" in result_text
     assert database_session.scalar(
         select(func.count())
         .select_from(AutomationOpportunity)

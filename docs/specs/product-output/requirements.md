@@ -47,7 +47,7 @@ Das Kundenergebnis beantwortet in wenigen Sekunden: erkannter Engpass, konkrete 
 
 ## Hauptseite und Details
 
-Die erste Ebene zeigt primäre Empfehlung, Promise, kurze Begründung, Heute/Mit KI, den Viererschritt „Du gibst ein – KI verarbeitet – Du erhältst – Du prüfst“, die Ergebnisvorschau, höchstens drei Nutzenpunkte, nur vorhandene Voraussetzungen und eine Hauptaktion „So setzt du das um“. Weitere Möglichkeiten stehen eingeklappt.
+Die Hauptseite verwendet verbindlich diese Leserichtung: erkannter Engpass, empfohlene Lösung, zukünftiger Ablauf, konkretes Ergebnis, menschliche Prüfung, kleinster nutzbarer Einstieg, Voraussetzungen und Grenzen sowie spätere Ausbaustufe. Nutzer-, KI-, Software-/Regel- und Menschenrolle stehen am Zielablauf. Die Ergebnisvorschau kennzeichnet Beispiele und offene Angaben; weitere Möglichkeiten bleiben nachgeordnet. Desktop-H1 liegt bei 34–40 Pixeln, Mobile-H1 bei 28–32 Pixeln, der Fließtext bleibt auf ungefähr 60–75 Zeichen begrenzt.
 
 ## Grounding und Sicherheit
 
