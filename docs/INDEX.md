@@ -31,6 +31,16 @@ Dieses Register ist die verbindliche Übersicht der Projekt-, Produkt- und Entwi
 | `docs/specs/solution-pattern-recommendation/tasks.md` | Aufteilbare Umsetzungsaufgaben | Active | Aufgabenstatus und Nachweise des Features | 2026-08-06 | 2026-08-06 | `docs/ROADMAP.md` |
 | `docs/specs/solution-pattern-recommendation/acceptance-criteria.md` | Fachlich bestätigte Abnahmekriterien | Active | Verbindliche Feature-Abnahme; Nachweisstatus getrennt | 2026-08-06 | 2026-08-06 | Fachgrundlage |
 
+## Reviews, Audits und zeitgebundene Arbeitsdokumente
+
+| Dokument | Zweck | Status | Source of Truth | Letzte Aktualisierung | Letzte Prüfung | Ersetzt durch / Verwandt mit |
+|---|---|---|---|---|---|---|
+| `docs/CODE_REVIEW_2026-08-06.md` | Externe technische und fachliche Review des damaligen Stands | Historical Snapshot | Keine aktuelle Source of Truth | 2026-08-06 | 2026-08-06 | `docs/PROJECT_STATE.md`, `docs/ARCHITECTURE.md`, Git-Historie |
+| `docs/RAG_AUDIT_2026-08-06.md` | Zeitgebundene Prüfung von RAG, Indizes und Research-Integration | Historical Snapshot with Update | Keine aktuelle Source of Truth | 2026-08-06 | 2026-08-06 | `docs/ARCHITECTURE.md`, `docs/KNOWN_ISSUES.md` |
+| `docs/RESEARCH_BATCHES_05_08_INTEGRATION.md` | Bewertung und teilweise umgesetzter Einbauplan für Research 05–08 | Partially Implemented Historical Plan | Keine aktuelle Source of Truth | 2026-08-06 | 2026-08-06 | Recommendation-Spec, `docs/PROJECT_STATE.md` |
+| `docs/BRIEFING_ZWEITMEINUNG.md` | Historisches Briefing für externe Einschätzung | Historical Snapshot | Keine aktuelle Source of Truth | 2026-08-06 | 2026-08-06 | `docs/PROJECT_STATE.md`, `docs/CODE_REVIEW_2026-08-06.md` |
+| `docs/WETTBEWERB_KIHELFER24.md` | Zeitgebundene Wettbewerbsanalyse | Historical Market Review | Keine Implementierungs-Source-of-Truth | 2026-08-06 | 2026-08-06 | `docs/PROJECT_STATE.md`, Recommendation-Spec |
+
 ## Archiv und ersetzte Dokumente
 
 | Dokument | Zweck | Status | Source of Truth | Letzte Aktualisierung | Letzte Prüfung | Ersetzt durch / Verwandt mit |

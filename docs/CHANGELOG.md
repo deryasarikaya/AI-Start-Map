@@ -4,6 +4,12 @@
 
 Diese Datei dokumentiert nur tatsächlich ausgeführte und verifizierte Änderungen. Roadmap-Punkte gelten nicht als umgesetzt.
 
+## 2026-08-06 – Recommendation-Reviews versioniert
+
+- Code-Review, RAG-Audit, Research-Integrationsplan, Zweitmeinungs-Briefing und Wettbewerbsanalyse als zeitgebundene Review-Dokumente aufgenommen.
+- Jedes Dokument ist gegenüber den aktuellen Sources of Truth abgegrenzt; der RAG-Audit-Nachtrag markiert die inzwischen behobenen Phase-1-Befunde und die weiterhin offenen Gate-/A0-Punkte.
+- Die fünf Dokumente sind im Dokumentationsregister eingetragen.
+
 ## 2026-08-06 – Semantische Problemklassifikation integriert
 
 - `app/llm_classification.py` klassifiziert die bestätigte Erzählung per Structured Output in ein bis drei gültige Problemfamilien und die bestehenden sechs typisierten Gates; Katalogdefinitionen dienen als Kontext.
