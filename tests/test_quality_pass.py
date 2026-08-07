@@ -371,7 +371,7 @@ def _run_quality_case(
     assert response.headers["location"] == f"/sessions/{session_id}/processing"
     processing = client.get(response.headers["location"])
     assert processing.status_code == 200
-    assert "Wir bringen deinen Ablauf gerade in ein klares Bild" in processing.text
+    assert "Ich prüfe, welcher KI-Schritt zu deinem Ablauf passt." in processing.text
     status_before = client.get(f"/sessions/{session_id}/analysis-status").json()
     assert status_before["state"] == "pending"
     analyze = client.post(f"/sessions/{session_id}/analyze")
@@ -576,7 +576,7 @@ def test_shoe_repair_quality_flow_contains_only_grounded_current_steps(
         assert forbidden not in lower_text
     assert "Auftragsangaben, Zuordnung und Bearbeitungsstand" in result_text
     assert "Kunden nach Fertigmeldung benachrichtigen" in result_text
-    assert "So würde der neue Ablauf aussehen" in result_text
+    assert "So würde es künftig laufen" in result_text
     assert database_session.scalar(
         select(func.count())
         .select_from(AutomationOpportunity)
@@ -625,8 +625,8 @@ def test_carpentry_quality_flow_keeps_technical_approval_human(
         "wip",
     ):
         assert forbidden not in lower_text
-    assert "fachkundige Person" in result_text
-    assert "technische oder konstruktive Freigabe" in result_text
+    assert "Nichts geht ohne dich raus" in result_text
+    assert "Du schaust einmal drüber und gibst frei" in result_text
     blueprints = dict(
         database_session.execute(
             select(
@@ -635,6 +635,14 @@ def test_carpentry_quality_flow_keeps_technical_approval_human(
             ).where(AutomationOpportunity.session_id == session_id)
         ).all()
     )
+    human_approval = database_session.scalar(
+        select(AutomationOpportunity.human_approval).where(
+            AutomationOpportunity.session_id == session_id,
+            AutomationOpportunity.rank == 1,
+        )
+    )
+    assert human_approval is not None
+    assert "technische oder konstruktive Freigabe" in human_approval
     assert blueprints[1]["contract_version"] == "recommendation-v3"
     assert blueprints[1]["sample_output"] is not None
     assert blueprints[2]["sample_output"] is None
@@ -813,9 +821,9 @@ def test_detail_help_and_back_navigation_are_visible(
         ),
     )
     selection_page = client.get(f"/sessions/{session_id}/process-options")
-    assert "Welchen Ablauf sollen wir zuerst genauer ansehen?" in selection_page.text
+    assert "Diese Abläufe habe ich aus deiner Beschreibung erkannt." in selection_page.text
     details_page = client.get(f"/sessions/{session_id}/process-details")
-    assert "Haben wir deinen Ablauf ungefähr richtig verstanden?" in details_page.text
+    assert "So habe ich deinen Ablauf verstanden." in details_page.text
     assert "Was sollen wir ändern?" in details_page.text
     assert "data-diagram-steps" not in details_page.text
 

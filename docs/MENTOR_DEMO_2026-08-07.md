@@ -18,13 +18,13 @@ Alle Beispielwerte stehen ausschließlich in sichtbar als Vorschau oder Beispiel
 
 | Fall | Laufstatus | Hauptmuster | Autonomie | Rückfragen | PDF | Fachlicher Befund |
 |---|---|---|---|---:|---:|---|
-| Hausmeisterservice | vollständig | SP-03 | A1 | 1 | 3 Seiten | passend |
-| Fotograf | vollständig | SP-02 | A1 | 1 | 3 Seiten | passend |
-| Blumenladen | vollständig | SP-01 | A1 | 1 | 3 Seiten | passend nach PF-02-Abgrenzung |
-| Coach | vollständig | SP-02 | A1 | 0 | 3 Seiten | passend |
+| Hausmeisterservice | vollständig | SP-03 | A1 | 1 | 2 Seiten | passend |
+| Fotograf | vollständig | SP-02 | A1 | 1 | 2 Seiten | passend |
+| Blumenladen | vollständig | SP-01 | A1 | 1 | 2 Seiten | passend nach PF-02-Abgrenzung |
+| Coach | vollständig | SP-02 | A1 | 0 | 2 Seiten | passend |
 | vorhandene Kalenderfunktion | vollständig | kein KI-Muster | A0 | 0 | 2 Seiten | passend |
 
-Alle zehn finalen Seitenaufrufe (`results` und `report`) antworteten mit HTTP 200. Keine PDF-Seite war leer. In HTML und PDF erschienen weder `PF-`, `SP-`, `OUT-`, `session_id` noch interne Sitzungs-URLs.
+Alle zehn finalen Seitenaufrufe (`results` und `report`) antworteten mit HTTP 200. Nach der Klartext-Überarbeitung wurden alle fünf gespeicherten Fälle erneut als PDF gerendert: jeder Bericht umfasst genau zwei nichtleere Seiten, zeigt keine localhost-URL und enthält keinen Begriff aus der Kunden-Verbotsliste. Die fachliche Auswahl der ursprünglichen Live-Läufe wurde dafür nicht erneut ausgeführt oder verändert.
 
 ## Fall 1 – Hausmeisterservice
 

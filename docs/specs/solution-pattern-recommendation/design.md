@@ -1,7 +1,7 @@
 # Design – Solution-Pattern-Recommendation
 
 **Status:** Active – implemented, integrated and tested
-**Datum:** 2026-08-06 (Revision: Katalog v2 und LLM-Klassifikation mit deterministischem Fallback)
+**Datum:** 2026-08-07 (Revision: Katalog v2, LLM-Klassifikation und getrennte Klartext-Kundensicht)
 **Geltung:** Verbindliches Design; Implementierungs-, Integrations- und Teststatus werden getrennt geführt.
 
 ## Verbindlicher Zielpfad
@@ -16,7 +16,9 @@ bestätigte Nutzerfakten
 → primäre Empfehlung plus 0–2 sekundäre Kandidaten
 → kompakter Structured Output
 → Pydantic-, Grounding- und Sprachvalidierung
-→ JSONB-Persistenz und kurze HTML-/Druckdarstellung
+→ JSONB-Persistenz
+→ getrennter, feldbezogen geprüfter Klartext-Kundenpayload
+→ sechs HTML-Blöcke und genau zwei Druckseiten
 ```
 
 ## Katalog v2 und Research-Grundlage
@@ -64,6 +66,8 @@ Problemfamilien und Patterns liegen als versionierte JSON-Dateien außerhalb all
 Das Analyse-Retrieval balanciert Diagnose, konkretes `automation_pattern`, Voraussetzung und Guardrail. Agentenpatterns unterstützen nur die Wahl einer entscheidungsrelevanten Lücke oder Aktion. Budgets, No-Repeat, Schleifenstopp, Faktenintegrität, Stop-Wunsch und Sicherheitsgrenzen bleiben deterministisch in Python.
 
 Die vertikale HTML-/CSS-Prozesslinie bleibt verbindlich. Mermaid wird wegen unzuverlässiger Umbrüche langer deutscher Labels, Print- und Sicherheitsaufwand nicht wieder eingeführt.
+
+Die View-Schicht bildet den vollständigen internen Vertrag auf einen kleineren Kundenpayload ab. Sie rendert keine rohe Rollen-, Technik- oder Autonomiestruktur, prüft jedes fertige Kundenfeld gegen die verbindliche Fachwortliste und protokolliert Ersetzung oder Wegfall. Realistische Output-Beispiele werden erst nach der Modellantwort aus der freigegebenen Output-Struktur ergänzt und sind ausschließlich im klar markierten Vorschaublock zulässig.
 
 ## Implementierter Ist-Zustand
 
@@ -142,7 +146,7 @@ Der Katalog mit zehn Patterns bleibt deterministisch und besitzt die Entscheidun
 - `app/solution_knowledge.py`: Batch-09-Loader, Output-Mapping, Hypothesenwissen und deterministische Workflow-Auswahl.
 - `app/openai_service.py`: getrennte Recommendation-Payload und kompakter Outputprompt.
 - `app/schemas.py`: neuer Kundenvertrag und Legacy-Abbildung.
-- `app/templates/` und `app/static/styles.css`: Hauptseite und variabler Druckbericht.
+- `app/templates/` und `app/static/styles.css`: sechsteilige Hauptseite und exakt zweiseitiger Druckbericht.
 
 ## Risiken
 

@@ -1,7 +1,8 @@
 from pathlib import Path
 
-import pytest
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+
+from app.schemas import customer_plain_text
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -9,40 +10,37 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def _result(**overrides: object) -> dict[str, object]:
     result: dict[str, object] = {
-        "short_reason": "Digitale Angaben liegen verteilt und werden manuell nachbearbeitet.",
-        "bottleneck": {"cause": "Die Angaben werden nicht in einem Vorgang zusammengeführt."},
-        "autonomy_level": "A2",
-        "primary_recommendation": "Digitale Angaben in einem prüfbaren Entwurf zusammenführen",
-        "promise": "Du erhältst ein konkretes, prüfbares Arbeitsergebnis.",
-        "customer_benefits": ["Du erkennst offene Angaben früher."],
+        "is_non_ai": False,
+        "short_reason": "Fotos, Notizen und Bons liegen heute an verschiedenen Stellen.",
+        "bottleneck": {"cause": "Beim Rechnungsschreiben musst du alles wieder zusammensuchen."},
+        "primary_recommendation": "Mobile Einsatzdokumentation aus Sprache, Fotos und Bon",
+        "promise": "Nach jedem Einsatz hast du eine fertige Notiz mit Zeit, Material und Fotos.",
         "future_process": [
-            "Du leitest vorhandene digitale Angaben weiter.",
-            "Die KI erstellt einen strukturierten Entwurf.",
-            "Feste Regeln markieren fehlende Pflichtangaben.",
-            "Du prüfst und bestätigst das Ergebnis.",
+            "Nach dem Einsatz sendest du Sprache, Fotos und Bon.",
+            "Die KI liest T\u00e4tigkeit, Zeit und Material heraus.",
+            "Fehlende oder unsichere Angaben werden markiert.",
+            "Eine Einsatznotiz entsteht als Entwurf.",
+            "Du pr\u00fcfst und best\u00e4tigst sie.",
+            "Danach kann sie als Grundlage f\u00fcr die Rechnung dienen.",
         ],
-        "user_action": "Du leitest die vorhandenen Angaben weiter.",
-        "ai_task": "Die KI ordnet die Angaben in einen Entwurf.",
-        "software_rule": "Pflichtfelder und Status werden nach festen Regeln geprüft.",
-        "human_check": "Du prüfst Inhalt und Freigabe.",
-        "visible_result": "Du erhältst eine Vorgangsübersicht.",
+        "sample_heading": "Beispiel \u2014 so k\u00f6nnte deine Einsatznotiz aussehen",
         "sample_output": {
-            "title": "Vorgangsübersicht",
-            "fields": [{"label": "Status", "value": "noch offen"}],
-            "open_items": ["Verantwortliche Person noch offen"],
-            "attachments": [],
-            "preview_notice": "Vorschau – die endgültigen Angaben prüfst du selbst.",
+            "fields": [
+                {"label": "F\u00fcr wen", "value": "Hausverwaltung Nord \u00b7 Lindenstra\u00dfe 12"},
+                {"label": "Was gemacht wurde", "value": "Waschbecken-Dichtung getauscht"},
+                {"label": "Wie lange", "value": "45 Minuten"},
+                {"label": "Material", "value": "Dichtungssatz, 12,40 \u20ac"},
+                {"label": "Besonderheiten", "value": "Zugang nur \u00fcber die Hausverwaltung"},
+                {"label": "Noch zu kl\u00e4ren", "value": "T\u00fcr nachstellen \u2013 abrechnen?"},
+                {"label": "Dabei", "value": "2 Fotos, 1 Bon, deine Sprachnachricht"},
+            ],
+            "preview_notice": "Beispielangaben zur Veranschaulichung \u2013 hier stehen sp\u00e4ter deine tats\u00e4chlichen Angaben.",
         },
-        "smallest_usable_version": "Mit einem Entwurf für neue Vorgänge beginnen.",
-        "implementation_path": ["Pflichtfelder festlegen.", "Neue Vorgänge prüfen."],
-        "required_prerequisites": ["Ein eindeutiger Vorgangsanker"],
-        "not_automated": ["Freigabe", "Verbindliche Entscheidung"],
-        "open_details": ["Zielstatus noch offen"],
-        "uncertainties": ["Das Volumen ist nicht angegeben."],
-        "error_boundaries": ["Unklare Angaben bleiben offen."],
-        "later_stage": "Später kann nach deiner Freigabe ein Folgeschritt vorbereitet werden.",
+        "first_step_text": "Probier es bei den n\u00e4chsten f\u00fcnf Eins\u00e4tzen aus.",
+        "first_step_follow_up": "Erst danach lohnt sich der n\u00e4chste Schritt.",
+        "contact_recommendation": "Mobile Einsatzdokumentation aus Sprache, Fotos und Bon",
         "secondary_opportunities": [],
-        "as_is_steps": ["Angaben empfangen.", "Angaben manuell übertragen."],
+        "as_is_steps": ["Angaben auf dem Handy sammeln.", "Abends alles zusammensuchen."],
         "problem_step_indexes": [1],
     }
     result.update(overrides)
@@ -55,98 +53,68 @@ def _render(result: dict[str, object]) -> str:
         autoescape=select_autoescape(("html",)),
     )
     environment.globals["url_for"] = lambda name, **_kwargs: f"/{name}"
+    environment.filters["customer_text"] = customer_plain_text
     return environment.get_template("results.html").render(
         result=result,
-        process={"process_name": "Anfrage bis Freigabe"},
+        process={"process_name": "Einsatz bis Rechnung"},
     )
 
 
-def test_results_follow_the_approved_information_order() -> None:
+def test_results_have_exactly_six_visible_blocks_in_the_approved_order() -> None:
     html = _render(_result())
     headings = [
-        "Das ist der erkannte Engpass",
-        "EMPFOHLENE LÖSUNG",
-        "DAS KÖNNTE DEIN ZUKÜNFTIGER ABLAUF SEIN",
-        "DIESES KONKRETE ERGEBNIS ERHÄLTST DU",
-        "DAS PRÜFST DU SELBST",
-        "SO KLEIN KANN DER ERSTE SCHRITT SEIN",
-        "VORAUSSETZUNGEN UND GRENZEN",
-        "SPÄTERE AUSBAUSTUFE",
+        "Das ist der Engpass",
+        "Das schlage ich dir vor".upper(),
+        "So w\u00fcrde es k\u00fcnftig laufen",
+        "Das bekommst du am Ende",
+        "Nichts geht ohne dich raus",
+        "So klein f\u00e4ngst du an",
+        "M\u00f6chtest du das umsetzen?",
     ]
     positions = [html.index(heading) for heading in headings]
     assert positions == sorted(positions)
-    assert "Normale Software oder Regeln" in html
-    assert "Autonomiestufe A2" in html
+    assert html.count("data-result-block") == 6
+    assert "Normale Software oder Regeln" not in html
+    assert "Autonomiestufe" not in html
     assert "/sessions/" not in html
 
 
-def test_a0_result_uses_non_ai_heading_and_remains_complete() -> None:
+def test_non_ai_result_has_no_visible_internal_level() -> None:
     html = _render(
         _result(
-            autonomy_level="A0",
-            primary_recommendation="Vorhandene Kalenderregel konsequent nutzen",
-            promise="Für diesen Schritt ist keine KI notwendig.",
-            ai_task="Für diesen ersten Schritt ist keine KI-Aufgabe notwendig.",
-            not_automated=["Terminentscheidung"],
+            is_non_ai=True,
+            primary_recommendation="Vorhandene Kalenderfunktion nutzen",
+            promise="F\u00fcr diesen Schritt ist keine KI notwendig.",
+            contact_recommendation="die vorhandene Kalenderfunktion passend einstellen",
         )
     )
-    assert "EINFACHER NÄCHSTER SCHRITT" in html
-    assert "Autonomiestufe A0" in html
     assert "keine KI notwendig" in html
+    assert "Autonomiestufe" not in html
+    assert "A0" not in html
 
 
-def test_missing_legacy_fields_and_many_open_points_render_safely() -> None:
+def test_example_is_central_and_technical_detail_sections_are_hidden() -> None:
+    html = _render(_result())
+    assert "Beispiel \u2014 so k\u00f6nnte deine Einsatznotiz aussehen" in html
+    assert "Hausverwaltung Nord" in html
+    assert "Voraussetzungen und Grenzen" not in html
+    assert "Fehler- und Pr\u00fcfgrenzen" not in html
+    assert "Sp\u00e4tere Ausbaustufe" not in html
+    assert "So habe ich deinen heutigen Ablauf verstanden" in html
+
+
+def test_secondary_item_without_complete_content_is_not_rendered() -> None:
     html = _render(
-        _result(
-            sample_output={
-                "title": "",
-                "fields": [],
-                "open_items": [],
-                "attachments": [],
-                "preview_notice": "",
-            },
-            software_rule="",
-            smallest_usable_version="",
-            not_automated=[],
-            open_details=[f"Offener Punkt {index}" for index in range(1, 7)],
-            uncertainties=["Zusätzliche Unsicherheit"],
-        )
+        _result(secondary_opportunities=[])
     )
-    assert "keine belastbare Vorschau gespeichert" in html
-    assert "Offener Punkt 6" in html
-    assert "keine eigenen Grenzen gespeichert" in html
-    assert "Pflichtfelder festlegen" in html
-
-
-@pytest.mark.parametrize(
-    ("recommendation", "output"),
-    [
-        ("Einsatznotiz aus Sprache, Fotos und Bon vorbereiten", "Einsatznotiz"),
-        ("Freigaben aus E-Mail und WhatsApp in einer Vorgangsakte bündeln", "Freigabestatus"),
-    ],
-)
-def test_mentor_cases_keep_long_specific_content_scanable(
-    recommendation: str,
-    output: str,
-) -> None:
-    html = _render(
-        _result(
-            primary_recommendation=recommendation,
-            visible_result=f"Du erhältst {output} mit allen offenen Angaben.",
-        )
-    )
-    assert recommendation in html
-    assert output in html
-    assert "future-process-line" in html
+    assert "Weitere M\u00f6glichkeiten" not in html
 
 
 def test_result_typography_is_bounded_for_desktop_and_mobile() -> None:
     css = (ROOT / "app" / "static" / "styles.css").read_text(encoding="utf-8")
-    assert ".result-intro h1" in css
-    assert "font-size: clamp(2.1rem, 4vw, 2.5rem)" in css
-    assert "font-size: clamp(1.85rem, 8vw, 2rem)" in css
+    assert "font-size: clamp(2.25rem, 4vw, 2.625rem)" in css
+    assert "font-size: clamp(1.75rem, 8vw, 2.125rem)" in css
     assert "max-width: 72ch" in css
-    assert ".boundary-columns" in css
     assert "overflow-wrap: anywhere" in css
 
 

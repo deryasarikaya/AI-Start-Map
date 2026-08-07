@@ -296,9 +296,9 @@ def test_process_summary_and_report_use_safe_vertical_structures() -> None:
     report = (ROOT / "app/templates/report.html").read_text(encoding="utf-8")
     assert "process-strip" in details and "mermaid" not in details.casefold()
     assert "process-strip" in results and "mermaid" not in results.casefold()
-    assert report.count('class="report-page ') == 3
-    assert "{% if result.secondary_opportunities %}" in report
-    assert "result.later_stage and not result.secondary_opportunities" in report
+    assert report.count('class="report-page ') == 2
+    assert "report-page--third" not in report
+    assert "result.secondary_opportunities" not in report
     assert "mermaid" not in report.casefold()
     assert "weekly_test" not in results
     assert "weekly_test" not in report
@@ -308,8 +308,8 @@ def test_process_summary_and_report_use_safe_vertical_structures() -> None:
 
 def test_landing_processing_and_mobile_contract(client: TestClient) -> None:
     landing = client.get("/").text
-    assert "FÜR SELBSTSTÄNDIGE UND KLEINE BETRIEBE" in landing
-    assert "Dein Betrieb läuft. Aber vieles läuft nur, weil du ständig alles zusammenhältst." in landing
+    assert "Wo könnte KI dir im Alltag wirklich Arbeit abnehmen?" in landing
+    assert "Per Sprache oder Text · dauert wenige Minuten" in landing
     assert landing.count('<section class="landing-section') <= 5
     base = (ROOT / "app/templates/base.html").read_text(encoding="utf-8")
     app_js = (ROOT / "app/static/app.js").read_text(encoding="utf-8")

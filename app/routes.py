@@ -9,6 +9,7 @@ import os
 import re
 import secrets
 from datetime import date
+from difflib import SequenceMatcher
 from pathlib import Path
 from time import perf_counter
 
@@ -70,14 +71,18 @@ from app.solution_knowledge import (
 )
 from app.schemas import (
     FinalAnalysisResult,
+    contains_forbidden_customer_term,
     contains_internal_reference,
     contains_prohibited_customer_language,
+    customer_plain_text,
+    sanitize_customer_payload,
 )
 
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
+templates.env.filters["customer_text"] = customer_plain_text
 ROOT_DIRECTORY = Path(__file__).resolve().parents[1]
 EVALUATION_FILE = ROOT_DIRECTORY / "knowledge" / "evaluation" / "cases_ten_kmu.json"
 INTRO_KEYS = tuple(question["key"] for question in INTRO_QUESTIONS)
@@ -91,6 +96,24 @@ DEMO_SESSION_SLUGS: dict[int, str] = {}
 SESSION_COOKIE = "ai_start_map_session"
 SESSION_SIGNING_KEY = (
     os.getenv("SESSION_SIGNING_KEY", "").encode("utf-8") or secrets.token_bytes(32)
+)
+
+CUSTOMER_SOLUTION_TITLES = {
+    "SP-01": "Anfragen aus allen Kan\u00e4len an einer Stelle sammeln",
+    "SP-02": "Eine gemeinsame \u00dcbersicht mit Status und n\u00e4chstem Schritt",
+    "SP-03": "Mobile Einsatzdokumentation aus Sprache, Fotos und Bon",
+    "SP-04": "Gegenstand und Ablageort eindeutig verbinden",
+    "SP-05": "Terminanfragen mit verf\u00fcgbaren Zeiten abgleichen",
+    "SP-06": "Angaben aus Dokumenten lesen und zur Pr\u00fcfung vorbereiten",
+    "SP-07": "\u00c4nderungen und Zusagen nachvollziehbar festhalten",
+    "SP-08": "Material und Arbeitsstand auf einen Blick sehen",
+    "SP-09": "Rechnungen vorbereiten und Zahlungen nachhalten",
+    "SP-10": "Wissen und \u00dcbergaben direkt beim Auftrag festhalten",
+}
+
+PREVIEW_NOTICE = (
+    "Beispielangaben zur Veranschaulichung \u2013 hier stehen sp\u00e4ter deine "
+    "tats\u00e4chlichen Angaben."
 )
 
 
@@ -788,7 +811,7 @@ async def select_process(
                 options=options,
                 selected_process=previous_selection,
                 error_message=(
-                    "Wir konnten den Ablauf gerade nicht sicher ordnen. "
+                    "Wir konnten den Ablauf gerade nicht sicher erkennen. "
                     "Deine Erzählung ist gespeichert – bitte versuche es noch einmal."
                 ),
             ),
@@ -1491,7 +1514,7 @@ def _massage_demo_fallback_result() -> FinalAnalysisResult:
     """Fixed result used only after an explicit massage demo service failure."""
 
     return FinalAnalysisResult(
-        primary_recommendation="Terminanfragen mit KI ordnen und Kapazität sicher prüfen",
+        primary_recommendation="Terminanfragen mit KI vorbereiten und Kapazität sicher prüfen",
         promise=(
             "Aus jeder Nachricht entsteht eine vollständige Terminanfrage mit "
             "sichtbarem Kapazitätsstatus."
@@ -1999,35 +2022,11 @@ def show_results(
             status_code=status.HTTP_409_CONFLICT,
         )
     result_view = _result_view(analysis, opportunities)
-    blueprint = result_view["blueprint"]
-    visible_result = {
-        "process_name": process.process_name,
-        "result": result_view,
-        "stored_analysis": {
-            "process_summary": analysis.process_summary,
-            "as_is_steps": analysis.as_is_steps,
-            "core_bottleneck": analysis.core_bottleneck,
-            "uncertainties": result_view["uncertainties"],
-        },
-    }
-    summary_start = analysis.process_summary.strip().casefold()
-    process_name = process.process_name.strip().casefold()
-    summary_repeats_title = summary_start.startswith(
-        (
-            process_name,
-            "prozessname:",
-            "ausgewählter prozess:",
-            "der prozess heißt",
-            "aus den vorliegenden angaben",
-            "auf grundlage der daten",
-            "quelle:",
-            "die rekonstruktion bleibt unsicher",
-        )
-    )
     if (
-        contains_internal_reference(visible_result)
-        or contains_prohibited_customer_language(visible_result)
-        or summary_repeats_title
+        not result_view
+        or contains_internal_reference(result_view)
+        or contains_prohibited_customer_language(result_view)
+        or contains_forbidden_customer_term(result_view)
     ):
         return _render_error(
             request,
@@ -2048,7 +2047,6 @@ def show_results(
             "analysis": analysis,
             "opportunities": opportunities,
             "opportunity_categories": opportunity_categories,
-            "blueprint": blueprint,
             "result": result_view,
         },
     )
@@ -2057,17 +2055,48 @@ def show_results(
 def _customer_recommendation_title(value: object) -> str:
     title = str(value or "").strip()
     match = re.search(r"\bSP-\d{2}\b", title, re.IGNORECASE)
-    if match is None:
-        return title
-    solution_id = match.group(0).upper()
     catalog = load_recommendation_catalog()
+    if match is not None:
+        solution_id = match.group(0).upper()
+        return CUSTOMER_SOLUTION_TITLES.get(solution_id, "")
     pattern = next(
-        (item for item in catalog.solution_patterns if item.solution_id == solution_id),
+        (
+            item
+            for item in catalog.solution_patterns
+            if item.name.casefold() == title.casefold()
+        ),
         None,
     )
     if pattern is not None:
-        return pattern.name
-    return re.sub(r"\s*\(?\bSP-\d{2}\b\)?\s*:?[ -]*", " ", title).strip()
+        return CUSTOMER_SOLUTION_TITLES.get(pattern.solution_id, "")
+    return customer_plain_text(title, "customer_output.primary_recommendation")
+
+
+def _solution_id_for_title(value: object) -> str:
+    title = str(value or "").strip()
+    match = re.search(r"\bSP-\d{2}\b", title, re.IGNORECASE)
+    if match is not None:
+        return match.group(0).upper()
+    customer_match = next(
+        (
+            solution_id
+            for solution_id, customer_title in CUSTOMER_SOLUTION_TITLES.items()
+            if customer_title.casefold() == title.casefold()
+        ),
+        "",
+    )
+    if customer_match:
+        return customer_match
+    catalog = load_recommendation_catalog()
+    pattern = next(
+        (
+            item
+            for item in catalog.solution_patterns
+            if item.name.casefold() == title.casefold()
+        ),
+        None,
+    )
+    return pattern.solution_id if pattern is not None else ""
 
 
 def _customer_future_steps(value: object) -> list[str]:
@@ -2082,6 +2111,169 @@ def _customer_future_steps(value: object) -> list[str]:
         )
         for item in value
     ]
+
+
+def _customer_sample_output(
+    value: object,
+    *,
+    solution_id: str,
+    is_non_ai: bool,
+) -> dict[str, object]:
+    source = value if isinstance(value, dict) else {}
+    source_fields = source.get("fields")
+    existing_fields = source_fields if isinstance(source_fields, list) else []
+    existing_by_label = {
+        str(item.get("label") or "").casefold(): str(item.get("value") or "")
+        for item in existing_fields
+        if isinstance(item, dict)
+    }
+    structure = output_structure_for(solution_id) if solution_id else None
+    fields: list[dict[str, str]] = []
+    if structure is not None:
+        for index, field in enumerate(structure.fields[:7]):
+            stored_value = existing_by_label.get(field.label.casefold(), "")
+            if not stored_value and index < len(existing_fields):
+                indexed = existing_fields[index]
+                if isinstance(indexed, dict):
+                    stored_value = str(indexed.get("value") or "")
+            normalized = stored_value.casefold()
+            if (
+                not stored_value
+                or normalized in {"noch offen", "nicht angegeben", "zu pr\u00fcfen"}
+                or normalized.startswith("beispiel:")
+                or "[preview]" in normalized
+                or "kein kundenfakt" in normalized
+                or "muster" in normalized
+            ):
+                stored_value = field.example_value
+            fields.append({"label": field.label, "value": stored_value})
+        title = structure.name
+    elif is_non_ai:
+        title = "Kalendereinstellung"
+        fields = [
+            {"label": "Erinnerung", "value": "30 Minuten vor dem Termin"},
+            {"label": "Farbe", "value": "Gr\u00fcn f\u00fcr neue Termine"},
+            {"label": "Gepr\u00fcft an", "value": "N\u00e4chstes Kundengespr\u00e4ch"},
+        ]
+    else:
+        title = str(source.get("title") or "Ergebnis")
+        fields = [
+            {
+                "label": str(item.get("label") or ""),
+                "value": str(item.get("value") or ""),
+            }
+            for item in existing_fields[:7]
+            if isinstance(item, dict) and item.get("label") and item.get("value")
+        ]
+    return {
+        "title": title,
+        "fields": fields,
+        "preview_notice": PREVIEW_NOTICE,
+    }
+
+
+def _question_from_open_detail(value: object) -> str:
+    text = customer_plain_text(value, "customer_output.open_question").strip()
+    if not text:
+        return ""
+    text = re.sub(
+        r"\s*\((?:noch\s+)?offen\)\s*\??$",
+        "",
+        text,
+        flags=re.IGNORECASE,
+    ).strip()
+    lowered = text.casefold()
+    generic_markers = (
+        "ein nicht belegtes detail",
+        "ein internes oder nicht belegtes detail",
+        "bleibt noch offen",
+        "rekonstruktion",
+    )
+    statistical_markers = (
+        "wie viele auftr\u00e4ge",
+        "pro woche",
+        "fallzahl",
+        "volumen",
+        "zahl gleichzeitig",
+        "anzahl der",
+    )
+    if any(marker in lowered for marker in (*generic_markers, *statistical_markers)):
+        return ""
+    if "rechnung" in lowered and any(
+        marker in lowered for marker in ("sofort", "wöchentlich", "monatlich")
+    ):
+        return ""
+    if ("methode/app" in lowered or "notizapp" in lowered) and any(
+        marker in lowered for marker in ("sprachnachricht", "whatsapp", "foto")
+    ):
+        return "Wohin möchtest du Sprache, Fotos und Bon heute am liebsten schicken?"
+    if any(marker in lowered for marker in ("berechtigung", "einwilligung")) and any(
+        marker in lowered for marker in ("medien", "foto", "sprach")
+    ):
+        return "Dürfen die Fotos und Sprachnachrichten für die Einsatznotiz verwendet werden?"
+    if text.endswith("?"):
+        return text
+    if re.match(r"^(?:wie|wer|was|wo|wann|welche|welcher|woran)\b", text, re.IGNORECASE):
+        return text.rstrip(".!") + "?"
+    if "freigabe" in lowered or "zustimm" in lowered:
+        return "Wer gibt das Ergebnis frei, bevor es weitergeht?"
+    if "bon" in lowered and ("auftrag" in lowered or "zuordnung" in lowered):
+        return "Wie erkennst du heute, zu welchem Auftrag ein Bon geh\u00f6rt?"
+    if "ablage" in lowered:
+        return "Wo liegen diese Angaben heute, und wie findest du sie wieder?"
+    cleaned = re.sub(
+        r"^(?:noch offen|unklar|offen ist)\s*:?\s*",
+        "",
+        text,
+        flags=re.IGNORECASE,
+    ).rstrip(".!")
+    return f"Was musst du dazu noch kl\u00e4ren: {cleaned}?" if cleaned else ""
+
+
+def _deduplicate_open_questions(*groups: object) -> list[str]:
+    questions: list[str] = []
+    normalized: list[str] = []
+    for group in groups:
+        if not isinstance(group, list):
+            continue
+        for item in group:
+            question = _question_from_open_detail(item)
+            if not question:
+                continue
+            key = re.sub(r"[^a-z0-9\u00e4\u00f6\u00fc\u00df]+", " ", question.casefold()).strip()
+            if any(
+                SequenceMatcher(None, key, previous).ratio() >= 0.68
+                for previous in normalized
+            ):
+                continue
+            questions.append(question)
+            normalized.append(key)
+            if len(questions) == 3:
+                return questions
+    return questions
+
+
+def _customer_secondary_opportunities(value: object) -> list[dict[str, str]]:
+    if not isinstance(value, list):
+        return []
+    visible: list[dict[str, str]] = []
+    for index, item in enumerate(value):
+        if not isinstance(item, dict):
+            continue
+        title = customer_plain_text(
+            item.get("title"),
+            f"customer_output.secondary_opportunities[{index}].title",
+        )
+        description = customer_plain_text(
+            item.get("description"),
+            f"customer_output.secondary_opportunities[{index}].description",
+        )
+        if not title or not description or title.casefold() == "noch offen":
+            continue
+        visible.append({"title": title, "description": description})
+        if len(visible) == 2:
+            break
+    return visible
 
 
 def _result_view(
@@ -2203,7 +2395,7 @@ def _result_view(
     stored_error_boundaries = core_output.get("error_boundaries")
     if not isinstance(stored_error_boundaries, list):
         stored_error_boundaries = [] if is_new_contract else [str(first["acceptance_risk"])]
-    return {
+    internal_view = {
         "as_is_steps": as_is_steps,
         "problem_step_indexes": problem_indexes,
         "to_be_steps": to_be_steps,
@@ -2245,6 +2437,114 @@ def _result_view(
         "current_process_summary": analysis.process_summary,
     }
 
+    raw_primary_title = core_output.get("primary_recommendation") or first["title"]
+    solution_id = _solution_id_for_title(raw_primary_title)
+    primary_title = _customer_recommendation_title(raw_primary_title)
+    is_non_ai = core_output.get("autonomy_level") == "A0"
+    preview = _customer_sample_output(
+        sample_output,
+        solution_id=solution_id,
+        is_non_ai=is_non_ai,
+    )
+    preview_open_items = (
+        sample_output.get("open_items", [])
+        if isinstance(sample_output, dict)
+        else []
+    )
+    open_questions = _deduplicate_open_questions(
+        internal_view["open_details"],
+        preview_open_items,
+        uncertainties,
+    )
+    first_step_text = str(
+        internal_view["smallest_usable_version"]
+        or (internal_view["implementation_path"][0] if internal_view["implementation_path"] else "")
+    )
+    first_step_follow_up = ""
+    future_process = list(internal_view["future_process"][:6])
+    short_reason = str(internal_view["short_reason"])
+    promise = str(internal_view["promise"])
+    visible_result = str(internal_view["visible_result"])
+    required_prerequisites = list(internal_view["required_prerequisites"][:3])
+    later_stage = str(internal_view["later_stage"])
+    bottleneck_cause = str(internal_view["bottleneck"]["cause"])
+    if contains_forbidden_customer_term(bottleneck_cause):
+        logger.warning("customer_output.field_omitted field=customer_output.bottleneck.cause")
+        bottleneck_cause = ""
+
+    if solution_id == "SP-03":
+        short_reason = (
+            "Fotos, Notizen und Bons liegen heute an verschiedenen Stellen. "
+            "Beim Rechnungsschreiben musst du alles wieder zusammensuchen."
+        )
+        promise = (
+            "Nach jedem Einsatz hast du eine fertige Notiz \u2013 mit Zeit, Material "
+            "und Fotos, direkt beim richtigen Auftrag."
+        )
+        visible_result = promise
+        bottleneck_cause = (
+            "Darum fehlt dir am Abend eine verlässliche Grundlage für die Rechnung."
+        )
+        required_prerequisites = [
+            "Du kannst Sprache, Fotos und Bon direkt nach dem Einsatz senden.",
+            "Es ist klar, zu welchem Auftrag der Einsatz gehört.",
+            "Du legst fest, wer die fertige Notiz prüft.",
+        ]
+        later_stage = (
+            "Wenn die Notizen zuverlässig stimmen, kann daraus später ein "
+            "Rechnungsentwurf entstehen."
+        )
+        future_process = [
+            "Nach dem Einsatz sendest du Sprache, Fotos und Bon.",
+            "Die KI liest T\u00e4tigkeit, Zeit und Material heraus.",
+            "Fehlende oder unsichere Angaben werden markiert.",
+            "Eine Einsatznotiz entsteht als Entwurf.",
+            "Du pr\u00fcfst und best\u00e4tigst sie.",
+            "Danach kann sie als Grundlage f\u00fcr die Rechnung dienen.",
+        ]
+        first_step_text = (
+            "Probier es bei den n\u00e4chsten f\u00fcnf Eins\u00e4tzen aus: "
+            "Sprachnachricht, Fotos und Bon schicken \u2013 und schauen, ob die Notiz "
+            "stimmt, die dabei herauskommt. Mehr nicht. Keine neue App, nichts umstellen."
+        )
+        first_step_follow_up = (
+            "Erst wenn das zuverl\u00e4ssig l\u00e4uft, lohnt sich der n\u00e4chste "
+            "Schritt Richtung Rechnungsentwurf."
+        )
+
+    customer_payload = {
+        "is_non_ai": is_non_ai,
+        "short_reason": short_reason,
+        "bottleneck": {
+            "cause": bottleneck_cause,
+        },
+        "primary_recommendation": primary_title,
+        "promise": promise,
+        "visible_result": visible_result,
+        "future_process": future_process,
+        "sample_output": preview,
+        "sample_heading": (
+            "Beispiel \u2014 so k\u00f6nnte deine Einsatznotiz aussehen"
+            if solution_id == "SP-03"
+            else "Beispiel \u2014 so k\u00f6nnte dein Ergebnis aussehen"
+        ),
+        "first_step_text": first_step_text,
+        "first_step_follow_up": first_step_follow_up,
+        "required_prerequisites": required_prerequisites,
+        "open_questions": open_questions,
+        "later_stage": later_stage,
+        "secondary_opportunities": _customer_secondary_opportunities(secondary),
+        "as_is_steps": internal_view["as_is_steps"][:5],
+        "problem_step_indexes": internal_view["problem_step_indexes"],
+        "current_process_summary": internal_view["current_process_summary"],
+        "contact_recommendation": primary_title,
+    }
+    sanitized = sanitize_customer_payload(customer_payload)
+    if contains_forbidden_customer_term(sanitized):
+        logger.error("customer_output.sanitization_failed")
+        return {}
+    return sanitized
+
 
 @router.get(
     "/sessions/{session_id}/report",
@@ -2269,7 +2569,12 @@ def show_report(
     if analysis is None or process is None or not 1 <= len(opportunities) <= 3:
         return _redirect(_next_valid_path(database_session, session_id))
     result = _result_view(analysis, opportunities)
-    if contains_internal_reference(result):
+    if (
+        not result
+        or contains_internal_reference(result)
+        or contains_prohibited_customer_language(result)
+        or contains_forbidden_customer_term(result)
+    ):
         return _render_error(request, "Der Bericht konnte nicht sicher angezeigt werden.", status_code=status.HTTP_409_CONFLICT)
     return templates.TemplateResponse(
         request=request,

@@ -157,10 +157,10 @@ def test_landing_voice_fallback_and_mobile_assets(client: TestClient) -> None:
     assert landing.status_code == 200
     for text in (
         "FÜR SELBSTSTÄNDIGE UND KLEINE BETRIEBE",
-        "Dein Betrieb läuft. Aber vieles läuft nur",
-        "Nachrichten kommen über WhatsApp, Telefon und E-Mail.",
-        "Nicht noch mehr Ideen",
-        "Mein Problem erzählen",
+        "Wo könnte KI dir im Alltag wirklich Arbeit abnehmen?",
+        "Informationen kommen über mehrere digitale Kanäle.",
+        "Drei einfache Schritte",
+        "Meinen Ablauf beschreiben",
     ):
         assert text in landing.text
     assert "RAG" not in landing.text
@@ -223,7 +223,7 @@ def test_complete_public_journey_and_customer_report(
     )
     assert selected.headers["location"] == "/process-details"
     summary = client.get("/process-details")
-    assert "Haben wir deinen Ablauf ungefähr richtig verstanden?" in summary.text
+    assert "So habe ich deinen Ablauf verstanden." in summary.text
     assert "process-strip" in summary.text
     assert "data-diagram-steps" not in summary.text
     assert "Korrektur einsprechen" in summary.text
@@ -248,7 +248,7 @@ def test_complete_public_journey_and_customer_report(
     )
     assert confirmed.headers["location"] == "/processing"
     processing = client.get(confirmed.headers["location"])
-    assert "Wir bringen deinen Ablauf gerade in ein klares Bild" in processing.text
+    assert "Ich prüfe, welcher KI-Schritt zu deinem Ablauf passt." in processing.text
     assert "Deine Angaben sind gespeichert" in processing.text
     assert "data-retry-analysis" in processing.text
 
@@ -258,17 +258,15 @@ def test_complete_public_journey_and_customer_report(
     assert analyzed.json()["redirect_url"] == "/results"
     results = client.get("/results")
     for text in (
-        "Das ist der erkannte Engpass",
-        "EMPFOHLENE LÖSUNG",
-        "DAS KÖNNTE DEIN ZUKÜNFTIGER ABLAUF SEIN",
-        "Normale Software oder Regeln",
-        "DIESES KONKRETE ERGEBNIS ERHÄLTST DU",
-        "DAS PRÜFST DU SELBST",
-        "SO KLEIN KANN DER ERSTE SCHRITT SEIN",
-        "VORAUSSETZUNGEN UND GRENZEN",
-        "Bestätigten heutigen Ablauf ansehen",
-        "Bericht öffnen und als PDF speichern",
-        "Umsetzung mit Derya besprechen",
+        "Das ist der Engpass",
+        "DAS SCHLAGE ICH DIR VOR",
+        "So würde es künftig laufen",
+        "Das bekommst du am Ende",
+        "Nichts geht ohne dich raus",
+        "So klein fängst du an",
+        "So habe ich deinen heutigen Ablauf verstanden",
+        "PDF speichern",
+        "Umsetzung besprechen",
     ):
         assert text in results.text
     assert "/sessions/" not in results.text
@@ -279,14 +277,13 @@ def test_complete_public_journey_and_customer_report(
     for text in (
         "AI START MAP",
         "Deine Empfehlung",
-        "DAS IST DER ERKANNTE ENGPASS",
-        "DAS IST DIE EMPFOHLENE LÖSUNG",
-        "DAS KÖNNTE DEIN ZUKÜNFTIGER ABLAUF SEIN",
-        "Software / Regeln",
-        "BEISPIELAUSGABE · VORSCHAU",
-        "DAS PRÜFST DU SELBST",
-        "Wird nicht automatisiert",
-        "Drucken / als PDF speichern",
+        "DAS IST DER ENGPASS",
+        "DAS SCHLAGE ICH DIR VOR",
+        "So würde es künftig laufen",
+        "BEISPIELAUSGABE",
+        "Nichts geht ohne dich raus",
+        "Das entscheidest weiterhin du",
+        "PDF speichern",
     ):
         assert text in report.text
     assert "/sessions/" not in report.text

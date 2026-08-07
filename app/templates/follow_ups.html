@@ -12,9 +12,9 @@
 <form class="single-question-form" action="{{ url_for('save_follow_ups_public') }}" method="post" data-disable-on-submit data-submitting-label="Wir prüfen die nächste Aktion …" data-processing-title="Wir prüfen, ob noch etwas Entscheidendes fehlt." data-processing-copy="Danach erscheint entweder eine wirklich relevante Frage oder direkt dein Ergebnis." data-voice-input data-voice-target="{{ current_question.question_key }}">
     {% if error_message %}<div class="error-message" role="alert">{{ error_message }}</div>{% endif %}
     <section class="question-focus-card">
-        <label for="{{ current_question.question_key }}">{{ current_question.question_text }}</label>
-        {% if question_reason %}<p class="question-reason">{{ question_reason }}</p>{% endif %}
-        <textarea id="{{ current_question.question_key }}" name="{{ current_question.question_key }}" rows="6" placeholder="Erzähl, wie es heute tatsächlich läuft.">{{ answers[current_question.question_key] }}</textarea>
+        <label for="{{ current_question.question_key }}">{{ current_question.question_text|customer_text }}</label>
+        {% if question_reason %}<p class="question-reason">{{ question_reason|customer_text }}</p>{% endif %}
+        <textarea id="{{ current_question.question_key }}" name="{{ current_question.question_key }}" rows="5" placeholder="Erzähl, wie es heute tatsächlich läuft.">{{ answers[current_question.question_key]|customer_text }}</textarea>
         <div class="voice-actions"><button class="secondary-button" type="button" data-voice-start>Antwort einsprechen</button><button class="text-button" type="button" data-voice-write>Lieber schreiben</button><button class="secondary-button" type="button" data-voice-stop hidden>Aufnahme beenden</button><button class="secondary-button" type="button" data-voice-retry hidden>Noch einmal versuchen</button></div>
         <p data-voice-status aria-live="polite">Du kannst sprechen oder schreiben.</p><span data-voice-support></span>
     </section>

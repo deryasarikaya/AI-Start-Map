@@ -38,7 +38,7 @@ Der Recommendation Layer wählt aus bestätigtem Prozessproblem, Problemfamilie 
 
 ## Kundenausgabe
 
-Der Outputvertrag entspricht `docs/specs/product-output/requirements.md`: eine primäre Empfehlung, konkrete Ergebnisvorschau, direkte Du-Ansprache, drei bis sechs Zukunftsschritte, getrennte Rollen, offene Angaben, kleinste nutzbare Version, Autonomiestufe, Grenzen und null bis zwei sekundäre Möglichkeiten.
+Der Outputvertrag entspricht `docs/specs/product-output/requirements.md`: eine primäre Empfehlung, konkrete gekennzeichnete Ergebnisvorschau, direkte Du-Ansprache, drei bis sechs Zukunftsschritte, menschliche Kontrolle und ein kleinster Einstieg. Die Hauptansicht zeigt genau sechs Klartextblöcke; interne Rollen-, Autonomie- und Technikfelder werden nicht roh gerendert. Höchstens drei wichtige offene Fragen stehen nur im exakt zweiseitigen Bericht; null bis zwei echte sekundäre Möglichkeiten bleiben geschlossen.
 
 ## Nicht-Ziele
 

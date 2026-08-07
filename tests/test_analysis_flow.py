@@ -682,7 +682,7 @@ def test_demo_route_creates_session_and_redirects_to_real_results(
     assert opportunity_count == 3
     result_response = client.get(f"/sessions/{session_id}/results")
     assert result_response.status_code == 200
-    assert "Das ist der erkannte Engpass" in result_response.text
+    assert "Das ist der Engpass" in result_response.text
     visible_text = result_response.text.casefold()
     for marker in ("m-01", "testfall", "chunk", "pattern_id", "content_origin"):
         assert marker not in visible_text
@@ -875,8 +875,8 @@ def test_all_workflow_pages_render_without_template_errors(
     )
     processing = client.get(f"/sessions/{session_id}/processing")
     assert processing.status_code == 200
-    assert "Wir bringen deinen Ablauf gerade in ein klares Bild" in processing.text
+    assert "Ich prüfe, welcher KI-Schritt zu deinem Ablauf passt." in processing.text
     client.post(f"/sessions/{session_id}/analyze")
     results = client.get(f"/sessions/{session_id}/results")
     assert results.status_code == 200
-    assert "SO KLEIN KANN DER ERSTE SCHRITT SEIN" in results.text
+    assert "So klein fängst du an" in results.text

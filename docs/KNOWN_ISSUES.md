@@ -60,19 +60,19 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 ## KI-005 – Kundensprache ist teilweise zu technisch oder zu lang
 
 - **Status:** Partially Fixed
-- **Beobachtung:** `recommendation-v3` trennt Nutzer, KI, Regeln und Mensch, übernimmt OUT-Feldnamen deterministisch und zeigt offene Angaben, kleinste Version, Nicht-Automationen und Autonomiestufe. Fünf Mentor-Demofälle liefen mit echten Modellantworten. Dabei gefundene abgeschnittene Zukunftssätze, interne SP-IDs, distanzierte „Nutzer wählt“-Formulierung und die zu strikte Du-Validierung wurden technisch behoben. Sprachliche Dichte und Katalogbegriffe müssen mit echten Nutzern weiter beobachtet werden.
+- **Beobachtung:** Die Kundensicht zeigt jetzt sechs Klartextblöcke, prüft den fertigen Payload gegen eine verbindliche Verbotsliste und rendert interne Rollen-, Technik- und Autonomiefelder nicht mehr roh. Fünf Demofälle sichern Ergebnis-HTML und Bericht ab; Hausmeister, Fotograf und A0 wurden zusätzlich sichtbar geprüft. Die echte Verständlichkeit mit Kunden bleibt trotz dieser technischen Absicherung offen.
 - **Erwartetes Verhalten:** Kurze deutsche Sätze, ein klarer nächster Schritt und konkrete Beschreibung von Eingabe, KI-Aufgabe, Ergebnis und menschlicher Kontrolle.
-- **Mögliche Ursachen:** Noch zu verifizieren. Trotz kürzerem Prompt bleibt der Structured Output umfangreich; Katalogformulierungen können ohne UI-Hierarchie weiterhin dicht wirken.
+- **Mögliche Ursachen:** Noch zu verifizieren. Freie Modellformulierungen und ältere gespeicherte Analysen können trotz Feldfilter sprachlich dicht bleiben.
 - **Nächster Prüfschritt:** Ergebnisse mit echten anonymisierten Betrieben auf Verständlichkeit prüfen; Mentor-Demofälle sind unter `docs/MENTOR_DEMO_2026-08-07.md` dokumentiert.
 - **Betroffene Dateien:** `app/openai_service.py`, `app/schemas.py`, `app/templates/results.html`, `app/templates/report.html`, `tests/test_product_finalization.py`.
 
 ## KI-006 – Ergebnisansicht und PDF waren zu groß oder textlastig
 
 - **Status:** Verified Fixed
-- **Beobachtung:** Die Hauptseite folgt einer festen achtteiligen Leserichtung von Engpass bis späterer Ausbaustufe. Desktop und ein schmaler Mobile-Viewport wurden im echten Browser geprüft: lange Überschriften und Ablauftexte brechen um, die Seite hat keinen horizontalen Überlauf, H1 liegt bei 40 beziehungsweise 32 Pixeln und die Hauptaktionen bei 48–55 Pixeln Höhe. Der Bericht enthält denselben fachlichen Vertrag und wurde als echtes PDF geprüft: ein normaler Fall umfasst zwei vollständige A4-Seiten; ein absichtlich langer Fall bricht ohne leere oder abgeschnittene Seiten über sechs Seiten um.
-- **Erwartetes Verhalten:** Der Kernoutput ist schnell scanbar; Vertiefungen bleiben optional; eine dritte Seite entsteht nur bei echten weiteren Möglichkeiten.
+- **Beobachtung:** Die Hauptseite folgt einer festen sechsteiligen Leserichtung. Landingpage, Interview, Prozesswahl, Bestätigung, Verarbeitung und Ergebnis wurden bei 1440 × 900 und 390 × 844 Pixeln geprüft: kein horizontaler Überlauf, H1 höchstens 42 beziehungsweise 31,2 Pixel. Der Hausmeisterbericht umfasst genau zwei vollständige A4-Seiten und zeigt keine localhost-URL.
+- **Erwartetes Verhalten:** Der Kernoutput ist schnell scanbar; Vertiefungen bleiben optional; der Bericht bleibt immer bei genau zwei Seiten.
 - **Mögliche Ursachen:** Noch zu verifizieren. Viele strukturierte Pflichtfelder, lange Modellausgaben und feste Berichtssektionen können sich kumulieren.
-- **Nächster Prüfschritt:** Die browserübergreifende Geräte- und Druckmatrix bleibt unter UX-001 offen. Die fünf Mentor-Berichte sind mit tatsächlichen Laufzeitdaten auf zwei beziehungsweise drei nichtleeren Chromium-PDF-Seiten geprüft.
+- **Nächster Prüfschritt:** Die browserübergreifende Geräte- und Druckmatrix bleibt unter UX-001 offen; physische Mobilgeräte und weitere Druckdialoge sind nicht abgenommen.
 - **Betroffene Dateien:** `app/templates/results.html`, `app/templates/report.html`, `app/static/styles.css`, `app/routes.py`.
 
 ## KI-007 – Problem erkannt, konkreter KI-Workflow nicht immer optimal

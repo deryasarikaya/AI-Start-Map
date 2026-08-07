@@ -182,7 +182,7 @@ Der Process State wird derzeit bei Bedarf aus den bestehenden Tabellen rekonstru
 - getrennte Timeouts für Standardanfragen, finale Analyse und Retrieval; die finale Analyse hat 120 Sekunden Gesamtbudget, `medium` Reasoning und maximal zwei Versuche,
 - feldbezogene Normalisierung und Grounding-Prüfungen, die einen betroffenen Wert neutralisieren, ohne die übrige Analyse zu verwerfen.
 
-Der finale Prompt erhält neben Nutzerfakten, getrennten Ableitungen und Diagnosewissen die deterministische Recommendation-Auswahl einschließlich Gates, Stop Conditions, Failure Guardrails, OUT-Struktur und Workflowkontext. Er enthält 15 inhaltliche Kernregeln; Typen, Längen und Listenbegrenzungen bleiben im Pydantic-Schema. `recommendation-v3` ergänzt die bisherige Empfehlung um normale Software-/Regelaufgabe, offene Angaben, kleinste nutzbare Version, Nicht-Automationen und Autonomiestufe. OUT-Feldnamen, Human Review, Kataloggrenzen, Autonomiestufe und kleinste Version werden nach der Modellantwort deterministisch angewendet. Nicht belegte Vorschauwerte werden „noch offen“ oder klar als Beispiel markiert.
+Der finale Prompt erhält neben Nutzerfakten, getrennten Ableitungen und Diagnosewissen die deterministische Recommendation-Auswahl einschließlich Gates, Stop Conditions, Failure Guardrails, OUT-Struktur und Workflowkontext. Er enthält 15 inhaltliche Kernregeln; Typen, Längen und Listenbegrenzungen bleiben im Pydantic-Schema. `recommendation-v3` ergänzt die bisherige Empfehlung um normale Software-/Regelaufgabe, offene Angaben, kleinste nutzbare Version, Nicht-Automationen und Autonomiestufe. OUT-Feldnamen, Human Review, Kataloggrenzen, Autonomiestufe und kleinste Version werden nach der Modellantwort deterministisch angewendet. Freigegebene realistische Beispielwerte werden ebenfalls erst nach der Modellantwort ergänzt und gelangen weder in Nutzerfakten noch in den Modellkontext.
 
 Der Legacy-Shim bleibt erforderlich, weil die lokal konfigurierte Anwendungsdatenbank 15 ältere `core_output`-Payloads enthält. Er protokolliert nur erfundene Platzhalter; die Kundensicht unterdrückt sie. Neue v3-Felder werden für alte Analysen nicht erzeugt. Es war keine Migration und keine neue Tabelle nötig.
 
@@ -192,15 +192,15 @@ Es existiert kein echtes OpenAI Function Calling. Das Modell erhält Daten und i
 
 ## Ergebnisdarstellung
 
-`app/templates/results.html` rendert den validierten Kernoutput in einer festen achtteiligen Leserichtung: Engpass, Empfehlung, Zukunftsablauf, konkretes Ergebnis, Human Check, kleinster Einstieg, Voraussetzungen und Grenzen sowie späterer Ausbau. Die Darstellung erfindet keine eigene fachliche Struktur, sondern verwendet die gespeicherten v3-Felder und unterdrückt Legacy-Shim-Platzhalter über die View-Abbildung. `app/static/styles.css` begrenzt Text auf ungefähr 72 Zeichen, hält den Ablauf vertikal und stapelt Rollen und Aktionen auf schmalen Viewports.
+`app/templates/results.html` rendert aus dem validierten Kernoutput genau sechs sichtbare Kundenblöcke: Engpass, Empfehlung, Zukunftsablauf, Beispielausgabe, menschliche Kontrolle und kleinster Einstieg. Die interne Rollentrennung bleibt gespeichert, wird aber in den Zukunftsschritten als normaler Text ausgedrückt. Voraussetzungen, offene Fragen und Ausbau stehen nur im Bericht; heutiger Ablauf und echte sekundäre Möglichkeiten sind geschlossen. `app/static/styles.css` begrenzt Text auf ungefähr 72 Zeichen, hält Abläufe vertikal und begrenzt H1 auf 42 Pixel am Desktop sowie 34 Pixel mobil.
 
-`_result_view()` bildet interne SP-Titel aus bereits gespeicherten Analysen auf den freigegebenen Katalognamen ab und normalisiert begrenzte direkte Rollenformulierungen. PF-, SP-, OUT- und Sitzungskennungen bleiben außerhalb der Kundensicht. Neue Outputs erhalten den Haupttitel bereits nach dem Modellaufruf deterministisch aus dem ausgewählten Katalogmuster.
+`_result_view()` bildet interne SP-Titel aus bereits gespeicherten Analysen auf einen kundengerechten Lösungstitel ab, normalisiert begrenzte direkte Rollenformulierungen und erzeugt einen ausdrücklich getrennten Kundenpayload. Der rekursive Sprachfilter protokolliert technische Treffer und ersetzt sie durch vorhandenen Klartext oder lässt das Feld entfallen. PF-, SP-, OUT- und Sitzungskennungen bleiben außerhalb der Kundensicht. Neue Outputs erhalten den Haupttitel bereits nach dem Modellaufruf deterministisch aus dem ausgewählten Katalogmuster.
 
 ## PDF-Erstellung
 
-`app/templates/report.html` rendert denselben strukturierten v3-Inhalt wie die Ergebnisansicht in zwei logischen Kernseiten. Seite 1 enthält Diagnosehinweis, Engpass, Hauptempfehlung, Zukunftsablauf, Rollen und gekennzeichnete Vorschau. Seite 2 enthält Human Check, kleinsten Einstieg, Umsetzungsweg, Voraussetzungen, Nicht-Automationen, offene Angaben, Fehlergrenzen und späteren Ausbau. Eine dritte logische Seite wird nur bei mindestens einer fachlich vorhandenen sekundären Möglichkeit erzeugt. Sehr lange Inhalte dürfen innerhalb einer logischen Seite auf weitere physische A4-Seiten umbrechen; Listenelemente und kompakte Karten bleiben dabei möglichst zusammen.
+`app/templates/report.html` rendert genau zwei physische A4-Seiten. Seite 1 enthält Diagnosehinweis, Engpass, Hauptempfehlung, Zukunftsablauf und gekennzeichnete Vorschau. Seite 2 enthält menschliche Kontrolle, menschlich bleibende Entscheidungen, höchstens drei Klartextvoraussetzungen, höchstens drei semantisch entdoppelte offene Fragen, kleinsten Einstieg, einen späteren Ausbau und Kontakt. Sekundäre Möglichkeiten erzeugen keine dritte Seite; Listenbegrenzung und feste Druckhöhe verhindern zusätzliche physische Seiten.
 
-`app/static/styles.css` setzt A4-Ränder, kompakte Drucktypografie und kontrollierte `break-inside`-Grenzen. Der Browser öffnet mit `window.print()` den Druckdialog; der Nutzer speichert dort selbst als PDF.
+`app/static/styles.css` setzt A4-Ränder, kompakte Drucktypografie, eine feste Seitenhöhe und unterdrückt Link-URLs in der Druckansicht. Der Browser öffnet mit `window.print()` den Druckdialog; der Nutzer speichert dort selbst als PDF. Browserseitige Kopf- und Fußzeilen müssen im Druckdialog deaktiviert sein; der automatisierte Chrome-Nachweis nutzt `--no-pdf-header-footer`.
 
 Es gibt keine serverseitige PDF-Bibliothek. Der `mailto:`-Kontakt hängt den Bericht nicht automatisch an und behauptet dies auch nicht.
 
@@ -218,7 +218,7 @@ Es gibt keine serverseitige PDF-Bibliothek. Der `mailto:`-Kontakt hängt den Ber
 - `tests/test_recommendation_catalog.py` und `tests/test_recommendation_experience.py` prüfen Katalog, Selector, vier Referenzfälle, direkte Ansprache und Feldgrenzen.
 - `tests/test_llm_classification.py` prüft Katalogkontext, typisierte Ergebnisse, Begrenzung auf drei Familien und den unveränderten Keyword-Fallback ausschließlich mit gemockten OpenAI-Aufrufen.
 - Fünf echte Mentor-Läufe, finale Chromium-Ergebnis-/Berichtsrenders und PDF-Prüfung sind unter `docs/MENTOR_DEMO_2026-08-07.md` dokumentiert. Problemfamilien und Gates werden derzeit nicht persistiert und wurden für den Bericht unmittelbar aus den gespeicherten Eingaben rekonstruiert.
-- Letzter vollständiger Lauf am 2026-08-07: 176 Tests bestanden.
+- Letzter vollständiger Lauf am 2026-08-07: 188 Tests bestanden.
 
 ## Aktuelle Architektur
 

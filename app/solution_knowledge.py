@@ -65,8 +65,8 @@ class OutputStructure(KnowledgeModel):
         field_ids = [field.field_id for field in self.fields]
         if len(field_ids) != len(set(field_ids)):
             raise ValueError(f"Doppelte Feld-ID in {self.output_id}.")
-        if any("kein kundenfakt" not in field.example_value.casefold() for field in self.fields):
-            raise ValueError("Beispielwerte müssen ausdrücklich als Nicht-Kundenfakt markiert sein.")
+        if any(not field.example_value.strip() for field in self.fields):
+            raise ValueError("Beispielwerte dürfen nicht leer sein.")
         return self
 
 

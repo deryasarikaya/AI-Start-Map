@@ -54,9 +54,9 @@ def test_output_context_never_forwards_example_values() -> None:
     assert context["human_review"]
     assert "example_value" not in json.dumps(context, ensure_ascii=False)
     assert context["required_fields"] == [
-        "Kunde oder Objekt",
-        "Durchgeführte Tätigkeit",
-        "Arbeitszeit",
+        "Für wen",
+        "Was gemacht wurde",
+        "Wie lange",
     ]
 
 

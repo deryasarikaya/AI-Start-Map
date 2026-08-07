@@ -73,7 +73,7 @@ Die vorhandenen produktiven Indizes müssen für den normalen Start nicht neu ge
 
 Der Agent-Pattern-Index unterstützt im Interviewpfad die Auswahl relevanter Frage- und Guardrail-Muster. Die Solution-Auswahl erfolgt deterministisch aus Problemfamilien, einer begründeten GATE-01…06-Kaskade und dem strukturierten Katalog. Sie kann A0 („keine KI nötig“) oder eine auf A1/A2 begrenzte Unterstützung wählen; SP-04 setzt einen echten physischen Gegenstand voraus. Echtes OpenAI Function Calling ist noch nicht integriert.
 
-Der Kundenvertrag `recommendation-v3` trennt Nutzerhandlung, KI-Aufgabe, normale Software-/Regelaufgabe und menschliche Prüfung. Output-Struktur, offene Angaben, kleinste nutzbare Version, Nicht-Automationen und Autonomiestufe werden strukturiert gespeichert; Altanalysen bleiben ohne erfundene v3-Felder lesbar. Die Ergebnisseite führt kompakt von Engpass und Empfehlung über den zukünftigen Ablauf und die Vorschau bis zu Human Check, kleinstem Einstieg und Grenzen. Interne PF-/SP-/OUT-IDs werden auch bei älteren gespeicherten Ausgaben nicht angezeigt; ein ausdrücklicher Fall „vorhandene Funktion reicht, keine KI nötig“ bleibt deterministisch A0.
+Der Kundenvertrag `recommendation-v3` trennt intern Nutzerhandlung, KI-Aufgabe, normale Software-/Regelaufgabe und menschliche Prüfung. Output-Struktur, offene Angaben, kleinste nutzbare Version, Nicht-Automationen und Autonomiestufe werden strukturiert gespeichert; Altanalysen bleiben ohne erfundene v3-Felder lesbar. Kundenseitig erscheinen daraus genau sechs Klartextblöcke: Engpass, Empfehlung, künftiger Ablauf, gekennzeichnete Beispielausgabe, menschliche Kontrolle und kleinster Einstieg. Interne PF-/SP-/OUT-IDs und Rohfelder werden auch bei älteren Ausgaben nicht angezeigt; ein ausdrücklicher Fall „vorhandene Funktion reicht, keine KI nötig“ bleibt deterministisch A0.
 
 Sicherheitsregeln, Budgets, No-Repeat und Schleifenabbruch hängen nicht von semantischem Retrieval ab. RAG-Evidenz bleibt getrennt von Nutzerfakten.
 
@@ -91,7 +91,7 @@ Die Demos nutzen dieselbe Analyse- und Ergebnispipeline wie die normale Reise. F
 
 ## PDF und Kontakt
 
-Die kundenverständliche Druckansicht nutzt zwei logische Kernseiten: zuerst Engpass, Empfehlung, Zukunftsablauf, Rollen und gekennzeichnete Vorschau, danach Human Check, kleinsten Einstieg, Voraussetzungen, Grenzen und späteren Ausbau. Eine dritte Seite erscheint nur bei fachlich vorhandenen weiteren Möglichkeiten; sehr lange Inhalte dürfen auf zusätzliche A4-Seiten umbrechen. Gespeichert wird über den Browser-Druckdialog (`window.print()`). Interne IDs, Prompts, Modellnamen, Logs, Scores und fremde Unternehmensdaten werden nicht ausgegeben. Der Kontakt zu Derya erfolgt über einen Mailto-Link; die gespeicherte PDF muss anschließend selbst angehängt werden.
+Die kundenverständliche Druckansicht nutzt genau zwei A4-Seiten: zuerst Engpass, Empfehlung, Zukunftsablauf und gekennzeichnete Vorschau, danach menschliche Kontrolle, Voraussetzungen, höchstens drei wichtige offene Fragen, kleinsten Einstieg, späteren Ausbau und Kontakt. Passt Inhalt nicht, wird er begrenzt statt auf eine dritte Seite umgebrochen. Gespeichert wird über den Browser-Druckdialog (`window.print()`). Interne IDs, Prompts, Modellnamen, Logs, Scores, Druck-URLs und fremde Unternehmensdaten werden nicht ausgegeben. Der Kontakt zu Derya erfolgt über einen Mailto-Link; die gespeicherte PDF muss anschließend selbst angehängt werden.
 
 ## Projektdokumentation
 

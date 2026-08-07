@@ -1,7 +1,7 @@
 # AI Start Map V2 – sichtbare Nutzerreise
 
 **Status:** Active – implemented, tested and documented
-**Letzte Prüfung:** 2026-08-06
+**Letzte Prüfung:** 2026-08-07
 **Hinweis:** Verbindliche Zielreise; Implementierungsstatus steht im Projektstand.
 **Verwandt mit:** `docs/specs/product-output/requirements.md`, `docs/specs/solution-pattern-recommendation/`, `docs/product/AI_Start_Map_Fachgrundlage_Painpoints_Solutions_2026-08-05.md`
 
@@ -29,7 +29,7 @@ Die vorhandenen FastAPI-Routen, fünf PostgreSQL-Tabellen, JSONB-Ergebnisfelder,
 
 ## Landingpage
 
-Die Seite besteht aus fünf scanbaren Bereichen: Hero, Wiedererkennung, drei Schritte, Abgrenzung zu allgemeiner KI und Schluss-CTA. Der Hero ist die stärkste visuelle Ebene; der folgende Abschnitt wird bereits am unteren Viewportrand angedeutet. Das Versprechen lautet: Alltag erzählen, eigentliches Problem verstehen, ersten Schritt erkennen und konkrete KI-Unterstützung sehen.
+Die Seite besteht aus vier kompakten Bereichen: Hero, vier typische Zeitfresser, drei Schritte und ein kurzer Vergleich mit einem allgemeinen KI-Tipp. Der Hero fragt „Wo könnte KI dir im Alltag wirklich Arbeit abnehmen?“ und führt direkt zur Ablaufbeschreibung. Einen Schluss-CTA und lange Marketingvergleiche gibt es nicht mehr.
 
 ## Erzählen und Processing
 
@@ -61,7 +61,7 @@ Die zentralen, später zu kalibrierenden Heuristiken liegen ausschließlich in `
 
 ## Kernoutput – neuer Vertrag
 
-Der erste Ergebnisbildschirm zeigt genau eine Hauptlösung: „Dein bester KI-Hebel“, Promise, Heute/Mit KI, „Du gibst ein – KI verarbeitet – Du erhältst – Du prüfst“, eine konkrete Vorschau, bis zu drei Nutzenpunkte, nur vorhandene Voraussetzungen und die Hauptaktion „So setzt du das um“. Null bis zwei weitere Möglichkeiten stehen optional eingeklappt.
+Der erste Ergebnisbildschirm zeigt genau sechs sichtbare Blöcke: „Das ist der Engpass“, „Das schlage ich dir vor“, „So würde es künftig laufen“, „Das bekommst du am Ende“, „Nichts geht ohne dich raus“ und „So klein fängst du an“. Wer was tut, steht in höchstens sechs Alltagsschritten; eine Rollentabelle wird nicht gezeigt. Der bestätigte Ist-Ablauf und null bis zwei echte weitere Möglichkeiten stehen optional eingeklappt.
 
 Es gibt keinen Wochentest und keine Pflicht zu drei Opportunities. Alle sichtbaren Ergebnistexte sprechen den Kunden direkt mit „du“ an. Diagnosekontext, Risiken und technische Varianten bleiben Details oder Druckbericht.
 
@@ -69,9 +69,9 @@ Ist KI heute noch nicht sinnvoll, sagt das Ergebnis ausdrücklich, dass KI noch 
 
 ## Startplan, PDF und Kontakt
 
-„So setzt du das um“ öffnet zwei bis vier Schritte, notwendige Voraussetzungen, menschliche Entscheidungen und optional einen späteren Ausbau. Preise, Verträge, Zahlungen, Qualität, Ausnahmen und unklare Zuordnungen bleiben beim Menschen.
+„So klein fängst du an“ nennt eine einzige begrenzte Erprobung statt eines Projektplans. Preise, Zusagen an Kunden, Rechnungen, Personal und Qualität bleiben beim Menschen.
 
-Die Druckansicht besteht aus zwei Kernseiten und einer optionalen dritten. Seite 1 zeigt Hauptlösung, Vorher/Nachher, KI-Ablauf und Vorschau. Seite 2 zeigt Umsetzung, Voraussetzungen, offene Punkte, Fehlergrenzen und Human Check. Seite 3 erscheint nur bei mindestens einer fachlich vorhandenen sekundären Möglichkeit; ein alleiniger späterer Ausbau bleibt auf Seite 2.
+Die Druckansicht besteht aus genau zwei Seiten. Seite 1 zeigt Diagnosehinweis, Engpass, Hauptlösung, Zukunftsablauf und gekennzeichnete Vorschau. Seite 2 zeigt menschliche Kontrolle, menschlich bleibende Entscheidungen, höchstens drei Voraussetzungen, höchstens drei wichtige offene Fragen, kleinsten Einstieg, späteren Ausbau und Kontakt. Die Druckansicht unterdrückt Link-URLs.
 
 Die PDF wird über `window.print()` gespeichert. Der Mailto-Link behauptet nicht, die PDF automatisch anzuhängen.
 

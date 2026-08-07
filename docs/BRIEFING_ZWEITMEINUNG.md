@@ -7,7 +7,7 @@ weiteren Kontext verständlich ist.*
 
 ---
 
-Ich heiße Daria. Ich schließe gerade ein Masterschool-Programm ab, und das hier
+Ich heiße Derya. Ich schließe gerade ein Masterschool-Programm ab, und das hier
 ist mein Abschlussprojekt. Gleichzeitig ist es der Prototyp für das, was ich
 langfristig beruflich machen möchte: kleinen Betrieben KI-Lösungen anbieten.
 Ich lerne das meiste davon gerade erst, während ich es baue.

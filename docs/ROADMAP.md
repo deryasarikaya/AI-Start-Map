@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-08-07
 
-Diese Roadmap enthält nur verbleibende geplante Arbeit. Der implementierte Recommendation-Vertrag, Katalog, Selector, Agent-Pattern-Aufruf, neue Ergebnisoberfläche und variable Druckansicht stehen im Changelog und nicht mehr als Planung hier.
+Diese Roadmap enthält nur verbleibende geplante Arbeit. Der implementierte Recommendation-Vertrag, Katalog, Selector, Agent-Pattern-Aufruf, neue Ergebnisoberfläche und zweiseitige Druckansicht stehen im Changelog und nicht mehr als Planung hier.
 
 ## Now
 
@@ -21,7 +21,7 @@ Diese Roadmap enthält nur verbleibende geplante Arbeit. Der implementierte Reco
 
 ### Produktarbeit
 
-- Die kompakte Hauptseite und den variablen Bericht mit echten anonymisierten Kundenergebnissen prüfen.
+- Die sechsteilige Hauptseite und den zweiseitigen Bericht mit echten anonymisierten Kundenergebnissen auf Verständlichkeit prüfen.
 - Die vollständige Zielmatrix auf physischem Android/iPhone, Safari und unterschiedlichen Druckdialogen abnehmen.
 
 ## Next
@@ -40,7 +40,7 @@ Diese Roadmap enthält nur verbleibende geplante Arbeit. Der implementierte Reco
 
 ### Produktarbeit
 
-- Kundensprache und Vorschaukarten anhand realer Verständlichkeit weiter kürzen, ohne bestätigte Fakten zu verlieren.
+- Kundensprache und den gekennzeichneten Beispielblock anhand realer Verständlichkeit weiter kalibrieren, ohne bestätigte Fakten zu verlieren.
 - Optionale sekundäre Möglichkeiten nur bei nachgewiesenem Kundennutzen weiter ausgestalten.
 
 ## Later

@@ -4,9 +4,8 @@
 <nav class="journey-progress" aria-label="Fortschritt"><span class="done">Erzählen ✓</span><span class="current">Verstehen ●</span><span>Ergebnis ○</span></nav>
 <section class="content-intro">
     <p class="section-kicker">Ein Ablauf nach dem anderen</p>
-    <h1 class="page-title">Welchen Ablauf sollen wir zuerst genauer ansehen?</h1>
-    <p class="page-description">Aus deiner Erzählung haben wir diese Abläufe erkannt. Wähle den aus, der dich gerade am meisten Zeit oder Nerven kostet.</p>
-    <p class="supporting-copy">Wir schauen uns zuerst einen Ablauf genauer an, damit das Ergebnis konkret bleibt.</p>
+    <h1 class="page-title">Diese Abläufe habe ich aus deiner Beschreibung erkannt.</h1>
+    <p class="page-description">Wähle den aus, bei dem du gerade am meisten Entlastung brauchst.</p>
 </section>
 
 {% if error_message %}<div class="error-message" role="alert">{{ error_message }}</div>{% endif %}
@@ -15,11 +14,11 @@
     <article class="process-card {% if loop.first %}recommended-process{% endif %}">
         <div>
             {% if loop.first %}<span class="recommendation-label">Wahrscheinlich am wichtigsten</span>{% endif %}
-            <h2>{{ option.process_name }}</h2>
-            {% if option.reason %}<p class="recognition-reason">{{ option.reason }}</p>{% endif %}
-            <details class="process-option-details"><summary>Details anzeigen</summary><dl class="boundary-list"><div><dt>Start</dt><dd>{{ option.start_event }}</dd></div><div><dt>Ende</dt><dd>{{ option.end_event }}</dd></div></dl></details>
+            <h2>{{ option.process_name|customer_text }}</h2>
+            {% if option.reason %}<p class="recognition-reason">{{ option.reason|customer_text }}</p>{% endif %}
+            <details class="process-option-details"><summary>Details anzeigen</summary><dl class="boundary-list"><div><dt>Start</dt><dd>{{ option.start_event|customer_text }}</dd></div><div><dt>Ende</dt><dd>{{ option.end_event|customer_text }}</dd></div></dl></details>
         </div>
-        <form action="{{ url_for('select_process_public') }}" method="post" data-disable-on-submit data-submitting-label="Ablauf wird vorbereitet …" data-processing-title="Wir ordnen diesen Ablauf." data-processing-copy="Wir fassen die wichtigsten Schritte kurz für dich zusammen.">
+        <form action="{{ url_for('select_process_public') }}" method="post" data-disable-on-submit data-submitting-label="Ablauf wird vorbereitet …" data-processing-title="Ich fasse deinen Ablauf zusammen." data-processing-copy="Gleich kannst du prüfen, ob ich ihn richtig verstanden habe.">
             <input type="hidden" name="process_id" value="{{ option.process_id }}">
             <input type="hidden" name="prepare_summary" value="yes">
             <button class="primary-button" type="submit">Diesen Ablauf nehmen</button>
@@ -33,7 +32,7 @@
     <p>Beschreibe den anderen Ablauf so, wie du ihn aus deinem Alltag kennst.</p>
     <form action="{{ url_for('recognize_custom_process_public') }}" method="post" data-voice-input data-voice-target="custom_process_description" data-disable-on-submit>
         <label for="custom_process_description">Anderen Ablauf beschreiben</label>
-        <textarea id="custom_process_description" name="custom_process_description" rows="5" required>{{ custom_description }}</textarea>
+        <textarea id="custom_process_description" name="custom_process_description" rows="5" required>{{ custom_description|customer_text }}</textarea>
         <div class="form-actions"><button class="secondary-button" type="button" data-voice-start>Antwort einsprechen</button><button class="primary-button" type="submit">Einen anderen Ablauf beschreiben</button></div>
         <p data-voice-status aria-live="polite"></p><button type="button" data-voice-stop hidden>Aufnahme beenden</button><button type="button" data-voice-retry hidden>Noch einmal versuchen</button><button type="button" data-voice-write hidden>Lieber schreiben</button><span data-voice-support></span>
     </form>

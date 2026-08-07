@@ -20,8 +20,8 @@ def test_landing_page_returns_200(client: TestClient) -> None:
     response = client.get("/")
 
     assert response.status_code == 200
-    assert "Mein Problem erzählen" in response.text
-    assert "Dein Betrieb läuft. Aber vieles läuft nur" in response.text
+    assert "Meinen Ablauf beschreiben" in response.text
+    assert "Wo könnte KI dir im Alltag wirklich Arbeit abnehmen?" in response.text
     assert "business_context" not in response.text
 
 
@@ -168,7 +168,8 @@ def test_saved_page_shows_questions_and_answers(client: TestClient) -> None:
     response = client.get(f"/sessions/{session_id}/saved")
 
     assert response.status_code == 200
-    assert "Wir erkennen die wichtigsten Abläufe" in response.text
+    assert "Ich prüfe deine Beschreibung." in response.text
+    assert "Gleich kannst du auswählen, welchen Ablauf wir zuerst ansehen." in response.text
     assert "Gleich kannst du auswählen" in response.text
     assert "Abläufe jetzt erkennen" not in response.text
     assert "requestSubmit" in response.text

@@ -176,20 +176,18 @@ def test_output_structure_and_boundaries_are_applied_deterministically() -> None
         user_fact_text="sprache fotos bon material",
     )
     assert [item.label for item in contracted.sample_output.fields] == [
-        "Kunde oder Objekt",
-        "Durchgeführte Tätigkeit",
-        "Arbeitszeit",
+        "Für wen",
+        "Was gemacht wurde",
+        "Wie lange",
         "Material",
         "Besonderheiten",
-        "Offene Punkte",
+        "Noch zu klären",
+        "Dabei",
     ]
     values = {item.label: item.value for item in contracted.sample_output.fields}
-    assert values["Material"].startswith("Beispiel:")
-    assert all(
-        value == "noch offen"
-        for label, value in values.items()
-        if label != "Material"
-    )
+    assert values["Für wen"] == "Hausverwaltung Nord · Lindenstraße 12"
+    assert values["Material"] == "Dichtungssatz, 12,40 €"
+    assert values["Dabei"] == "2 Fotos, 1 Bon, deine Sprachnachricht"
     assert contracted.autonomy_level == "A1"
     assert contracted.primary_recommendation == pattern.name
     assert "SP-" not in contracted.primary_recommendation
@@ -311,9 +309,9 @@ def test_legacy_database_view_does_not_show_generic_placeholders() -> None:
         blueprint_json=None,
     )
     view = _result_view(analysis, [opportunity])
-    assert view["ai_task"] == ""
-    assert view["user_action"] == ""
-    assert view["sample_output"]["fields"] == []
+    assert "ai_task" not in view
+    assert "user_action" not in view
+    assert view["sample_output"].get("fields", []) == []
     assert "Angaben erkennen und ordnen" not in str(view)
     assert "Ein prüfbarer Entwurf" not in str(view)
 
@@ -351,7 +349,7 @@ def test_database_view_maps_internal_solution_id_to_customer_title() -> None:
     )
     view = _result_view(analysis, [opportunity])
     assert view["primary_recommendation"] == (
-        "Dokument-zu-Datensatz mit Unsicherheitsprüfung"
+        "Angaben aus Dokumenten lesen und zur Prüfung vorbereiten"
     )
     assert view["secondary_opportunities"][0]["title"] == (
         "Mobile Einsatzdokumentation aus Sprache, Fotos und Bon"

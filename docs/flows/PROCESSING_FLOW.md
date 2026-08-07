@@ -1,7 +1,7 @@
 # AI Start Map – Processing Flow
 
 **Status:** Active
-**Letzte Prüfung:** 2026-08-06
+**Letzte Prüfung:** 2026-08-07
 **Source of Truth:** Aktuell implementiertes Processing-, Fehler- und Retry-Verhalten
 
 _Stand: 26.07.2026_
@@ -14,11 +14,11 @@ Alle Formulare mit merklicher Modell-, RAG- oder Agentenarbeit tragen `data-disa
 
 | Übergang | Sichtbarer Zustand | Serververhalten | Abschluss |
 |---|---|---|---|
-| Erzählung → Prozesse | „Wir ordnen deine Erzählung“ | Eingaben speichern; automatische Processing-Ansicht startet Prozesserkennung | Weiterleitung zur Prozesswahl |
-| Prozesswahl → Zusammenfassung | „Wir ordnen diesen Ablauf“ | Structured Output rekonstruiert höchstens fünf Ist-Schritte | Weiterleitung zur Bestätigung |
+| Erzählung → Prozesse | „Ich prüfe deine Beschreibung.“ | Eingaben speichern; automatische Processing-Ansicht startet Prozesserkennung | Weiterleitung zur Prozesswahl |
+| Prozesswahl → Zusammenfassung | „Ich prüfe deine Angaben.“ | Structured Output rekonstruiert höchstens fünf Ist-Schritte | Weiterleitung zur Bestätigung |
 | Bestätigung → Agent | „Wir prüfen, ob noch etwas Entscheidendes fehlt“ | State-Extraktion, deterministische Agentenentscheidung, gegebenenfalls Diagnose- und kontrolliertes Agent-Pattern-Retrieval | Rückfrage oder Analyse |
 | Rückfrage → nächste Aktion | gleiche Processing-Komponente | Antwort speichern, State erneut prüfen, verbleibende Fragen gegebenenfalls verwerfen | nächste Frage oder Analyse |
-| Analyse → Ergebnis | eigene Processing-Seite | Statusabfrage an `/analysis-status`, Problemfamilien/Gates, Diagnose-Retrieval, Solution-Selector und finale Structured-Output-Analyse über `/analyze` | automatische Weiterleitung zur einen priorisierten Hauptlösung |
+| Analyse → Ergebnis | „Ich prüfe, welcher KI-Schritt zu deinem Ablauf passt.“ mit vier Klartextstatuspunkten | Statusabfrage an `/analysis-status`, Problemfamilien/Gates, Diagnose-Retrieval, Solution-Selector und finale Structured-Output-Analyse über `/analyze` | automatische Weiterleitung zur einen priorisierten Hauptlösung |
 
 Die Analyse-Processing-Seite arbeitet mit echtem Serverstatus (`pending`, `processing`, `complete`, `error`). Parallel laufende Analyseversuche werden durch den bestehenden Sitzungs-Schreibschutz begrenzt.
 

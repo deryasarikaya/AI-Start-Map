@@ -3,11 +3,10 @@
 {% block content %}
 <nav class="journey-progress" aria-label="Fortschritt"><span class="done">Erzählen ✓</span><span class="done">Verstehen ✓</span><span class="current">Ergebnis ●</span></nav>
 <section class="processing-card" data-analyze-url="{{ url_for('analyze_session_public') }}" data-status-url="{{ url_for('analysis_status_public') }}" data-edit-url="{{ url_for('show_process_details_public') }}">
-    <div class="clarity-animation" aria-hidden="true"><span>Problem</span><b>→</b><span>KI-Hebel</span><b>→</b><span>Ergebnis</span><b>→</b><span>Umsetzung</span></div>
     <div class="processing-indicator" aria-hidden="true"><span></span><span></span><span></span></div>
-    <h1 class="page-title">Wir bringen deinen Ablauf gerade in ein klares Bild</h1>
-    <p class="page-description">Das dauert einen kurzen Moment. Wir prüfen, wo es heute hakt und welcher nächste Schritt wirklich zu deinem Betrieb passt.</p>
-    <ol class="processing-steps" aria-live="polite"><li class="complete">✓ Deine Angaben wurden übernommen</li><li class="complete">✓ Dein Ablauf wurde geordnet</li><li class="active">● Wir gleichen passende Muster ab</li><li>○ Wir bereiten deinen nächsten Schritt vor</li></ol>
+    <h1 class="page-title">Ich prüfe, welcher KI-Schritt zu deinem Ablauf passt.</h1>
+    <p class="page-description">Das dauert einen kurzen Moment. Du musst nichts weiter tun.</p>
+    <ol class="processing-steps" aria-live="polite"><li class="complete">✓ Deine Angaben wurden übernommen</li><li class="complete">✓ Dein Ablauf wurde verstanden</li><li class="active">• Passende Lösungen werden geprüft</li><li>○ Dein Ergebnis wird vorbereitet</li></ol>
     <section class="processing-error" role="alert" hidden><h2>Das hat gerade nicht geklappt</h2><p>Deine Angaben sind gespeichert. Du musst nichts noch einmal erzählen.</p><div class="form-actions"><button class="primary-button" type="button" data-retry-analysis>Noch einmal versuchen</button><a class="secondary-button button-link" data-edit-answers href="#">Angaben bearbeiten</a></div></section>
 </section>
 {% endblock %}

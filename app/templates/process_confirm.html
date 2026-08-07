@@ -4,11 +4,11 @@
 <nav class="journey-progress" aria-label="Fortschritt"><span class="done">Erzählen ✓</span><span class="current">Verstehen ●</span><span>Ergebnis ○</span></nav>
 <section class="content-intro compact-intro"><p class="section-kicker">DEIN EIGENER ABLAUF</p><h1 class="page-title">Passt dieser erkannte Ablauf?</h1><p class="page-description">Prüfe kurz den Anfang und das Ende. Danach fassen wir die wichtigsten Schritte zusammen.</p></section>
 <section class="process-summary-panel">
-    <h2>{{ process.process_name }}</h2>
-    <dl class="boundary-list"><div><dt>So beginnt es</dt><dd>{{ process.start_event }}</dd></div><div><dt>Hier ist es abgeschlossen</dt><dd>{{ process.end_event }}</dd></div></dl>
-    <form action="{{ url_for('select_process_public') }}" method="post" data-disable-on-submit data-processing-title="Wir ordnen diesen Ablauf." data-processing-copy="Wir fassen die wichtigsten Schritte kurz für dich zusammen.">
+    <h2>{{ process.process_name|customer_text }}</h2>
+    <dl class="boundary-list"><div><dt>So beginnt es</dt><dd>{{ process.start_event|customer_text }}</dd></div><div><dt>Hier ist es abgeschlossen</dt><dd>{{ process.end_event|customer_text }}</dd></div></dl>
+    <form action="{{ url_for('select_process_public') }}" method="post" data-disable-on-submit data-processing-title="Ich fasse deinen Ablauf zusammen." data-processing-copy="Gleich kannst du prüfen, ob ich ihn richtig verstanden habe.">
         <input type="hidden" name="process_id" value="{{ process.process_id }}"><input type="hidden" name="prepare_summary" value="yes"><button class="primary-button" type="submit">Ja, passt</button>
     </form>
 </section>
-<details class="custom-process"><summary>Etwas stimmt nicht</summary><form action="{{ url_for('recognize_custom_process_public') }}" method="post" data-disable-on-submit><input type="hidden" name="custom_process_id" value="{{ process.process_id }}"><label for="custom_process_description">Beschreibung korrigieren</label><textarea id="custom_process_description" name="custom_process_description" rows="5" required>{{ description }}</textarea><button class="primary-button" type="submit">Korrektur übernehmen</button></form></details>
+<details class="custom-process"><summary>Etwas stimmt nicht</summary><form action="{{ url_for('recognize_custom_process_public') }}" method="post" data-disable-on-submit><input type="hidden" name="custom_process_id" value="{{ process.process_id }}"><label for="custom_process_description">Beschreibung korrigieren</label><textarea id="custom_process_description" name="custom_process_description" rows="5" required>{{ description|customer_text }}</textarea><button class="primary-button" type="submit">Korrektur übernehmen</button></form></details>
 {% endblock %}

@@ -40,8 +40,10 @@
 | Filter | Nutzer-, Beispiel- und Zukunftsbegriffe erlauben; erfundene Ist-Fakten feldbezogen neutralisieren. | Done | DEC-023, Grounding-Regression |
 | Legacy | Vorhandene Altanalysen prüfen, Shim-Platzhalter loggen und unsichtbar halten. | Done | DEC-024, lokale DB-Prüfung und View-Test |
 | Modell | Finalprompt auf 15 Regeln kürzen, `medium`, zwei Versuche und Zeitbudget live prüfen. | Done | DEC-025, 60,141 s, ein Versuch |
-| Ergebnisansicht | Achtteilige Leserichtung, kompakte Typografie, responsive Rollen und Vorschau umsetzen. | Done | Layout-Regressionen und echte Desktop-/Mobile-Browserprüfung |
-| Druckbericht | V3-Inhalt, A0, Vorschaukennzeichnung und robuste A4-Seitenumbrüche umsetzen. | Done | Report-Regressionen, normaler Zwei-Seiten-Render und langer Sechs-Seiten-Render |
+| Ergebnisansicht | Genau sechs Klartextblöcke, kompakte Typografie, Zukunftsschritte statt Rollentabelle und gekennzeichnete Vorschau umsetzen. | Done | Layout-/Sprachregressionen und echte Prüfung bei 1440 und 390 Pixeln |
+| Druckbericht | V3-Inhalt auf genau zwei A4-Seiten begrenzen, Vorschau kennzeichnen und sichtbare Link-URLs unterdrücken. | Done | Report-Regression und visueller Zwei-Seiten-Hausmeister-Render |
+| Kundenpayload | Verbotene technische Begriffe feldbezogen protokollieren, durch Klartext ersetzen oder das Feld auslassen. | Done | Fünf Demofälle in Ergebnis-HTML und Bericht |
+| Vorschau | Deutsche Labels und realistische Beispielwerte je Output-Struktur nur nach der Modellantwort und nur im Beispielblock einsetzen. | Done | Runtime-Validierung, Exklusivitäts- und Hausmeistertests |
 | Mentor-Demo | Hausmeister, Fotograf, Blumenladen, Coach und A0 mit echten Modellaufrufen bis Ergebnis und Bericht prüfen. | Done | `docs/MENTOR_DEMO_2026-08-07.md`; fünf HTTP-200-Ergebnisse und PDFs ohne interne IDs |
 | Live-Funde | A0-Override, PF-02-Abgrenzung, direkte Kundensprache, vollständige Zukunftssätze und kundensichere Katalogtitel absichern. | Done | Contract-, Gate-, Klassifikations- und View-Regressionen plus wiederholte Live-Fälle |
 | Solution-Retrieval | Varianten-Ranking gegen deterministische Auswahl an den vier KI-Mentor-Fällen messen. | Done | Je Pattern 3 zulässig/2 geliefert; identische Workflowmenge, kein belegter Mehrwert |

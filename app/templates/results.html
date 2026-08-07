@@ -4,79 +4,65 @@
 <nav class="journey-progress" aria-label="Fortschritt"><span class="done">Erzählen ✓</span><span class="done">Verstehen ✓</span><span class="current">Ergebnis ●</span></nav>
 
 <div class="result-layout">
-    <header class="result-intro" aria-labelledby="result-title">
-        <p class="section-kicker">DEINE AUSWERTUNG · {{ process.process_name }}</p>
-        <h1 id="result-title">Das ist der erkannte Engpass</h1>
+    <section class="result-block result-intro" data-result-block aria-labelledby="result-title">
+        <p class="section-kicker">DEINE AUSWERTUNG · {{ process.process_name|customer_text }}</p>
+        <h1 id="result-title">Das ist der Engpass</h1>
         <p class="result-bottleneck">{{ result.short_reason }}</p>
         {% if result.bottleneck.cause and result.bottleneck.cause != result.short_reason %}<p class="result-context">{{ result.bottleneck.cause }}</p>{% endif %}
-    </header>
+    </section>
 
-    <section class="result-section recommendation-focus" aria-labelledby="recommendation-title">
-        <div class="result-section-heading">
-            <p class="section-kicker">{% if result.autonomy_level == 'A0' %}EINFACHER NÄCHSTER SCHRITT{% else %}EMPFOHLENE LÖSUNG{% endif %}</p>
-            {% if result.autonomy_level %}<span class="autonomy-badge">Autonomiestufe {{ result.autonomy_level }}</span>{% endif %}
-        </div>
+    <section class="result-block recommendation-focus" data-result-block aria-labelledby="recommendation-title">
+        <p class="section-kicker">DAS SCHLAGE ICH DIR VOR</p>
         <h2 id="recommendation-title">{{ result.primary_recommendation }}</h2>
         <p class="recommendation-promise">{{ result.promise }}</p>
-        {% if result.customer_benefits %}<ul class="quiet-benefits">{% for item in result.customer_benefits %}<li>{{ item }}</li>{% endfor %}</ul>{% endif %}
     </section>
 
-    <section class="result-section future-workflow" aria-labelledby="future-title">
-        <p class="section-kicker">DAS KÖNNTE DEIN ZUKÜNFTIGER ABLAUF SEIN</p>
-        <h2 id="future-title">So würde der neue Ablauf aussehen</h2>
-        <ol class="future-process-line">{% for step in result.future_process %}<li><span>{{ loop.index }}</span><p>{{ step }}</p></li>{% endfor %}</ol>
-        <div class="role-division" aria-label="Rollen im zukünftigen Ablauf">
-            {% if result.user_action %}<div><strong>Du</strong><p>{{ result.user_action }}</p></div>{% endif %}
-            {% if result.ai_task %}<div><strong>KI</strong><p>{{ result.ai_task }}</p></div>{% endif %}
-            {% if result.software_rule %}<div><strong>Normale Software oder Regeln</strong><p>{{ result.software_rule }}</p></div>{% endif %}
-            {% if result.human_check %}<div><strong>Menschliche Prüfung</strong><p>{{ result.human_check }}</p></div>{% endif %}
-        </div>
+    <section class="result-block future-workflow" data-result-block aria-labelledby="future-title">
+        <p class="section-kicker">DEIN NEUER ABLAUF</p>
+        <h2 id="future-title">So würde es künftig laufen</h2>
+        <ol class="future-process-line">{% for step in result.future_process[:6] %}<li><span>{{ loop.index }}</span><p>{{ step }}</p></li>{% endfor %}</ol>
     </section>
 
-    <section class="result-section concrete-output" aria-labelledby="output-title">
-        <p class="section-kicker">DIESES KONKRETE ERGEBNIS ERHÄLTST DU</p>
-        <h2 id="output-title">{{ result.visible_result }}</h2>
-        {% if result.sample_output.fields %}
-        <div class="sample-output-compact">
-            <div class="sample-output-heading"><h3>{{ result.sample_output.title }}</h3><span>Vorschau</span></div>
+    <section class="result-block concrete-output" data-result-block aria-labelledby="output-title">
+        <p class="section-kicker">DEIN KONKRETES ERGEBNIS</p>
+        <h2 id="output-title">Das bekommst du am Ende</h2>
+        <div class="sample-output-compact customer-example-block" data-customer-example-block>
+            <div class="sample-output-heading"><h3>{{ result.sample_heading }}</h3><span>Beispiel</span></div>
+            <p class="preview-notice">{{ result.sample_output.preview_notice }}</p>
             <dl>{% for field in result.sample_output.fields %}<div><dt>{{ field.label }}</dt><dd>{{ field.value }}</dd></div>{% endfor %}</dl>
-            {% if result.sample_output.attachments %}<p class="sample-attachments"><strong>Mögliche Anlagen:</strong> {{ result.sample_output.attachments|join(', ') }}</p>{% endif %}
-            {% if result.sample_output.preview_notice %}<p class="preview-notice">{{ result.sample_output.preview_notice }}</p>{% endif %}
         </div>
-        {% else %}<p class="open-placeholder">Für diese ältere Auswertung ist keine belastbare Vorschau gespeichert.</p>{% endif %}
     </section>
 
-    <section class="human-check-callout" aria-labelledby="check-title">
-        <div><p class="section-kicker">DAS PRÜFST DU SELBST</p><h2 id="check-title">Die Entscheidung bleibt bei dir</h2></div>
-        <p>{{ result.human_check }}</p>
+    <section class="result-block human-check-callout" data-result-block aria-labelledby="check-title">
+        <div><p class="section-kicker">DEINE SICHERHEIT</p><h2 id="check-title">Nichts geht ohne dich raus</h2></div>
+        {% if result.is_non_ai %}
+        <p>Die vorhandene Funktion unterstützt dich, aber entscheidet nichts für dich. Du prüfst einmal, ob alles so eingestellt ist, wie du es brauchst.</p>
+        {% else %}
+        <p>Die KI schreibt den Entwurf, aber verschickt nichts und rechnet nichts ab. Du schaust einmal drüber und gibst frei — das dauert weniger als eine Minute. Preise, Zusagen an Kunden und Rechnungen entscheidest weiterhin du.</p>
+        {% endif %}
     </section>
 
-    <section class="result-section first-step" aria-labelledby="first-step-title">
-        <p class="section-kicker">SO KLEIN KANN DER ERSTE SCHRITT SEIN</p>
-        <h2 id="first-step-title">{{ result.smallest_usable_version or result.implementation_path[0] }}</h2>
-        {% if result.implementation_path %}<ol class="implementation-steps">{% for step in result.implementation_path %}<li>{{ step }}</li>{% endfor %}</ol>{% endif %}
+    <section class="result-block first-step" data-result-block aria-labelledby="first-step-title">
+        <p class="section-kicker">DEIN ERSTER SCHRITT</p>
+        <h2 id="first-step-title">So klein fängst du an</h2>
+        <p>{{ result.first_step_text }}</p>
+        {% if result.first_step_follow_up %}<p class="supporting-copy">{{ result.first_step_follow_up }}</p>{% endif %}
     </section>
 
-    <section class="result-section boundaries" aria-labelledby="boundaries-title">
-        <p class="section-kicker">VORAUSSETZUNGEN UND GRENZEN</p>
-        <h2 id="boundaries-title">Was vorher klar sein muss</h2>
-        <div class="boundary-columns">
-            <div><h3>Voraussetzungen</h3>{% if result.required_prerequisites %}<ul>{% for item in result.required_prerequisites %}<li>{{ item }}</li>{% endfor %}</ul>{% else %}<p>Für den ersten Schritt ist keine zusätzliche Voraussetzung bestätigt.</p>{% endif %}</div>
-            <div><h3>Wird nicht automatisiert</h3>{% if result.not_automated %}<ul>{% for item in result.not_automated %}<li>{{ item }}</li>{% endfor %}</ul>{% else %}<p>Für diese ältere Auswertung sind keine eigenen Grenzen gespeichert.</p>{% endif %}</div>
+    <section class="contact-cta" aria-labelledby="contact-title">
+        <div>
+            <p class="section-kicker">GEMEINSAM UMSETZEN</p>
+            <h2 id="contact-title">Möchtest du das umsetzen?</h2>
+            <p>Ich bin Derya. Genau das würde ich für dich einrichten: {{ result.contact_recommendation }}. Du schickst weiter wie bisher, ich baue den Rest.</p>
+            <div class="contact-actions"><a class="secondary-button button-link" href="{{ url_for('show_report_public') }}" target="_blank">PDF speichern</a><a class="primary-button button-link" href="mailto:deryaxsarikaya@gmail.com?subject=AI-Start-Map%20Umsetzung">Umsetzung besprechen</a></div>
+            <p class="contact-note">Die gespeicherte PDF musst du anschließend selbst an deine E-Mail anhängen.</p>
         </div>
-        {% set open_items = result.open_details + result.sample_output.open_items + result.uncertainties %}
-        {% if open_items %}<details class="open-details"><summary>Noch offene Angaben</summary><ul>{% for item in open_items %}<li>{{ item }}</li>{% endfor %}</ul></details>{% endif %}
-        {% if result.error_boundaries %}<details class="open-details"><summary>Fehler- und Prüfgrenzen</summary><ul>{% for item in result.error_boundaries %}<li>{{ item }}</li>{% endfor %}</ul></details>{% endif %}
     </section>
 
-    {% if result.later_stage %}<section class="later-stage" aria-labelledby="later-title"><p class="section-kicker">SPÄTERE AUSBAUSTUFE</p><h2 id="later-title">Wenn der erste Schritt zuverlässig läuft</h2><p>{{ result.later_stage }}</p></section>{% endif %}
-
-    <div class="result-actions"><a class="primary-button button-link" href="{{ url_for('show_report_public') }}" target="_blank">Bericht öffnen und als PDF speichern</a><form action="{{ url_for('analyze_another_process_public') }}" method="post" data-disable-on-submit><button class="text-button" type="submit">Einen anderen Ablauf ansehen</button></form></div>
+    <details class="current-process-details"><summary>So habe ich deinen heutigen Ablauf verstanden</summary>{% if result.as_is_steps %}<ol class="process-strip compact">{% for step in result.as_is_steps %}<li class="{% if loop.index0 in result.problem_step_indexes %}problem{% endif %}"><span>{{ loop.index }}</span><p>{{ step }}</p></li>{% endfor %}</ol>{% endif %}</details>
 
     {% if result.secondary_opportunities %}<details class="secondary-opportunities"><summary>Weitere Möglichkeiten</summary><div>{% for item in result.secondary_opportunities %}<article><h3>{{ item.title }}</h3><p>{{ item.description }}</p></article>{% endfor %}</div></details>{% endif %}
 
-    <details class="current-process-details"><summary>Bestätigten heutigen Ablauf ansehen</summary>{% if result.as_is_steps %}<ol class="process-strip compact">{% for step in result.as_is_steps[:5] %}<li class="{% if loop.index0 in result.problem_step_indexes %}problem{% endif %}"><span>{{ loop.index }}</span><p>{{ step }}</p></li>{% endfor %}</ol>{% else %}<p>Für diese ältere Auswertung sind keine belastbaren Einzelschritte gespeichert.</p>{% endif %}</details>
-
-    <section class="contact-cta"><div><p class="section-kicker">GEMEINSAM UMSETZEN</p><h2>Du möchtest das gemeinsam umsetzen?</h2><p>Speichere deine Auswertung als PDF und sende sie an Derya.</p><p class="contact-note">Hänge die gespeicherte PDF anschließend selbst an deine E-Mail an.</p></div><a class="primary-button button-link" href="mailto:deryaxsarikaya@gmail.com?subject=Unterst%C3%BCtzung%20bei%20meiner%20AI-Start-Map-Auswertung">Umsetzung mit Derya besprechen</a></section>
+    <form class="another-process-action" action="{{ url_for('analyze_another_process_public') }}" method="post" data-disable-on-submit><button class="text-button" type="submit">Einen anderen Ablauf ansehen</button></form>
 </div>
 {% endblock %}

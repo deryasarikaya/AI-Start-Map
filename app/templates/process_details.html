@@ -4,25 +4,25 @@
 <nav class="journey-progress" aria-label="Fortschritt"><span class="done">Erzählen ✓</span><span class="current">Verstehen ●</span><span>Ergebnis ○</span></nav>
 <section class="content-intro compact-intro">
     <p class="section-kicker">SO LÄUFT ES HEUTE</p>
-    <h1 class="page-title">Haben wir deinen Ablauf ungefähr richtig verstanden?</h1>
-    <p class="page-description">Es geht nur um die grobe Realität. Details klären wir nur, wenn sie deine Empfehlung verändern.</p>
+    <h1 class="page-title">So habe ich deinen Ablauf verstanden.</h1>
+    <p class="page-description">Passt das ungefähr? Falls etwas Wichtiges fehlt, kannst du es korrigieren.</p>
 </section>
 
 {% if error_message %}<div class="error-message" role="alert">{{ error_message }}</div>{% endif %}
 <form class="summary-form compact-summary" action="{{ url_for('save_process_details_public') }}" method="post" data-disable-on-submit data-submitting-label="Wir prüfen den nächsten Schritt …" data-processing-title="Wir prüfen, ob noch etwas Entscheidendes fehlt." data-processing-copy="Danach folgt höchstens eine relevante Rückfrage oder direkt dein Ergebnis." data-step-editor>
     <input type="hidden" name="summary_confirmed" value="yes">
-    <input type="hidden" name="process_title" value="{{ process_title }}">
-    <input type="hidden" name="start_event" value="{{ start_event }}">
-    <input type="hidden" name="end_event" value="{{ end_event }}">
+    <input type="hidden" name="process_title" value="{{ process_title|customer_text }}">
+    <input type="hidden" name="start_event" value="{{ start_event|customer_text }}">
+    <input type="hidden" name="end_event" value="{{ end_event|customer_text }}">
 
     <section class="process-summary-panel" aria-labelledby="today-title">
         <div class="process-summary-heading">
-            <div><p class="section-kicker">DEIN ABLAUF</p><h2 id="today-title">{{ process_title }}</h2></div>
+            <div><p class="section-kicker">DEIN ABLAUF</p><h2 id="today-title">{{ process_title|customer_text }}</h2></div>
             <span>{{ steps|length }} Schritte</span>
         </div>
         <ol class="process-strip">
             {% for step in steps %}
-            <li class="{% if loop.index0 in problem_step_indexes %}problem{% endif %}"><span>{{ loop.index }}</span><p>{{ step }}</p></li>
+            <li class="{% if loop.index0 in problem_step_indexes %}problem{% endif %}"><span>{{ loop.index }}</span><p>{{ step|customer_text }}</p></li>
             {% endfor %}
         </ol>
     </section>
@@ -39,7 +39,7 @@
         <div class="section-heading"><div><p class="section-kicker">KORREKTUR</p><h2>Was sollen wir ändern?</h2></div></div>
         <div class="step-editor-list" data-step-list>
             {% for step in steps %}
-            <div class="step-editor"><span>{{ loop.index }}</span><label class="visually-hidden" for="step-{{ loop.index }}">Schritt {{ loop.index }}</label><input id="step-{{ loop.index }}" name="steps" value="{{ step }}" required><button type="button" aria-label="Schritt entfernen" data-remove-step>×</button></div>
+            <div class="step-editor"><span>{{ loop.index }}</span><label class="visually-hidden" for="step-{{ loop.index }}">Schritt {{ loop.index }}</label><input id="step-{{ loop.index }}" name="steps" value="{{ step|customer_text }}" required><button type="button" aria-label="Schritt entfernen" data-remove-step>×</button></div>
             {% endfor %}
         </div>
         <button class="text-button" type="button" data-add-step>Schritt ergänzen</button>

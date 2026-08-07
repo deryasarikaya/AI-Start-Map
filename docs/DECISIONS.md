@@ -145,6 +145,7 @@ Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest
 - **Entscheidung:** Genau eine dominante Hauptlösung; kein Wochentest; null bis zwei optionale sekundäre Möglichkeiten; ein Umsetzungsweg ersetzt die Hausaufgabe.
 - **Grund:** Kunden sollen Veränderung, Ergebnis, KI-Aufgabe und eigene Kontrolle sofort verstehen.
 - **Konsequenzen:** Neuer Structured Output, variable Opportunity-Anzahl, kompakte Hauptseite, optionale dritte Druckseite und rückwärtskompatible View alter Analysen.
+- **Nachtrag 2026-08-07:** Die optionale dritte Druckseite ist durch die aktuelle UX-Abnahme aufgehoben. Sekundäre Möglichkeiten bleiben eingeklappt; der Kundenbericht umfasst immer genau zwei Seiten.
 - **Status:** Implemented, integrated, tested and documented
 
 ## DEC-017 – Katalog und deterministische Gates wählen die Lösung
@@ -232,3 +233,19 @@ Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest
 - **Grund:** Die echten Läufe zeigten trotz grüner Mock-Tests einen falschen A1-Output für den A0-Fall, SP-IDs und abgeschnittene Sätze in der Kundensicht sowie zunächst SP-06 statt eines gemeinsamen Anfrageeingangs beim Blumenladen.
 - **Retrieval-Folge:** Bei den vier KI-Demofällen lieferte der Solution-Index dieselben zwei von jeweils drei zulässigen Workflows wie die deterministische Auswahl, zweimal nur anders sortiert. Ein fachlicher Mehrwert ist in dieser Stichprobe nicht belegt; der Index bleibt nachgeordnet und entfernbar.
 - **Status:** Implemented, mit fünf Live-Fällen, Browser-Render und PDF geprüft
+
+## DEC-027 – Beispielwerte sind nur in gekennzeichneten Vorschaubereichen zulässig
+
+- **Datum:** 2026-08-07
+- **Entscheidung:** Realistische deutsche Beispielwerte dürfen erfunden werden, wenn sie ausschließlich in einem eindeutig als Beispiel gekennzeichneten Vorschauabschnitt erscheinen. In Engpass, Ist-Ablauf, Empfehlung, offenen Punkten und allen anderen Feldern bleiben erfundene Betriebsfakten verboten. Echte belegte Nutzerangaben haben in der Vorschau Vorrang.
+- **Grund:** Eine Vorschau mit leeren Werten oder technischen Platzhaltern zeigt dem Kunden nicht, welches konkrete Arbeitsergebnis entstehen kann. Gleichzeitig darf ein anschauliches Beispiel nie als Tatsache über den Betrieb missverstanden werden.
+- **Konsequenzen:** Die freigegebenen Output-Strukturen enthalten Klartext-Labels und Beispielwerte. Sie werden erst nach der Modellantwort eingesetzt, der Kundenpayload markiert den Block ausdrücklich und Regressionstests prüfen, dass die Werte außerhalb dieses Blocks nicht vorkommen.
+- **Status:** Implemented, tested and visually checked
+
+## DEC-028 – Das Produktversprechen ist nicht „Ordnung schaffen“
+
+- **Datum:** 2026-08-07
+- **Entscheidung:** Der frühere Header-Slogan „Ordnen · mit KI unterstützen · später automatisieren“ ist ersatzlos entfernt. Der Header besteht nur aus Logo und „AI START MAP“.
+- **Grund:** AI Start Map diagnostiziert den Arbeitsablauf und zeigt einen passenden realistischen KI-Schritt. „Ordnung schaffen“ beschreibt dieses Produktversprechen nicht korrekt und erzeugt zusätzliche visuelle Unruhe.
+- **Konsequenzen:** Landingpage, Interview, Auswahl, Bestätigung, Verarbeitung, Ergebnis und Bericht verwenden keine Ordnungsbotschaft mehr. Ein Repository-Test verhindert die Rückkehr des alten Slogans.
+- **Status:** Implemented, tested and visually checked

@@ -1,12 +1,12 @@
 # AI Start Map – Product Output Spec
 
 **Status:** Active – implemented, integrated and tested
-**Letzte Prüfung:** 2026-08-06
+**Letzte Prüfung:** 2026-08-07
 **Verwandt mit:** `docs/specs/solution-pattern-recommendation/`
 
 ## Ziel
 
-Das Kundenergebnis beantwortet in wenigen Sekunden: erkannter Engpass, konkrete Empfehlung, zukünftiger Ablauf, Rollenverteilung, sichtbares Ergebnis, menschliche Kontrolle, kleinste nutzbare Version und Grenzen. A0 kann ausdrücklich bedeuten, dass keine KI nötig ist. Es ist kein langer Diagnosebericht.
+Das Kundenergebnis beantwortet in unter zwei Minuten: was heute schiefläuft, was der Kunde künftig tut, was die KI tut, welches konkrete Ergebnis entsteht, was der Kunde prüft und womit er klein beginnt. A0 kann ausdrücklich bedeuten, dass keine KI nötig ist. Es ist kein langer Diagnosebericht.
 
 ## Verbindliche Produktregeln
 
@@ -16,7 +16,9 @@ Das Kundenergebnis beantwortet in wenigen Sekunden: erkannter Engpass, konkrete 
 - Sekundäre Möglichkeiten sind optional: null bis maximal zwei, nicht dominant und nie Füllvorschläge.
 - Alle sichtbaren Texte sprechen den Kunden mit „du“, „dir“, „dein“ oder „deine“ an. Distanzierte Ersatzrollen sind unzulässig, sofern keine andere reale Rolle gemeint ist.
 - Nutzen umfasst ein bis drei Punkte; Voraussetzungen null bis drei; Umsetzung zwei bis vier Schritte.
-- Die Vorschau verwendet nur bestätigte Nutzerfakten und neutrale, sichtbar offene Platzhalter.
+- Die Vorschau verwendet echte belegte Nutzerangaben mit Vorrang. Fehlende Werte erhalten realistische deutsche Beispielwerte ausschließlich im klar gekennzeichneten Vorschaublock; diese Werte sind keine Nutzerfakten.
+- Der fertige Kundenpayload wird gegen die verbindliche Liste interner und technischer Begriffe geprüft. Ein betroffenes Feld erhält vorhandenen Klartext oder entfällt.
+- Offene Angaben werden semantisch entdoppelt, auf drei echte Fragen begrenzt und ausschließlich im Bericht gezeigt.
 - Dieselbe Aussage wird nicht in mehreren Karten wiederholt.
 
 ## Neuer verbindlicher Kernoutput
@@ -28,7 +30,7 @@ Das Kundenergebnis beantwortet in wenigen Sekunden: erkannter Engpass, konkrete 
 | `short_reason` | knappe Begründung | maximal zwei kurze Sätze |
 | `before_process` | bestätigter Ist-Ablauf | maximal drei Schritte |
 | `future_process` | ausdrücklich zukünftiger Ablauf | drei bis sechs Schritte |
-| `sample_output` | typisierte Vorschau mit Titel, Zeilen, offenen Punkten, optional Anhängen und Vorschauhinweis | nur geerdete Inhalte |
+| `sample_output` | typisierte, klar gekennzeichnete Vorschau mit deutschen Labels, realistischen Beispielwerten und optional echten Nutzerwerten | nur im Vorschaublock sichtbar |
 | `user_action` | konkrete Eingabe/Handlung | ein kurzer Du-Satz |
 | `ai_task` | Aufgabe der KI | ein kurzer Satz |
 | `software_rule` | Aufgabe normaler Software oder fester Regeln | ein kurzer Satz |
@@ -38,7 +40,7 @@ Das Kundenergebnis beantwortet in wenigen Sekunden: erkannter Engpass, konkrete 
 | `required_prerequisites` | echte Voraussetzungen | null bis drei |
 | `implementation_path` | einfachster Umsetzungsweg | zwei bis vier Schritte |
 | `later_stage` | genau ein realistischer Ausbau | optional |
-| `open_details` | nicht bestätigte Angaben | null bis sechs, sichtbar offen |
+| `open_details` | nicht bestätigte Angaben | intern null bis sechs; kundenseitig höchstens drei echte Fragen nur im Bericht |
 | `smallest_usable_version` | kleinster fachlich nutzbarer Einstieg | ein kurzer Abschnitt |
 | `not_automated` | ausdrücklich menschlich bleibende Entscheidungen | null bis fünf |
 | `autonomy_level` | deterministisch vorausgewählte Stufe | A0 bis A2 im aktuellen Selector |
@@ -47,7 +49,7 @@ Das Kundenergebnis beantwortet in wenigen Sekunden: erkannter Engpass, konkrete 
 
 ## Hauptseite und Details
 
-Die Hauptseite verwendet verbindlich diese Leserichtung: erkannter Engpass, empfohlene Lösung, zukünftiger Ablauf, konkretes Ergebnis, menschliche Prüfung, kleinster nutzbarer Einstieg, Voraussetzungen und Grenzen sowie spätere Ausbaustufe. Nutzer-, KI-, Software-/Regel- und Menschenrolle stehen am Zielablauf. Die Ergebnisvorschau kennzeichnet Beispiele und offene Angaben; weitere Möglichkeiten bleiben nachgeordnet. Desktop-H1 liegt bei 34–40 Pixeln, Mobile-H1 bei 28–32 Pixeln, der Fließtext bleibt auf ungefähr 60–75 Zeichen begrenzt.
+Die Hauptseite verwendet verbindlich genau sechs sichtbare Blöcke: Engpass, empfohlene Lösung, zukünftiger Ablauf, Beispielausgabe, menschliche Kontrolle und kleinster Einstieg. Nutzer-, KI- und Menschenhandlung stehen als normale Sätze im Zielablauf; die rohe Rollentabelle entfällt. Voraussetzungen, offene Fragen und Ausbau stehen nur im Bericht. Weitere Möglichkeiten und der bereits bestätigte Ist-Ablauf bleiben geschlossen. Desktop-H1 liegt bei höchstens 42 Pixeln, Mobile-H1 bei höchstens 34 Pixeln; Fließtext bleibt auf ungefähr 60–75 Zeichen begrenzt.
 
 ## Grounding und Sicherheit
 
@@ -55,8 +57,8 @@ Die Hauptseite verwendet verbindlich diese Leserichtung: erkannter Engpass, empf
 - RAG-Evidenz, interne IDs, Quellen, Prompts, Modellnamen und fremde Falldaten bleiben unsichtbar.
 - Physische Identität und realer Ort werden nie erraten.
 - Preis-, Vertrags-, Zahlungs-, Qualitäts-, Personal-, Sicherheits-, Termin- und Herausgabeentscheidungen bleiben bei einem Menschen, wenn sie extern wirksam oder risikoreich sind.
-- Fehlende Angaben bleiben als „noch offen“ sichtbar; es gibt keine erfundenen Tools, Integrationen, Zahlen oder Einsparungen.
-- Feldnamen, Human Review und Nicht-Automationen werden deterministisch aus der freigegebenen Output-Struktur und dem Katalog nachgeführt. Nicht belegte Vorschauwerte werden als `Beispiel:` gekennzeichnet.
+- Es gibt keine erfundenen Tools, Integrationen, Betriebsfakten, Zahlen oder Einsparungen. Die einzige Ausnahme sind anschauliche Werte im eindeutig gekennzeichneten Beispielblock.
+- Feldnamen, Human Review und Nicht-Automationen werden deterministisch aus der freigegebenen Output-Struktur und dem Katalog nachgeführt. Der Beispielblock trägt genau einen gemeinsamen Veranschaulichungshinweis statt wiederholter Präfixe.
 
 ## Speicherung und Rückwärtskompatibilität
 
@@ -64,4 +66,4 @@ Der Vertrag `recommendation-v3` wird ohne Migration in `analyses.uncertainties.c
 
 ## Druckbericht
 
-Die Browser-Druckansicht verwendet weiter `window.print()`. Seite 1 zeigt Diagnosehinweis, Engpass, Empfehlung, zukünftigen Ablauf, Rollen und eindeutig gekennzeichnete Beispielausgabe. Seite 2 zeigt Human Check, kleinste nutzbare Version, Umsetzungsweg, Voraussetzungen, offene Angaben, Nicht-Automationen, Fehlergrenzen und späteren Ausbau. Eine dritte logische Seite erscheint nur bei fachlich vorhandenen sekundären Möglichkeiten. Lange Inhalte dürfen sauber auf zusätzliche physische Seiten umbrechen; leere Seiten, abgeschnittene Inhalte und übergroße Karten sind unzulässig.
+Die Browser-Druckansicht verwendet weiter `window.print()` und umfasst genau zwei physische Seiten. Seite 1 zeigt Diagnosehinweis, Engpass, Empfehlung, zukünftigen Ablauf und eindeutig gekennzeichnete Beispielausgabe. Seite 2 zeigt menschliche Kontrolle, menschlich bleibende Entscheidungen, höchstens drei Klartextvoraussetzungen, höchstens drei wichtige offene Fragen, kleinsten Einstieg, einen späteren Ausbau und Kontakt. Inhalt wird begrenzt statt auf eine dritte Seite umgebrochen; sichtbare Link-URLs, leere Seiten, abgeschnittene Inhalte und übergroße Karten sind unzulässig.

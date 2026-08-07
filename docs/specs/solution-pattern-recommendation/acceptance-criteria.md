@@ -1,7 +1,7 @@
 # Acceptance Criteria – Solution-Pattern-Recommendation
 
-**Status:** Active – acceptance criteria passed in automated suite; limited Chrome visual check completed
-**Datum:** 2026-08-06
+**Status:** Active – acceptance criteria passed in automated suite; Chrome desktop/mobile and PDF visually checked
+**Datum:** 2026-08-07
 **Fachlicher Status:** Verbindlich entschieden; technische Nachweise werden getrennt dokumentiert.
 
 ## Referenzfälle
@@ -30,7 +30,7 @@
 
 ## Struktur jeder Recommendation
 
-Jede sichtbare Empfehlung enthält:
+Jede Empfehlung speichert intern:
 
 1. Nutzerhandlung,
 2. KI-Aufgabe,
@@ -41,7 +41,7 @@ Jede sichtbare Empfehlung enthält:
 7. kleinste nutzbare Version,
 8. Nicht-Automationen und Autonomiestufe.
 
-Zusätzlich enthält sie eine Ergebnisvorschau, ein bis drei Nutzenpunkte, null bis drei Voraussetzungen, zwei bis vier Umsetzungsschritte und optional null bis zwei nachrangige Möglichkeiten. Wochentest und genau drei Opportunities sind nicht Bestandteil der Abnahme.
+Die Hauptansicht zeigt daraus genau sechs Klartextblöcke: Engpass, Empfehlung, Zukunftsablauf, Ergebnisvorschau, menschliche Kontrolle und kleinster Einstieg. Rollen-, Autonomie- und Technikfelder werden nicht roh dargestellt. Zusätzlich speichert der Vertrag ein bis drei Nutzenpunkte, null bis drei Voraussetzungen, zwei bis vier Umsetzungsschritte und optional null bis zwei nachrangige Möglichkeiten. Wochentest und genau drei Opportunities sind nicht Bestandteil der Abnahme.
 
 ## Sprache, Länge und Darstellung
 
@@ -49,7 +49,10 @@ Zusätzlich enthält sie eine Ergebnisvorschau, ein bis drei Nutzenpunkte, null 
 - Primärtitel bleibt ungefähr innerhalb 12–14 Wörtern; Begründung maximal zwei kurze Sätze.
 - Vorher umfasst maximal drei, der neue Ablauf drei bis sechs Schritte; Nutzen maximal drei, Voraussetzungen maximal drei, sekundäre Möglichkeiten maximal zwei.
 - Genau eine Hauptlösung dominiert; die Vorschau ist zentral; weitere Möglichkeiten bleiben eingeklappt.
-- Der Druckbericht umfasst zwei Seiten plus eine optionale dritte Seite.
+- Der Druckbericht umfasst genau zwei Seiten und zeigt keine localhost-URL.
+- Realistische Beispielwerte erscheinen ausschließlich im klar gekennzeichneten Vorschaublock; echte Nutzerwerte haben Vorrang.
+- Offene Angaben erscheinen nur im Bericht, sind echte Alltagsfragen, semantisch entdoppelt und auf drei begrenzt.
+- Ein sekundärer Vorschlag ohne echten Titel und echte Beschreibung wird nicht gerendert.
 - Die vertikale HTML-/CSS-Prozesslinie wird verwendet; Mermaid bleibt ausgeschlossen.
 
 ## Grounding und Knowledge-Sicherheit

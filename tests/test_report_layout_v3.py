@@ -1,6 +1,11 @@
+import re
+import subprocess
 from pathlib import Path
 
+import pytest
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+
+from app.schemas import customer_plain_text
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -8,37 +13,37 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def _result(**overrides: object) -> dict[str, object]:
     result: dict[str, object] = {
-        "short_reason": "Digitale Angaben liegen verteilt und werden manuell nachbearbeitet.",
-        "bottleneck": {"cause": "Die Angaben werden nicht in einem Vorgang zusammengeführt."},
-        "autonomy_level": "A2",
-        "primary_recommendation": "Digitale Angaben in einem prüfbaren Entwurf zusammenführen",
-        "promise": "Du erhältst ein konkretes, prüfbares Arbeitsergebnis.",
+        "is_non_ai": False,
+        "short_reason": "Fotos, Notizen und Bons liegen heute an verschiedenen Stellen. Beim Rechnungsschreiben musst du alles wieder zusammensuchen.",
+        "primary_recommendation": "Mobile Einsatzdokumentation aus Sprache, Fotos und Bon",
+        "promise": "Nach jedem Einsatz hast du eine fertige Notiz mit Zeit, Material und Fotos.",
         "future_process": [
-            "Du leitest vorhandene digitale Angaben weiter.",
-            "Die KI erstellt einen strukturierten Entwurf.",
-            "Feste Regeln markieren fehlende Pflichtangaben.",
-            "Du prüfst und bestätigst das Ergebnis.",
+            "Nach dem Einsatz sendest du Sprache, Fotos und Bon.",
+            "Die KI liest T\u00e4tigkeit, Zeit und Material heraus.",
+            "Fehlende oder unsichere Angaben werden markiert.",
+            "Eine Einsatznotiz entsteht als Entwurf.",
+            "Du pr\u00fcfst und best\u00e4tigst sie.",
+            "Danach kann sie als Grundlage f\u00fcr die Rechnung dienen.",
         ],
-        "user_action": "Du leitest die vorhandenen Angaben weiter.",
-        "ai_task": "Die KI ordnet die Angaben in einen Entwurf.",
-        "software_rule": "Pflichtfelder und Status werden nach festen Regeln geprüft.",
-        "human_check": "Du prüfst Inhalt und Freigabe.",
+        "sample_heading": "Beispiel \u2014 so k\u00f6nnte deine Einsatznotiz aussehen",
         "sample_output": {
-            "title": "Vorgangsübersicht",
-            "fields": [{"label": "Status", "value": "noch offen"}],
-            "open_items": ["Verantwortliche Person noch offen"],
-            "attachments": [],
-            "preview_notice": "Vorschau – die endgültigen Angaben prüfst du selbst.",
+            "fields": [
+                {"label": "F\u00fcr wen", "value": "Hausverwaltung Nord \u00b7 Lindenstra\u00dfe 12"},
+                {"label": "Was gemacht wurde", "value": "Waschbecken-Dichtung getauscht"},
+                {"label": "Wie lange", "value": "45 Minuten"},
+                {"label": "Material", "value": "Dichtungssatz, 12,40 \u20ac"},
+                {"label": "Besonderheiten", "value": "Zugang nur \u00fcber die Hausverwaltung"},
+                {"label": "Noch zu kl\u00e4ren", "value": "T\u00fcr nachstellen \u2013 abrechnen?"},
+                {"label": "Dabei", "value": "2 Fotos, 1 Bon, deine Sprachnachricht"},
+            ],
+            "preview_notice": "Beispielangaben zur Veranschaulichung \u2013 hier stehen sp\u00e4ter deine tats\u00e4chlichen Angaben.",
         },
-        "smallest_usable_version": "Mit einem Entwurf für neue Vorgänge beginnen.",
-        "implementation_path": ["Pflichtfelder festlegen.", "Neue Vorgänge prüfen."],
-        "required_prerequisites": ["Ein eindeutiger Vorgangsanker"],
-        "not_automated": ["Freigabe", "Verbindliche Entscheidung"],
-        "open_details": ["Zielstatus noch offen"],
-        "uncertainties": ["Das Volumen ist nicht angegeben."],
-        "error_boundaries": ["Unklare Angaben bleiben offen."],
-        "later_stage": "Später kann ein Folgeschritt vorbereitet werden.",
-        "secondary_opportunities": [],
+        "required_prerequisites": ["Ein fester Weg zum Senden der Angaben"],
+        "open_questions": ["Wie erkennst du heute, zu welchem Auftrag ein Bon geh\u00f6rt?"],
+        "first_step_text": "Probier es bei den n\u00e4chsten f\u00fcnf Eins\u00e4tzen aus.",
+        "first_step_follow_up": "Erst danach lohnt sich der n\u00e4chste Schritt.",
+        "later_stage": "Sp\u00e4ter kann ein Rechnungsentwurf vorbereitet werden.",
+        "contact_recommendation": "Mobile Einsatzdokumentation aus Sprache, Fotos und Bon",
     }
     result.update(overrides)
     return result
@@ -50,106 +55,101 @@ def _render(result: dict[str, object]) -> str:
         autoescape=select_autoescape(("html",)),
     )
     environment.globals["url_for"] = lambda name, **_kwargs: f"/{name}"
+    environment.filters["customer_text"] = customer_plain_text
     return environment.get_template("report.html").render(
         result=result,
-        process={"process_name": "Anfrage bis Freigabe"},
-        analysis_date="06.08.2026",
+        process={"process_name": "Einsatz bis Rechnung"},
+        analysis_date="07.08.2026",
     )
 
 
-def test_report_contains_the_complete_customer_contract() -> None:
+def test_report_contains_exactly_the_two_approved_pages() -> None:
     html = _render(_result())
     for text in (
-        "Diagnose und ein möglicher Umsetzungsweg",
-        "DAS IST DER ERKANNTE ENGPASS",
-        "DAS IST DIE EMPFOHLENE LÖSUNG",
-        "DAS KÖNNTE DEIN ZUKÜNFTIGER ABLAUF SEIN",
-        "Software / Regeln",
-        "BEISPIELAUSGABE · VORSCHAU",
-        "DAS PRÜFST DU SELBST",
-        "Kleinste nutzbare Version",
-        "Voraussetzungen",
-        "Wird nicht automatisiert",
-        "Autonomiestufe A2",
-        "Offene Angaben und Unsicherheiten",
-        "SPÄTERE AUSBAUSTUFE",
+        "Diagnose und noch keine fertige Einrichtung",
+        "DAS IST DER ENGPASS",
+        "DAS SCHLAGE ICH DIR VOR",
+        "So w\u00fcrde es k\u00fcnftig laufen",
+        "BEISPIELAUSGABE",
+        "Nichts geht ohne dich raus",
+        "Das entscheidest weiterhin du",
+        "Was vorher da sein muss",
+        "Diese Fragen sind noch zu kl\u00e4ren",
+        "So klein f\u00e4ngst du an",
+        "Was sp\u00e4ter m\u00f6glich wird",
+        "M\u00f6chtest du das umsetzen?",
     ):
         assert text in html
+    assert html.count('class="report-page ') == 2
+    assert "report-page-three" not in html
+    assert "Autonomiestufe" not in html
     assert "/sessions/" not in html
     assert "session_id" not in html
-    assert "pattern_id" not in html
 
 
-def test_a0_report_says_that_the_first_step_is_not_an_ai_solution() -> None:
+def test_non_ai_report_uses_plain_language_without_internal_level() -> None:
     html = _render(
         _result(
-            autonomy_level="A0",
-            primary_recommendation="Vorhandene Kalenderregel konsequent nutzen",
-            promise="Für diesen Schritt ist keine KI notwendig.",
-            ai_task="Für diesen ersten Schritt ist keine KI-Aufgabe notwendig.",
+            is_non_ai=True,
+            primary_recommendation="Vorhandene Kalenderfunktion nutzen",
+            promise="F\u00fcr diesen Schritt ist keine KI notwendig.",
+            contact_recommendation="die vorhandene Kalenderfunktion passend einstellen",
         )
     )
-    assert "EINFACHER NÄCHSTER SCHRITT" in html
-    assert "Autonomiestufe A0" in html
     assert "keine KI notwendig" in html
+    assert "Autonomiestufe" not in html
+    assert "A0" not in html
 
 
-def test_missing_fields_remain_open_and_do_not_create_customer_facts() -> None:
+def test_optional_secondary_content_never_creates_a_third_page() -> None:
     html = _render(
-        _result(
-            software_rule="",
-            sample_output={
-                "title": "",
-                "fields": [],
-                "open_items": [],
-                "attachments": [],
-                "preview_notice": "",
-            },
-            smallest_usable_version="",
-            implementation_path=[],
-            required_prerequisites=[],
-            not_automated=[],
-            open_details=[],
-            uncertainties=[],
-            error_boundaries=[],
-            later_stage="",
-        )
-    )
-    assert "keine belastbare Vorschau gespeichert" in html
-    assert "noch kein belastbarer Einstieg gespeichert" in html
-    assert "Keine zusätzlichen Voraussetzungen angegeben" in html
-    assert "keine eigenen Grenzen gespeichert" in html
-    assert "Beispielkunde" not in html
-    assert "OBJ-001" not in html
-
-
-def test_long_report_content_stays_structured_for_page_breaks() -> None:
-    long_items = [f"Offene Angabe {index}: " + ("längerer prüfbarer Inhalt " * 8) for index in range(1, 13)]
-    html = _render(
-        _result(
-            future_process=[f"Schritt {index}: " + ("konkreter Ablauf " * 8) for index in range(1, 7)],
-            implementation_path=long_items[:4],
-            open_details=long_items,
-            error_boundaries=long_items[:3],
-        )
-    )
-    assert "Offene Angabe 12" in html
-    assert html.count('class="report-page ') == 2
-    css = (ROOT / "app" / "static" / "styles.css").read_text(encoding="utf-8")
-    assert "@page { size: A4; margin: 11mm 13mm 12mm; }" in css
-    assert ".report-page { width: auto; min-height: 0;" in css
-    assert ".report-flow li, .report-plan li, .report-boundaries li { break-inside: avoid; }" in css
-
-
-def test_optional_third_page_is_only_rendered_for_real_secondary_options() -> None:
-    base_html = _render(_result())
-    extended_html = _render(
         _result(
             secondary_opportunities=[
-                {"title": "Spätere Möglichkeit", "description": "Erst nach dem sicheren Einstieg prüfen."}
+                {"title": "Sp\u00e4tere M\u00f6glichkeit", "description": "Erst nach dem sicheren Einstieg pr\u00fcfen."}
             ]
         )
     )
-    assert base_html.count('class="report-page ') == 2
-    assert extended_html.count('class="report-page ') == 3
-    assert "OPTIONALE WEITERE MÖGLICHKEITEN" in extended_html
+    assert html.count('class="report-page ') == 2
+    assert "OPTIONALE WEITERE M\u00d6GLICHKEITEN" not in html
+
+
+def test_print_css_suppresses_urls_and_forces_two_compact_pages() -> None:
+    css = (ROOT / "app" / "static" / "styles.css").read_text(encoding="utf-8")
+    assert "@page { size: A4; margin: 9mm 11mm; }" in css
+    assert "height: 277mm" in css
+    assert "a[href]::after { content: none !important; }" in css
+
+
+def test_housekeeper_pdf_has_exactly_two_pages(tmp_path: Path) -> None:
+    chrome = Path(r"C:\Program Files\Google\Chrome\Application\chrome.exe")
+    if not chrome.exists():
+        pytest.skip("Chrome is required for the local print regression.")
+    css = (ROOT / "app" / "static" / "styles.css").read_text(encoding="utf-8")
+    html = _render(_result())
+    html = re.sub(
+        r'<link rel="stylesheet"[^>]+>',
+        f"<style>{css}</style>",
+        html,
+        count=1,
+    )
+    html_path = tmp_path / "housekeeper-report.html"
+    pdf_path = tmp_path / "housekeeper-report.pdf"
+    html_path.write_text(html, encoding="utf-8")
+    completed = subprocess.run(
+        [
+            str(chrome),
+            "--headless=new",
+            "--disable-gpu",
+            "--no-pdf-header-footer",
+            f"--user-data-dir={tmp_path / 'chrome-profile'}",
+            f"--print-to-pdf={pdf_path}",
+            html_path.resolve().as_uri(),
+        ],
+        capture_output=True,
+        check=False,
+        timeout=30,
+    )
+    assert completed.returncode == 0, completed.stderr.decode(errors="replace")
+    pdf_bytes = pdf_path.read_bytes()
+    assert len(re.findall(rb"/Type\s*/Page\b", pdf_bytes)) == 2
+    assert b"127.0.0.1" not in pdf_bytes

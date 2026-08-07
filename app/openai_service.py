@@ -26,6 +26,7 @@ from app.schemas import (
     ProcessUnderstandingResult,
     SampleOutputField,
 )
+from app.solution_knowledge import output_structure_for
 
 
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
@@ -575,6 +576,18 @@ def _apply_recommendation_contract(
     if autonomy_level in {"A0", "A1", "A2", "A3", "A4", "A5"}:
         result.autonomy_level = autonomy_level
 
+    primary = context.get("primary")
+    primary_solution_id = (
+        str(primary.get("solution_id") or "")
+        if isinstance(primary, dict)
+        else ""
+    )
+    approved_structure = output_structure_for(primary_solution_id)
+    approved_examples = {
+        field.field_id: field.example_value
+        for field in approved_structure.fields
+    } if approved_structure is not None else {}
+
     output_structure = context.get("output_structure")
     if isinstance(output_structure, dict) and output_structure.get("status") != "missing":
         raw_fields = output_structure.get("fields")
@@ -583,23 +596,31 @@ def _apply_recommendation_contract(
                 item.label.casefold(): item.value for item in result.sample_output.fields
             }
             contracted_fields: list[SampleOutputField] = []
-            for field in raw_fields[:6]:
+            for field in raw_fields[:7]:
                 if not isinstance(field, dict) or not field.get("label"):
                     continue
                 label = str(field["label"])
-                value = existing.get(label.casefold(), "noch offen")
+                field_id = str(field.get("field_id") or "")
+                value = existing.get(label.casefold(), "")
                 normalized_value = value.casefold()
-                if (
-                    normalized_value not in {"noch offen", "nicht angegeben", "zu prüfen"}
-                    and normalized_value not in user_fact_text
-                    and not normalized_value.startswith("beispiel:")
+                if not (
+                    normalized_value
+                    and normalized_value not in {"noch offen", "nicht angegeben", "zu pr\u00fcfen"}
+                    and normalized_value in user_fact_text
                 ):
-                    value = f"Beispiel: {value}"
+                    value = approved_examples.get(field_id, "")
+                    normalized_value = value.casefold()
+                if not value:
+                    continue
                 contracted_fields.append(
                     SampleOutputField(label=label, value=value[:140])
                 )
             if contracted_fields:
                 result.sample_output.fields = contracted_fields
+                result.sample_output.preview_notice = (
+                    "Beispielangaben zur Veranschaulichung \u2013 hier stehen "
+                    "sp\u00e4ter deine tats\u00e4chlichen Angaben."
+                )
         structure_name = output_structure.get("name")
         if structure_name:
             result.sample_output.title = str(structure_name)[:80]
@@ -616,7 +637,6 @@ def _apply_recommendation_contract(
                 str(item)[:160] for item in prohibited_decisions[:5]
             ]
 
-    primary = context.get("primary")
     if isinstance(primary, dict):
         primary_name = str(primary.get("name") or "").strip()
         if primary_name:

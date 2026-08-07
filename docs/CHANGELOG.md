@@ -4,6 +4,16 @@
 
 Diese Datei dokumentiert nur tatsächlich ausgeführte und verifizierte Änderungen. Roadmap-Punkte gelten nicht als umgesetzt.
 
+## 2026-08-07 – Kundenoberfläche und Ergebnis auf Klartext reduziert
+
+- Landingpage, freie Erzählung, Prozesswahl, Bestätigung und Verarbeitungszustand mit kleineren Überschriften, kompakteren Abständen und den freigegebenen kurzen Kundentexten überarbeitet; den früheren Ordnungs-Slogan vollständig entfernt.
+- Die Ergebnisseite auf genau sechs sichtbare Kernblöcke reduziert: Engpass, Empfehlung, künftiger Ablauf, Beispielausgabe, menschliche Kontrolle und kleinster Einstieg. Interne Rollen-, Technik- und Autonomieangaben werden nicht mehr roh gerendert.
+- Einen rekursiven Kundenpayload-Filter mit Protokollierung ergänzt. Verbotene interne Begriffe werden durch vorhandenen Klartext ersetzt oder das betroffene Feld entfällt; fünf Demofälle sichern HTML und Bericht dagegen ab.
+- Die freigegebenen Output-Strukturen um kundengerechte deutsche Labels und realistische Beispielwerte ergänzt. Diese Werte werden erst nach der Modellantwort eingesetzt und erscheinen ausschließlich im eindeutig gekennzeichneten Vorschaubereich.
+- Den Bericht auf genau zwei kompakte A4-Seiten festgelegt. Die erste Seite zeigt Ergebnis und Vorschau, die zweite Kontrolle, Voraussetzungen, höchstens drei offene Fragen, Einstieg, Ausbau und Kontakt. Druck-URLs und Browser-Kopf-/Fußzeilen werden unterdrückt.
+- Desktop- und Mobile-Darstellung in Chrome bei 1440 und 390 Pixeln für Landingpage, Interview, Prozesswahl, Bestätigung, Verarbeitung und Ergebnis geprüft; Hausmeister, Fotograf und A0 wurden sichtbar kontrolliert. Der Hausmeisterbericht umfasst genau zwei Seiten ohne localhost-URL.
+- Vollständige automatisierte Suite nach Umsetzung und Dokumentationsabgleich: `188 passed`; `python -m compileall app scripts` und `git diff --check` bestanden.
+
 ## 2026-08-07 – Fünf Mentor-Demofälle live geprüft und Laufzeitblocker behoben
 
 - Hausmeister, Fotograf, Blumenladen, Coach und einen ausdrücklichen A0-Kalenderfall mit echten Modellaufrufen bis Ergebnis und Bericht durchlaufen; wörtliche Eingaben und Befunde in `docs/MENTOR_DEMO_2026-08-07.md` dokumentiert.

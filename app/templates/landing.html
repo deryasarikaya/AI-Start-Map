@@ -1,66 +1,45 @@
 {% extends "base.html" %}
 
-{% block title %}AI Start Map · Dein klarer erster Schritt{% endblock %}
+{% block title %}AI Start Map · Dein passender KI-Schritt{% endblock %}
 
 {% block content %}
-<section class="hero-layout landing-section landing-hero">
+<section class="landing-section landing-hero">
     <div class="hero-copy">
         <p class="eyebrow">FÜR SELBSTSTÄNDIGE UND KLEINE BETRIEBE</p>
-        <h1>Dein Betrieb läuft. Aber vieles läuft nur, weil du ständig alles zusammenhältst.</h1>
-        <p class="lead">Anfragen, Termine, Zettel und Rückfragen – am Ende läuft vieles über dich. Erzähl kurz, was dich im Betrieb aufhält. AI Start Map zeigt dir, wo es wirklich hakt, was du zuerst ändern solltest und wo KI konkret helfen kann.</p>
+        <h1>Wo könnte KI dir im Alltag wirklich Arbeit abnehmen?</h1>
+        <p class="lead">Erzähl kurz, welche Aufgaben dich Zeit kosten, wo Informationen verstreut sind oder was du immer wieder manuell nacharbeiten musst. AI Start Map schaut sich deinen Ablauf an und zeigt dir einen konkreten, realistischen KI-Schritt.</p>
+        <p class="micro-copy">Per Sprache oder Text · dauert wenige Minuten</p>
         <form action="{{ url_for('begin_journey') }}" method="post" data-disable-on-submit data-submitting-label="Einen Moment …">
-            <button class="primary-button hero-button" type="submit">Mein Problem erzählen <span aria-hidden="true">→</span></button>
+            <button class="primary-button hero-button" type="submit">Meinen Ablauf beschreiben <span aria-hidden="true">→</span></button>
         </form>
-        <p class="micro-copy">Per Sprache oder Text · keine Vorbereitung · dauert nur wenige Minuten</p>
-        <p class="trust-sentence">Kein neues Riesensystem. Kein KI-Blabla. Ein klarer erster Schritt.</p>
     </div>
-    <div class="hero-path" aria-label="Das erhältst du von AI Start Map">
-        <div><span>WO ES WIRKLICH HAKT</span><strong>Der Engpass hinter dem täglichen Chaos</strong></div>
-        <i aria-hidden="true">→</i>
-        <div><span>WAS DU ZUERST ÄNDERST</span><strong>Ein konkreter, realistischer erster Schritt</strong></div>
-        <i aria-hidden="true">→</i>
-        <div><span>WO KI HELFEN KANN</span><strong>Verständlich und passend zu deinem Betrieb</strong></div>
-    </div>
-    <a class="scroll-cue" href="#wiedererkennen">Kommt dir das bekannt vor? <span aria-hidden="true">↓</span></a>
 </section>
 
 <section class="landing-section recognition-section" id="wiedererkennen" aria-labelledby="recognition-title">
-    <p class="section-kicker">DEIN ALLTAG</p>
-    <h2 id="recognition-title" class="section-title">Du hältst mehr zusammen, als irgendwo festgehalten ist.</h2>
+    <p class="section-kicker">KOMMT DIR DAS BEKANNT VOR?</p>
+    <h2 id="recognition-title" class="section-title">Vier typische Zeitfresser im Alltag</h2>
     <ul class="recognition-list">
-        <li>Nachrichten kommen über WhatsApp, Telefon und E-Mail.</li>
-        <li>Zettel, Termine und Aufträge liegen überall.</li>
-        <li>Ohne dich kennt niemand den aktuellen Stand.</li>
-        <li>Du suchst, erinnerst, erklärst und fragst nach.</li>
-        <li>Du weißt, KI könnte helfen – aber nicht wobei zuerst.</li>
-        <li>Du willst etwas verbessern, ohne alles umzustellen.</li>
+        <li>Informationen kommen über mehrere digitale Kanäle.</li>
+        <li>Du musst Dinge immer wieder zusammensuchen.</li>
+        <li>Status oder nächste Schritte sind nicht überall sichtbar.</li>
+        <li>Vieles wird manuell übertragen oder nachbearbeitet.</li>
     </ul>
 </section>
 
-<section class="landing-section" aria-labelledby="steps-title">
+<section class="landing-section compact-steps" aria-labelledby="steps-title">
     <p class="section-kicker">SO FUNKTIONIERT ES</p>
-    <h2 id="steps-title" class="section-title">Drei einfache Schritte. Kein Beratungsbericht zum Durcharbeiten.</h2>
+    <h2 id="steps-title" class="section-title">Drei einfache Schritte</h2>
     <div class="simple-steps">
-        <article><span>1</span><div><h3>Du erzählst</h3><p>Sprich oder schreib, was dich im Alltag ausbremst.</p></div></article>
-        <article><span>2</span><div><h3>Wir verstehen</h3><p>Die App erkennt den Ablauf und fragt nur, wenn etwas das Ergebnis wirklich verändert.</p></div></article>
-        <article><span>3</span><div><h3>Du weißt, was zuerst kommt</h3><p>Du siehst deinen besten KI-Hebel, das konkrete Ergebnis und den einfachsten Umsetzungsweg.</p></div></article>
+        <article><span>1</span><div><h3>Du erzählst</h3><p>Sprich oder schreib kurz, was dich im Alltag aufhält.</p></div></article>
+        <article><span>2</span><div><h3>Ich frage gezielt nach</h3><p>Nur wenn eine Antwort den passenden nächsten Schritt verändert.</p></div></article>
+        <article><span>3</span><div><h3>Du bekommst eine klare Empfehlung</h3><p>Mit einem verständlichen Ablauf und einem kleinen ersten Schritt.</p></div></article>
     </div>
 </section>
 
-<section class="landing-section comparison-section" aria-labelledby="comparison-title">
-    <p class="section-kicker">ALLGEMEINE KI ODER AI START MAP?</p>
-    <h2 id="comparison-title" class="section-title">Nicht noch mehr Ideen. Ein sinnvoller Anfang für deinen Betrieb.</h2>
+<section class="landing-section comparison-section" aria-label="Vergleich">
     <div class="comparison-grid">
-        <article class="comparison-card muted-card"><p class="card-kicker">Allgemeiner KI-Tipp</p><blockquote>„Nutze ein CRM, automatisiere deine E-Mails und führe einen Chatbot ein.“</blockquote></article>
-        <article class="comparison-card"><p class="card-kicker">AI Start Map</p><blockquote>„Erfasse zuerst Auftrag und Ablageort gemeinsam. Danach kann KI gesprochene Angaben ordnen und fehlende Informationen markieren.“</blockquote></article>
+        <article class="comparison-card muted-card"><p class="card-kicker">Allgemeiner KI-Tipp</p><blockquote>„Nutze neue Programme und automatisiere möglichst viel.“</blockquote></article>
+        <article class="comparison-card"><p class="card-kicker">AI Start Map</p><blockquote>„Schick Sprache, Fotos und Bon nach dem Einsatz. Die KI schreibt daraus eine Notiz, die du nur noch prüfst.“</blockquote></article>
     </div>
-</section>
-
-<section class="landing-section final-cta">
-    <p class="section-kicker">DU MUSST DIE LÖSUNG NOCH NICHT KENNEN</p>
-    <h2 class="section-title">Erzähl, was dich aufhält. Wir finden den klaren ersten Schritt.</h2>
-    <form action="{{ url_for('begin_journey') }}" method="post" data-disable-on-submit data-submitting-label="Einen Moment …">
-        <button class="primary-button" type="submit">Einfach erzählen <span aria-hidden="true">→</span></button>
-    </form>
 </section>
 {% endblock %}
