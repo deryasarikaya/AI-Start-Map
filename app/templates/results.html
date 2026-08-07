@@ -8,7 +8,14 @@
         <p class="section-kicker">DEINE AUSWERTUNG · {{ process.process_name|customer_text }}</p>
         <h1 id="result-title">Das ist der Engpass</h1>
         <p class="result-bottleneck">{{ result.short_reason }}</p>
-        {% if result.bottleneck.cause and result.bottleneck.cause != result.short_reason %}<p class="result-context">{{ result.bottleneck.cause }}</p>{% endif %}
+        {% set bottleneck_cause = result.get('bottleneck', {}).get('cause', '') %}
+        {% if bottleneck_cause and bottleneck_cause != result.short_reason %}<p class="result-context">{{ bottleneck_cause }}</p>{% endif %}
+    </section>
+
+    <section class="result-block current-workflow" data-result-block aria-labelledby="current-title">
+        <p class="section-kicker">SO LÄUFT ES HEUTE</p>
+        <h2 id="current-title">So habe ich deinen heutigen Ablauf verstanden</h2>
+        {% if result.as_is_steps %}<ol class="process-strip compact">{% for step in result.as_is_steps[:5] %}<li class="{% if loop.index0 in result.problem_step_indexes %}problem{% endif %}"><span>{{ loop.index }}</span><p>{{ step }}</p></li>{% endfor %}</ol>{% endif %}
     </section>
 
     <section class="result-block recommendation-focus" data-result-block aria-labelledby="recommendation-title">
@@ -25,11 +32,15 @@
 
     <section class="result-block concrete-output" data-result-block aria-labelledby="output-title">
         <p class="section-kicker">DEIN KONKRETES ERGEBNIS</p>
-        <h2 id="output-title">Das bekommst du am Ende</h2>
+        <h2 id="output-title">So sieht die Hilfe konkret aus</h2>
         <div class="sample-output-compact customer-example-block" data-customer-example-block>
             <div class="sample-output-heading"><h3>{{ result.sample_heading }}</h3><span>Beispiel</span></div>
             <p class="preview-notice">{{ result.sample_output.preview_notice }}</p>
-            <dl>{% for field in result.sample_output.fields %}<div><dt>{{ field.label }}</dt><dd>{{ field.value }}</dd></div>{% endfor %}</dl>
+            <div class="sample-story">
+                <section><p class="sample-story-label">So kommt es heute bei dir an{% if result.sample_output.input_context %} — {{ result.sample_output.input_context }}{% endif %}</p><blockquote>{{ result.sample_output.incoming_message }}</blockquote>{% if result.sample_output.incoming_note %}<p class="sample-note">{{ result.sample_output.incoming_note }}</p>{% endif %}</section>
+                <section><p class="sample-story-label">Das macht die KI daraus</p><dl>{% for field in result.sample_output.fields %}<div><dt>{{ field.label }}</dt><dd>{{ field.value }}</dd></div>{% endfor %}</dl></section>
+            </div>
+            {% if result.sample_output.missing_details or result.sample_output.clarification_question %}<div class="sample-missing"><p class="sample-story-label">Das fehlt noch</p>{% if result.sample_output.missing_details %}<p>{{ result.sample_output.missing_details|join(' · ') }}</p>{% endif %}{% if result.sample_output.clarification_question %}<p><strong>Vorbereitete Rückfrage:</strong> „{{ result.sample_output.clarification_question }}“</p>{% endif %}</div>{% endif %}
         </div>
     </section>
 
@@ -49,20 +60,17 @@
         {% if result.first_step_follow_up %}<p class="supporting-copy">{{ result.first_step_follow_up }}</p>{% endif %}
     </section>
 
+    <form class="another-process-action" action="{{ url_for('analyze_another_process_public') }}" method="post" data-disable-on-submit><button class="text-button" type="submit">Einen anderen Ablauf ansehen</button></form>
+
     <section class="contact-cta" aria-labelledby="contact-title">
         <div>
             <p class="section-kicker">GEMEINSAM UMSETZEN</p>
             <h2 id="contact-title">Möchtest du das umsetzen?</h2>
             <p>Ich bin Derya. Genau das würde ich für dich einrichten: {{ result.contact_recommendation }}. Du schickst weiter wie bisher, ich baue den Rest.</p>
             <div class="contact-actions"><a class="secondary-button button-link" href="{{ url_for('show_report_public') }}" target="_blank">PDF speichern</a><a class="primary-button button-link" href="mailto:deryaxsarikaya@gmail.com?subject=AI-Start-Map%20Umsetzung">Umsetzung besprechen</a></div>
-            <p class="contact-note">Die gespeicherte PDF musst du anschließend selbst an deine E-Mail anhängen.</p>
+            <p class="contact-note">Im Druckdialog bitte „Kopf- und Fußzeilen“ abwählen.</p>
         </div>
     </section>
 
-    <details class="current-process-details"><summary>So habe ich deinen heutigen Ablauf verstanden</summary>{% if result.as_is_steps %}<ol class="process-strip compact">{% for step in result.as_is_steps %}<li class="{% if loop.index0 in result.problem_step_indexes %}problem{% endif %}"><span>{{ loop.index }}</span><p>{{ step }}</p></li>{% endfor %}</ol>{% endif %}</details>
-
-    {% if result.secondary_opportunities %}<details class="secondary-opportunities"><summary>Weitere Möglichkeiten</summary><div>{% for item in result.secondary_opportunities %}<article><h3>{{ item.title }}</h3><p>{{ item.description }}</p></article>{% endfor %}</div></details>{% endif %}
-
-    <form class="another-process-action" action="{{ url_for('analyze_another_process_public') }}" method="post" data-disable-on-submit><button class="text-button" type="submit">Einen anderen Ablauf ansehen</button></form>
 </div>
 {% endblock %}

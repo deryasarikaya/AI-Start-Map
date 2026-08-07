@@ -4,11 +4,24 @@ import pytest
 from pydantic import ValidationError
 
 from app.recommendation_service import (
+    CandidateRankingItem,
     DecisionGates,
     classify_problem_families,
     load_recommendation_catalog,
-    select_recommendation,
+    select_recommendation as _select_recommendation,
 )
+
+
+def _catalog_order_ranker(_text, candidates):
+    return [
+        CandidateRankingItem(solution_id=item.solution_id, reason="Testreihenfolge")
+        for item in candidates
+    ]
+
+
+def select_recommendation(*args, **kwargs):
+    kwargs.setdefault("candidate_ranker", _catalog_order_ranker)
+    return _select_recommendation(*args, **kwargs)
 
 
 def test_catalog_contains_exact_stable_ids_and_valid_references() -> None:

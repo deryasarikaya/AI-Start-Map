@@ -10,6 +10,7 @@ import re
 import secrets
 from datetime import date
 from difflib import SequenceMatcher
+from html import unescape
 from pathlib import Path
 from time import perf_counter
 
@@ -26,6 +27,7 @@ from app.agent_service import (
     extract_process_state,
     normalized_question_similarity,
     question_can_change_core_output,
+    question_reason_for_pattern,
     search_diagnostic_knowledge,
 )
 from app.database import get_db_session
@@ -54,8 +56,9 @@ from app.rag_service import (
     retrieve_agent_patterns,
     retrieve_solution_workflows,
 )
-from app.llm_classification import classify_narrative
+from app.llm_classification import classify_narrative, rank_candidates
 from app.recommendation_service import (
+    RecommendationRankingError,
     load_recommendation_catalog,
     select_recommendation,
 )
@@ -64,6 +67,7 @@ from app.solution_knowledge import (
     extract_confirmed_channels,
     find_inference_patterns,
     load_solution_workflows,
+    match_business_type,
     output_structure_context,
     output_structure_for,
     select_solution_workflows,
@@ -92,24 +96,10 @@ DEMO_EVALUATION_IDS = {
     "etsy-3d-print": "EVAL-C-02",
     "carpet-cleaning": "EVAL-C-10",
 }
-DEMO_SESSION_SLUGS: dict[int, str] = {}
 SESSION_COOKIE = "ai_start_map_session"
 SESSION_SIGNING_KEY = (
     os.getenv("SESSION_SIGNING_KEY", "").encode("utf-8") or secrets.token_bytes(32)
 )
-
-CUSTOMER_SOLUTION_TITLES = {
-    "SP-01": "Anfragen aus allen Kan\u00e4len an einer Stelle sammeln",
-    "SP-02": "Eine gemeinsame \u00dcbersicht mit Status und n\u00e4chstem Schritt",
-    "SP-03": "Mobile Einsatzdokumentation aus Sprache, Fotos und Bon",
-    "SP-04": "Gegenstand und Ablageort eindeutig verbinden",
-    "SP-05": "Terminanfragen mit verf\u00fcgbaren Zeiten abgleichen",
-    "SP-06": "Angaben aus Dokumenten lesen und zur Pr\u00fcfung vorbereiten",
-    "SP-07": "\u00c4nderungen und Zusagen nachvollziehbar festhalten",
-    "SP-08": "Material und Arbeitsstand auf einen Blick sehen",
-    "SP-09": "Rechnungen vorbereiten und Zahlungen nachhalten",
-    "SP-10": "Wissen und \u00dcbergaben direkt beim Auftrag festhalten",
-}
 
 PREVIEW_NOTICE = (
     "Beispielangaben zur Veranschaulichung \u2013 hier stehen sp\u00e4ter deine "
@@ -299,36 +289,6 @@ def _is_repeated_follow_up(
         normalized_question_similarity(question_text, existing.question_text) >= 0.8
         for existing in existing_questions
     )
-
-
-def _question_reason(question_text: str) -> str:
-    normalized = question_text.casefold()
-    reasons = (
-        (
-            ("regal", "ablage", "platz"),
-            "So erkennen wir, ob die Suche durch die Zuordnung zum Ablageplatz entsteht.",
-        ),
-        (
-            ("preis", "freigabe", "bestätig", "entscheid"),
-            "So bleibt klar, welche Entscheidung zwingend bei einem Menschen bleibt.",
-        ),
-        (
-            ("daten", "angaben", "erfasst", "notiert"),
-            "So erkennen wir, ob KI schon mit verlässlichen Angaben arbeiten kann.",
-        ),
-        (
-            ("wer ", "zuständig"),
-            "So erkennen wir, an welcher Übergabe der aktuelle Stand verloren geht.",
-        ),
-        (
-            ("ausnahme", "abweich", "anders"),
-            "So bleibt der erste Test auch bei den häufigsten Ausnahmen realistisch.",
-        ),
-    )
-    for markers, reason in reasons:
-        if any(marker in normalized for marker in markers):
-            return reason
-    return ""
 
 
 def _redirect(path: str) -> RedirectResponse:
@@ -1280,7 +1240,7 @@ def _continue_after_process_answers(
         database_session.rollback()
         return _render_error(
             request,
-            str(error),
+            "Das hat gerade nicht geklappt. Versuch es bitte noch einmal.",
             retry_path=f"/sessions/{session_id}/process-details",
         )
     except Exception:
@@ -1316,7 +1276,7 @@ def _follow_up_context(
         "is_last_question": unanswered_count == 1,
         "answered_count": len(questions) - unanswered_count,
         "question_reason": (
-            _question_reason(current_question.question_text)
+            question_reason_for_pattern(current_question.question_text)
             if current_question is not None
             else ""
         ),
@@ -1432,6 +1392,9 @@ def _persist_final_analysis(
     database_session: Session,
     session_id: int,
     result: FinalAnalysisResult,
+    *,
+    business_type: str | None = None,
+    candidate_ranking: list[dict[str, object]] | None = None,
 ) -> None:
     if contains_internal_reference(result):
         raise ValueError("Die Analyse enthält eine interne Wissensreferenz.")
@@ -1447,6 +1410,8 @@ def _persist_final_analysis(
             core_bottleneck=result.core_bottleneck,
             uncertainties={
                 "items": result.uncertainties,
+                "business_type": business_type,
+                "candidate_ranking": candidate_ranking or [],
                 "bottleneck": {
                     "symptom": result.bottleneck_symptom,
                     "cause": result.bottleneck_cause or result.core_bottleneck,
@@ -1510,136 +1475,28 @@ def _persist_final_analysis(
     database_session.commit()
 
 
-def _massage_demo_fallback_result() -> FinalAnalysisResult:
-    """Fixed result used only after an explicit massage demo service failure."""
+def _forbidden_customer_fields(
+    value: object,
+    field_path: str = "",
+) -> list[dict[str, str]]:
+    """Locate whole generated fields that must be regenerated or omitted."""
 
-    return FinalAnalysisResult(
-        primary_recommendation="Terminanfragen mit KI vorbereiten und Kapazität sicher prüfen",
-        promise=(
-            "Aus jeder Nachricht entsteht eine vollständige Terminanfrage mit "
-            "sichtbarem Kapazitätsstatus."
-        ),
-        short_reason=(
-            "Anfragen und Verfügbarkeiten liegen verteilt. Dadurch fehlt ein "
-            "verlässlicher gemeinsamer Stand."
-        ),
-        before_process=[
-            "Eine Anfrage kommt über einen vorhandenen Kanal an.",
-            "Du gleichst Wunschzeit und verfügbare Besetzung ab.",
-            "Du bestätigst oder korrigierst den Termin.",
-        ],
-        future_process=[
-            "Du leitest die geschriebene oder gesprochene Anfrage weiter.",
-            "Die KI ordnet Behandlung, Dauer, Personenzahl und Wunschzeit.",
-            "Du prüfst Kapazität und offene Angaben.",
-            "Du bestätigst den Termin und aktualisierst den Status.",
-        ],
-        sample_output={
-            "title": "Terminanfrage",
-            "fields": [
-                {"label": "Behandlung", "value": "noch offen"},
-                {"label": "Wunschzeit", "value": "noch offen"},
-                {"label": "Kapazitätsstatus", "value": "zu prüfen"},
-            ],
-            "open_items": ["Verfügbare Person bestätigen"],
-            "preview_notice": "Vorschau – die endgültigen Angaben prüfst du selbst.",
-        },
-        user_action="Du gibst die geschriebene oder gesprochene Terminanfrage ein.",
-        ai_task=(
-            "Die KI ordnet die Angaben und markiert fehlende oder unklare Werte."
-        ),
-        visible_result="Du erhältst eine Terminanfrage mit eindeutigem Prüfstatus.",
-        human_check=(
-            "Du prüfst die tatsächliche Verfügbarkeit und bestätigst jeden Termin."
-        ),
-        software_rule=(
-            "Die Übersicht hält Pflichtfelder und Statuswerte nach festen Regeln fest."
-        ),
-        customer_benefits=[
-            "Du siehst den aktuellen Stand ohne Suche.",
-            "Fehlende Angaben fallen vor der Bestätigung auf.",
-            "Jede Anfrage folgt demselben übersichtlichen Aufbau.",
-        ],
-        required_prerequisites=[
-            "Eine gemeinsame Anfrageübersicht",
-            "Klare Statuswerte",
-            "Aktuell gepflegte Personalverfügbarkeit",
-        ],
-        implementation_path=[
-            "Pflichtangaben und Statuswerte für Terminanfragen festlegen.",
-            "Einen gemeinsamen Eingang mit der Anfrageübersicht verbinden.",
-            "KI-Entwurf und menschliche Kapazitätsfreigabe einrichten.",
-        ],
-        later_stage=(
-            "Nach bestätigter Kapazität kann die KI eine Nachricht zur manuellen "
-            "Freigabe vorbereiten."
-        ),
-        open_details=["Die aktuell verfügbare Person ist noch offen."],
-        smallest_usable_version=(
-            "Starte mit einer gemeinsamen Übersicht und einem KI-Entwurf für neue Anfragen."
-        ),
-        not_automated=[
-            "Terminzusage",
-            "Personalentscheidung",
-            "Versand der Bestätigung",
-        ],
-        autonomy_level="A2",
-        secondary_opportunities=[],
-        error_boundaries=[
-            "Fehlende Angaben bleiben sichtbar und verhindern eine verbindliche Zusage.",
-            "Unklare Personalverfügbarkeit wird nicht automatisch aufgelöst.",
-        ],
-        process_summary=(
-            "Eine Anfrage kommt über einen der vorhandenen Kanäle an, wird mit der "
-            "verfügbaren Besetzung abgeglichen und anschließend bestätigt."
-        ),
-        as_is_steps=[
-            "Eine Terminanfrage geht über einen vorhandenen Kanal ein.",
-            "Behandlung, Wunschzeit und verfügbare Besetzung werden abgeglichen.",
-            "Ein Mensch bestätigt oder korrigiert den Termin.",
-        ],
-        core_bottleneck=(
-            "Mehrere Kanäle, wechselnde Verfügbarkeit und manuelle Bestätigung "
-            "erzeugen keinen gemeinsamen aktuellen Stand."
-        ),
-        bottleneck_symptom="Anfragen und Terminstatus sind verteilt.",
-        bottleneck_cause="Es fehlt eine gemeinsame Übersicht mit klaren Statuswerten.",
-        bottleneck_effect="Abgleich und Bestätigung erfordern wiederholte Rückfragen.",
-        as_is_problem_step_indexes=[0, 1],
-        to_be_steps=[
-            "Anfrage in einer gemeinsamen Übersicht erfassen.",
-            "Fehlende Angaben sichtbar markieren.",
-            "Verfügbarkeit durch einen Menschen prüfen.",
-            "Termin bestätigen und Status aktualisieren.",
-        ],
-        uncertainties=[
-            "Wegen eines vorübergehenden KI-Dienstfehlers wird hier das fest "
-            "vorbereitete Ergebnis der Massage-Demo gezeigt."
-        ],
-    )
-
-
-def _persist_explicit_demo_fallback(
-    database_session: Session,
-    session_id: int,
-) -> bool:
-    if DEMO_SESSION_SLUGS.get(session_id) != "massage-salon":
-        return False
-    try:
-        _persist_final_analysis(
-            database_session,
-            session_id,
-            _massage_demo_fallback_result(),
-        )
-    except Exception as error:
-        database_session.rollback()
-        logger.exception(
-            "analysis.demo_fallback_failed exception_type=%s exception_message=%s",
-            type(error).__name__,
-            str(error),
-        )
-        return False
-    return True
+    if isinstance(value, str):
+        if value.strip() and contains_forbidden_customer_term(value):
+            return [{"field": field_path, "rejected_text": value}]
+        return []
+    if isinstance(value, dict):
+        hits: list[dict[str, str]] = []
+        for key, item in value.items():
+            child_path = f"{field_path}.{key}" if field_path else str(key)
+            hits.extend(_forbidden_customer_fields(item, child_path))
+        return hits
+    if isinstance(value, list):
+        hits = []
+        for index, item in enumerate(value):
+            hits.extend(_forbidden_customer_fields(item, f"{field_path}[{index}]"))
+        return hits
+    return []
 
 
 def _generate_and_persist_final_analysis(
@@ -1679,10 +1536,16 @@ def _generate_and_persist_final_analysis(
         classification = classify_narrative(query_text)
         problem_family_ids = classification.problem_family_ids
         gates = classification.gates
+        all_solution_workflows = load_solution_workflows()
+        business_type = match_business_type(
+            getattr(classification, "business_type_guess", ""),
+            workflows=all_solution_workflows,
+        )
         logger.info(
-            "analysis.classification method=%s problem_families=%s",
+            "analysis.classification method=%s problem_families=%s business_type=%s",
             classification.method,
             problem_family_ids,
+            business_type or "none",
         )
         retrieval_query = (
             f"{query_text}\n\nDiagnostischer Fokus: Ursache, Problemfamilie, "
@@ -1715,9 +1578,9 @@ def _generate_and_persist_final_analysis(
             gates,
             catalog=recommendation_catalog,
             confirmed_text=query_text,
+            candidate_ranker=rank_candidates,
         )
         confirmed_channels = extract_confirmed_channels(query_text)
-        all_solution_workflows = load_solution_workflows()
         primary_solution_id = (
             recommendation.primary.solution_id if recommendation.primary else None
         )
@@ -1727,6 +1590,7 @@ def _generate_and_persist_final_analysis(
         if primary_solution_id:
             selected_workflows = select_solution_workflows(
                 primary_solution_id,
+                business_type=business_type,
                 channels=confirmed_channels,
                 limit=2,
                 workflows=all_solution_workflows,
@@ -1736,12 +1600,14 @@ def _generate_and_persist_final_analysis(
                 solution_pattern_id=primary_solution_id,
                 bottleneck=process.process_name,
                 channels=confirmed_channels,
+                business_type=business_type,
             )
             solution_retrieval_method = "deterministic"
             try:
                 semantic_chunks = retrieve_solution_workflows(
                     solution_query,
                     solution_pattern_id=primary_solution_id,
+                    business_type=business_type,
                     channels=confirmed_channels,
                     top_k=2,
                 )
@@ -1788,6 +1654,7 @@ def _generate_and_persist_final_analysis(
             "returned_count": len(selected_workflows),
             "method": solution_retrieval_method,
         }
+        recommendation_context["business_type"] = business_type
         logger.info(
             "recommendation.selected problem_families=%s primary_solution=%s "
             "secondary_solutions=%s excluded_solutions=%s gates=%s",
@@ -1804,13 +1671,71 @@ def _generate_and_persist_final_analysis(
 
         stage = "final_openai_call"
         stage_started = perf_counter()
-        result = generate_final_analysis(
-            answers=_answer_payload(all_questions),
-            selected_process=_process_payload(process),
-            knowledge_chunks=knowledge,
-            agent_state=agent_state,
-            recommendation_context=recommendation_context,
-        )
+        result: FinalAnalysisResult | None = None
+        critical_hits: list[dict[str, str]] = []
+        for customer_attempt in range(2):
+            result = generate_final_analysis(
+                answers=_answer_payload(all_questions),
+                selected_process=_process_payload(process),
+                knowledge_chunks=knowledge,
+                agent_state=agent_state,
+                recommendation_context=recommendation_context,
+            )
+            generated_customer_fields = {
+                "primary_recommendation": result.primary_recommendation,
+                "promise": result.promise,
+                "short_reason": result.short_reason,
+                "future_process": result.future_process,
+                "sample_output": result.sample_output.model_dump(),
+                "visible_result": result.visible_result,
+                "required_prerequisites": result.required_prerequisites,
+                "open_details": result.open_details,
+                "later_stage": result.later_stage,
+                "smallest_usable_version": result.smallest_usable_version,
+                "secondary_opportunities": [
+                    item.model_dump() for item in result.secondary_opportunities
+                ],
+                "process_summary": result.process_summary,
+                "as_is_steps": result.as_is_steps,
+                "core_bottleneck": result.core_bottleneck,
+                "bottleneck_cause": result.bottleneck_cause,
+            }
+            all_hits = _forbidden_customer_fields(generated_customer_fields)
+            critical_paths = {
+                "short_reason",
+                "promise",
+                "visible_result",
+                "future_process[0]",
+                "smallest_usable_version",
+            }
+            critical_hits = [
+                {
+                    "field": (
+                        "first_step_text"
+                        if hit["field"] == "smallest_usable_version"
+                        else hit["field"]
+                    ),
+                    "rejected_text": hit["rejected_text"],
+                }
+                for hit in all_hits
+                if hit["field"] in critical_paths
+            ]
+            if not all_hits:
+                break
+            for hit in all_hits:
+                logger.warning(
+                    "customer_output.field_rejected field=customer_output.%s attempt=%d",
+                    hit["field"],
+                    customer_attempt + 1,
+                )
+            if customer_attempt == 0:
+                recommendation_context["customer_language_retry"] = all_hits
+                continue
+            break
+        if result is None or critical_hits:
+            raise AIServiceError(
+                "Die verständliche Ergebnisfassung konnte nicht sicher erstellt werden."
+            )
         logger.info(
             "recommendation.output_validated validation_result=passed "
             "primary_solution=%s secondary_count=%d",
@@ -1827,7 +1752,15 @@ def _generate_and_persist_final_analysis(
 
         stage = "jsonb_persistence"
         stage_started = perf_counter()
-        _persist_final_analysis(database_session, session_id, result)
+        _persist_final_analysis(
+            database_session,
+            session_id,
+            result,
+            business_type=business_type,
+            candidate_ranking=[
+                item.model_dump() for item in recommendation.candidate_ranking
+            ],
+        )
         logger.info(
             "analysis.stage_complete stage=jsonb_persistence duration_seconds=%.3f",
             perf_counter() - stage_started,
@@ -1929,23 +1862,14 @@ def analyze_session(
         return JSONResponse({"state": "complete", "redirect_url": results_path})
     try:
         _generate_and_persist_final_analysis(session_id, database_session)
-    except AIServiceError as error:
+    except (AIServiceError, RecommendationRankingError) as error:
         database_session.rollback()
-        if _persist_explicit_demo_fallback(database_session, session_id):
-            DEMO_SESSION_SLUGS.pop(session_id, None)
-            logger.warning(
-                "analysis.demo_fallback_used demo=massage-salon exception_type=%s",
-                type(error).__name__,
-            )
-            return JSONResponse(
-                {
-                    "state": "complete",
-                    "redirect_url": results_path,
-                    "demo_fallback": True,
-                }
-            )
         return JSONResponse(
-            {"state": "error", "message": str(error), "redirect_url": None},
+            {
+                "state": "error",
+                "message": "Das hat gerade nicht geklappt. Versuch es bitte noch einmal.",
+                "redirect_url": None,
+            },
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
         )
     except RagConfigurationError as error:
@@ -1983,7 +1907,6 @@ def analyze_session(
             },
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
-    DEMO_SESSION_SLUGS.pop(session_id, None)
     return JSONResponse({"state": "complete", "redirect_url": results_path})
 
 
@@ -2058,7 +1981,11 @@ def _customer_recommendation_title(value: object) -> str:
     catalog = load_recommendation_catalog()
     if match is not None:
         solution_id = match.group(0).upper()
-        return CUSTOMER_SOLUTION_TITLES.get(solution_id, "")
+        pattern = next(
+            (item for item in catalog.solution_patterns if item.solution_id == solution_id),
+            None,
+        )
+        return pattern.customer_title if pattern is not None else ""
     pattern = next(
         (
             item
@@ -2068,7 +1995,7 @@ def _customer_recommendation_title(value: object) -> str:
         None,
     )
     if pattern is not None:
-        return CUSTOMER_SOLUTION_TITLES.get(pattern.solution_id, "")
+        return pattern.customer_title
     return customer_plain_text(title, "customer_output.primary_recommendation")
 
 
@@ -2079,9 +2006,9 @@ def _solution_id_for_title(value: object) -> str:
         return match.group(0).upper()
     customer_match = next(
         (
-            solution_id
-            for solution_id, customer_title in CUSTOMER_SOLUTION_TITLES.items()
-            if customer_title.casefold() == title.casefold()
+            item.solution_id
+            for item in load_recommendation_catalog().solution_patterns
+            if item.customer_title.casefold() == title.casefold()
         ),
         "",
     )
@@ -2122,53 +2049,31 @@ def _customer_sample_output(
     source = value if isinstance(value, dict) else {}
     source_fields = source.get("fields")
     existing_fields = source_fields if isinstance(source_fields, list) else []
-    existing_by_label = {
-        str(item.get("label") or "").casefold(): str(item.get("value") or "")
-        for item in existing_fields
-        if isinstance(item, dict)
-    }
     structure = output_structure_for(solution_id) if solution_id else None
-    fields: list[dict[str, str]] = []
+    fields = [
+        {
+            "label": str(item.get("label") or ""),
+            "value": str(item.get("value") or ""),
+        }
+        for item in existing_fields[:7]
+        if isinstance(item, dict) and item.get("label") and item.get("value")
+    ]
     if structure is not None:
-        for index, field in enumerate(structure.fields[:7]):
-            stored_value = existing_by_label.get(field.label.casefold(), "")
-            if not stored_value and index < len(existing_fields):
-                indexed = existing_fields[index]
-                if isinstance(indexed, dict):
-                    stored_value = str(indexed.get("value") or "")
-            normalized = stored_value.casefold()
-            if (
-                not stored_value
-                or normalized in {"noch offen", "nicht angegeben", "zu pr\u00fcfen"}
-                or normalized.startswith("beispiel:")
-                or "[preview]" in normalized
-                or "kein kundenfakt" in normalized
-                or "muster" in normalized
-            ):
-                stored_value = field.example_value
-            fields.append({"label": field.label, "value": stored_value})
         title = structure.name
-    elif is_non_ai:
-        title = "Kalendereinstellung"
-        fields = [
-            {"label": "Erinnerung", "value": "30 Minuten vor dem Termin"},
-            {"label": "Farbe", "value": "Gr\u00fcn f\u00fcr neue Termine"},
-            {"label": "Gepr\u00fcft an", "value": "N\u00e4chstes Kundengespr\u00e4ch"},
-        ]
     else:
         title = str(source.get("title") or "Ergebnis")
-        fields = [
-            {
-                "label": str(item.get("label") or ""),
-                "value": str(item.get("value") or ""),
-            }
-            for item in existing_fields[:7]
-            if isinstance(item, dict) and item.get("label") and item.get("value")
-        ]
     return {
         "title": title,
+        "input_context": str(source.get("input_context") or ""),
+        "incoming_message": str(source.get("incoming_message") or ""),
+        "incoming_note": str(source.get("incoming_note") or ""),
         "fields": fields,
-        "preview_notice": PREVIEW_NOTICE,
+        "missing_details": [
+            str(item) for item in source.get("missing_details", [])[:2]
+        ] if isinstance(source.get("missing_details"), list) else [],
+        "clarification_question": str(source.get("clarification_question") or ""),
+        "preview_notice": str(source.get("preview_notice") or PREVIEW_NOTICE),
+        "used_catalog_fallback": bool(source.get("used_catalog_fallback")),
     }
 
 
@@ -2191,6 +2096,8 @@ def _question_from_open_detail(value: object) -> str:
     )
     statistical_markers = (
         "wie viele auftr\u00e4ge",
+        "wie viele bestellungen",
+        "pro tag",
         "pro woche",
         "fallzahl",
         "volumen",
@@ -2203,31 +2110,42 @@ def _question_from_open_detail(value: object) -> str:
         marker in lowered for marker in ("sofort", "wöchentlich", "monatlich")
     ):
         return ""
-    if ("methode/app" in lowered or "notizapp" in lowered) and any(
-        marker in lowered for marker in ("sprachnachricht", "whatsapp", "foto")
-    ):
-        return "Wohin möchtest du Sprache, Fotos und Bon heute am liebsten schicken?"
-    if any(marker in lowered for marker in ("berechtigung", "einwilligung")) and any(
-        marker in lowered for marker in ("medien", "foto", "sprach")
-    ):
-        return "Dürfen die Fotos und Sprachnachrichten für die Einsatznotiz verwendet werden?"
     if text.endswith("?"):
         return text
     if re.match(r"^(?:wie|wer|was|wo|wann|welche|welcher|woran)\b", text, re.IGNORECASE):
         return text.rstrip(".!") + "?"
-    if "freigabe" in lowered or "zustimm" in lowered:
-        return "Wer gibt das Ergebnis frei, bevor es weitergeht?"
-    if "bon" in lowered and ("auftrag" in lowered or "zuordnung" in lowered):
-        return "Wie erkennst du heute, zu welchem Auftrag ein Bon geh\u00f6rt?"
-    if "ablage" in lowered:
-        return "Wo liegen diese Angaben heute, und wie findest du sie wieder?"
-    cleaned = re.sub(
-        r"^(?:noch offen|unklar|offen ist)\s*:?\s*",
-        "",
-        text,
-        flags=re.IGNORECASE,
-    ).rstrip(".!")
-    return f"Was musst du dazu noch kl\u00e4ren: {cleaned}?" if cleaned else ""
+    return ""
+
+
+def _normalized_similarity(left: str, right: str) -> float:
+    normalize = lambda value: re.sub(
+        r"[^a-z0-9äöüß]+", " ", value.casefold()
+    ).strip()
+    return SequenceMatcher(None, normalize(left), normalize(right)).ratio()
+
+
+def _same_required_topic(question: str, prerequisite: str) -> bool:
+    stop_words = {
+        "diese", "dieser", "diesem", "deine", "deinen", "einem", "einer",
+        "heute", "klar", "welche", "welchem", "woran", "gehört", "wird",
+        "werden", "kann", "können", "noch", "nicht", "muss", "sein",
+    }
+    tokens = lambda value: {
+        item for item in re.findall(r"[a-zäöüß]+", value.casefold())
+        if len(item) >= 5 and item not in stop_words
+    }
+    shared = tokens(question) & tokens(prerequisite)
+    shared_assignment_topic = bool(
+        shared & {"auftrag", "einsatz", "bestellung", "termin", "gegenstand"}
+    ) and all(
+        any(marker in value.casefold() for marker in ("gehör", "zuord", "erkenn", "klar"))
+        for value in (question, prerequisite)
+    )
+    return (
+        _normalized_similarity(question, prerequisite) >= 0.7
+        or len(shared) >= 2
+        or shared_assignment_topic
+    )
 
 
 def _deduplicate_open_questions(*groups: object) -> list[str]:
@@ -2466,51 +2384,30 @@ def _result_view(
     promise = str(internal_view["promise"])
     visible_result = str(internal_view["visible_result"])
     required_prerequisites = list(internal_view["required_prerequisites"][:3])
+    open_questions = [
+        question
+        for question in open_questions
+        if not any(
+            _same_required_topic(question, prerequisite)
+            for prerequisite in required_prerequisites
+        )
+    ][:3]
     later_stage = str(internal_view["later_stage"])
+    if later_stage.strip().casefold() in {
+        "noch offen",
+        "derzeit noch offen",
+        "noch nicht festgelegt",
+    }:
+        later_stage = ""
+    if later_stage and (
+        _normalized_similarity(later_stage, first_step_text) >= 0.7
+        or _normalized_similarity(later_stage, first_step_follow_up) >= 0.7
+    ):
+        later_stage = ""
     bottleneck_cause = str(internal_view["bottleneck"]["cause"])
     if contains_forbidden_customer_term(bottleneck_cause):
         logger.warning("customer_output.field_omitted field=customer_output.bottleneck.cause")
         bottleneck_cause = ""
-
-    if solution_id == "SP-03":
-        short_reason = (
-            "Fotos, Notizen und Bons liegen heute an verschiedenen Stellen. "
-            "Beim Rechnungsschreiben musst du alles wieder zusammensuchen."
-        )
-        promise = (
-            "Nach jedem Einsatz hast du eine fertige Notiz \u2013 mit Zeit, Material "
-            "und Fotos, direkt beim richtigen Auftrag."
-        )
-        visible_result = promise
-        bottleneck_cause = (
-            "Darum fehlt dir am Abend eine verlässliche Grundlage für die Rechnung."
-        )
-        required_prerequisites = [
-            "Du kannst Sprache, Fotos und Bon direkt nach dem Einsatz senden.",
-            "Es ist klar, zu welchem Auftrag der Einsatz gehört.",
-            "Du legst fest, wer die fertige Notiz prüft.",
-        ]
-        later_stage = (
-            "Wenn die Notizen zuverlässig stimmen, kann daraus später ein "
-            "Rechnungsentwurf entstehen."
-        )
-        future_process = [
-            "Nach dem Einsatz sendest du Sprache, Fotos und Bon.",
-            "Die KI liest T\u00e4tigkeit, Zeit und Material heraus.",
-            "Fehlende oder unsichere Angaben werden markiert.",
-            "Eine Einsatznotiz entsteht als Entwurf.",
-            "Du pr\u00fcfst und best\u00e4tigst sie.",
-            "Danach kann sie als Grundlage f\u00fcr die Rechnung dienen.",
-        ]
-        first_step_text = (
-            "Probier es bei den n\u00e4chsten f\u00fcnf Eins\u00e4tzen aus: "
-            "Sprachnachricht, Fotos und Bon schicken \u2013 und schauen, ob die Notiz "
-            "stimmt, die dabei herauskommt. Mehr nicht. Keine neue App, nichts umstellen."
-        )
-        first_step_follow_up = (
-            "Erst wenn das zuverl\u00e4ssig l\u00e4uft, lohnt sich der n\u00e4chste "
-            "Schritt Richtung Rechnungsentwurf."
-        )
 
     customer_payload = {
         "is_non_ai": is_non_ai,
@@ -2523,11 +2420,7 @@ def _result_view(
         "visible_result": visible_result,
         "future_process": future_process,
         "sample_output": preview,
-        "sample_heading": (
-            "Beispiel \u2014 so k\u00f6nnte deine Einsatznotiz aussehen"
-            if solution_id == "SP-03"
-            else "Beispiel \u2014 so k\u00f6nnte dein Ergebnis aussehen"
-        ),
+        "sample_heading": "Beispiel \u2014 so könnte dein Ergebnis aussehen",
         "first_step_text": first_step_text,
         "first_step_follow_up": first_step_follow_up,
         "required_prerequisites": required_prerequisites,
@@ -2576,7 +2469,7 @@ def show_report(
         or contains_forbidden_customer_term(result)
     ):
         return _render_error(request, "Der Bericht konnte nicht sicher angezeigt werden.", status_code=status.HTTP_409_CONFLICT)
-    return templates.TemplateResponse(
+    response = templates.TemplateResponse(
         request=request,
         name="report.html",
         context={
@@ -2586,6 +2479,17 @@ def show_report(
             "analysis_date": date.today().strftime("%d.%m.%Y"),
         },
     )
+    rendered_pdf_text = unescape(
+        re.sub(r"<[^>]+>", " ", response.body.decode("utf-8"))
+    )
+    if contains_forbidden_customer_term(rendered_pdf_text):
+        logger.error("customer_output.pdf_forbidden_term")
+        return _render_error(
+            request,
+            "Der Bericht konnte nicht sicher angezeigt werden.",
+            status_code=status.HTTP_409_CONFLICT,
+        )
+    return response
 
 
 @router.post("/sessions/{session_id}/another-process", name="analyze_another_process")
@@ -2877,7 +2781,6 @@ def run_demo(
     try:
         evaluation_case = _load_evaluation_case(evaluation_id)
         session_id = _create_demo_session(database_session, evaluation_case)
-        DEMO_SESSION_SLUGS[session_id] = demo_slug
     except RagConfigurationError as error:
         database_session.rollback()
         return _render_error(

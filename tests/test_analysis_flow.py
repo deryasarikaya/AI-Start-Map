@@ -116,7 +116,7 @@ def _final_result() -> FinalAnalysisResult:
                 "Prüfung durch eine Person anfordern",
             ],
             human_review_point="Vor der verbindlichen Auftragsbestätigung.",
-            output="Ein geprüfter Auftragsdatensatz.",
+            output="Eine geprüfte Auftragsübersicht.",
             exceptions=["Unvollständige oder widersprüchliche Angaben"],
         ),
     )
@@ -531,6 +531,7 @@ def test_failed_analysis_leaves_no_partial_results(
         session: Session,
         current_session_id: int,
         _result: FinalAnalysisResult,
+        **_kwargs: object,
     ) -> None:
         session.add(
             Analysis(
@@ -688,7 +689,7 @@ def test_demo_route_creates_session_and_redirects_to_real_results(
         assert marker not in visible_text
 
 
-def test_massage_demo_uses_fixed_fallback_after_ai_service_failure(
+def test_massage_demo_shows_service_failure_without_fixed_fallback(
     client: TestClient,
     database_session: Session,
     monkeypatch: pytest.MonkeyPatch,
@@ -701,26 +702,16 @@ def test_massage_demo_uses_fixed_fallback_after_ai_service_failure(
     assert response.status_code == 303
 
     analysis_response = client.post("/analyze")
-    assert analysis_response.status_code == 200
-    assert analysis_response.json()["state"] == "complete"
-    assert analysis_response.json()["demo_fallback"] is True
-    assert client.get("/analysis-status").json()["state"] == "complete"
+    assert analysis_response.status_code == 503
+    assert analysis_response.json()["state"] == "error"
+    assert analysis_response.json()["message"] == (
+        "Das hat gerade nicht geklappt. Versuch es bitte noch einmal."
+    )
+    assert client.get("/analysis-status").json()["state"] == "pending"
 
     session_id = database_session.scalar(select(func.max(AnalysisSession.session_id)))
     assert session_id is not None
-    analysis = database_session.get(Analysis, session_id)
-    assert analysis is not None
-    core_output = analysis.uncertainties["core_output"]
-    assert all(
-        core_output[field]
-        for field in (
-            "primary_recommendation",
-            "promise",
-            "sample_output",
-            "implementation_path",
-        )
-    )
-    assert client.get("/results").status_code == 200
+    assert database_session.get(Analysis, session_id) is None
 
 
 def test_stored_internal_reference_is_not_rendered(

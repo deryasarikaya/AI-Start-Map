@@ -37,15 +37,26 @@ ROOT_DIRECTORY = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT_DIRECTORY))
 
 from app.recommendation_service import (  # noqa: E402
+    CandidateRankingItem,
     classify_problem_families,
     infer_decision_gates,
     load_recommendation_catalog,
     select_recommendation,
 )
 
+
+def _matrix_order_ranker(_text, candidates):
+    """Offline baseline only; the product path always uses model ranking."""
+
+    return [
+        CandidateRankingItem(solution_id=item.solution_id, reason="Matrix-Baseline")
+        for item in candidates
+    ]
+
 EVALUATION_DIRECTORY = ROOT_DIRECTORY / "knowledge" / "evaluation"
 LABEL_FILE = EVALUATION_DIRECTORY / "expected_labels.json"
 BATCH_09_FILE = EVALUATION_DIRECTORY / "batch_09_evaluation_cases.jsonl"
+QUALITY_SELECTION_FILE = EVALUATION_DIRECTORY / "quality_selection_cases.jsonl"
 
 CASE_FILES = {
     "EVAL-C": EVALUATION_DIRECTORY / "cases_ten_kmu.json",
@@ -168,6 +179,23 @@ def load_cases() -> list[EvaluationCase]:
                     label_status=str(case["label_status"]),
                 )
             )
+    if QUALITY_SELECTION_FILE.is_file():
+        for line in QUALITY_SELECTION_FILE.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            case = json.loads(line)
+            cases.append(
+                EvaluationCase(
+                    case_id=case["case_id"],
+                    source="QUALITY-2026-08-07",
+                    dataset="quality_selection",
+                    text=str(case["customer_statement"]),
+                    forbidden=list(case.get("forbidden_solution_pattern_ids", [])),
+                    expected_families=list(case["expected_problem_family_ids"]),
+                    expected_solutions=list(case["expected_solution_pattern_ids"]),
+                    label_status=str(case["label_status"]),
+                )
+            )
     return cases
 
 
@@ -257,7 +285,7 @@ def _classify(case: EvaluationCase, classifier: str, catalog) -> dict:
                     continue
                 break
         return {
-            "families": ["PF-01"],
+            "families": [],
             "gates": infer_decision_gates(case.text),
             "classifier_error": _error_chain(last_error)
             if last_error is not None
@@ -283,14 +311,47 @@ def run(*, classifier: str = "keyword", workers: int = 1) -> dict:
     else:
         classifications = [_classify(case, classifier, catalog) for case in cases]
 
+    def select_case(case: EvaluationCase, classification: dict):
+        if classification["classifier_error"]:
+            return None, classification["classifier_error"]
+        try:
+            if classifier == "llm":
+                from app.llm_classification import rank_candidates
+
+                ranker = rank_candidates
+            else:
+                ranker = _matrix_order_ranker
+            return select_recommendation(
+                classification["families"],
+                classification["gates"],
+                catalog=catalog,
+                confirmed_text=case.text,
+                candidate_ranker=ranker,
+            ), None
+        except Exception as error:
+            return None, _error_chain(error)
+
+    if classifier == "llm" and workers > 1:
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            selections = list(
+                pool.map(
+                    lambda pair: select_case(*pair),
+                    zip(cases, classifications),
+                )
+            )
+    else:
+        selections = [
+            select_case(case, classification)
+            for case, classification in zip(cases, classifications)
+        ]
+
     results: list[dict] = []
-    for case, classification in zip(cases, classifications):
+    for case, classification, (selection, selection_error) in zip(
+        cases, classifications, selections
+    ):
         families = classification["families"]
         gates = classification["gates"]
-        selection = select_recommendation(
-            families, gates, catalog=catalog, confirmed_text=case.text
-        )
-        visible = selection_text(selection)
+        visible = selection_text(selection) if selection is not None else ""
         label = labels.get(case.case_id, {})
         expected_families = case.expected_families or list(
             filter(None, [label.get("problem_family")])
@@ -298,7 +359,13 @@ def run(*, classifier: str = "keyword", workers: int = 1) -> dict:
         expected_solutions = case.expected_solutions or list(
             filter(None, [label.get("solution_pattern")])
         )
-        primary_id = selection.primary.solution_id if selection.primary else "A0"
+        primary_id = (
+            selection.primary.solution_id
+            if selection is not None and selection.primary
+            else "A0"
+            if selection is not None
+            else "ERROR"
+        )
         results.append(
             {
                 "case_id": case.case_id,
@@ -309,12 +376,14 @@ def run(*, classifier: str = "keyword", workers: int = 1) -> dict:
                 "gates": gates.model_dump(),
                 "gate_assessments": [
                     item.model_dump() for item in selection.gate_assessments
-                ],
+                ] if selection is not None else [],
                 "primary": primary_id,
-                "secondary": [item.solution_id for item in selection.secondary],
-                "autonomy_level": selection.autonomy_level,
+                "secondary": [item.solution_id for item in selection.secondary] if selection is not None else [],
+                "candidate_ranking": [item.model_dump() for item in selection.candidate_ranking] if selection is not None else [],
+                "autonomy_level": selection.autonomy_level if selection is not None else "ERROR",
                 "is_default_fallback": families == ["PF-01"],
                 "classifier_error": classification["classifier_error"],
+                "selection_error": selection_error,
                 "forbidden_hits": [
                     term for term in case.forbidden if term.casefold() in visible
                 ],
@@ -420,7 +489,8 @@ def report(payload: dict, *, show_misses: bool) -> None:
 
     dataset_report("legacy_91", "Alter Datensatz – Zielgruppe überwiegend historisch")
     dataset_report("batch_09", "Batch 09 – neue Zielgruppe, research_proposed")
-    print("\nDie Kennzahlen beider Datensätze werden bewusst nicht gemittelt.\n")
+    dataset_report("quality_selection", "Reale Auswahlfehler – bestätigt")
+    print("\nDie Kennzahlen der Datensätze werden bewusst nicht gemittelt.\n")
     print()
 
 

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import re
+from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any, Literal
 
@@ -291,6 +293,44 @@ def select_solution_workflows(
     )[:limit]
 
 
+def match_business_type(
+    free_text: str,
+    *,
+    workflows: list[SolutionWorkflow] | None = None,
+) -> str | None:
+    """Return a unique, high-confidence runtime business type or no match."""
+
+    def normalize(value: str) -> str:
+        return " ".join(re.findall(r"[a-z0-9äöüß]+", value.casefold().replace("_", " ")))
+
+    guess = normalize(free_text)
+    if not guess:
+        return None
+    business_types = sorted(
+        {item.business_type for item in (workflows or load_solution_workflows())}
+    )
+    direct = [
+        item
+        for item in business_types
+        if normalize(item) == guess
+        or (len(normalize(item)) >= 5 and normalize(item) in guess)
+    ]
+    if len(direct) == 1:
+        return direct[0]
+    scored = sorted(
+        (
+            SequenceMatcher(None, guess, normalize(item)).ratio(),
+            item,
+        )
+        for item in business_types
+    )
+    best_score, best_item = scored[-1]
+    second_score = scored[-2][0] if len(scored) > 1 else 0.0
+    if best_score >= 0.86 and best_score - second_score >= 0.08:
+        return best_item
+    return None
+
+
 def solution_workflow_context(
     workflows: list[SolutionWorkflow],
 ) -> list[dict[str, object]]:
@@ -299,7 +339,7 @@ def solution_workflow_context(
             "starting_situation": item.starting_situation,
             "required_inputs": item.required_inputs,
             "minimum_foundation": item.minimum_foundation,
-            "target_workflow": [step.model_dump() for step in item.target_workflow],
+            "actor_sequence": [step.actor for step in item.target_workflow],
             "visible_output": item.visible_output,
             "human_checks": item.human_checks,
             "not_automated": item.not_automated,

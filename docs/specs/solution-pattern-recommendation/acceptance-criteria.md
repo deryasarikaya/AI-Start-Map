@@ -41,16 +41,16 @@ Jede Empfehlung speichert intern:
 7. kleinste nutzbare Version,
 8. Nicht-Automationen und Autonomiestufe.
 
-Die Hauptansicht zeigt daraus genau sechs Klartextblöcke: Engpass, Empfehlung, Zukunftsablauf, Ergebnisvorschau, menschliche Kontrolle und kleinster Einstieg. Rollen-, Autonomie- und Technikfelder werden nicht roh dargestellt. Zusätzlich speichert der Vertrag ein bis drei Nutzenpunkte, null bis drei Voraussetzungen, zwei bis vier Umsetzungsschritte und optional null bis zwei nachrangige Möglichkeiten. Wochentest und genau drei Opportunities sind nicht Bestandteil der Abnahme.
+Die Hauptansicht zeigt daraus sieben Klartextblöcke: Engpass, offenen heutigen Ablauf mit höchstens fünf Schritten, Empfehlung, Zukunftsablauf, Vorher-/Nachher-Veranschaulichung, menschliche Kontrolle und kleinsten Einstieg. Rollen-, Autonomie- und Technikfelder werden nicht roh dargestellt. Zusätzlich speichert der Vertrag ein bis drei Nutzenpunkte, null bis drei Voraussetzungen, zwei bis vier Umsetzungsschritte und optional null bis zwei nachrangige Möglichkeiten. Wochentest und genau drei Opportunities sind nicht Bestandteil der Abnahme.
 
 ## Sprache, Länge und Darstellung
 
 - Sichtbare Texte verwenden direkte Du-Ansprache; distanzierte Ersatzrollen sind unzulässig, wenn der Kunde gemeint ist.
 - Primärtitel bleibt ungefähr innerhalb 12–14 Wörtern; Begründung maximal zwei kurze Sätze.
 - Vorher umfasst maximal drei, der neue Ablauf drei bis sechs Schritte; Nutzen maximal drei, Voraussetzungen maximal drei, sekundäre Möglichkeiten maximal zwei.
-- Genau eine Hauptlösung dominiert; die Vorschau ist zentral; weitere Möglichkeiten bleiben eingeklappt.
-- Der Druckbericht umfasst genau zwei Seiten und zeigt keine localhost-URL.
-- Realistische Beispielwerte erscheinen ausschließlich im klar gekennzeichneten Vorschaublock; echte Nutzerwerte haben Vorrang.
+- Genau eine Hauptlösung dominiert; die Veranschaulichung ist zentral; weitere Möglichkeiten stehen nicht in der Hauptansicht.
+- Der Druckbericht umfasst höchstens zwei Seiten. Browser-Kopf- und Fußzeilen müssen im Druckdialog abgewählt werden.
+- Realistische erfundene Inhalte erscheinen ausschließlich in der klar gekennzeichneten Vorher-/Nachher-Veranschaulichung. Die Eingangsnachricht verwendet nur vom Betrieb genannte Kanäle, Produkte und Begriffe; sämtliche Werte des Eintrags lassen sich daraus ableiten.
 - Offene Angaben erscheinen nur im Bericht, sind echte Alltagsfragen, semantisch entdoppelt und auf drei begrenzt.
 - Ein sekundärer Vorschlag ohne echten Titel und echte Beschreibung wird nicht gerendert.
 - Die vertikale HTML-/CSS-Prozesslinie wird verwendet; Mermaid bleibt ausgeschlossen.
@@ -71,6 +71,8 @@ Die Hauptansicht zeigt daraus genau sechs Klartextblöcke: Engpass, Empfehlung, 
 - Kein semantischer Retrievaltreffer kann allein ein Sicherheits- oder Freigabegate aufheben.
 - Output-Strukturen werden deterministisch nach Solution Pattern gewählt; Beispielwerte werden nie zu Kundenwerten.
 - Inference Patterns bleiben unbestätigte Hypothesen. Solution-Retrieval darf nur innerhalb des bereits gewählten Patterns Varianten ranken.
+- Die Matrix liefert nur Kandidaten. Das Modell sortiert ausschließlich die nach Python-Gates und Ausschlüssen zulässigen Muster; fremde, doppelte oder fehlende IDs werden abgelehnt.
+- Ein API-Fehler führt zu einer wiederholbaren Fehlerseite und nie zu einer unbemerkten Stichwort-Auswahl.
 
 ## Technischer Nachweis vor Abnahme
 

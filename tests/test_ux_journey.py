@@ -261,7 +261,7 @@ def test_complete_public_journey_and_customer_report(
         "Das ist der Engpass",
         "DAS SCHLAGE ICH DIR VOR",
         "So würde es künftig laufen",
-        "Das bekommst du am Ende",
+            "So sieht die Hilfe konkret aus",
         "Nichts geht ohne dich raus",
         "So klein fängst du an",
         "So habe ich deinen heutigen Ablauf verstanden",
@@ -277,12 +277,11 @@ def test_complete_public_journey_and_customer_report(
     for text in (
         "AI START MAP",
         "Deine Empfehlung",
-        "DAS IST DER ENGPASS",
+            "Das ist der Engpass",
         "DAS SCHLAGE ICH DIR VOR",
         "So würde es künftig laufen",
         "BEISPIELAUSGABE",
         "Nichts geht ohne dich raus",
-        "Das entscheidest weiterhin du",
         "PDF speichern",
     ):
         assert text in report.text

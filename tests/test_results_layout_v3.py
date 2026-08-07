@@ -25,6 +25,9 @@ def _result(**overrides: object) -> dict[str, object]:
         ],
         "sample_heading": "Beispiel \u2014 so k\u00f6nnte deine Einsatznotiz aussehen",
         "sample_output": {
+            "input_context": "Sprachnachricht nach dem Einsatz",
+            "incoming_message": "Die Dichtung am Waschbecken ist getauscht. Der Einsatz dauerte 45 Minuten.",
+            "incoming_note": "Mit zwei Fotos und einem Bon",
             "fields": [
                 {"label": "F\u00fcr wen", "value": "Hausverwaltung Nord \u00b7 Lindenstra\u00dfe 12"},
                 {"label": "Was gemacht wurde", "value": "Waschbecken-Dichtung getauscht"},
@@ -35,6 +38,8 @@ def _result(**overrides: object) -> dict[str, object]:
                 {"label": "Dabei", "value": "2 Fotos, 1 Bon, deine Sprachnachricht"},
             ],
             "preview_notice": "Beispielangaben zur Veranschaulichung \u2013 hier stehen sp\u00e4ter deine tats\u00e4chlichen Angaben.",
+            "missing_details": ["Tür nachstellen abrechnen"],
+            "clarification_question": "Soll das Nachstellen der Tür mit abgerechnet werden?",
         },
         "first_step_text": "Probier es bei den n\u00e4chsten f\u00fcnf Eins\u00e4tzen aus.",
         "first_step_follow_up": "Erst danach lohnt sich der n\u00e4chste Schritt.",
@@ -60,20 +65,21 @@ def _render(result: dict[str, object]) -> str:
     )
 
 
-def test_results_have_exactly_six_visible_blocks_in_the_approved_order() -> None:
+def test_results_have_seven_visible_blocks_in_the_approved_order() -> None:
     html = _render(_result())
     headings = [
         "Das ist der Engpass",
+        "So habe ich deinen heutigen Ablauf verstanden",
         "Das schlage ich dir vor".upper(),
         "So w\u00fcrde es k\u00fcnftig laufen",
-        "Das bekommst du am Ende",
+        "So sieht die Hilfe konkret aus",
         "Nichts geht ohne dich raus",
         "So klein f\u00e4ngst du an",
         "M\u00f6chtest du das umsetzen?",
     ]
     positions = [html.index(heading) for heading in headings]
     assert positions == sorted(positions)
-    assert html.count("data-result-block") == 6
+    assert html.count("data-result-block") == 7
     assert "Normale Software oder Regeln" not in html
     assert "Autonomiestufe" not in html
     assert "/sessions/" not in html

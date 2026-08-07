@@ -154,7 +154,7 @@ Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest
 - **Entscheidung:** Zwölf Problemfamilien und zehn Solution Patterns werden direkt aus validierten Dateien geladen; sechs getrennte Gates filtern und priorisieren. Diagnose-RAG entscheidet nicht allein.
 - **Grund:** Semantisches Top-k kann konkrete Lösungen verdrängen und vermischt heute Reifedimensionen.
 - **Konsequenzen:** Der Katalog und die Gates wählen weiterhin die Lösung. Ein später ergänzter Solution-Workflow-Index darf nur Varianten innerhalb des bereits gewählten Patterns ranken; keine Migration.
-- **Status:** Implemented, integrated, tested and documented
+- **Status:** Teilweise superseded durch DEC-029; Gates und Ausschlüsse bleiben deterministisch, die Reihenfolge der zulässigen Kandidaten nicht
 
 ## DEC-018 – HTML/CSS-Prozesslinie bleibt verbindlich
 
@@ -168,7 +168,7 @@ Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest
 - **Datum:** 2026-08-06
 - **Entscheidung:** Die bestätigte Nutzererzählung wird primär per Structured Output null bis drei gültigen Problemfamilien und den typisierten Gate-Rohwerten zugeordnet. Der Katalog begrenzt die IDs; der Selector und alle Sicherheitsgrenzen bleiben deterministisch.
 - **Grund:** Die gemessene Keyword-Baseline erreicht nur 28 % PF Top-1 und fällt in 48 % der Fälle auf `PF-01` zurück. Freie Erzählungen benötigen semantische Zuordnung, ohne die Entscheidungshoheit des Selectors an das Modell abzugeben.
-- **Konsequenzen:** Bei `AIServiceError` bleiben Keyword-Klassifikation und Gate-Inferenz der Fallback. Die nachgelagerte fachliche GATE-01-bis-GATE-06-Kaskade und A0 sind durch DEC-022 ergänzt.
+- **Konsequenzen:** Die nachgelagerte fachliche GATE-01-bis-GATE-06-Kaskade und A0 sind durch DEC-022 ergänzt. Der frühere Keyword-Fallback im Produktivpfad ist durch DEC-030 aufgehoben.
 - **Alternativen:** Keyword-Matching als primärer Pfad und freie Solution-Auswahl durch das LLM wurden nicht gewählt.
 - **Status:** Implemented, integrated, tested and documented
 
@@ -202,7 +202,7 @@ Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest
 
 - **Datum:** 2026-08-06
 - **Entscheidung:** Ein Filterfehler verwirft nicht mehr die gesamte finale Analyse. Nicht belegte Ist-Details oder interne Referenzen werden nur im betroffenen Feld entfernt beziehungsweise als „noch offen“ neutralisiert; eine Unsicherheit wird ergänzt. Nutzerwörter sind erlaubt, Begriffe aus OUT-Vorschauen bleiben als Beispiel erlaubt und Katalogbegriffe sind im ausdrücklich zukünftigen Workflow zulässig. FAIL-01 bis FAIL-12 und die Stop Conditions der vorausgewählten Lösung werden als begründete Guardrails an den finalen Aufruf übergeben.
-- **Geänderte Wortlisten:** `SPECULATIVE_PROCESS_TERMS` bleibt ausschließlich als enger Ist-Fakt-Schutz für `abholnummer`, `ausweis`, `falschübergab`, `foto`, `identitätsprüf`, `ringordner`, `unterschrift` und `verwechslung`; `fotograf` wurde entfernt. Ein Treffer wird immer zugelassen, wenn der Nutzer den Begriff selbst verwendet hat. `SOLUTION_ONLY_UNCERTAINTY_TERMS` wurde vollständig geleert, weil `auftragskarte`, `automatis*`, `digital`, `fotodokument`, `software` und `statusübersicht` berechtigte Zukunfts-, Voraussetzungen- oder Unsicherheitsbegriffe sein können. `CUSTOMER_LANGUAGE_REPLACEMENTS` bleibt für nicht vom Nutzer verwendete Fachwörter aktiv; Nutzerwörter werden nicht ersetzt. Die Schema-Sperre wurde auf die vier nachweislich künstlichen Wörter `formulardoppie`, `nachschlageort`, `übergabevermerkgabel` und `handschriftenkapazität` reduziert. Distanzierte Rollen werden vor Validierung in Du-Sprache normalisiert.
+- **Geänderte Wortlisten:** `SPECULATIVE_PROCESS_TERMS` bleibt ausschließlich als enger Ist-Fakt-Schutz für `abholnummer`, `ausweis`, `falschübergab`, `foto`, `identitätsprüf`, `ringordner`, `unterschrift` und `verwechslung`; `fotograf` wurde entfernt. Ein Treffer wird immer zugelassen, wenn der Nutzer den Begriff selbst verwendet hat. `SOLUTION_ONLY_UNCERTAINTY_TERMS` wurde vollständig geleert. Der frühere Wortersatz `CUSTOMER_LANGUAGE_REPLACEMENTS` ist durch DEC-031 aufgehoben; verbotene fertige Felder werden vollständig neu formuliert oder ausgelassen. Die Schema-Sperre bleibt auf die vier nachweislich künstlichen Wörter `formulardoppie`, `nachschlageort`, `übergabevermerkgabel` und `handschriftenkapazität` begrenzt. Distanzierte Rollen werden vor Validierung in Du-Sprache normalisiert.
 - **Regex-Änderungen:** `SUMMARY_META_PATTERN` und `AS_IS_META_PATTERN` neutralisieren oder entfernen nur betroffene Felder. `INTERNAL_REFERENCE_PATTERN`, interne IDs und interne Dateipfade werden feldweise zu „noch offen“. Die übrigen internen Referenzmuster und der konkrete Ist-Fakt-Schutz bleiben erhalten.
 - **Nachtrag 2026-08-07:** PF-, SP- und OUT-IDs gelten ausdrücklich als interne Kennungen. Bereits gespeicherte Titel mit solchen IDs werden in der Kundensicht auf den Katalognamen abgebildet. Direkte Rollenfelder ohne „du“ erhalten eine begrenzte feldbezogene Reparatur; „Nutzer wählt oder übermittelt“ wird zu direkter Du-Sprache. Kein solcher Treffer verwirft die Gesamtanalyse.
 - **Grund:** Pauschale Wortlisten entfernten berechtigte Spezifität und konnten nach einer einzigen problematischen Formulierung einen ansonsten verwertbaren Output als `AIServiceError` verwerfen.
@@ -229,7 +229,7 @@ Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest
 
 - **Datum:** 2026-08-07
 - **Entscheidung:** Eine ausdrückliche ausreichende vorhandene Funktion mit „keine KI nötig“ setzt A0 auch dann durch, wenn die semantische Klassifikation eine Problemfamilie vorschlägt. Der finale Haupttitel kommt aus dem ausgewählten Katalogmuster, nicht aus frei formulierten internen IDs. Kundensicht und Bericht bilden bereits gespeicherte SP-Titel ebenfalls auf den Katalognamen ab. Zukunftsschritte dürfen bis 220 Zeichen lang sein und direkte Rollenformulierungen werden eng begrenzt grammatisch repariert.
-- **Semantische Abgrenzung:** Bei neuen Anfragen oder Bestellwünschen aus mehreren digitalen Kanälen mit verlorenem Status oder fehlenden Mindestangaben dominiert PF-02 gegenüber PF-03 und PF-12. Diese Abgrenzung stammt direkt aus dem verlangten Blumenladen-Demofall und wurde im semantischen Klassifikationsprompt ergänzt; der Keyword-Fallback bleibt unverändert sekundär.
+- **Semantische Abgrenzung:** Bei neuen Anfragen oder Bestellwünschen aus mehreren digitalen Kanälen mit verlorenem Status oder fehlenden Mindestangaben dominiert PF-02 gegenüber PF-03 und PF-12. Diese Abgrenzung stammt direkt aus dem verlangten Blumenladen-Demofall und wurde im semantischen Klassifikationsprompt ergänzt. Der damalige sekundäre Keyword-Fallback ist durch DEC-030 aufgehoben.
 - **Grund:** Die echten Läufe zeigten trotz grüner Mock-Tests einen falschen A1-Output für den A0-Fall, SP-IDs und abgeschnittene Sätze in der Kundensicht sowie zunächst SP-06 statt eines gemeinsamen Anfrageeingangs beim Blumenladen.
 - **Retrieval-Folge:** Bei den vier KI-Demofällen lieferte der Solution-Index dieselben zwei von jeweils drei zulässigen Workflows wie die deterministische Auswahl, zweimal nur anders sortiert. Ein fachlicher Mehrwert ist in dieser Stichprobe nicht belegt; der Index bleibt nachgeordnet und entfernbar.
 - **Status:** Implemented, mit fünf Live-Fällen, Browser-Render und PDF geprüft
@@ -249,3 +249,27 @@ Diese Datei hält bestätigte Produkt-, Fach- und Architekturentscheidungen fest
 - **Grund:** AI Start Map diagnostiziert den Arbeitsablauf und zeigt einen passenden realistischen KI-Schritt. „Ordnung schaffen“ beschreibt dieses Produktversprechen nicht korrekt und erzeugt zusätzliche visuelle Unruhe.
 - **Konsequenzen:** Landingpage, Interview, Auswahl, Bestätigung, Verarbeitung, Ergebnis und Bericht verwenden keine Ordnungsbotschaft mehr. Ein Repository-Test verhindert die Rückkehr des alten Slogans.
 - **Status:** Implemented, tested and visually checked
+
+## DEC-029 – Zulässige Lösungsmuster werden fallbezogen gerankt
+
+- **Datum:** 2026-08-07
+- **Entscheidung:** Die Matrix liefert nur noch die Kandidatenmenge. Nachdem Python Gates, Ausschlüsse, Autonomiedeckel und Freigabegrenzen angewendet hat, sortiert ein Structured-Output-Aufruf ausschließlich die verbleibenden Muster anhand der bestätigten Prozessbeschreibung, Kurzbeschreibung, Gegenbeispiele und positiven Varianten. Fremde, doppelte oder fehlende IDs machen die Rangfolge ungültig.
+- **Grund:** Die frühere Auswahl `allowed[0]` machte die statische Listenreihenfolge zur fachlichen Entscheidung. Dadurch gewann beim Blumenladen eine Auftragsübersicht statt der passenden Anfrageübersicht.
+- **Konsequenzen:** Das Modell hebt keinen Ausschluss auf und trifft keine Sicherheitsentscheidung. Bei fehlender oder ungültiger Rangfolge wird kein Ergebnis ausgeliefert. Das Gate für physische Gegenstände greift nur noch bei einem Kundengegenstand in Obhut des Betriebs; Belege, Notizen, Fotos und eigenes Verbrauchsmaterial reichen nicht aus.
+- **Status:** Implemented and tested; eine vollständige LLM-Evaluation bleibt wegen API-Limits offen
+
+## DEC-030 – Stichwort-Klassifikation ist kein Produktivpfad
+
+- **Datum:** 2026-08-07
+- **Entscheidung:** `classify_problem_families()` bleibt als explizite Offline-Baseline und für Tests erhalten, wird aber weder bei Klassifikationsfehlern noch bei Rankingfehlern im Produktivpfad aufgerufen. Die Nutzerin sieht stattdessen eine wiederholbare Fehlerseite; ihre bestätigte Beschreibung bleibt gespeichert.
+- **Grund:** Der stille Rückfall erreichte gemessen nur 28 Prozent PF-Top-1 und 48 Prozent PF-01-Standardfälle, lieferte aber trotzdem eine scheinbar erfolgreiche Antwort.
+- **Konsequenzen:** API-Fehler sind sichtbar. Kritische fehlerhafte Kundenfelder werden einmal neu erzeugt; schlägt auch das fehl, wird kein unzuverlässiges Ergebnis ausgeliefert. Der Standard-Timeout beträgt 45 Sekunden, das Gesamtbudget der Endanalyse bleibt 120 Sekunden.
+- **Status:** Implemented and tested
+
+## DEC-031 – Veranschaulichung darf erfinden, das Ergebnis nicht
+
+- **Datum:** 2026-08-07
+- **Entscheidung:** Nur der sichtbar als „Beispiel“ gekennzeichnete Vorher-/Nachher-Block darf eine realistische Eingangsnachricht und daraus abgeleitete Werte erfinden. Er verwendet ausschließlich Kanäle, Produkte und Begriffe aus der bestätigten Beschreibung. Alle anderen Ergebnisfelder bleiben auf belegte Fakten und ausdrücklich zukünftige Empfehlungen begrenzt.
+- **Grund:** Eine generische Feldtabelle erklärt die konkrete KI-Arbeit nicht und konnte Beispiele aus einem fremden Gewerbe zeigen.
+- **Konsequenzen:** Der Betriebstyp wird als freier Text bestimmt, nur bei eindeutiger Übereinstimmung mit den vorhandenen Typen verwendet und an die Workflow-Auswahl weitergereicht. Ohne Treffer entsteht das Beispiel allein aus Nutzerbegriffen. Katalogwerte sind nur ein protokollierter Notfall-Rückfall und gelten in der Evaluation als Fehlschlag. Verbotene Begriffe werden nicht wortweise ersetzt: Das ganze Feld wird einmal neu erzeugt und danach gegebenenfalls ausgelassen. Unbelegte Nutzenbehauptungen werden entfernt.
+- **Status:** Implemented and tested; reale Modellqualität bleibt weiter zu beobachten

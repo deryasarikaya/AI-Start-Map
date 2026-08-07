@@ -10,6 +10,7 @@ from app.models import Analysis, AutomationOpportunity
 from app.recommendation_service import load_recommendation_catalog
 from app.routes import _result_view
 from app.schemas import contains_forbidden_customer_term, customer_plain_text
+from app.routes import _question_from_open_detail, _same_required_topic
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -134,6 +135,24 @@ def test_five_mentor_cases_have_no_forbidden_language_in_html_or_report(
 
 
 @pytest.mark.parametrize(("case_name", "solution_id", "level"), CASES)
+def test_runtime_workflow_wording_never_reaches_customer_templates(
+    case_name: str,
+    solution_id: str,
+    level: str,
+) -> None:
+    rendered = _render("results.html", _view(case_name, solution_id, level), case_name)
+    rendered += _render("report.html", _view(case_name, solution_id, level), case_name)
+    for internal_phrase in (
+        "extrahiert",
+        "Pflichtfelder",
+        "deterministisch",
+        "Quellenbezug",
+        "für den Fall",
+    ):
+        assert internal_phrase.casefold() not in rendered.casefold()
+
+
+@pytest.mark.parametrize(("case_name", "solution_id", "level"), CASES)
 def test_example_values_only_appear_inside_the_marked_preview(
     case_name: str,
     solution_id: str,
@@ -143,7 +162,11 @@ def test_example_values_only_appear_inside_the_marked_preview(
     for template_name in ("results.html", "report.html"):
         html = _render(template_name, result, case_name)
         marker = html.index("data-customer-example-block")
-        block_end = html.index("</section>", marker)
+        block_end = (
+            html.index('data-result-block aria-labelledby="check-title"', marker)
+            if template_name == "results.html"
+            else html.index('class="report-page report-page-two"', marker)
+        )
         outside = html[:marker] + html[block_end:]
         for field in result["sample_output"]["fields"]:
             assert field["value"] in html[marker:block_end]
@@ -162,6 +185,32 @@ def test_open_questions_are_concrete_deduplicated_and_limited() -> None:
 def test_empty_secondary_suggestions_are_not_returned() -> None:
     result = _view("Hausmeister", "SP-03", "A1")
     assert result.get("secondary_opportunities", []) == []
+
+
+def test_unsubstantiated_benefit_claim_is_removed_without_word_replacement() -> None:
+    text = (
+        "Eine Vorgangsakte reduziert Suchzeit und Nacharbeit. "
+        "Du siehst danach den geprüften Eintrag."
+    )
+    assert customer_plain_text(text) == "Du siehst danach den geprüften Eintrag."
+
+
+def test_real_address_with_musterstrasse_is_not_confused_with_pattern_language() -> None:
+    text = "Lieferung an Frau Müller, Musterstraße 5."
+    assert customer_plain_text(text) == text
+
+
+def test_open_question_conflicting_with_prerequisite_is_detected() -> None:
+    assert _same_required_topic(
+        "Wie erkennst du heute, zu welchem Auftrag ein Bon gehört?",
+        "Es ist klar, zu welchem Auftrag der Einsatz gehört.",
+    )
+
+
+def test_non_question_open_detail_is_not_rewritten_into_a_different_question() -> None:
+    assert _question_from_open_detail(
+        "Berechtigungen für Fotos und Sprachnachrichten sind nicht geklärt."
+    ) == ""
 
 
 def test_old_slogan_and_wrong_name_are_absent_from_tracked_files() -> None:

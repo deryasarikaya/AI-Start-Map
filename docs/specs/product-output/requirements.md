@@ -16,8 +16,8 @@ Das Kundenergebnis beantwortet in unter zwei Minuten: was heute schiefläuft, wa
 - Sekundäre Möglichkeiten sind optional: null bis maximal zwei, nicht dominant und nie Füllvorschläge.
 - Alle sichtbaren Texte sprechen den Kunden mit „du“, „dir“, „dein“ oder „deine“ an. Distanzierte Ersatzrollen sind unzulässig, sofern keine andere reale Rolle gemeint ist.
 - Nutzen umfasst ein bis drei Punkte; Voraussetzungen null bis drei; Umsetzung zwei bis vier Schritte.
-- Die Vorschau verwendet echte belegte Nutzerangaben mit Vorrang. Fehlende Werte erhalten realistische deutsche Beispielwerte ausschließlich im klar gekennzeichneten Vorschaublock; diese Werte sind keine Nutzerfakten.
-- Der fertige Kundenpayload wird gegen die verbindliche Liste interner und technischer Begriffe geprüft. Ein betroffenes Feld erhält vorhandenen Klartext oder entfällt.
+- Die Veranschaulichung zeigt eine erfundene, aber betriebsnahe Eingangsnachricht, den daraus abgeleiteten Eintrag und eine vorbereitete Rückfrage. Erfundene Inhalte sind nur in diesem klar gekennzeichneten Block erlaubt.
+- Der fertige Kundenpayload wird gegen die verbindliche Liste interner und technischer Begriffe sowie unbelegte Nutzenbehauptungen geprüft. Ein betroffenes Feld wird einmal neu erzeugt und danach gegebenenfalls ausgelassen; Einzelwortersetzung ist unzulässig.
 - Offene Angaben werden semantisch entdoppelt, auf drei echte Fragen begrenzt und ausschließlich im Bericht gezeigt.
 - Dieselbe Aussage wird nicht in mehreren Karten wiederholt.
 
@@ -30,7 +30,7 @@ Das Kundenergebnis beantwortet in unter zwei Minuten: was heute schiefläuft, wa
 | `short_reason` | knappe Begründung | maximal zwei kurze Sätze |
 | `before_process` | bestätigter Ist-Ablauf | maximal drei Schritte |
 | `future_process` | ausdrücklich zukünftiger Ablauf | drei bis sechs Schritte |
-| `sample_output` | typisierte, klar gekennzeichnete Vorschau mit deutschen Labels, realistischen Beispielwerten und optional echten Nutzerwerten | nur im Vorschaublock sichtbar |
+| `sample_output` | klar gekennzeichnete Eingangsnachricht, daraus abgeleiteter Eintrag und vorbereitete Rückfrage | nur im Veranschaulichungsblock sichtbar |
 | `user_action` | konkrete Eingabe/Handlung | ein kurzer Du-Satz |
 | `ai_task` | Aufgabe der KI | ein kurzer Satz |
 | `software_rule` | Aufgabe normaler Software oder fester Regeln | ein kurzer Satz |
@@ -49,7 +49,7 @@ Das Kundenergebnis beantwortet in unter zwei Minuten: was heute schiefläuft, wa
 
 ## Hauptseite und Details
 
-Die Hauptseite verwendet verbindlich genau sechs sichtbare Blöcke: Engpass, empfohlene Lösung, zukünftiger Ablauf, Beispielausgabe, menschliche Kontrolle und kleinster Einstieg. Nutzer-, KI- und Menschenhandlung stehen als normale Sätze im Zielablauf; die rohe Rollentabelle entfällt. Voraussetzungen, offene Fragen und Ausbau stehen nur im Bericht. Weitere Möglichkeiten und der bereits bestätigte Ist-Ablauf bleiben geschlossen. Desktop-H1 liegt bei höchstens 42 Pixeln, Mobile-H1 bei höchstens 34 Pixeln; Fließtext bleibt auf ungefähr 60–75 Zeichen begrenzt.
+Die Hauptseite verwendet verbindlich sieben sichtbare Blöcke: Engpass, offenen heutigen Ablauf mit höchstens fünf Schritten, empfohlene Lösung, zukünftigen Ablauf, Vorher-/Nachher-Veranschaulichung, menschliche Kontrolle und kleinsten Einstieg. Nutzer-, KI- und Menschenhandlung stehen als normale Sätze im Zielablauf; die rohe Rollentabelle entfällt. Voraussetzungen, offene Fragen, Ausbau und weitere Möglichkeiten stehen nicht in der Hauptansicht. Desktop-H1 liegt bei höchstens 42 Pixeln, Mobile-H1 bei höchstens 34 Pixeln; Fließtext bleibt auf ungefähr 60–75 Zeichen begrenzt.
 
 ## Grounding und Sicherheit
 
@@ -58,7 +58,7 @@ Die Hauptseite verwendet verbindlich genau sechs sichtbare Blöcke: Engpass, emp
 - Physische Identität und realer Ort werden nie erraten.
 - Preis-, Vertrags-, Zahlungs-, Qualitäts-, Personal-, Sicherheits-, Termin- und Herausgabeentscheidungen bleiben bei einem Menschen, wenn sie extern wirksam oder risikoreich sind.
 - Es gibt keine erfundenen Tools, Integrationen, Betriebsfakten, Zahlen oder Einsparungen. Die einzige Ausnahme sind anschauliche Werte im eindeutig gekennzeichneten Beispielblock.
-- Feldnamen, Human Review und Nicht-Automationen werden deterministisch aus der freigegebenen Output-Struktur und dem Katalog nachgeführt. Der Beispielblock trägt genau einen gemeinsamen Veranschaulichungshinweis statt wiederholter Präfixe.
+- Feldnamen, Human Review und Nicht-Automationen werden aus der freigegebenen Output-Struktur und dem Katalog nachgeführt. Der Beispielblock trägt genau einen gemeinsamen Veranschaulichungshinweis statt wiederholter Präfixe.
 
 ## Speicherung und Rückwärtskompatibilität
 
@@ -66,4 +66,4 @@ Der Vertrag `recommendation-v3` wird ohne Migration in `analyses.uncertainties.c
 
 ## Druckbericht
 
-Die Browser-Druckansicht verwendet weiter `window.print()` und umfasst genau zwei physische Seiten. Seite 1 zeigt Diagnosehinweis, Engpass, Empfehlung, zukünftigen Ablauf und eindeutig gekennzeichnete Beispielausgabe. Seite 2 zeigt menschliche Kontrolle, menschlich bleibende Entscheidungen, höchstens drei Klartextvoraussetzungen, höchstens drei wichtige offene Fragen, kleinsten Einstieg, einen späteren Ausbau und Kontakt. Inhalt wird begrenzt statt auf eine dritte Seite umgebrochen; sichtbare Link-URLs, leere Seiten, abgeschnittene Inhalte und übergroße Karten sind unzulässig.
+Die Browser-Druckansicht verwendet weiter `window.print()` und umfasst höchstens zwei physische Seiten. Seite 1 zeigt Diagnosehinweis, Engpass als Fließtext, Empfehlung, zukünftigen Ablauf und dieselbe Vorher-/Nachher-Veranschaulichung. Seite 2 zeigt menschliche Kontrolle, höchstens drei Klartextvoraussetzungen, höchstens drei wichtige widerspruchsfreie offene Fragen, kleinsten Einstieg, einen späteren Ausbau und Kontakt. Inhalt wird begrenzt statt auf eine dritte Seite umgebrochen. Browser-Kopf- und Fußzeilen kann CSS nicht abschalten; ein sichtbarer Hinweis fordert deshalb zum Abwählen im Druckdialog auf.

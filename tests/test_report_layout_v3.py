@@ -27,6 +27,9 @@ def _result(**overrides: object) -> dict[str, object]:
         ],
         "sample_heading": "Beispiel \u2014 so k\u00f6nnte deine Einsatznotiz aussehen",
         "sample_output": {
+            "input_context": "Sprachnachricht nach dem Einsatz",
+            "incoming_message": "Die Dichtung am Waschbecken ist getauscht. Der Einsatz dauerte 45 Minuten.",
+            "incoming_note": "Mit zwei Fotos und einem Bon",
             "fields": [
                 {"label": "F\u00fcr wen", "value": "Hausverwaltung Nord \u00b7 Lindenstra\u00dfe 12"},
                 {"label": "Was gemacht wurde", "value": "Waschbecken-Dichtung getauscht"},
@@ -37,6 +40,8 @@ def _result(**overrides: object) -> dict[str, object]:
                 {"label": "Dabei", "value": "2 Fotos, 1 Bon, deine Sprachnachricht"},
             ],
             "preview_notice": "Beispielangaben zur Veranschaulichung \u2013 hier stehen sp\u00e4ter deine tats\u00e4chlichen Angaben.",
+            "missing_details": ["Tür nachstellen abrechnen"],
+            "clarification_question": "Soll das Nachstellen der Tür mit abgerechnet werden?",
         },
         "required_prerequisites": ["Ein fester Weg zum Senden der Angaben"],
         "open_questions": ["Wie erkennst du heute, zu welchem Auftrag ein Bon geh\u00f6rt?"],
@@ -67,16 +72,14 @@ def test_report_contains_exactly_the_two_approved_pages() -> None:
     html = _render(_result())
     for text in (
         "Diagnose und noch keine fertige Einrichtung",
-        "DAS IST DER ENGPASS",
+        "Das ist der Engpass",
         "DAS SCHLAGE ICH DIR VOR",
         "So w\u00fcrde es k\u00fcnftig laufen",
         "BEISPIELAUSGABE",
         "Nichts geht ohne dich raus",
-        "Das entscheidest weiterhin du",
         "Was vorher da sein muss",
         "Diese Fragen sind noch zu kl\u00e4ren",
         "So klein f\u00e4ngst du an",
-        "Was sp\u00e4ter m\u00f6glich wird",
         "M\u00f6chtest du das umsetzen?",
     ):
         assert text in html

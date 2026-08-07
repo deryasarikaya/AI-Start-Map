@@ -1,10 +1,23 @@
 from app.recommendation_service import (
+    CandidateRankingItem,
     DecisionGates,
     evaluate_gate_cascade,
     infer_decision_gates,
-    select_recommendation,
+    select_recommendation as _select_recommendation,
 )
 from scripts.evaluate import load_cases, run
+
+
+def _catalog_order_ranker(_text, candidates):
+    return [
+        CandidateRankingItem(solution_id=item.solution_id, reason="Testreihenfolge")
+        for item in candidates
+    ]
+
+
+def select_recommendation(*args, **kwargs):
+    kwargs.setdefault("candidate_ranker", _catalog_order_ranker)
+    return _select_recommendation(*args, **kwargs)
 
 
 def _digital_gates(**overrides: object) -> DecisionGates:
@@ -197,7 +210,11 @@ def test_evaluation_datasets_and_label_statuses_stay_separate() -> None:
     assert {item.label_status for item in batch_09} == {"research_proposed"}
 
     payload = run()
-    assert payload["dataset_counts"] == {"legacy_91": 91, "batch_09": 30}
+    assert payload["dataset_counts"] == {
+        "legacy_91": 91,
+        "batch_09": 30,
+        "quality_selection": 4,
+    }
     assert {
         item["label_status"]
         for item in payload["results"]

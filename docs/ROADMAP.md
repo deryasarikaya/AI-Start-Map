@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-08-07
 
-Diese Roadmap enthält nur verbleibende geplante Arbeit. Der implementierte Recommendation-Vertrag, Katalog, Selector, Agent-Pattern-Aufruf, neue Ergebnisoberfläche und zweiseitige Druckansicht stehen im Changelog und nicht mehr als Planung hier.
+Diese Roadmap enthält nur verbleibende geplante Arbeit. Der implementierte Recommendation-Vertrag, Katalog, die fallbezogene Rangfolge zugelassener Muster, Agent-Pattern-Aufruf, neue Ergebnisoberfläche und höchstens zweiseitige Druckansicht stehen im Changelog und nicht mehr als Planung hier.
 
 ## Now
 
@@ -10,7 +10,7 @@ Diese Roadmap enthält nur verbleibende geplante Arbeit. Der implementierte Reco
 
 - Problemfamilienklassifikation, Gates, Fragezahl und sichtbare Ergebnisse anhand echter AI-Start-Map-Interviews kalibrieren.
 - Neue reale Fehlfälle sauber in Diagnosefehler, Auswahlfehler und Formulierungsfehler trennen.
-- Ranking- und Tie-Breaking-Regeln nur dann erweitern, wenn reale Fälle mit mehreren gleich geeigneten Patterns dies belegen.
+- Die Modellrangfolge der bereits zugelassenen Kandidaten an weiteren bestätigten Realfällen kalibrieren; Gates und Ausschlüsse bleiben davon getrennte Python-Regeln.
 
 ### Technische Arbeit
 
@@ -18,10 +18,11 @@ Diese Roadmap enthält nur verbleibende geplante Arbeit. Der implementierte Reco
 - Datenschutz-, Betriebs- und Deployment-Konfiguration vor einem öffentlichen Produktivbetrieb abschließend prüfen.
 - Die vorhandenen strukturierten Logs im Betrieb auf Nutzbarkeit und Datenminimierung prüfen.
 - Latenz, Validierungsfehler und tatsächliche Retry-Quote des v3-Finaloutputs über mehrere reale, datensparsam protokollierte Läufe messen; die Einzelmessung von 60,141 Sekunden ist keine belastbare Statistik.
+- Das Projektlimit von fünf Modellanfragen pro Minute und wiederholte Endanalyse-Timeouts bei vollständigen Evaluationen messen; eine vollständige 125-Fälle-LLM-Auswertung ist noch nicht belastbar abgeschlossen.
 
 ### Produktarbeit
 
-- Die sechsteilige Hauptseite und den zweiseitigen Bericht mit echten anonymisierten Kundenergebnissen auf Verständlichkeit prüfen.
+- Die siebenteilige Hauptseite, die Vorher/Nachher-Veranschaulichung und den höchstens zweiseitigen Bericht mit echten anonymisierten Kundenergebnissen auf Verständlichkeit prüfen.
 - Die vollständige Zielmatrix auf physischem Android/iPhone, Safari und unterschiedlichen Druckdialogen abnehmen.
 
 ## Next

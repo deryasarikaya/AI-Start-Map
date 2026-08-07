@@ -4,6 +4,21 @@
 
 Diese Datei dokumentiert nur tatsächlich ausgeführte und verifizierte Änderungen. Roadmap-Punkte gelten nicht als umgesetzt.
 
+## 2026-08-07 – Musterauswahl fallbezogen bewertet und Ergebnis veranschaulicht
+
+- Die Auswahl unter den durch Matrix und Python-Gates zugelassenen Solution Patterns von Listenreihenfolge auf einen strukturierten Modellvergleich umgestellt. Das Modell muss genau alle zugelassenen IDs mit Begründung ordnen; fremde, doppelte oder unvollständige Rangfolgen werden nicht ausgeliefert.
+- Das physische Gate auf Kundengegenstände in betrieblicher Obhut begrenzt. Belege, Kassenzettel, Rechnungen, Fotos, Notizen und eigenes Einsatzmaterial lösen SP-04 nicht mehr aus; der Schuhmacherfall bleibt als positiver Obhutfall abgesichert.
+- Den vom Modell erkannten Betriebstyp gegen die vorhandenen Runtime-Typen abgeglichen, persistiert und an Workflow-Auswahl und Retrieval weitergereicht. Ohne eindeutigen Treffer wird kein fremdes Branchenbeispiel gewählt.
+- Die SP-03-spezifische Textverzweigung vollständig entfernt. Alle Muster nutzen denselben katalog- und promptgesteuerten Pfad mit `deterministic_components`, `human_decisions`, `pilot`, `metrics` und `stop_conditions` als interner Bauanleitung.
+- Die Feldtabelle durch eine gekennzeichnete Vorher/Nachher-Veranschaulichung ersetzt: realistische Eingangsnachricht, daraus abgeleiteter Eintrag, bewusst fehlende Angaben und vorbereitete Rückfrage. Zahlen in ausgefüllten Feldern müssen aus der Beispielnachricht stammen; Katalogwerte bleiben nur protokollierter Rückfall.
+- Den bestätigten Ist-Ablauf offen und auf fünf Schritte direkt unter den Engpass verschoben. Ergebnis, Bericht und Kontakt folgen der neuen Leserichtung; sekundäre Vorschläge werden nicht mehr auf der Hauptseite gezeigt.
+- Keyword-Klassifikation aus dem Produktivpfad entfernt. API-, Rangfolge- und kritische Textfehler führen zur sichtbaren Fehlerseite mit erhaltenen Angaben; Verarbeitung zeigt nach 20 Sekunden einen Verzögerungshinweis und nach 60 Sekunden einen Abbrechen-Link.
+- Rückfragebegründungen an das tatsächlich gewählte Fragepattern gebunden, Freigabefragen für Solo-Fälle gesperrt und die unabhängigen Stichwortlisten entfernt.
+- Sprachschutz um technische Begriffe und unbelegte Nutzenbehauptungen erweitert. Fertige Wörter werden nicht mehr einzeln ersetzt; betroffene generierte Felder werden einmal vollständig neu formuliert und danach ausgelassen beziehungsweise bei kritischen Feldern nicht ausgeliefert.
+- Browserprüfung bei 1440 × 900 und 390 × 844 ohne horizontalen Überlauf abgeschlossen. Der geprüfte Blumenladenbericht umfasst zwei A4-Seiten; die automatisierte PDF-Ausgabe ohne Browser-Kopfzeilen enthält keine lokale URL. Die Oberfläche weist ehrlich auf die notwendige Druckdialog-Option hin.
+- Vier neue, von allen Indizes ausgeschlossene reale Auswahlfälle ergänzt. Vollständige Suite: `214 passed`; Keyword-Vergleich Legacy 91: PF Top-1 28 %, SP Top-1 25 %, PF-01 48 %; neue vier Qualitätsfälle: PF Top-1 50 %, SP Top-1 75 %, PF-01 0 %.
+- Live-Modellprüfung: langer Blumenladenfall SP-01, Hausmeister SP-03, Fotograf SP-02 und Coach SP-01. Der kurze Blumenladen-Demolauf und A0 blieben in der Wiederholung wegen Modellvalidierung beziehungsweise API-Timeout nicht auslieferbar; eine vollständige 125-Fälle-LLM-Messung war unter dem Projektlimit von fünf Requests pro Minute nicht belastbar ausführbar.
+
 ## 2026-08-07 – Kundenoberfläche und Ergebnis auf Klartext reduziert
 
 - Landingpage, freie Erzählung, Prozesswahl, Bestätigung und Verarbeitungszustand mit kleineren Überschriften, kompakteren Abständen und den freigegebenen kurzen Kundentexten überarbeitet; den früheren Ordnungs-Slogan vollständig entfernt.

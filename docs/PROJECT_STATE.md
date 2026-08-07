@@ -1,14 +1,14 @@
 # AI Start Map – Projektstand
 
 **Last Updated:** 2026-08-07
-**Verifizierter Code-Stand:** Branch `feature/gate-cascade-quality`; Batch-09-Knowledge-Rollen kontrolliert integriert; semantische Problemklassifikation und deterministischer Selector aktiv
+**Verifizierter Code-Stand:** Branch `feature/gate-cascade-quality`; semantische Problemklassifikation, deterministische Ausschlüsse und fallbezogene Rangfolge der zulässigen Muster aktiv
 **Pflegehinweis:** Diese Datei beschreibt den bestätigten heutigen Stand. Planung, offene Probleme, Entscheidungen und Änderungshistorie stehen in den übrigen Dokumenten unter `docs/`.
 
 ## Produktstand
 
 AI Start Map ist als diagnostische Webanwendung für Solo-Selbstständige und kleine Betriebe implementiert. Die Anwendung betrachtet einen konkreten Geschäftsprozess, trennt bestätigte Fakten von fachlicher Ableitung und Vergleichswissen und liefert genau eine dominante Hauptempfehlung.
 
-Das Kundenergebnis basiert intern weiterhin auf `recommendation-v3`, zeigt aber genau sechs verständliche Kernblöcke: Engpass, Empfehlung, drei bis sechs Zukunftsschritte, konkrete Beispielausgabe, menschliche Kontrolle und kleinster Einstieg. Interne Rollen-, Technik- und Autonomiefelder bleiben gespeichert, werden Kunden jedoch nicht roh gezeigt. Voraussetzungen, höchstens drei wichtige offene Fragen, Grenzen und späterer Ausbau stehen ausschließlich im zweiseitigen Bericht; weitere echte Möglichkeiten sind nachgeordnet eingeklappt und auf zwei begrenzt.
+Das Kundenergebnis basiert intern weiterhin auf `recommendation-v3`, zeigt aber sieben verständliche Kernblöcke: Engpass, bestätigter heutiger Ablauf, Empfehlung, drei bis sechs Zukunftsschritte, durchgespielte Veranschaulichung, menschliche Kontrolle und kleinster Einstieg. Interne Rollen-, Technik- und Autonomiefelder bleiben gespeichert, werden Kunden jedoch nicht roh gezeigt. Voraussetzungen, höchstens drei wichtige offene Fragen, Grenzen und späterer Ausbau stehen ausschließlich im Bericht; sekundäre Möglichkeiten werden auf der Hauptseite nicht gezeigt.
 
 AI Start Map führt keine Unternehmensprozesse autonom aus. Preis-, Vertrags-, Zahlungs-, Qualitäts-, Personal-, Sicherheits-, Herausgabe- und Freigabeentscheidungen bleiben beim Menschen.
 
@@ -19,8 +19,8 @@ AI Start Map führt keine Unternehmensprozesse autonom aus. Preis-, Vertrags-, Z
 3. Bestätigung oder Korrektur einer kurzen vertikalen HTML-/CSS-Prozesslinie.
 4. Normal null bis zwei, bei komplexen Fällen höchstens drei und technisch maximal vier entscheidungsrelevante Rückfragen.
 5. Sichtbarer Analysezustand mit Statusabfrage und Retry.
-6. Eine kompakte Hauptlösung mit genau sechs sichtbaren Blöcken: Engpass, Empfehlung, zukünftiger Ablauf, Beispielausgabe, menschliche Kontrolle und kleinster Einstieg.
-7. Kompakter Kontakt, eingeklappter bestätigter Ist-Ablauf, optionale echte weitere Möglichkeiten und ein zweiseitiger Druckbericht.
+6. Eine kompakte Hauptlösung mit sieben sichtbaren Blöcken: Engpass, bestätigter Ist-Ablauf, Empfehlung, zukünftiger Ablauf, Veranschaulichung, menschliche Kontrolle und kleinster Einstieg.
+7. Kompakter Kontakt am Ende und ein Druckbericht mit höchstens zwei Seiten.
 
 Texteingabe bleibt immer verfügbar. Die numerische Session-ID wird in der öffentlichen Journey nicht angezeigt. Alle sichtbaren Ergebnistexte verwenden direkte Du-Ansprache.
 
@@ -28,12 +28,13 @@ Texteingabe bleibt immer verfügbar. Die numerische Session-ID wird in der öffe
 
 - `knowledge/runtime/recommendation_catalog.json` enthält exakt zwölf Problemfamilien `PF-01` bis `PF-12`, zehn Solution Patterns `SP-01` bis `SP-10` und die vollständige Zuordnungsmatrix.
 - `app/recommendation_service.py` validiert Anzahl, IDs, Referenzen, Kernfelder und Evaluationstrennung.
-- `app/llm_classification.py` klassifiziert die bestätigte Erzählung primär per Structured Output in null bis drei Katalog-Problemfamilien und die bestehenden sechs Rohsignale. Eine leere Familienliste ist die belegbare A0-Entscheidung „keine KI nötig“. Bei `AIServiceError` bleiben Keyword-Klassifikation und Gate-Inferenz der konservative Fallback.
+- `app/llm_classification.py` klassifiziert die bestätigte Erzählung per Structured Output in null bis drei Katalog-Problemfamilien und die bestehenden sechs Rohsignale. Eine leere Familienliste ist die belegbare A0-Entscheidung „keine KI nötig“. Bei `AIServiceError` wird keine Keyword-Empfehlung ausgeliefert; die Nutzerin sieht eine Wiederholen-Seite und behält ihre bestätigten Angaben.
 - `app/recommendation_service.py` übersetzt die Rohsignale deterministisch in `GATE-01` bis `GATE-06` mit `pass`, `fail` oder `unknown` und deutscher Begründung. Zielgruppenfit, Fehlerfolgen und menschliche Prüfung werden gesondert bewertet.
-- Der deterministische Selector liefert A0 oder eine Hauptlösung, höchstens zwei sekundäre Kandidaten, Ausschlussgründe, Voraussetzungen, Stop Conditions, Autonomiestufe und Freigabegrenzen. SP-04 ist ohne bestätigten angenommenen, gelagerten, bearbeiteten oder abgeholten Gegenstand ausgeschlossen.
+- Der Selector bildet aus der Matrix eine Kandidatenmenge und wendet Gates und Ausschlüsse vollständig in Python an. Nur diese zugelassenen Muster werden danach vom Modell anhand Kurzbeschreibung, positiven Varianten und Gegenbeispiel vollständig geordnet; eine unvollständige oder fremde Rangfolge ist ein sichtbarer Fehler. SP-04 ist ohne bestätigten Kundengegenstand in betrieblicher Obhut ausgeschlossen; Informationsträger und eigenes Einsatzmaterial zählen nicht.
 - Der Selector ist in den produktiven Analysepfad integriert. Seine Vorauswahl, Output-Struktur, Stop Conditions und die zwölf katalogbasierten Failure Guardrails werden dem finalen Structured-Output-Aufruf getrennt von Nutzerfakten und RAG-Evidenz übergeben.
 - Der finale Prompt enthält 15 inhaltliche Kernregeln statt wiederholter Schema- und Längenvorgaben. `gpt-5-mini` läuft für `FinalAnalysisResult` mit `reasoning_effort=medium`, maximal zwei Versuchen und 120 Sekunden Gesamtbudget.
-- OUT-Feldnamen, Human Review, Nicht-Automationen, Autonomiestufe, kleinste Version und regelbasierte Komponenten werden nach dem Modellaufruf deterministisch aus Runtime-Kontext und Katalog nachgeführt. Realistische Vorschauwerte werden ebenfalls erst danach aus der freigegebenen Output-Struktur eingesetzt und ausschließlich im klar gekennzeichneten Beispielblock verwendet; echte belegte Nutzerwerte haben Vorrang.
+- OUT-Feldnamen, Human Review, Nicht-Automationen und Sicherheitsgrenzen werden nach dem Modellaufruf aus Runtime-Kontext und Katalog nachgeführt. Die Veranschaulichung erfindet ausschließlich in ihrem klar gekennzeichneten Block eine zum Betrieb passende Eingangsnachricht und leitet daraus den fertigen Eintrag sowie fehlende Angaben ab. Katalog-Beispielwerte sind nur ein protokollierter Rückfall und gelten in der Evaluation als Fehlschlag.
+- Der freie Betriebstyp aus der Klassifikation wird nur bei eindeutiger Übereinstimmung mit einem vorhandenen Runtime-Typ übernommen, persistiert und an Workflow-Auswahl und Retrieval weitergegeben. Ohne Treffer bleibt der Betriebstyp leer; ein fremdes Branchenbeispiel wird nicht angenähert.
 - Eine ausdrücklich genannte ausreichende vorhandene Funktion oder einfache Regel mit „keine KI nötig“ setzt den Selector auch bei einer abweichenden semantischen Familienzuordnung deterministisch auf A0. Der Kundenvertrag entfernt dann KI-Empfehlung und sekundäre Möglichkeiten.
 - Kundenüberschriften werden aus dem Katalognamen nachgeführt. Interne PF-/SP-/OUT-IDs werden sowohl bei neuen Outputs als auch in der View bereits gespeicherter Analysen unterdrückt. Einzelne Zukunftsschritte dürfen bis 220 Zeichen lang sein, damit vollständige Sätze nicht an der früheren 140-Zeichen-Grenze in neue Listenpunkte zerfallen.
 - Breite Lösungswortfilter verwerfen keine Analyse mehr. Erfundene Ist-Fakten in den weiterhin begrenzt geprüften Risikobegriffen und interne Referenzen neutralisieren nur das betroffene Feld und ergänzen einen offenen Hinweis.
@@ -68,28 +69,28 @@ Texteingabe bleibt immer verfügbar. Die numerische Session-ID wird in der öffe
 
 ## Ergebnisoberfläche und Bericht
 
-- Die Hauptseite zeigt genau eine dominante Empfehlung und genau sechs sichtbare Kernblöcke. Wer was tut, steht in den kurzen Zukunftsschritten; eine rohe Rollentabelle gibt es nicht mehr.
+- Die Hauptseite zeigt genau eine dominante Empfehlung und sieben sichtbare Kernblöcke. Der bereits bestätigte Ist-Ablauf steht offen direkt unter dem Engpass; wer was künftig tut, steht in den kurzen Zukunftsschritten. Eine rohe Rollentabelle und sichtbare sekundäre Vorschläge gibt es nicht mehr.
 - Die Vorschau zeigt realistische, ausdrücklich als Beispiel gekennzeichnete deutsche Werte. Offene Angaben werden semantisch entdoppelt, auf drei begrenzt und nur im Bericht ausgegeben.
 - Weitere Möglichkeiten und der bestätigte heutige Ablauf bleiben nachgeordnet und geschlossen; ein leerer Vorschlag wird nicht gerendert.
 - Mermaid bleibt ausgeschlossen. Validierte strukturierte Schritte werden als responsive HTML-/CSS-Darstellung gerendert.
-- Der Browserbericht umfasst immer genau zwei Seiten. Seite 1 enthält Diagnosehinweis, Engpass, Empfehlung, Zukunftsablauf und gekennzeichnete Vorschau. Seite 2 enthält menschliche Kontrolle, menschlich bleibende Entscheidungen, höchstens drei Voraussetzungen, höchstens drei wichtige offene Fragen, kleinsten Einstieg, späteren Ausbau und Kontakt. Weitere Möglichkeiten erzeugen keine dritte Seite.
+- Der Browserbericht umfasst höchstens zwei Seiten. Seite 1 enthält Diagnosehinweis, Engpass, Empfehlung, Zukunftsablauf und dieselbe gekennzeichnete Veranschaulichung. Seite 2 enthält menschliche Kontrolle, höchstens drei Voraussetzungen, höchstens drei echte Fragen, kleinsten Einstieg, späteren Ausbau und Kontakt. Browser-Kopf- und Fußzeilen lassen sich nicht per Seiten-CSS abschalten; der Druckhinweis nennt deshalb die notwendige Option.
 - PDF-Speicherung erfolgt weiterhin über `window.print()`; Kontakt bleibt ein normaler `mailto:`-Link ohne behaupteten automatischen Anhang.
 
 ## Verifikation
 
 - Das reproduzierbare Evaluation-Harness weist 91 Legacy-Fälle und 30 Batch-09-Fälle getrennt aus und mittelt ihre Werte nicht. Alle 40 vorbelegten Legacy-Zuordnungen stehen auf `confirmed: false`; Batch 09 bleibt `research_proposed`.
-- Vollständige Testsuite am 2026-08-07 nach der Klartext-Überarbeitung: `188 passed` in 70,53 Sekunden.
+- Vollständige Testsuite am 2026-08-07 nach der Qualitätsüberarbeitung: `214 passed` in 27,57 Sekunden.
 - Die fünf Mentor-Demofälle Hausmeister, Fotograf, Blumenladen, Coach und A0 liefen mit echten Modellaufrufen bis Ergebnis und Bericht durch. Der finale Blumenladenlauf wählte nach geschärfter PF-02-Abgrenzung SP-01; der Hausmeister blieb SP-03 und der Nicht-KI-Fall A0. Details und wörtliche Eingaben stehen in `docs/MENTOR_DEMO_2026-08-07.md`.
 - Phase-1-RAG-Regression: vier isolierte Tests für leere Chunks, zwei vollständige Promote-Backups, mtime-Cache-Invalidierung und fehlende Dateien bestanden.
 - Keyword-Evaluation nach Phase 1: PF Top-1 28 %, PF Top-3 38 %, SP Top-1 30 %, PF-01-Default 48 %, verbotene Inhalte 0 von 91; damit gegenüber der Keyword-Baseline fachlich unverändert.
-- Aktuelle Keyword-Messung mit Gate-Kaskade: Legacy 91 weiterhin PF Top-1 28 %, irgendein PF-Treffer 38 %, SP Top-1 30 %, PF-01 48 %, verbotene Auswahltexte 0/91. Batch 09 getrennt: 25 Fälle mit vorgeschlagenen nicht bestätigten Labels, PF Top-1 40 %, irgendein PF-Treffer 48 %, SP Top-1 36 %, PF-01 33 %, verbotene Auswahltexte 0/30. Die schwache Keyword-Baseline bleibt nur Fallback.
+- Aktuelle Keyword-Vergleichsmessung: Legacy 91 PF Top-1 28 %, irgendein PF-Treffer 38 %, SP Top-1 25 %, PF-01 48 %, verbotene Auswahltexte 0/91. Batch 09 getrennt: PF Top-1 40 %, irgendein Treffer 48 %, SP Top-1 36 %, PF-01 33 %. Die vier neuen bestätigten Auswahlfälle erreichen in dieser Vergleichsmessung PF Top-1 50 %, irgendein Treffer 75 %, SP Top-1 75 % und PF-01 0 %. Diese Heuristik ist kein Produktivpfad.
 - Vorhandenes LLM-Eval-Artefakt: PF Top-1 65 %, PF Top-3 85 %, SP Top-1 70 %, PF-01-Default 3 %, zwei Klassifikatorfehler und ein Treffer eines verbotenen Begriffs. Dieser kostenpflichtige Lauf wurde in der aktuellen Sicherungsarbeit nicht wiederholt; seine Labels sind weiterhin unbestätigte Vorschläge.
 - Kontrollierter Live-Vertragstest für den Hausmeisterfall: `gpt-5-mini`, `medium`, ein Versuch, 60,141 Sekunden, kein Retry, validiertes Ergebnis mit A1 und den sechs deterministischen OUT-SP03-Feldern. Diese Einzelbeobachtung ist keine belastbare Fehler- oder Latenzstatistik.
 - Vier finale Unicode-End-to-End-Wiederholungen benötigten 83,968 bis 138,469 Sekunden einschließlich vorgelagerter Modellschritte. Eine exakte erfolgreiche Retry-Zahl wird nicht persistiert. Drei vorangegangene FinalAnalysis-Fehler nach jeweils beiden Versuchen deckten eine zu strikte Du-Validierung auf; betroffene Felder werden nun lokal repariert, ohne die Analyse zu verwerfen.
 - Python-Kompilierung: `python -m compileall app scripts` bestanden.
 - App-Start gegen die separate Testdatenbank geprüft; Landingpage antwortete mit HTTP 200.
 - Die überarbeitete Oberfläche wurde in Chrome bei 1440 × 900 und 390 × 844 Pixeln auf Landingpage, Interview, Prozesswahl, Bestätigung, Verarbeitung und Ergebnis geprüft. Alle H1 lagen bei höchstens 42 Pixeln auf Desktop und 31,2 Pixeln mobil; keine Seite hatte horizontalen Überlauf.
-- Hausmeister, Fotograf und A0 wurden in der echten lokalen Browseransicht kontrolliert. Alle fünf gespeicherten Mentorberichte wurden erneut gedruckt und umfassen genau zwei nichtleere Seiten ohne localhost-URL oder verbotene Kundenbegriffe; der Hausmeisterbericht enthält die realistischen Beispielwerte.
+- Landingpage, Interview, Prozessauswahl, Bestätigung, Verarbeitung, Blumenladen-Ergebnis und Bericht wurden bei 1440 × 900 und 390 × 844 geprüft: H1 maximal 42 beziehungsweise 31,2 Pixel, keine horizontale Scrollbar und kein alter Slogan. Der automatisiert mit ausgeschalteten Kopf-/Fußzeilen erzeugte Blumenladenbericht umfasst zwei Seiten ohne lokale URL. Hausmeister, Fotograf und Coach lieferten im aktuellen Modellpfad SP-03, SP-02 und SP-01; der kurze Blumenladen-Demolauf und A0 scheiterten in der Wiederholung an Modellvalidierung beziehungsweise Timeout und sind nicht als erfolgreich geprüft dokumentiert.
 - Solution-Retrieval-Vergleich: je ausgewähltem Pattern waren drei Workflows zulässig und zwei wurden geliefert. Semantik und deterministische Auswahl lieferten in allen vier KI-Fällen dieselben zwei Workflows, nur in zwei Fällen in anderer Reihenfolge. Ein fachlicher Mehrwert des 27-Chunk-Indexes ist damit noch nicht belegt.
 - Nicht behauptet: vollständige Freigabe auf physischem Android/iPhone, Safari sowie allen nativen Druckdialogen.
 

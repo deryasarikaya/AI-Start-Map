@@ -24,10 +24,10 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 ## KI-001 – Recommendation-Auswahl braucht noch reale Kalibrierung
 
 - **Status:** Partially Fixed
-- **Beobachtung:** Katalog, begründete GATE-01…06-Kaskade und Selector wählen A0 bis A2 beziehungsweise die Lösung außerhalb des Diagnose-Top-k. Die semantische Klassifikation erreicht im vorhandenen unbestätigten Eval-Artefakt PF Top-1 65 %, PF Top-3 85 %, SP Top-1 70 % und 3 % PF-01-Default, enthält aber zwei Klassifikatorfehler und einen Treffer eines verbotenen Begriffs. Die 40 vorbelegten Legacy- und alle Batch-09-Zuordnungen bleiben unbestätigte Vorschläge. Reale Interviews können weitere Fehler zeigen.
+- **Beobachtung:** Katalog und GATE-01…06 begrenzen die zulässigen Lösungen deterministisch; ein strukturierter Modellaufruf ordnet nur diese Kandidaten fallbezogen. Vier bestätigte Auswahlfehler liegen indexausgeschlossen als Regression vor. Die vollständige LLM-Evaluation über 125 Fälle konnte unter fünf Requests pro Minute und wiederholten Timeouts noch nicht belastbar wiederholt werden.
 - **Erwartetes Verhalten:** Aus bestätigtem Problem, Ursache, Reifegrad und Voraussetzungen wird ein kleiner, konkreter und betrieblich passender erster Workflow gewählt.
-- **Mögliche Ursachen:** Semantische Klassifikation und Gate-Schwellen sind noch nicht anhand bestätigter Ground Truth und realer Interviews kalibriert; API-Fehler fallen bewusst auf die schwächere Keyword-Heuristik zurück.
-- **Nächster Prüfschritt:** Vorgeschlagene Labels fachlich prüfen, erst danach als Ground Truth bestätigen, und zusätzlich reale Interviews anonymisiert gegen Katalog, Gates und sichtbaren Output auswerten.
+- **Mögliche Ursachen:** Semantische Klassifikation, Kandidatenrangfolge und Gate-Schwellen sind noch nicht an ausreichend bestätigter Ground Truth kalibriert. API-Fehler werden sichtbar, statt auf die schwächere Keyword-Heuristik zurückzufallen.
+- **Nächster Prüfschritt:** Weitere reale Interviews anonymisiert gegen Katalog, Gates, vollständige Kandidatenrangfolge und sichtbaren Output auswerten; LLM-Gesamtevaluation unter kontrolliertem Rate-Limit wiederholen.
 - **Betroffene Dateien:** `app/recommendation_service.py`, `app/openai_service.py`, `tests/test_recommendation_catalog.py`, `tests/test_recommendation_experience.py`.
 
 ## KI-002 – Hausmeisterfall empfiehlt teilweise zu viel manuelle Ablage
@@ -60,7 +60,7 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 ## KI-005 – Kundensprache ist teilweise zu technisch oder zu lang
 
 - **Status:** Partially Fixed
-- **Beobachtung:** Die Kundensicht zeigt jetzt sechs Klartextblöcke, prüft den fertigen Payload gegen eine verbindliche Verbotsliste und rendert interne Rollen-, Technik- und Autonomiefelder nicht mehr roh. Fünf Demofälle sichern Ergebnis-HTML und Bericht ab; Hausmeister, Fotograf und A0 wurden zusätzlich sichtbar geprüft. Die echte Verständlichkeit mit Kunden bleibt trotz dieser technischen Absicherung offen.
+- **Beobachtung:** Die Kundensicht zeigt sieben Klartextblöcke einschließlich offenem Ist-Ablauf und durchgespielter Veranschaulichung. Der fertige Payload und der Bericht werden gegen eine verbindliche Verbotsliste geprüft; technische Wörter werden nicht einzeln ersetzt. Live-Läufe zeigten weiterhin hohe Varianz: Hausmeister, Fotograf, Coach und der lange Blumenladenfall waren auslieferbar, ein kurzer Blumenladen- und ein A0-Lauf scheiterten korrekt statt Platzhalter zu zeigen.
 - **Erwartetes Verhalten:** Kurze deutsche Sätze, ein klarer nächster Schritt und konkrete Beschreibung von Eingabe, KI-Aufgabe, Ergebnis und menschlicher Kontrolle.
 - **Mögliche Ursachen:** Noch zu verifizieren. Freie Modellformulierungen und ältere gespeicherte Analysen können trotz Feldfilter sprachlich dicht bleiben.
 - **Nächster Prüfschritt:** Ergebnisse mit echten anonymisierten Betrieben auf Verständlichkeit prüfen; Mentor-Demofälle sind unter `docs/MENTOR_DEMO_2026-08-07.md` dokumentiert.
@@ -69,8 +69,8 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 ## KI-006 – Ergebnisansicht und PDF waren zu groß oder textlastig
 
 - **Status:** Verified Fixed
-- **Beobachtung:** Die Hauptseite folgt einer festen sechsteiligen Leserichtung. Landingpage, Interview, Prozesswahl, Bestätigung, Verarbeitung und Ergebnis wurden bei 1440 × 900 und 390 × 844 Pixeln geprüft: kein horizontaler Überlauf, H1 höchstens 42 beziehungsweise 31,2 Pixel. Der Hausmeisterbericht umfasst genau zwei vollständige A4-Seiten und zeigt keine localhost-URL.
-- **Erwartetes Verhalten:** Der Kernoutput ist schnell scanbar; Vertiefungen bleiben optional; der Bericht bleibt immer bei genau zwei Seiten.
+- **Beobachtung:** Die Hauptseite folgt einer festen siebenteiligen Leserichtung. Landingpage, Interview, Prozesswahl, Bestätigung, Verarbeitung, Ergebnis und Bericht wurden bei 1440 × 900 und 390 × 844 Pixeln geprüft: kein horizontaler Überlauf, H1 höchstens 42 beziehungsweise 31,2 Pixel. Der aktuelle Blumenladenbericht umfasst zwei A4-Seiten. Ohne Browser-Kopf-/Fußzeilen enthält die PDF keine lokale URL; Seiten-CSS allein kann diese nativen Druckartefakte nicht abschalten.
+- **Erwartetes Verhalten:** Der Kernoutput ist schnell scanbar; der Bericht bleibt bei höchstens zwei Seiten und nutzt den Raum sinnvoll.
 - **Mögliche Ursachen:** Noch zu verifizieren. Viele strukturierte Pflichtfelder, lange Modellausgaben und feste Berichtssektionen können sich kumulieren.
 - **Nächster Prüfschritt:** Die browserübergreifende Geräte- und Druckmatrix bleibt unter UX-001 offen; physische Mobilgeräte und weitere Druckdialoge sind nicht abgenommen.
 - **Betroffene Dateien:** `app/templates/results.html`, `app/templates/report.html`, `app/static/styles.css`, `app/routes.py`.
@@ -80,7 +80,7 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 - **Status:** Partially Fixed
 - **Beobachtung:** Die Diagnose kann Symptom und Engpass korrekt benennen, während `ai_support`, `first_change` oder die erste Opportunity zu allgemein beziehungsweise nicht die beste konkrete Lösung ist.
 - **Erwartetes Verhalten:** Der gewählte Workflow passt zur Ursache, nutzt vorhandene Eingaben, erzeugt einen prüfbaren Output und benennt die menschliche Kontrolle.
-- **Mögliche Ursachen:** Die strukturelle Ursache ist behoben; verbleibendes Risiko liegt in semantischer Klassifikation, Keyword-Fallback und Modellformulierung bei bisher ungesehenen Fällen.
+- **Mögliche Ursachen:** Die statische Listenreihenfolge ist behoben; verbleibendes Risiko liegt in semantischer Klassifikation, Modellrangfolge und Endformulierung bei bisher ungesehenen Fällen.
 - **Nächster Prüfschritt:** Neue reale Fehlfälle als getrennte Diagnose- und Solution-Auswahltests ergänzen.
 - **Betroffene Dateien:** `app/openai_service.py`, `app/rag_service.py`, `app/schemas.py`, `tests/test_quality_pass.py`, `tests/test_product_finalization.py`.
 
@@ -140,8 +140,8 @@ Offene oder teilweise gelöste Probleme bleiben mit einem der Statuswerte `Open`
 ## UX-001 – Reale Geräte- und Druckabnahme ist noch nicht vollständig bestätigt
 
 - **Status:** Investigating
-- **Beobachtung:** Desktop, schmaler Mobile-Viewport und zweiseitiger Bericht wurden am 2026-08-06 in Chrome visuell geprüft. Eine vollständige Freigabe auf physischem Android/iPhone, Safari und unterschiedlichen Druckdialogen bleibt offen.
-- **Erwartetes Verhalten:** Mobile Karten stapeln sauber, Touch-Ziele bleiben nutzbar und der variable Bericht bleibt ohne abgeschnittene Inhalte auf zwei beziehungsweise optional drei A4-Seiten.
+- **Beobachtung:** Desktop 1440 × 900, Mobile 390 × 844 und ein zweiseitiger Bericht wurden am 2026-08-07 in Chrome visuell geprüft. Eine vollständige Freigabe auf physischem Android/iPhone, Safari und unterschiedlichen Druckdialogen bleibt offen.
+- **Erwartetes Verhalten:** Mobile Inhalte stapeln sauber, Touch-Ziele bleiben nutzbar und der variable Bericht bleibt ohne abgeschnittene Inhalte auf höchstens zwei A4-Seiten.
 - **Mögliche Ursachen:** Browser- und Druckengine-Unterschiede können nur begrenzt durch strukturelle Tests abgedeckt werden.
 - **Nächster Prüfschritt:** Definierte Browser-/Gerätematrix manuell prüfen und Ergebnisse dokumentieren.
 - **Betroffene Dateien:** `app/templates/results.html`, `app/templates/report.html`, `app/static/styles.css`, `tests/test_ux_journey.py`, `tests/test_product_finalization.py`.

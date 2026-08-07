@@ -61,7 +61,7 @@ Die zentralen, später zu kalibrierenden Heuristiken liegen ausschließlich in `
 
 ## Kernoutput – neuer Vertrag
 
-Der erste Ergebnisbildschirm zeigt genau sechs sichtbare Blöcke: „Das ist der Engpass“, „Das schlage ich dir vor“, „So würde es künftig laufen“, „Das bekommst du am Ende“, „Nichts geht ohne dich raus“ und „So klein fängst du an“. Wer was tut, steht in höchstens sechs Alltagsschritten; eine Rollentabelle wird nicht gezeigt. Der bestätigte Ist-Ablauf und null bis zwei echte weitere Möglichkeiten stehen optional eingeklappt.
+Der Ergebnisbildschirm zeigt sieben sichtbare Blöcke: „Das ist der Engpass“, „So läuft es heute“, „Das schlage ich dir vor“, „So würde es künftig laufen“, die gekennzeichnete Vorher-/Nachher-Veranschaulichung, „Nichts geht ohne dich raus“ und „So klein fängst du an“. Wer was tut, steht in höchstens sechs Alltagsschritten; eine Rollentabelle wird nicht gezeigt. Der bestätigte Ist-Ablauf steht offen und ist auf fünf Schritte gekürzt. Weitere Möglichkeiten werden in der Hauptansicht nicht gezeigt.
 
 Es gibt keinen Wochentest und keine Pflicht zu drei Opportunities. Alle sichtbaren Ergebnistexte sprechen den Kunden direkt mit „du“ an. Diagnosekontext, Risiken und technische Varianten bleiben Details oder Druckbericht.
 
@@ -71,7 +71,7 @@ Ist KI heute noch nicht sinnvoll, sagt das Ergebnis ausdrücklich, dass KI noch 
 
 „So klein fängst du an“ nennt eine einzige begrenzte Erprobung statt eines Projektplans. Preise, Zusagen an Kunden, Rechnungen, Personal und Qualität bleiben beim Menschen.
 
-Die Druckansicht besteht aus genau zwei Seiten. Seite 1 zeigt Diagnosehinweis, Engpass, Hauptlösung, Zukunftsablauf und gekennzeichnete Vorschau. Seite 2 zeigt menschliche Kontrolle, menschlich bleibende Entscheidungen, höchstens drei Voraussetzungen, höchstens drei wichtige offene Fragen, kleinsten Einstieg, späteren Ausbau und Kontakt. Die Druckansicht unterdrückt Link-URLs.
+Die Druckansicht umfasst höchstens zwei Seiten. Seite 1 zeigt Diagnosehinweis, Engpass als Fließtext, Hauptlösung, Zukunftsablauf und dieselbe gekennzeichnete Vorher-/Nachher-Veranschaulichung. Seite 2 zeigt menschliche Kontrolle, höchstens drei Voraussetzungen, höchstens drei wichtige widerspruchsfreie offene Fragen, kleinsten Einstieg, späteren Ausbau und Kontakt. CSS kann Browser-Kopf- und Fußzeilen nicht abschalten; die Oberfläche weist deshalb darauf hin, sie im Druckdialog abzuwählen.
 
 Die PDF wird über `window.print()` gespeichert. Der Mailto-Link behauptet nicht, die PDF automatisch anzuhängen.
 

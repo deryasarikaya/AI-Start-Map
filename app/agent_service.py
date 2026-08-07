@@ -353,6 +353,36 @@ def question_templates() -> dict[str, str]:
     return templates
 
 
+def _question_pattern(question_text: str) -> dict[str, object] | None:
+    if not QUESTION_PATTERN_FILE.is_file():
+        return None
+    normalized = question_text.casefold().strip()
+    for line in QUESTION_PATTERN_FILE.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        record = json.loads(line)
+        if str(record.get("question_template", "")).casefold().strip() == normalized:
+            return record
+    return None
+
+
+def question_reason_for_pattern(question_text: str) -> str:
+    """Use the explanation belonging to the exact selected question pattern."""
+
+    pattern = _question_pattern(question_text)
+    return str(pattern.get("why_it_matters_user_facing", "")) if pattern else ""
+
+
+def _multiple_people_are_confirmed(state_text: str) -> bool:
+    return re.search(
+        r"\b(?:wir|team|mitarbeiter(?:in|innen)?|kolleg(?:e|in|en|innen)|"
+        r"angestellt(?:e|en)?|inhaber(?:in)?\s+und|chef(?:in)?\s+und|"
+        r"mehrere personen|andere person|dritte person)\b",
+        state_text,
+        re.IGNORECASE,
+    ) is not None
+
+
 def search_diagnostic_knowledge(query: str, *, phase: str = "analysis") -> list[RagEvidence]:
     chunks: list[KnowledgeChunk] = retrieve_chunks(query, phase=phase)
     logger.info(
@@ -429,6 +459,14 @@ def question_can_change_core_output(question_text: str, state: ProcessState) -> 
     ):
         return False
     state_text = _state_text(state)
+    pattern = _question_pattern(question_text)
+    when_not_to_ask = str(pattern.get("when_not_to_ask", "")) if pattern else ""
+    requires_multiple_people = (
+        "mehr als eine beteiligte person" in when_not_to_ask.casefold()
+        or _question_gap(question_text) == "human_approvals"
+    )
+    if requires_multiple_people and not _multiple_people_are_confirmed(state_text):
+        return False
     if (
         any(
             marker in normalized
@@ -616,35 +654,6 @@ def evaluate_readiness_and_next_action(
         )
     # Ein fehlender leichter Vorgangsanker blockiert einen geeigneten digitalen
     # Eingang nicht. Der Selector ergänzt ihn als Teil derselben Einstiegslösung.
-    high_stakes = any(
-        marker in state_text
-        for marker in (
-            "preis",
-            "angebot",
-            "vertrag",
-            "zahlung",
-            "bezahlen",
-            "freigabe",
-            "qualität",
-        )
-    )
-    if (
-        state.follow_up_count < AGENT_HEURISTICS.normal_follow_up_maximum
-        and high_stakes
-        and not state.human_approvals
-        and "human_approvals" not in answered
-    ):
-        return NextActionDecision(
-            next_action="ASK",
-            reasoning=(
-                "Die Antwort entscheidet, welche Freigabe zwingend beim Menschen "
-                "bleibt."
-            ),
-            information_gap="human_approvals",
-            possible_next_question=templates.get("human_approvals", ""),
-            remaining_uncertainties=remaining,
-            analysis_allowed=True,
-        )
     if (
         state.follow_up_count < AGENT_HEURISTICS.normal_follow_up_maximum
         and state.digital_maturity is not None

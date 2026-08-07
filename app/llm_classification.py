@@ -8,25 +8,24 @@ liefert ein bis drei Problemfamilien-IDs mit wörtlichem Belegzitat sowie
 typisierte Gate-Werte.
 
 Die deterministischen Stichwort-Funktionen `classify_problem_families()` und
-`infer_decision_gates()` bleiben unverändert erhalten und dienen ausschließlich
-als Fallback bei API-Fehlern. Selector, Agent-Layer, UI und Indizes werden von
-diesem Modul nicht berührt.
+`infer_decision_gates()` bleiben für Tests und Baseline-Messungen erhalten. Der
+Produktivpfad fällt bei API-Fehlern nicht auf sie zurück.
 """
 
 from __future__ import annotations
 
 import logging
-from typing import Literal
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, create_model
 
 from app.openai_service import AIServiceError, _parse_structured_output
 from app.recommendation_service import (
+    CandidateRankingItem,
     DecisionGates,
     GateLevel,
     RecommendationCatalog,
-    classify_problem_families,
-    infer_decision_gates,
+    SolutionPattern,
     load_recommendation_catalog,
 )
 
@@ -74,8 +73,17 @@ Aufgabe 2 – Gates: Bewerte die sechs Gates ausschließlich anhand der
 Erzählung. Der Wert "unknown" ist ausdrücklich erlaubt und korrekt, wenn die
 Erzählung keine Aussage dazu enthält. Rate nicht und leite nichts aus
 Branchenwissen ab. Setze `physical_object` nur, wenn ein konkreter physischer
-Gegenstand Teil des Problems ist, und `real_location_known` nur, wenn die
-Erzählung einen dokumentierten festen Ablage- oder Lagerort bestätigt.
+Kundengegenstand in der Obhut des Betriebs Teil des Problems ist: Er wurde
+angenommen, wird gelagert oder bearbeitet oder später zurückgegeben oder
+abgeholt. Belege, Kassenzettel, Rechnungen, Lieferscheine, Zettel, Notizen,
+Fotos, Ausdrucke und eingekauftes Material für den eigenen Einsatz sind keine
+solchen Kundengegenstände. Setze `real_location_known` nur, wenn die Erzählung
+einen dokumentierten festen Ablage- oder Lagerort bestätigt.
+
+Aufgabe 3 – Betriebstyp: Beschreibe den Betriebstyp aus der Erzählung in einem
+kurzen freien deutschen Begriff. Nutze keine Auswahlliste und rate nicht. Wenn
+der Betriebstyp nicht eindeutig aus der Erzählung hervorgeht, gib einen leeren
+Text zurück.
 
 Antworte ausschließlich im vorgegebenen Ausgabeschema. Erfinde keine Angaben
 und keine IDs.
@@ -107,6 +115,7 @@ class LlmClassificationResult(BaseModel):
 
     families: list[FamilyAssessment]
     gates: LlmDecisionGates
+    business_type_guess: str = ""
 
 
 class ClassificationOutcome(BaseModel):
@@ -114,7 +123,38 @@ class ClassificationOutcome(BaseModel):
 
     problem_family_ids: list[str]
     gates: DecisionGates
-    method: Literal["llm", "keyword_fallback"]
+    method: Literal["llm"]
+    business_type_guess: str = ""
+
+
+class LlmCandidateRankingItem(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    solution_id: Literal[
+        "SP-01", "SP-02", "SP-03", "SP-04", "SP-05",
+        "SP-06", "SP-07", "SP-08", "SP-09", "SP-10",
+    ]
+    reason: str
+
+
+class LlmCandidateRankingResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    ranking: list[LlmCandidateRankingItem]
+
+
+CANDIDATE_RANKING_SYSTEM_PROMPT = """
+Du ordnest bereits durch feste Sicherheitsregeln zugelassene Lösungsmuster für
+die bestätigte Prozessbeschreibung. Entscheide nur, welches zugelassene Muster
+das konkret beschriebene Kernproblem am direktesten löst. Beurteile Bedeutung
+und Ablauf, nicht einzelne Stichwörter.
+
+Gib jedes zugelassene Muster genau einmal zurück, passendstes zuerst. Nutze nur
+die mitgelieferten IDs. Ein Gegenbeispiel zeigt, wann ein Muster gerade nicht
+passt; positive Varianten zeigen typische passende Fälle. Begründe jede
+Position kurz anhand der bestätigten Beschreibung. Hebe keine Ausschlüsse auf
+und erfinde keine Betriebsangaben.
+""".strip()
 
 
 def _family_context(catalog: RecommendationCatalog) -> list[dict[str, object]]:
@@ -168,6 +208,7 @@ def classify_with_llm(
         problem_family_ids=family_ids,
         gates=gates,
         method="llm",
+        business_type_guess=result.business_type_guess.strip(),
     )
 
 
@@ -176,24 +217,82 @@ def classify_narrative(
     *,
     catalog: RecommendationCatalog | None = None,
 ) -> ClassificationOutcome:
-    """Primär LLM-Klassifikation; Keyword-Logik nur als Fallback bei API-Fehlern."""
+    """Classify with the model; API failures stay visible to the product flow."""
 
-    try:
-        outcome = classify_with_llm(text, catalog=catalog)
-        logger.info(
-            "classification.completed method=llm problem_families=%s",
-            outcome.problem_family_ids,
+    outcome = classify_with_llm(text, catalog=catalog)
+    logger.info(
+        "classification.completed method=llm problem_families=%s",
+        outcome.problem_family_ids,
+    )
+    return outcome
+
+
+def rank_candidates(
+    text: str,
+    candidates: list[SolutionPattern],
+) -> list[CandidateRankingItem]:
+    """Rank only the candidates already admitted by deterministic Python rules."""
+
+    if not candidates:
+        return []
+    allowed_ids = {item.solution_id for item in candidates}
+    payload: dict[str, object] = {
+        "bestaetigte_prozessbeschreibung": text,
+        "zugelassene_muster": [
+            {
+                "solution_id": item.solution_id,
+                "name": item.name,
+                "kurzbeschreibung": item.customer_language,
+                "positive_variants": item.positive_variants,
+                "counterexample": item.counterexample,
+            }
+            for item in candidates
+        ],
+    }
+    allowed_solution_id = Literal.__getitem__(tuple(sorted(allowed_ids)))
+    ranking_item_type = create_model(
+        f"AllowedCandidateRankingItem{len(candidates)}",
+        __config__=ConfigDict(extra="forbid"),
+        solution_id=(allowed_solution_id, ...),
+        reason=(str, ...),
+    )
+    ranking_result_type = create_model(
+        f"AllowedCandidateRankingResult{len(candidates)}",
+        __config__=ConfigDict(extra="forbid"),
+        ranking=(
+            Annotated[
+                list[ranking_item_type],
+                Field(min_length=len(candidates), max_length=len(candidates)),
+            ],
+            ...,
+        ),
+    )
+    result = _parse_structured_output(
+        system_prompt=CANDIDATE_RANKING_SYSTEM_PROMPT,
+        payload=payload,
+        result_type=ranking_result_type,
+    )
+    ranked: list[CandidateRankingItem] = []
+    seen: set[str] = set()
+    for item in result.ranking:
+        if item.solution_id not in allowed_ids or item.solution_id in seen:
+            continue
+        reason = item.reason.strip()
+        if not reason:
+            continue
+        ranked.append(CandidateRankingItem(solution_id=item.solution_id, reason=reason))
+        seen.add(item.solution_id)
+    if seen != allowed_ids:
+        logger.error(
+            "candidate_ranking.invalid allowed=%s returned=%s",
+            sorted(allowed_ids),
+            [item.solution_id for item in ranked],
         )
-        return outcome
-    except AIServiceError as error:
-        logger.warning(
-            "classification.fallback method=keyword_fallback exception_type=%s "
-            "exception_message=%s",
-            type(error).__name__,
-            str(error),
+        raise AIServiceError(
+            "Die passenden Lösungen konnten gerade nicht sicher verglichen werden."
         )
-        return ClassificationOutcome(
-            problem_family_ids=classify_problem_families(text),
-            gates=infer_decision_gates(text),
-            method="keyword_fallback",
-        )
+    logger.info(
+        "candidate_ranking.completed ranking=%s",
+        [item.solution_id for item in ranked],
+    )
+    return ranked

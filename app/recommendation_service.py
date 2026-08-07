@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
-from typing import Literal
+from typing import Callable, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -14,6 +14,10 @@ Confidence = Literal["low", "medium", "high"]
 GateLevel = Literal["unknown", "low", "medium", "high"]
 GateStatus = Literal["pass", "fail", "unknown"]
 AutonomyLevelId = Literal["A0", "A1", "A2", "A3", "A4", "A5"]
+
+
+class RecommendationRankingError(RuntimeError):
+    pass
 
 
 class CatalogModel(BaseModel):
@@ -51,6 +55,7 @@ class PilotDefinition(CatalogModel):
 class SolutionPattern(CatalogModel):
     solution_id: str
     name: str
+    customer_title: str
     problem_family_ids: list[str] = Field(min_length=1)
     applicable_if: list[str] = Field(min_length=1)
     not_applicable_if: list[str] = Field(min_length=1)
@@ -225,6 +230,17 @@ class GateAssessment(CatalogModel):
     reason: str
 
 
+class CandidateRankingItem(CatalogModel):
+    solution_id: str
+    reason: str = Field(min_length=1)
+
+
+CandidateRanker = Callable[
+    [str, list[SolutionPattern]],
+    list[CandidateRankingItem],
+]
+
+
 class RecommendationSelection(CatalogModel):
     problem_family_ids: list[str]
     primary: SolutionPattern | None
@@ -239,6 +255,7 @@ class RecommendationSelection(CatalogModel):
     stop_conditions: list[str]
     target_fit: GateStatus
     target_fit_reason: str
+    candidate_ranking: list[CandidateRankingItem] = Field(default_factory=list)
 
 
 def load_recommendation_catalog(path: Path = CATALOG_FILE) -> RecommendationCatalog:
@@ -248,6 +265,8 @@ def load_recommendation_catalog(path: Path = CATALOG_FILE) -> RecommendationCata
 
 
 def classify_problem_families(text: str) -> list[str]:
+    """Legacy keyword baseline for tests and offline comparison, not production."""
+
     value = text.casefold()
     if any(
         marker in value
@@ -277,11 +296,23 @@ def classify_problem_families(text: str) -> list[str]:
 
 def infer_decision_gates(text: str) -> DecisionGates:
     value = text.casefold()
-    physical_object = re.search(
+    custody_object_named = re.search(
         r"\b(?:schuh|schuhe|gegenstand|gegenstände|gerät|geräte|paket|pakete|"
-        r"fahrrad|fahrräder|reparaturstück|ware|warenstück|regal|regalplatz)\b",
+        r"fahrrad|fahrräder|reparaturstück|ware|warenstück)\b",
         value,
     ) is not None
+    custody_context = re.search(
+        r"\b(?:angenommen|annehmen|annahme|gelagert|lagern|lager|bearbeitet|"
+        r"bearbeiten|repariert|reparatur|zurückgegeben|zurückgeben|abgeholt|"
+        r"abholen|herausgabe|werkstatt|regal|regalplatz|fach|nicht wiederfinden)\b",
+        value,
+    ) is not None
+    information_carrier_only = re.search(
+        r"\b(?:beleg|belege|kassenzettel|rechnung|rechnungen|lieferschein|"
+        r"lieferscheine|zettel|notiz|notizen|foto|fotos|ausdruck|ausdrucke|bon|bons)\b",
+        value,
+    ) is not None and custody_object_named is False
+    physical_object = custody_object_named and custody_context and not information_carrier_only
     real_location_known = any(
         marker in value
         for marker in ("regalplatz wird", "ort wird dokumentiert", "festes fach")
@@ -522,6 +553,7 @@ def select_recommendation(
     *,
     catalog: RecommendationCatalog | None = None,
     confirmed_text: str = "",
+    candidate_ranker: CandidateRanker | None = None,
 ) -> RecommendationSelection:
     data = catalog or load_recommendation_catalog()
     by_id = {item.solution_id: item for item in data.solution_patterns}
@@ -573,10 +605,6 @@ def select_recommendation(
             if candidate != "SP-04":
                 excluded.setdefault(candidate, []).append("Physische Identität und realer Ort sind noch nicht bestätigt.")
         candidates = ["SP-04", *[item for item in candidates if item != "SP-04"]]
-    if "PF-08" in problem_family_ids and gates.channel_suitability in {"medium", "high"}:
-        candidates = ["SP-03", *[item for item in candidates if item != "SP-03"]]
-    if "PF-06" in problem_family_ids:
-        candidates = ["SP-05", *[item for item in candidates if item != "SP-05"]]
     allowed = [item for item in candidates if item not in excluded]
     if not allowed:
         return RecommendationSelection(
@@ -597,8 +625,29 @@ def select_recommendation(
             target_fit=target_fit,
             target_fit_reason=target_fit_reason,
         )
-    primary_id = allowed[0]
-    secondary_ids = [item for item in allowed[1:] if item != primary_id][:2]
+    if candidate_ranker is None:
+        raise RecommendationRankingError(
+            "Für zulässige Lösungsmuster fehlt die fallbezogene Rangfolge."
+        )
+    proposed_ranking = candidate_ranker(
+        confirmed_text,
+        [by_id[solution_id] for solution_id in allowed],
+    )
+    ranked_allowed: list[CandidateRankingItem] = []
+    seen_ranked_ids: set[str] = set()
+    allowed_set = set(allowed)
+    for item in proposed_ranking:
+        if item.solution_id not in allowed_set or item.solution_id in seen_ranked_ids:
+            continue
+        ranked_allowed.append(item)
+        seen_ranked_ids.add(item.solution_id)
+    if seen_ranked_ids != allowed_set:
+        missing = sorted(allowed_set - seen_ranked_ids)
+        raise RecommendationRankingError(
+            "Die fallbezogene Rangfolge ist unvollständig: " + ", ".join(missing)
+        )
+    primary_id = ranked_allowed[0].solution_id
+    secondary_ids = [item.solution_id for item in ranked_allowed[1:3]]
     approval_boundaries = [by_id[primary_id].human_check]
     if gates.error_impact == "high" or gates.human_approval in {"medium", "high"}:
         approval_boundaries.extend(by_id[primary_id].security_guardrails)
@@ -616,4 +665,5 @@ def select_recommendation(
         stop_conditions=by_id[primary_id].stop_conditions,
         target_fit=target_fit,
         target_fit_reason=target_fit_reason,
+        candidate_ranking=ranked_allowed,
     )

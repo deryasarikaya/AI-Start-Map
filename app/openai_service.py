@@ -25,6 +25,7 @@ from app.schemas import (
     ProcessSuggestionResult,
     ProcessUnderstandingResult,
     SampleOutputField,
+    contains_forbidden_customer_term,
 )
 from app.solution_knowledge import output_structure_for
 
@@ -38,7 +39,7 @@ class AIServiceError(RuntimeError):
 
 StructuredResult = TypeVar("StructuredResult", bound=BaseModel)
 logger = logging.getLogger(__name__)
-OPENAI_REQUEST_TIMEOUT_SECONDS = 26.0
+OPENAI_REQUEST_TIMEOUT_SECONDS = 45.0
 FINAL_ANALYSIS_TIMEOUT_SECONDS = 120.0
 OPENAI_RETRIEVAL_TIMEOUT_SECONDS = 6.0
 _openai_call_count: contextvars.ContextVar[int] = contextvars.ContextVar(
@@ -596,20 +597,21 @@ def _apply_recommendation_contract(
                 item.label.casefold(): item.value for item in result.sample_output.fields
             }
             contracted_fields: list[SampleOutputField] = []
+            catalog_fallback_used = False
             for field in raw_fields[:7]:
                 if not isinstance(field, dict) or not field.get("label"):
                     continue
                 label = str(field["label"])
                 field_id = str(field.get("field_id") or "")
+                field_index = len(contracted_fields)
                 value = existing.get(label.casefold(), "")
-                normalized_value = value.casefold()
-                if not (
-                    normalized_value
-                    and normalized_value not in {"noch offen", "nicht angegeben", "zu pr\u00fcfen"}
-                    and normalized_value in user_fact_text
-                ):
+                if not value and field_index < len(result.sample_output.fields):
+                    value = result.sample_output.fields[field_index].value
+                if not value or value.casefold() in {
+                    "noch offen", "nicht angegeben", "zu prüfen"
+                }:
                     value = approved_examples.get(field_id, "")
-                    normalized_value = value.casefold()
+                    catalog_fallback_used = bool(value) or catalog_fallback_used
                 if not value:
                     continue
                 contracted_fields.append(
@@ -621,6 +623,9 @@ def _apply_recommendation_contract(
                     "Beispielangaben zur Veranschaulichung \u2013 hier stehen "
                     "sp\u00e4ter deine tats\u00e4chlichen Angaben."
                 )
+            result.sample_output.used_catalog_fallback = catalog_fallback_used
+            if catalog_fallback_used:
+                logger.warning("sample_output.fallback_to_catalog_example")
         structure_name = output_structure.get("name")
         if structure_name:
             result.sample_output.title = str(structure_name)[:80]
@@ -638,12 +643,9 @@ def _apply_recommendation_contract(
             ]
 
     if isinstance(primary, dict):
-        primary_name = str(primary.get("name") or "").strip()
+        primary_name = str(primary.get("customer_title") or "").strip()
         if primary_name:
             result.primary_recommendation = primary_name[:110]
-        smallest_entry = str(primary.get("smallest_entry") or "").strip()
-        if smallest_entry:
-            result.smallest_usable_version = smallest_entry[:220]
         deterministic_components = primary.get("deterministic_components")
         if isinstance(deterministic_components, list) and deterministic_components:
             result.software_rule = "; ".join(
@@ -786,6 +788,7 @@ def generate_final_analysis(
     knowledge_chunks: Sequence[str],
     agent_state: dict[str, object] | None = None,
     recommendation_context: dict[str, object] | None = None,
+    _quality_retry: bool = False,
 ) -> FinalAnalysisResult:
     result = _parse_structured_output(
         system_prompt="""
@@ -798,14 +801,46 @@ Du formulierst eine konkrete Prozessdiagnose in deutscher Alltagssprache.
 5. B. RETRIEVED PATTERNS ist nur internes Vergleichswissen und darf nie als Nutzerfakt oder Quelle erscheinen.
 6. process_summary, before_process und as_is_steps enthalten nur belegte heutige Handlungen; fehlende Schritte bleiben offen.
 7. future_process und to_be_steps beschreiben ausdrücklich einen möglichen zukünftigen Ablauf, nicht den Ist-Zustand.
-8. Übernimm Feldnamen und Human Review aus output_structure; Nutzerwerte stammen ausschließlich aus A, sonst steht „noch offen“.
-9. Katalog-Beispielwerte dürfen nur im klar als Vorschau gekennzeichneten sample_output stehen und nie als Nutzerfakt erscheinen.
+8. Übernimm die Feldnamen und die menschliche Prüfung aus output_structure. Für
+   die Beispielwerte in sample_output gilt ausschließlich Regel 9.
+9. sample_output ist die einzige Stelle, an der du zur Veranschaulichung erfinden
+   darfst. Erfinde dort eine realistische Eingangsnachricht mit zwei bis vier
+   Sätzen. Nutze ausschließlich Kanäle, Produkte und Begriffe aus A. Trage aus
+   genau dieser Nachricht die Felder der output_structure zusammen. Lass ein
+   bis zwei Angaben bewusst fehlen und formuliere dazu eine vorbereitete kurze
+   Rückfrage. input_context nennt in höchstens acht Wörtern nur Kanal und
+   gegebenenfalls Uhrzeit. Jede Zahl in den ausgefüllten Feldern muss bereits
+   in der erfundenen Nachricht stehen. Fremde Branchenbeispiele und
+   Katalog-Beispielwerte sind verboten.
 10. Trenne user_action, ai_task, software_rule und human_check konkret nach Verantwortung.
 11. not_automated und error_boundaries nennen die menschlichen Entscheidungsgrenzen aus Gates, FAIL-Regeln und Stop Conditions.
 12. Bei A0 empfiehlst du die einfache Regel oder vorhandene Funktion und behauptest keine notwendige KI-Aufgabe.
 13. Erfinde keine Software, API, Integration, Messzahl, Zeit-, Geld- oder Nutzenzusage.
-14. Verwende keine internen IDs, Quellenhinweise oder unnötigen technischen Begriffe.
+14. Verwende keine internen IDs, Quellenhinweise oder unnötigen technischen
+    Begriffe. In keinem Kundentext dürfen folgende Wörter oder Wortfamilien
+    stehen: Einsatzanker, Vorgangsanker, Anker, ankerbasiert, Datensatz,
+    Zielschema, Metadaten, Pflichtfeld, Feldvalidierung, Formate, Upload,
+    mobiler Eingang, Erfassungskanal, Einsatz-ID, Auftrags-ID, Objekt-ID,
+    ID-Vergabe, Softwareregel, Regelwerk, deterministisch, Autonomiestufe,
+    A0 bis A5, Solution Pattern, Problemfamilie, Pattern, Muster,
+    Musterabgleich, Human Check, Freigabe-Gate, Gate, Guardrail, RAG,
+    Retrieval, Klassifikation, Index, Konfiguriere, Aktiviere,
+    Implementierung, Pilot, Rollout, strukturiertes Erfassen, informelle
+    Notizpraxis, Prozessreife, Vorgangsakte, Vorgangsentwurf, Zieloutput,
+    Medien, Datenobjekt, Entwurfsstatus, „nicht verbindlich“, Konsolidierung
+    und konsolidieren. Formuliere die Bedeutung jeweils vollständig in kurzen
+    Alltagssätzen neu. Kopiere den technischen Wortlaut aus D niemals.
 15. Gib genau eine dominante Empfehlung; sekundäre Möglichkeiten erscheinen nur, wenn D sie fachlich trägt.
+    primary_recommendation hat höchstens zwölf Wörter.
+16. Falls D unter customer_language_retry verworfene Felder oder unter
+    first_step_retry einen unbrauchbaren ersten Schritt nennt, formuliere diese
+    vollständig neu. Ersetze keine einzelnen Wörter aus dem alten Satz.
+17. smallest_usable_version ist ein vollständiger Absatz mit mindestens zwölf
+    Wörtern. Beginne ihn mit „Du“ und einem gebeugten Tätigkeitswort, zum
+    Beispiel „Du sammelst“, „Du testest“ oder „Du prüfst“. Nenne eine konkrete
+    Handlung ab morgen, eine Erprobungsdauer und ein beobachtbares Prüfkriterium.
+    Übernimm weder pilot noch smallest_entry wörtlich aus D. Das Wort „Pilot“,
+    erfundene Fallzahlen und Prozentwerte sind verboten.
 """.strip(),
         payload={
             "A_USER_FACTS": {
@@ -839,4 +874,93 @@ Du formulierst eine konkrete Prozessdiagnose in deutscher Alltagssprache.
         recommendation_context,
         user_fact_text=user_fact_text,
     )
-    return _validate_final_grounding(result, answers, selected_process)
+    result = _validate_final_grounding(result, answers, selected_process)
+    incoming_numbers = set(
+        re.findall(r"(?<!\w)\d+(?:[.,]\d+)?", result.sample_output.incoming_message)
+    )
+    field_numbers = {
+        number
+        for field in result.sample_output.fields
+        for number in re.findall(r"(?<!\w)\d+(?:[.,]\d+)?", field.value)
+    }
+    unsupported_sample_numbers = sorted(field_numbers - incoming_numbers)
+    if unsupported_sample_numbers:
+        logger.warning(
+            "final_analysis.sample_output_rejected retry=%s unsupported_numbers=%s",
+            _quality_retry,
+            unsupported_sample_numbers,
+        )
+        if not _quality_retry:
+            retry_context = dict(recommendation_context or {})
+            retry_context["sample_output_retry"] = {
+                "rejected_numbers": unsupported_sample_numbers,
+                "requirements": (
+                    "Formuliere die Veranschaulichung vollständig neu. Jede Zahl "
+                    "in den ausgefüllten Feldern muss wörtlich in der erfundenen "
+                    "Eingangsnachricht vorkommen. input_context hat höchstens acht "
+                    "Wörter und nennt nur Kanal und gegebenenfalls Uhrzeit."
+                ),
+            }
+            return generate_final_analysis(
+                answers=answers,
+                selected_process=selected_process,
+                knowledge_chunks=knowledge_chunks,
+                agent_state=agent_state,
+                recommendation_context=retry_context,
+                _quality_retry=True,
+            )
+        raise AIServiceError(
+            "Die Veranschaulichung konnte nicht widerspruchsfrei erstellt werden."
+        )
+    first_step = result.smallest_usable_version
+    first_step_words = re.findall(r"[\wÄÖÜäöüß]+", first_step)
+    finite_verb = re.search(
+        r"\b(?:du\s+[a-zäöüß]+(?:st|t)|probier(?:e)?|teste|schick(?:e)?|sende|"
+        r"nimm|lege|halte|notiere|prüfe|schau|nutze|verwende|beginne|starte|"
+        r"sammle|erfasse|arbeite|wähle|führe|markiere|vergleiche|beobachte|mach|"
+        r"ist|sind|wird|werden|kann|können|läuft|funktioniert|stimmt)\b",
+        first_step,
+        re.IGNORECASE,
+    )
+    actionable_first_step = (
+        result.autonomy_level == "A0"
+        or (
+            len(first_step_words) >= 12
+            and finite_verb is not None
+            and re.search(r"\bPilot\w*\b", first_step, re.IGNORECASE) is None
+            and first_step.rstrip().endswith((".", "!", "?"))
+        )
+    )
+    if not actionable_first_step:
+        logger.warning(
+            "final_analysis.first_step_rejected retry=%s word_count=%d text=%r",
+            _quality_retry,
+            len(first_step_words),
+            first_step,
+        )
+        if not _quality_retry:
+            retry_context = dict(recommendation_context or {})
+            retry_context["first_step_retry"] = {
+                "rejected_text": first_step,
+                "requirements": (
+                    "Beginne zwingend mit 'Du' und einem gebeugten Tätigkeitswort, "
+                    "zum Beispiel 'Du sammelst', 'Du testest' oder 'Du prüfst'. "
+                    "Schreibe mindestens zwölf Wörter und nenne eine konkrete "
+                    "Handlung ab morgen, eine Erprobungsdauer und ein beobachtbares "
+                    "Prüfkriterium. Das Wort Pilot, erfundene Fallzahlen und "
+                    "Prozentwerte sind verboten. Beende den Absatz mit einem "
+                    "vollständigen Satz."
+                ),
+            }
+            return generate_final_analysis(
+                answers=answers,
+                selected_process=selected_process,
+                knowledge_chunks=knowledge_chunks,
+                agent_state=agent_state,
+                recommendation_context=retry_context,
+                _quality_retry=True,
+            )
+        raise AIServiceError(
+            "Der erste Schritt konnte nicht handlungsfähig formuliert werden."
+        )
+    return result

@@ -1,8 +1,7 @@
-"""Tests fuer die LLM-Klassifikation mit deterministischem Fallback.
+"""Tests fuer die LLM-Klassifikation und fallbezogene Musterrangfolge.
 
 Kein Test ruft die echte OpenAI-API auf; der Structured-Output-Aufruf wird
-gemockt. Die Fallback-Tests pruefen, dass bei API-Fehlern exakt die
-bestehende Keyword-Logik greift.
+gemockt. API-Fehler müssen im Produktpfad sichtbar bleiben.
 """
 
 from __future__ import annotations
@@ -14,17 +13,16 @@ from app.llm_classification import (
     FamilyAssessment,
     LlmClassificationResult,
     LlmDecisionGates,
+    LlmCandidateRankingItem,
+    LlmCandidateRankingResult,
     classify_narrative,
     classify_with_llm,
+    rank_candidates,
     _family_context,
     _gate_context,
 )
 from app.openai_service import AIServiceError
-from app.recommendation_service import (
-    classify_problem_families,
-    infer_decision_gates,
-    load_recommendation_catalog,
-)
+from app.recommendation_service import load_recommendation_catalog
 
 
 HAUSMEISTER_TEXT = (
@@ -144,17 +142,51 @@ def test_classify_narrative_uses_llm_when_available(monkeypatch) -> None:
     assert outcome.problem_family_ids == ["PF-08"]
 
 
-def test_classify_narrative_falls_back_to_keyword_logic(monkeypatch) -> None:
+def test_classify_narrative_propagates_service_failure(monkeypatch) -> None:
     def _raise(**_: object) -> None:
         raise AIServiceError("API nicht erreichbar")
 
     monkeypatch.setattr(llm_classification, "_parse_structured_output", _raise)
-    outcome = classify_narrative(HAUSMEISTER_TEXT)
-    assert outcome.method == "keyword_fallback"
-    assert outcome.problem_family_ids == classify_problem_families(
-        HAUSMEISTER_TEXT
+    import pytest
+
+    with pytest.raises(AIServiceError):
+        classify_narrative(HAUSMEISTER_TEXT)
+
+
+def test_rank_candidates_filters_foreign_ids_and_requires_complete_ranking(
+    monkeypatch,
+) -> None:
+    candidates = load_recommendation_catalog().solution_patterns[:2]
+    monkeypatch.setattr(
+        llm_classification,
+        "_parse_structured_output",
+        lambda **_: LlmCandidateRankingResult(
+            ranking=[
+                LlmCandidateRankingItem(solution_id="SP-09", reason="Fremd"),
+                LlmCandidateRankingItem(solution_id="SP-01", reason="Passt"),
+            ]
+        ),
     )
-    assert outcome.gates == infer_decision_gates(HAUSMEISTER_TEXT)
+    import pytest
+
+    with pytest.raises(AIServiceError):
+        rank_candidates("Anfragen kommen über mehrere Kanäle.", candidates)
+
+
+def test_rank_candidates_returns_only_allowed_candidates_in_model_order(monkeypatch) -> None:
+    candidates = load_recommendation_catalog().solution_patterns[:2]
+    monkeypatch.setattr(
+        llm_classification,
+        "_parse_structured_output",
+        lambda **_: LlmCandidateRankingResult(
+            ranking=[
+                LlmCandidateRankingItem(solution_id="SP-02", reason="Zweiter Ablauf"),
+                LlmCandidateRankingItem(solution_id="SP-01", reason="Direkter Eingang"),
+            ]
+        ),
+    )
+    ranking = rank_candidates("Anfragen kommen über mehrere Kanäle.", candidates)
+    assert [item.solution_id for item in ranking] == ["SP-02", "SP-01"]
 
 
 def test_classify_narrative_result_is_serializable(monkeypatch) -> None:

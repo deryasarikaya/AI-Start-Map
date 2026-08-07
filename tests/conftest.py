@@ -47,6 +47,39 @@ def clear_test_database(migrate_test_database: None) -> None:
         )
 
 
+@pytest.fixture(autouse=True)
+def mock_product_classification_and_ranking(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Keep external model calls mocked in HTTP tests unless a test overrides them."""
+
+    from app import routes
+    from app.llm_classification import ClassificationOutcome
+    from app.recommendation_service import (
+        CandidateRankingItem,
+        classify_problem_families,
+        infer_decision_gates,
+    )
+
+    def classify(text: str, **_kwargs: object) -> ClassificationOutcome:
+        return ClassificationOutcome(
+            problem_family_ids=classify_problem_families(text),
+            gates=infer_decision_gates(text),
+            method="llm",
+            business_type_guess="",
+        )
+
+    def rank(_text, candidates):
+        return [
+            CandidateRankingItem(
+                solution_id=item.solution_id,
+                reason="Gemockte fallbezogene Rangfolge",
+            )
+            for item in candidates
+        ]
+
+    monkeypatch.setattr(routes, "classify_narrative", classify)
+    monkeypatch.setattr(routes, "rank_candidates", rank)
+
+
 @pytest.fixture
 def client() -> Generator[TestClient, None, None]:
     with TestClient(app) as test_client:

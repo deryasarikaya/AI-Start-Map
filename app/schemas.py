@@ -75,51 +75,6 @@ PROHIBITED_CUSTOMER_LANGUAGE_PATTERN = re.compile(
     r"handschriftenkapazität)\b",
     re.IGNORECASE,
 )
-# This is a presentation boundary, not a recommendation or safety rule.
-# Longer phrases are replaced first so internal implementation vocabulary never
-# reaches the customer-facing HTML or print payload.
-CUSTOMER_LANGUAGE_REPLACEMENTS: tuple[tuple[re.Pattern[str], str], ...] = (
-    (re.compile(r"\b(?:Einsatz|Vorgangs)anker\w*\b", re.IGNORECASE), "eindeutige Zuordnung zum Auftrag"),
-    (re.compile(r"\bankerbasiert\w*\b", re.IGNORECASE), "eindeutig zugeordnet"),
-    (re.compile(r"\b\w*anker\w*\b", re.IGNORECASE), "eindeutige Zuordnung"),
-    (re.compile(r"\bstrukturierte[rn]?\s+Datens(?:atz|\u00e4tze)\b", re.IGNORECASE), "\u00fcbersichtlicher Eintrag"),
-    (re.compile(r"\b\w*datens(?:atz|\u00e4tze)\w*\b", re.IGNORECASE), "Eintrag"),
-    (re.compile(r"\bZielschema\w*\b", re.IGNORECASE), "gew\u00fcnschter Aufbau"),
-    (re.compile(r"\bMetadaten\w*\b", re.IGNORECASE), "zus\u00e4tzliche Angaben"),
-    (re.compile(r"\b\w*pflichtfeld\w*\b", re.IGNORECASE), "notwendige Angaben"),
-    (re.compile(r"\bFeldvalidierung\w*\b", re.IGNORECASE), "Pr\u00fcfung der Angaben"),
-    (re.compile(r"\bFormate?\b", re.IGNORECASE), "Schreibweisen"),
-    (re.compile(r"\bUpload-Zuordnung\w*\b", re.IGNORECASE), "Zuordnung der gesendeten Dateien"),
-    (re.compile(r"\bUpload\w*\b", re.IGNORECASE), "Senden von Dateien"),
-    (re.compile(r"\bmobiler Eingang\b", re.IGNORECASE), "Eingabe unterwegs"),
-    (re.compile(r"\bErfassungskanal\w*\b", re.IGNORECASE), "Weg f\u00fcr deine Angaben"),
-    (re.compile(r"\b(?:Einsatz|Auftrags|Objekt)-ID\w*\b", re.IGNORECASE), "eindeutige Zuordnung"),
-    (re.compile(r"\bID-Vergabe\w*\b", re.IGNORECASE), "eindeutige Benennung"),
-    (re.compile(r"\bSoftwareregeln?\b", re.IGNORECASE), "feste Pr\u00fcfungen"),
-    (re.compile(r"\bRegelwerk\w*\b", re.IGNORECASE), "feste Vorgaben"),
-    (re.compile(r"\bdeterministisch\w*\b", re.IGNORECASE), "zuverl\u00e4ssig"),
-    (re.compile(r"\bAutonomiestufe\s*A[0-5]\b", re.IGNORECASE), ""),
-    (re.compile(r"\bA[0-5]\b", re.IGNORECASE), ""),
-    (re.compile(r"\bSolution\s+Pattern\w*\b", re.IGNORECASE), "L\u00f6sung"),
-    (re.compile(r"\bProblemfamilie\w*\b", re.IGNORECASE), "Art des Problems"),
-    (re.compile(r"\bPattern\w*\b", re.IGNORECASE), "L\u00f6sung"),
-    (re.compile(r"\bMuster\w*\b", re.IGNORECASE), "Beispiel"),
-    (re.compile(r"\bHuman\s+Check\b", re.IGNORECASE), "deine Pr\u00fcfung"),
-    (re.compile(r"\bFreigabe-Gate\w*\b", re.IGNORECASE), "deine Freigabe"),
-    (re.compile(r"\bGuardrail\w*\b", re.IGNORECASE), "Sicherheitsgrenze"),
-    (re.compile(r"\bGate\w*\b", re.IGNORECASE), "Pr\u00fcfung"),
-    (re.compile(r"\bRAG\b|\bRetrieval\w*\b|\bKlassifikation\w*\b|\bInd(?:ex|izes?)\w*\b", re.IGNORECASE), ""),
-    (re.compile(r"\b(?:PF|SP|OUT|GAI|FAIL|GATE)-[A-Z0-9_-]+\b", re.IGNORECASE), ""),
-    (re.compile(r"\bKonfigurier\w*\b", re.IGNORECASE), "Stell"),
-    (re.compile(r"\bAktivier\w*\b", re.IGNORECASE), "Schalte"),
-    (re.compile(r"\bImplementierung\w*\b", re.IGNORECASE), "Einrichtung"),
-    (re.compile(r"\bPilot\w*\b", re.IGNORECASE), "erster Test"),
-    (re.compile(r"\bRollout\w*\b", re.IGNORECASE), "Einf\u00fchrung"),
-    (re.compile(r"\bstrukturiertes Erfassen\b", re.IGNORECASE), "\u00fcbersichtliches Festhalten"),
-    (re.compile(r"\binformelle Notizpraxis\b", re.IGNORECASE), "Notizen an verschiedenen Stellen"),
-    (re.compile(r"\bProzessreife\w*\b", re.IGNORECASE), "heutige Arbeitsweise"),
-)
-
 FORBIDDEN_CUSTOMER_TERM_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"\b\w*anker\w*\b", re.IGNORECASE),
     re.compile(r"\b\w*datens(?:atz|\u00e4tze)\w*\b|\bZielschema\w*\b|\bMetadaten\w*\b", re.IGNORECASE),
@@ -128,12 +83,28 @@ FORBIDDEN_CUSTOMER_TERM_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"\b(?:Einsatz|Auftrags|Objekt)-ID\w*\b|\bID-Vergabe\w*\b", re.IGNORECASE),
     re.compile(r"\bSoftwareregeln?\b|\bRegelwerk\w*\b|\bdeterministisch\w*\b", re.IGNORECASE),
     re.compile(r"\bAutonomiestufe\w*\b|\bA[0-5]\b", re.IGNORECASE),
-    re.compile(r"\bSolution\s+Pattern\w*\b|\bProblemfamilie\w*\b|\bPattern\w*\b|\bMuster\w*\b", re.IGNORECASE),
+    re.compile(
+        r"\bSolution\s+Pattern\w*\b|\bProblemfamilie\w*\b|\bPattern\w*\b|"
+        r"\bMuster(?:abgleich)?\b",
+        re.IGNORECASE,
+    ),
     re.compile(r"\bHuman\s+Check\b|\bFreigabe-Gate\w*\b|\bGate\w*\b|\bGuardrail\w*\b", re.IGNORECASE),
     re.compile(r"\bRAG\b|\bRetrieval\w*\b|\bKlassifikation\w*\b|\bInd(?:ex|izes?)\w*\b", re.IGNORECASE),
     re.compile(r"\b(?:PF|SP|OUT|GAI|FAIL|GATE)-[A-Z0-9_-]+\b", re.IGNORECASE),
     re.compile(r"\bKonfigurier\w*\b|\bAktivier\w*\b|\bImplementierung\w*\b|\bPilot\w*\b|\bRollout\w*\b", re.IGNORECASE),
     re.compile(r"\bstrukturiertes Erfassen\b|\binformelle Notizpraxis\b|\bProzessreife\w*\b", re.IGNORECASE),
+    re.compile(
+        r"\bVorgangsakte\w*\b|\bVorgangsentwurf\w*\b|\bZieloutput\w*\b|"
+        r"\bMedien\b|\bDatenobjekt\w*\b|\bEntwurfsstatus\w*\b|"
+        r"\bKonsolidierung\w*\b|\bkonsolidier\w*\b|\(\s*nicht verbindlich\s*\)",
+        re.IGNORECASE,
+    ),
+)
+
+UNSUBSTANTIATED_BENEFIT_PATTERN = re.compile(
+    r"\b(?:reduziert|spart|verkürzt|erhöht|verbessert|steigert)\w*\b"
+    r"[^.!?]*(?:Aufwand|Zeit|Suchzeit|Nacharbeit|Fehler|Fehlern|Kosten)\w*",
+    re.IGNORECASE,
 )
 
 
@@ -152,26 +123,28 @@ def contains_forbidden_customer_term(value: Any) -> bool:
 
 
 def customer_plain_text(value: Any, field_path: str = "customer_output") -> str:
-    """Translate one customer string and omit it if no safe clear-text form exists."""
+    """Omit unsafe customer text; finished prose is never repaired word by word."""
 
     text = str(value or "").strip()
     if not text:
         return ""
-    original = text
-    for pattern, replacement in CUSTOMER_LANGUAGE_REPLACEMENTS:
-        text = pattern.sub(replacement, text)
-    text = re.sub(r"\s+([,.;:!?])", r"\1", text)
-    text = re.sub(r"\s{2,}", " ", text).strip(" -\u00b7,;:")
+    sentences = re.split(r"(?<=[.!?])\s+", text)
+    safe_sentences = [
+        sentence
+        for sentence in sentences
+        if UNSUBSTANTIATED_BENEFIT_PATTERN.search(sentence) is None
+    ]
+    if len(safe_sentences) != len(sentences):
+        logger.warning("customer_output.unsupported_benefit_omitted field=%s", field_path)
+    text = " ".join(safe_sentences).strip()
     if contains_forbidden_customer_term(text):
         logger.warning("customer_output.field_omitted field=%s", field_path)
         return ""
-    if text != original:
-        logger.warning("customer_output.field_replaced field=%s", field_path)
     return text
 
 
 def sanitize_customer_payload(value: Any, field_path: str = "customer_output") -> Any:
-    """Return the finished customer payload with technical text replaced or omitted."""
+    """Return the finished customer payload with unsafe fields omitted."""
 
     if isinstance(value, str):
         return customer_plain_text(value, field_path)
@@ -427,7 +400,14 @@ class SampleOutputField(StrictResultModel):
 
 class SampleOutput(StrictResultModel):
     title: Annotated[str, Field(min_length=1, max_length=80)]
+    input_context: Annotated[str, Field(max_length=100)] = ""
+    incoming_message: Annotated[str, Field(max_length=520)] = ""
+    incoming_note: Annotated[str, Field(max_length=100)] = ""
     fields: list[SampleOutputField] = Field(min_length=1, max_length=7)
+    missing_details: list[
+        Annotated[str, Field(min_length=1, max_length=90)]
+    ] = Field(default_factory=list, max_length=2)
+    clarification_question: Annotated[str, Field(max_length=240)] = ""
     open_items: list[Annotated[str, Field(min_length=1, max_length=120)]] = Field(
         default_factory=list, max_length=4
     )
@@ -437,6 +417,7 @@ class SampleOutput(StrictResultModel):
     preview_notice: Annotated[str, Field(min_length=1, max_length=100)] = (
         "Vorschau – die endgültigen Angaben prüfst du selbst."
     )
+    used_catalog_fallback: bool = False
 
 
 class SecondaryOpportunity(StrictResultModel):
@@ -479,7 +460,7 @@ class FinalAnalysisResult(StrictResultModel):
     open_details: list[
         Annotated[str, Field(min_length=1, max_length=140)]
     ] = Field(default_factory=list, max_length=6)
-    smallest_usable_version: Annotated[str, Field(max_length=220)] = ""
+    smallest_usable_version: Annotated[str, Field(max_length=360)] = ""
     not_automated: list[
         Annotated[str, Field(min_length=1, max_length=160)]
     ] = Field(default_factory=list, max_length=5)

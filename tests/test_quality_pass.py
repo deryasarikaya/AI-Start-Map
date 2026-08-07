@@ -256,7 +256,10 @@ def _carpentry_result() -> FinalAnalysisResult:
             "Aktuelle und veraltete Informationen sind über mehrere Kanäle verteilt."
         ),
         software_rule="Version und Freigabestatus werden nach festen Regeln geführt.",
-        smallest_usable_version="Neue Änderungen in einer gemeinsamen Vorgangsakte sammeln.",
+        smallest_usable_version=(
+            "Probier ab morgen fünf neue Änderungen aus und prüfe, ob die "
+            "gemeinsame Übersicht stimmt."
+        ),
         not_automated=["Technische Bewertung", "Konstruktive Freigabe"],
         autonomy_level="A2",
         uncertainties=[
@@ -575,7 +578,7 @@ def test_shoe_repair_quality_flow_contains_only_grounded_current_steps(
     ):
         assert forbidden not in lower_text
     assert "Auftragsangaben, Zuordnung und Bearbeitungsstand" in result_text
-    assert "Kunden nach Fertigmeldung benachrichtigen" in result_text
+    assert "Kunden nach Fertigmeldung benachrichtigen" not in result_text
     assert "So würde es künftig laufen" in result_text
     assert database_session.scalar(
         select(func.count())

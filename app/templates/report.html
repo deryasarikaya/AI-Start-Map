@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Deine AI-Start-Map-Auswertung{% endblock %}
 {% block content %}
-<div class="print-toolbar"><p>Wähle im Druckdialog „Als PDF speichern“.</p><button class="primary-button" type="button" onclick="window.print()">PDF speichern</button></div>
+<div class="print-toolbar"><p>Wähle „Als PDF speichern“ und schalte „Kopf- und Fußzeilen“ aus.</p><button class="primary-button" type="button" onclick="window.print()">PDF speichern</button></div>
 <article class="customer-report">
     <section class="report-page report-page-one">
         <header class="report-header">
@@ -10,8 +10,8 @@
         </header>
 
         <section class="report-bottleneck" aria-labelledby="report-bottleneck-title">
-            <p class="section-kicker">DAS IST DER ENGPASS</p>
-            <h2 id="report-bottleneck-title">{{ result.short_reason }}</h2>
+            <h2 id="report-bottleneck-title">Das ist der Engpass</h2>
+            <p class="report-bottleneck-text">{{ result.short_reason }}</p>
         </section>
 
         <section class="report-primary" aria-labelledby="report-recommendation-title">
@@ -29,7 +29,8 @@
         <section class="report-sample customer-example-block" data-customer-example-block aria-labelledby="report-output-title">
             <div class="report-title-row"><div><p class="section-kicker">BEISPIELAUSGABE</p><h3 id="report-output-title">{{ result.sample_heading }}</h3></div><span class="preview-badge">Beispiel</span></div>
             <p class="preview-notice">{{ result.sample_output.preview_notice }}</p>
-            <dl>{% for field in result.sample_output.fields %}<dt>{{ field.label }}</dt><dd>{{ field.value }}</dd>{% endfor %}</dl>
+            <div class="report-sample-story"><section><p class="sample-story-label">So kommt es heute bei dir an{% if result.sample_output.input_context %} — {{ result.sample_output.input_context }}{% endif %}</p><blockquote>{{ result.sample_output.incoming_message }}</blockquote>{% if result.sample_output.incoming_note %}<p class="sample-note">{{ result.sample_output.incoming_note }}</p>{% endif %}</section><section><p class="sample-story-label">Das macht die KI daraus</p><dl>{% for field in result.sample_output.fields %}<dt>{{ field.label }}</dt><dd>{{ field.value }}</dd>{% endfor %}</dl></section></div>
+            {% if result.sample_output.missing_details or result.sample_output.clarification_question %}<div class="sample-missing"><p class="sample-story-label">Das fehlt noch</p>{% if result.sample_output.missing_details %}<p>{{ result.sample_output.missing_details|join(' · ') }}</p>{% endif %}{% if result.sample_output.clarification_question %}<p><strong>Vorbereitete Rückfrage:</strong> „{{ result.sample_output.clarification_question }}“</p>{% endif %}</div>{% endif %}
         </section>
     </section>
 
@@ -40,15 +41,13 @@
             {% if result.is_non_ai %}<p>Die vorhandene Funktion unterstützt dich, aber entscheidet nichts für dich. Du prüfst einmal, ob alles so eingestellt ist, wie du es brauchst.</p>{% else %}<p>Die KI schreibt den Entwurf, aber verschickt nichts und rechnet nichts ab. Du schaust einmal drüber und gibst frei — das dauert weniger als eine Minute. Preise, Zusagen an Kunden und Rechnungen entscheidest weiterhin du.</p>{% endif %}
         </section>
 
-        <section class="report-block"><h3>Das entscheidest weiterhin du</h3><p>Preise, Zusagen an Kunden, Rechnungen, Personal und Qualität.</p></section>
-
         {% if result.required_prerequisites %}<section class="report-block"><h3>Was vorher da sein muss</h3><ul>{% for item in result.required_prerequisites[:3] %}<li>{{ item }}</li>{% endfor %}</ul></section>{% endif %}
 
         {% if result.open_questions %}<section class="report-block"><h3>Diese Fragen sind noch zu klären</h3><ul>{% for item in result.open_questions[:3] %}<li>{{ item }}</li>{% endfor %}</ul></section>{% endif %}
 
         <section class="report-block"><h3>So klein fängst du an</h3><p>{{ result.first_step_text }}</p>{% if result.first_step_follow_up %}<p>{{ result.first_step_follow_up }}</p>{% endif %}</section>
 
-        {% if result.later_stage %}<section class="report-later"><h3>Was später möglich wird</h3><p>{{ result.later_stage }}</p></section>{% endif %}
+        {% if result.later_stage %}<p class="report-later">{{ result.later_stage }}</p>{% endif %}
 
         <section class="report-contact"><h3>Möchtest du das umsetzen?</h3><p>Ich bin Derya. Genau das würde ich für dich einrichten: {{ result.contact_recommendation }}. Du schickst weiter wie bisher, ich baue den Rest.</p><p><a href="mailto:deryaxsarikaya@gmail.com?subject=AI-Start-Map%20Umsetzung">Umsetzung besprechen</a></p></section>
 

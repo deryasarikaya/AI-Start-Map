@@ -11,14 +11,14 @@ Der Recommendation Layer wählt aus bestätigtem Prozessproblem, Problemfamilie 
 ## Scope
 
 - exakt zwölf Problemfamilien `PF-01` bis `PF-12` und zehn Solution Patterns `SP-01` bis `SP-10` als versionierte, validierte Dateien,
-- deterministische Klassifikation und Vorauswahl über Vorgangsanker, Kanaleignung, Prozess-/Datenreife, Fehlerauswirkung, Regelstabilität und Human Approval,
+- semantische Klassifikation und fallbezogene Rangfolge innerhalb der durch Python-Gates, Ausschlüsse und Freigabegrenzen zulässigen Kandidaten,
 - primäre Empfehlung, null bis zwei sekundäre Kandidaten, Ausschlussgründe, Voraussetzungen und Freigabegrenzen,
 - Diagnose-RAG für Fälle, Ursachen, Fragen, Risiken, Voraussetzungen und Guardrails; konkrete Auswahl primär aus Katalog und Gates,
 - kontrollierte Agent-Pattern-Nutzung für nächste Frage/Aktion bei unveränderten Python-Guardrails,
 - kompakter neuer Kundenausgabevertrag und rückwärtskompatible Darstellung alter Analysen,
 - Falltests für Hausmeister, Schuhmacher, Blumenladen und Massagesalon sowie echte Mentor-Läufe für Hausmeister, Fotograf, Blumenladen, Coach und A0.
 - technische Trennung von direkt geladenem Katalog und Fragepatterns, noch nicht integrierten Fachkandidaten, niemals indexierbaren Evaluationen und archivierten Herkunftsartefakten.
-- deterministische Batch-09-Output-Strukturen, unbestätigte Inference Patterns und getrenntes Solution-Workflow-Wissen mit sicherem direktem Fallback.
+- deterministische Batch-09-Output-Strukturen, unbestätigte Inference Patterns und getrenntes Solution-Workflow-Wissen; sein Wortlaut dient nur als Baugerüst und wird nie direkt ausgegeben.
 
 ## Verbindliche Regeln
 
@@ -38,7 +38,7 @@ Der Recommendation Layer wählt aus bestätigtem Prozessproblem, Problemfamilie 
 
 ## Kundenausgabe
 
-Der Outputvertrag entspricht `docs/specs/product-output/requirements.md`: eine primäre Empfehlung, konkrete gekennzeichnete Ergebnisvorschau, direkte Du-Ansprache, drei bis sechs Zukunftsschritte, menschliche Kontrolle und ein kleinster Einstieg. Die Hauptansicht zeigt genau sechs Klartextblöcke; interne Rollen-, Autonomie- und Technikfelder werden nicht roh gerendert. Höchstens drei wichtige offene Fragen stehen nur im exakt zweiseitigen Bericht; null bis zwei echte sekundäre Möglichkeiten bleiben geschlossen.
+Der Outputvertrag entspricht `docs/specs/product-output/requirements.md`: eine primäre Empfehlung, konkrete gekennzeichnete Veranschaulichung, direkte Du-Ansprache, drei bis sechs Zukunftsschritte, menschliche Kontrolle und ein kleinster Einstieg. Die Hauptansicht zeigt sieben Klartextblöcke einschließlich des offenen, auf fünf Schritte gekürzten Ist-Ablaufs. Interne Rollen-, Autonomie- und Technikfelder werden nicht roh gerendert. Höchstens drei wichtige offene Fragen stehen nur im höchstens zweiseitigen Bericht; sekundäre Möglichkeiten bleiben aus der Hauptansicht entfernt.
 
 ## Nicht-Ziele
 

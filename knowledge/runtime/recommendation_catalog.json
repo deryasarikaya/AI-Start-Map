@@ -581,6 +581,7 @@
     {
       "solution_id": "SP-01",
       "name": "Gemeinsamer Anfrageeingang mit Missing-Info-Prüfung",
+      "customer_title": "Anfragen aus allen Kanälen an einer Stelle sammeln",
       "problem_family_ids": [
         "PF-01",
         "PF-02",
@@ -688,6 +689,7 @@
     {
       "solution_id": "SP-02",
       "name": "Einfache Vorgangsakte mit Status und nächstem Schritt",
+      "customer_title": "Eine gemeinsame Übersicht mit Status und nächstem Schritt",
       "problem_family_ids": [
         "PF-01",
         "PF-04",
@@ -787,6 +789,7 @@
     {
       "solution_id": "SP-03",
       "name": "Mobile Einsatzdokumentation aus Sprache, Fotos und Bon",
+      "customer_title": "Mobile Einsatzdokumentation aus Sprache, Fotos und Bon",
       "problem_family_ids": [
         "PF-01",
         "PF-03",
@@ -901,6 +904,7 @@
     {
       "solution_id": "SP-04",
       "name": "Objekt-ID und echter Ablageort",
+      "customer_title": "Gegenstand und Ablageort eindeutig verbinden",
       "problem_family_ids": [
         "PF-05"
       ],
@@ -999,6 +1003,7 @@
     {
       "solution_id": "SP-05",
       "name": "Termin-Anfrage mit Kapazitätsprüfung",
+      "customer_title": "Terminanfragen mit verfügbaren Zeiten abgleichen",
       "problem_family_ids": [
         "PF-02",
         "PF-06"
@@ -1103,6 +1108,7 @@
     {
       "solution_id": "SP-06",
       "name": "Dokument-zu-Datensatz mit Unsicherheitsprüfung",
+      "customer_title": "Angaben aus Dokumenten lesen und zur Prüfung vorbereiten",
       "problem_family_ids": [
         "PF-03",
         "PF-09",
@@ -1212,6 +1218,7 @@
     {
       "solution_id": "SP-07",
       "name": "Zusatzarbeit mit dokumentierter Freigabe",
+      "customer_title": "Änderungen und Zusagen nachvollziehbar festhalten",
       "problem_family_ids": [
         "PF-07",
         "PF-08"
@@ -1315,6 +1322,7 @@
     {
       "solution_id": "SP-08",
       "name": "Einfaches Material- und Produktionsboard",
+      "customer_title": "Material und Arbeitsstand auf einen Blick sehen",
       "problem_family_ids": [
         "PF-04",
         "PF-10"
@@ -1420,6 +1428,7 @@
     {
       "solution_id": "SP-09",
       "name": "Geprüfte Rechnungsgrundlage und Zahlungsnachverfolgung",
+      "customer_title": "Rechnungen vorbereiten und Zahlungen nachhalten",
       "problem_family_ids": [
         "PF-03",
         "PF-08",
@@ -1525,6 +1534,7 @@
     {
       "solution_id": "SP-10",
       "name": "Übergabe- und Wissensnotiz im Vorgang",
+      "customer_title": "Wissen und Übergaben direkt beim Auftrag festhalten",
       "problem_family_ids": [
         "PF-01",
         "PF-04",

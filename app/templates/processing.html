@@ -6,8 +6,10 @@
     <div class="processing-indicator" aria-hidden="true"><span></span><span></span><span></span></div>
     <h1 class="page-title">Ich prüfe, welcher KI-Schritt zu deinem Ablauf passt.</h1>
     <p class="page-description">Das dauert einen kurzen Moment. Du musst nichts weiter tun.</p>
+    <p class="processing-delay" data-processing-delay hidden>Das dauert diesmal etwas länger.</p>
+    <a class="processing-cancel" data-processing-cancel href="{{ url_for('show_process_details_public') }}" hidden>Abbrechen und zu meinen Angaben</a>
     <ol class="processing-steps" aria-live="polite"><li class="complete">✓ Deine Angaben wurden übernommen</li><li class="complete">✓ Dein Ablauf wurde verstanden</li><li class="active">• Passende Lösungen werden geprüft</li><li>○ Dein Ergebnis wird vorbereitet</li></ol>
-    <section class="processing-error" role="alert" hidden><h2>Das hat gerade nicht geklappt</h2><p>Deine Angaben sind gespeichert. Du musst nichts noch einmal erzählen.</p><div class="form-actions"><button class="primary-button" type="button" data-retry-analysis>Noch einmal versuchen</button><a class="secondary-button button-link" data-edit-answers href="#">Angaben bearbeiten</a></div></section>
+    <section class="processing-error" role="alert" hidden><h2>Das hat gerade nicht geklappt. Versuch es bitte noch einmal.</h2><p>Deine Angaben sind gespeichert. Du musst nichts noch einmal erzählen.</p><div class="form-actions"><button class="primary-button" type="button" data-retry-analysis>Wiederholen</button><a class="secondary-button button-link" data-edit-answers href="#">Angaben bearbeiten</a></div></section>
 </section>
 {% endblock %}
 {% block scripts %}
@@ -17,7 +19,11 @@
     const errorBox = card.querySelector(".processing-error");
     const retry = card.querySelector("[data-retry-analysis]");
     const edit = card.querySelector("[data-edit-answers]");
+    const delayMessage = card.querySelector("[data-processing-delay]");
+    const cancel = card.querySelector("[data-processing-cancel]");
     let running = false;
+    let delayTimer;
+    let cancelTimer;
     edit.href = card.dataset.editUrl;
 
     const checkStatus = async () => {
@@ -37,6 +43,12 @@
         if (running) return;
         running = true;
         errorBox.hidden = true;
+        delayMessage.hidden = true;
+        cancel.hidden = true;
+        window.clearTimeout(delayTimer);
+        window.clearTimeout(cancelTimer);
+        delayTimer = window.setTimeout(() => { delayMessage.hidden = false; }, 20000);
+        cancelTimer = window.setTimeout(() => { cancel.hidden = false; }, 60000);
         retry.disabled = true;
         try {
             const current = await checkStatus();
@@ -49,6 +61,8 @@
         } catch (_error) {
             errorBox.hidden = false;
         } finally {
+            window.clearTimeout(delayTimer);
+            window.clearTimeout(cancelTimer);
             running = false;
             retry.disabled = false;
         }

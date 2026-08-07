@@ -9,16 +9,15 @@
 ```text
 bestätigte Nutzerfakten
 → LLM-Klassifikation von Problemfamilien und Gates (Structured Output,
-  Katalogdefinitionen als Kontext, deterministischer Keyword-Fallback
-  nur bei API-Fehlern)
+  Katalogdefinitionen als Kontext, kein Produktiv-Fallback)
 → sechs begründete Gates mit pass / fail / unknown
-→ validierter Solution-Katalog
+→ validierter Solution-Katalog und Ranking nur zulässiger Kandidaten
 → primäre Empfehlung plus 0–2 sekundäre Kandidaten
 → kompakter Structured Output
 → Pydantic-, Grounding- und Sprachvalidierung
 → JSONB-Persistenz
 → getrennter, feldbezogen geprüfter Klartext-Kundenpayload
-→ sechs HTML-Blöcke und genau zwei Druckseiten
+→ sieben HTML-Blöcke und höchstens zwei Druckseiten
 ```
 
 ## Katalog v2 und Research-Grundlage
@@ -36,9 +35,9 @@ deterministisch; A0 ist ein zulässiges Ergebnis. Batch 08 wird unverändert als
 zeitkritische Tool- und Architektur-Researchgrundlage versioniert, ist aber
 weder in den Laufzeitkatalog noch in einen produktiven Index integriert.
 
-## Klassifikation: LLM mit deterministischem Fallback
+## Klassifikation und Musterauswahl: LLM ohne stillen Fallback
 
-Die frühere deterministische Stichwort-Klassifikation ist als primärer Pfad
+Die frühere deterministische Stichwort-Klassifikation ist als Offline-Baseline
 abgelöst. Gemessene Ursachen (Baseline 2026-08-06, 91 Evaluationsfälle):
 48 % Default-Fallback auf `PF-01`, PF Top-1 28 %, SP Top-1 30 %, `PF-03` und
 `PF-11` ohne Regel technisch unerreichbar, Gates zu 82–99 % auf demselben Wert.
@@ -53,9 +52,12 @@ Neuer verbindlicher Pfad (`app/llm_classification.py`):
   Erzählung, sechs Gate-Werte mit `unknown` als ausdrücklich erlaubtem Wert
   sowie `physical_object` und `real_location_known`.
 - Die Stichwort-Funktionen `classify_problem_families()` und
-  `infer_decision_gates()` dienen
-  ausschließlich als Fallback bei API-Fehlern (`AIServiceError`). Der genutzte
-  Pfad wird geloggt.
+  `infer_decision_gates()` bleiben für Offline-Evaluation und Tests erhalten,
+  werden bei `AIServiceError` aber nicht im Produktivpfad aufgerufen.
+- Nach allen Python-Gates und Ausschlüssen rankt ein zweiter Structured-Output-
+  Aufruf ausschließlich die erlaubten Muster anhand von Beschreibung,
+  Gegenbeispielen und positiven Varianten. Eine ungültige Rangfolge führt zur
+  wiederholbaren Fehlerseite.
 - Der Selector übersetzt die Rohwerte anschließend in GATE-01 bis GATE-06 mit
   `pass`, `fail` oder `unknown`. Kritische Fehlerfolgen ohne Prüfung, fehlende
   Berechtigung sowie autonome Geschäftsentscheidungen führen konservativ zu A0.
@@ -67,11 +69,11 @@ Das Analyse-Retrieval balanciert Diagnose, konkretes `automation_pattern`, Vorau
 
 Die vertikale HTML-/CSS-Prozesslinie bleibt verbindlich. Mermaid wird wegen unzuverlässiger Umbrüche langer deutscher Labels, Print- und Sicherheitsaufwand nicht wieder eingeführt.
 
-Die View-Schicht bildet den vollständigen internen Vertrag auf einen kleineren Kundenpayload ab. Sie rendert keine rohe Rollen-, Technik- oder Autonomiestruktur, prüft jedes fertige Kundenfeld gegen die verbindliche Fachwortliste und protokolliert Ersetzung oder Wegfall. Realistische Output-Beispiele werden erst nach der Modellantwort aus der freigegebenen Output-Struktur ergänzt und sind ausschließlich im klar markierten Vorschaublock zulässig.
+Die View-Schicht bildet den vollständigen internen Vertrag auf einen kleineren Kundenpayload ab. Sie rendert keine rohe Rollen-, Technik- oder Autonomiestruktur und prüft jedes fertige Kundenfeld gegen die verbindliche Fachwortliste. Einzelwortersetzung ist ausgeschlossen: Treffer lösen einen neuen Erzeugungsversuch und danach den Wegfall des Felds aus. Die Veranschaulichung zeigt eine realistische Eingangsnachricht, den daraus abgeleiteten Eintrag und eine Rückfrage; erfundene Inhalte sind ausschließlich dort zulässig.
 
 ## Implementierter Ist-Zustand
 
-Die Laufzeit nutzt aktives Diagnose-RAG, deterministische Python-Guardrails, kontrolliertes Agent-Pattern-Retrieval, den direkt geladenen Katalog, LLM-Klassifikation von Problemfamilien und Gates mit deterministischem Fallback, den deterministischen Selector und einen finalen Structured-Output-Prompt. Der Selector-Kontext bleibt technisch von Nutzerfakten, Ableitungen und RAG-Evidenz getrennt.
+Die Laufzeit nutzt aktives Diagnose-RAG, deterministische Python-Guardrails, kontrolliertes Agent-Pattern-Retrieval, den direkt geladenen Katalog, LLM-Klassifikation von Problemfamilien und Gates ohne Produktiv-Fallback, ein LLM-Ranking ausschließlich zulässiger Kandidaten und einen finalen Structured-Output-Prompt. Der Selector-Kontext bleibt technisch von Nutzerfakten, Ableitungen und RAG-Evidenz getrennt.
 
 ## Behobene strukturelle Ursachen der defensiven Empfehlungen
 
@@ -140,13 +142,13 @@ Der Katalog mit zehn Patterns bleibt deterministisch und besitzt die Entscheidun
 
 ## Integrationspunkte
 
-- `app/llm_classification.py`: LLM-Klassifikator für Problemfamilien und Gates mit Keyword-Fallback.
+- `app/llm_classification.py`: LLM-Klassifikator für Problemfamilien, Gates und freien Betriebstyp sowie Ranking zulässiger Kandidaten.
 - `app/routes.py`: Orchestrierung von Klassifikation, Gates, Retrieval, Selector, Agent-Patterns, Logging und Persistenz.
 - `app/rag_service.py`: reservierte Analyse-Chunktypen und separater Agent-Pattern-Abruf.
 - `app/solution_knowledge.py`: Batch-09-Loader, Output-Mapping, Hypothesenwissen und deterministische Workflow-Auswahl.
 - `app/openai_service.py`: getrennte Recommendation-Payload und kompakter Outputprompt.
 - `app/schemas.py`: neuer Kundenvertrag und Legacy-Abbildung.
-- `app/templates/` und `app/static/styles.css`: sechsteilige Hauptseite und exakt zweiseitiger Druckbericht.
+- `app/templates/` und `app/static/styles.css`: siebenteilige Hauptseite und höchstens zweiseitiger Druckbericht.
 
 ## Risiken
 

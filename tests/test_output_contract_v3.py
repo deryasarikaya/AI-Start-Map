@@ -7,7 +7,11 @@ from app.models import Analysis, AutomationOpportunity
 from app.recommendation_service import load_recommendation_catalog
 from app.routes import _result_view
 from app.schemas import FinalAnalysisResult
-from app.solution_knowledge import output_structure_context, output_structure_for
+from app.solution_knowledge import (
+    load_output_structures,
+    output_structure_context,
+    output_structure_for,
+)
 
 
 def _new_payload() -> dict[str, object]:
@@ -186,14 +190,71 @@ def test_output_structure_and_boundaries_are_applied_deterministically() -> None
     ]
     values = {item.label: item.value for item in contracted.sample_output.fields}
     assert values["Für wen"] == "Hausverwaltung Nord · Lindenstraße 12"
-    assert values["Material"] == "Dichtungssatz, 12,40 €"
+    assert values["Material"] == "Beispiel: Position aus Bon"
+    assert contracted.sample_output.used_catalog_fallback is True
     assert values["Dabei"] == "2 Fotos, 1 Bon, deine Sprachnachricht"
     assert contracted.autonomy_level == "A1"
-    assert contracted.primary_recommendation == pattern.name
+    assert contracted.primary_recommendation == pattern.customer_title
     assert "SP-" not in contracted.primary_recommendation
-    assert contracted.smallest_usable_version == pattern.smallest_entry
+    assert contracted.smallest_usable_version == (
+        "Mit einer geprüften Einsatznotiz für neue Einsätze beginnen."
+    )
     assert contracted.software_rule
     assert contracted.not_automated
+
+
+def test_flower_preview_never_uses_another_patterns_catalog_examples() -> None:
+    payload = _new_payload()
+    payload["sample_output"] = {
+        "title": "Anfrageübersicht",
+        "input_context": "WhatsApp, 9:12 Uhr",
+        "incoming_message": (
+            "Hallo, ich brauche morgen einen Strauß in Rosa und Weiß. "
+            "Kann ich ihn gegen 16 Uhr abholen?"
+        ),
+        "incoming_note": "mit Foto",
+        "fields": [
+            {"label": "Von wem", "value": "Frau Berger · WhatsApp"},
+            {"label": "Worum es geht", "value": "Blumenstrauß zur Abholung"},
+            {"label": "Gewünschte Leistung", "value": "Strauß in Rosa und Weiß"},
+            {"label": "Ort oder Übergabe", "value": "Abholung im Laden"},
+            {"label": "Gewünschter Termin", "value": "morgen, 16 Uhr"},
+            {"label": "Noch zu klären", "value": "Grußkartentext"},
+        ],
+        "missing_details": ["Grußkartentext"],
+        "clarification_question": "Möchtest du eine Grußkarte dazulegen?",
+        "open_items": [],
+        "attachments": ["Foto"],
+        "preview_notice": (
+            "Beispielangaben zur Veranschaulichung – hier stehen später deine "
+            "tatsächlichen Angaben."
+        ),
+    }
+    pattern = next(
+        item
+        for item in load_recommendation_catalog().solution_patterns
+        if item.solution_id == "SP-01"
+    )
+    result = openai_service._apply_recommendation_contract(
+        FinalAnalysisResult.model_validate(payload),
+        {
+            "autonomy_level": "A1",
+            "primary": pattern.model_dump(),
+            "output_structure": output_structure_context(output_structure_for("SP-01")),
+        },
+        user_fact_text="Blumenladen WhatsApp Instagram E-Mail Sträuße Bestellungen",
+    )
+    rendered_preview = json.dumps(
+        result.sample_output.model_dump(), ensure_ascii=False
+    ).casefold()
+    foreign_values = {
+        field.example_value.casefold()
+        for structure in load_output_structures()
+        if structure.solution_pattern_id != "SP-01"
+        for field in structure.fields
+        if field.example_value
+    }
+    assert not {value for value in foreign_values if value in rendered_preview}
 
 
 def test_a0_contract_removes_ai_recommendation_and_secondary_options() -> None:
@@ -409,3 +470,77 @@ def test_final_parse_uses_medium_reasoning_and_retries_once(monkeypatch) -> None
     assert len(calls) == 2
     assert all(call["reasoning_effort"] == "medium" for call in calls)
     assert all(float(call["timeout"]) <= 120.0 for call in calls)
+
+
+def test_first_step_is_retried_until_it_is_actionable(monkeypatch) -> None:
+    short_payload = _new_payload()
+    short_payload["smallest_usable_version"] = "Wenige Angaben festlegen."
+    actionable_payload = _new_payload()
+    actionable_payload["smallest_usable_version"] = (
+        "Probier ab morgen fünf neue Einsätze aus und prüfe danach, ob jede "
+        "Notiz vollständig stimmt."
+    )
+    returned = [
+        FinalAnalysisResult.model_validate(short_payload),
+        FinalAnalysisResult.model_validate(actionable_payload),
+    ]
+    captured: list[dict[str, object]] = []
+
+    def parse(**kwargs: object) -> FinalAnalysisResult:
+        captured.append(kwargs)
+        return returned.pop(0)
+
+    monkeypatch.setattr(openai_service, "_parse_structured_output", parse)
+    result = openai_service.generate_final_analysis(
+        answers={"actual_steps": "Sprache, Fotos und Bon werden weitergegeben."},
+        selected_process={
+            "process_name": "Einsatz dokumentieren",
+            "start_event": "Der Einsatz endet",
+            "end_event": "Die Notiz ist geprüft",
+        },
+        knowledge_chunks=[],
+    )
+    assert result.smallest_usable_version == actionable_payload["smallest_usable_version"]
+    assert len(captured) == 2
+    assert "first_step_retry" in captured[1]["payload"]["D_RECOMMENDATIONS"]
+
+
+def test_sample_fields_are_retried_when_they_add_an_unmentioned_number(
+    monkeypatch,
+) -> None:
+    invalid_payload = _new_payload()
+    invalid_payload["smallest_usable_version"] = (
+        "Du testest ab morgen eine Woche lang neue Einsätze und prüfst danach, "
+        "ob jede Notiz vollständig ist."
+    )
+    invalid_payload["sample_output"]["incoming_message"] = (
+        "Bitte komm zur Musterstraße 5 und tausche die Dichtung."
+    )
+    invalid_payload["sample_output"]["fields"] = [
+        {"label": "Ort", "value": "Musterstraße 5, 12345"}
+    ]
+    valid_payload = json.loads(json.dumps(invalid_payload))
+    valid_payload["sample_output"]["fields"][0]["value"] = "Musterstraße 5"
+    returned = [
+        FinalAnalysisResult.model_validate(invalid_payload),
+        FinalAnalysisResult.model_validate(valid_payload),
+    ]
+    captured: list[dict[str, object]] = []
+
+    def parse(**kwargs: object) -> FinalAnalysisResult:
+        captured.append(kwargs)
+        return returned.pop(0)
+
+    monkeypatch.setattr(openai_service, "_parse_structured_output", parse)
+    result = openai_service.generate_final_analysis(
+        answers={"actual_steps": "Eine Nachricht wird weitergegeben."},
+        selected_process={
+            "process_name": "Einsatz dokumentieren",
+            "start_event": "Eine Nachricht kommt an",
+            "end_event": "Die Notiz ist geprüft",
+        },
+        knowledge_chunks=[],
+    )
+    assert result.sample_output.fields[0].value == "Musterstraße 5"
+    assert len(captured) == 2
+    assert "sample_output_retry" in captured[1]["payload"]["D_RECOMMENDATIONS"]
