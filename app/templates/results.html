@@ -7,9 +7,7 @@
     <section class="result-block result-intro" data-result-block aria-labelledby="result-title">
         <p class="section-kicker">DEINE AUSWERTUNG · {{ process.process_name|customer_text }}</p>
         <h1 id="result-title">Das ist der Engpass</h1>
-        <p class="result-bottleneck">{{ result.short_reason }}</p>
-        {% set bottleneck_cause = result.get('bottleneck', {}).get('cause', '') %}
-        {% if bottleneck_cause and bottleneck_cause != result.short_reason %}<p class="result-context">{{ bottleneck_cause }}</p>{% endif %}
+        <p class="result-bottleneck">{{ result.engpass }}</p>
     </section>
 
     <section class="result-block current-workflow" data-result-block aria-labelledby="current-title">
@@ -20,44 +18,57 @@
 
     <section class="result-block recommendation-focus" data-result-block aria-labelledby="recommendation-title">
         <p class="section-kicker">DAS SCHLAGE ICH DIR VOR</p>
-        <h2 id="recommendation-title">{{ result.primary_recommendation }}</h2>
-        <p class="recommendation-promise">{{ result.promise }}</p>
+        <h2 id="recommendation-title">{{ result.vorschlag_titel }}</h2>
+        <p class="recommendation-promise">{{ result.vorschlag_erklaerung }}</p>
     </section>
 
-    <section class="result-block future-workflow" data-result-block aria-labelledby="future-title">
-        <p class="section-kicker">DEIN NEUER ABLAUF</p>
-        <h2 id="future-title">So würde es künftig laufen</h2>
-        <ol class="future-process-line">{% for step in result.future_process[:6] %}<li><span>{{ loop.index }}</span><p>{{ step }}</p></li>{% endfor %}</ol>
+    {% if result.das_nimmt_die_ki_ab %}
+    <section class="result-block ai-takes-over" data-result-block aria-labelledby="takeover-title">
+        <p class="section-kicker">DEINE ENTLASTUNG</p>
+        <h2 id="takeover-title">Das nimmt dir die KI ab</h2>
+        <ul class="takeover-list">{% for punkt in result.das_nimmt_die_ki_ab %}<li>{{ punkt }}</li>{% endfor %}</ul>
     </section>
+    {% endif %}
 
     <section class="result-block concrete-output" data-result-block aria-labelledby="output-title">
         <p class="section-kicker">DEIN KONKRETES ERGEBNIS</p>
-        <h2 id="output-title">So sieht die Hilfe konkret aus</h2>
+        <h2 id="output-title">So sieht das in echt aus</h2>
         <div class="sample-output-compact customer-example-block" data-customer-example-block>
-            <div class="sample-output-heading"><h3>{{ result.sample_heading }}</h3><span>Beispiel</span></div>
-            <p class="preview-notice">{{ result.sample_output.preview_notice }}</p>
+            <div class="sample-output-heading"><h3>Beispiel — so könnte dein Ergebnis aussehen</h3><span>Beispiel</span></div>
+            <p class="preview-notice">{{ result.beispiel.hinweis }}</p>
             <div class="sample-story">
-                <section><p class="sample-story-label">So kommt es heute bei dir an{% if result.sample_output.input_context %} — {{ result.sample_output.input_context }}{% endif %}</p><blockquote>{{ result.sample_output.incoming_message }}</blockquote>{% if result.sample_output.incoming_note %}<p class="sample-note">{{ result.sample_output.incoming_note }}</p>{% endif %}</section>
-                <section><p class="sample-story-label">Das macht die KI daraus</p><dl>{% for field in result.sample_output.fields %}<div><dt>{{ field.label }}</dt><dd>{{ field.value }}</dd></div>{% endfor %}</dl></section>
+                <section><p class="sample-story-label">So kommt es heute bei dir an{% if result.beispiel.kanal %} — {{ result.beispiel.kanal }}{% endif %}</p><blockquote>{{ result.beispiel.nachricht }}</blockquote></section>
+                <section><p class="sample-story-label">Das macht die KI daraus</p><dl>{% for feld in result.beispiel.daraus_wird %}<div><dt>{{ feld.label }}</dt><dd>{{ feld.wert }}</dd></div>{% endfor %}</dl></section>
             </div>
-            {% if result.sample_output.missing_details or result.sample_output.clarification_question %}<div class="sample-missing"><p class="sample-story-label">Das fehlt noch</p>{% if result.sample_output.missing_details %}<p>{{ result.sample_output.missing_details|join(' · ') }}</p>{% endif %}{% if result.sample_output.clarification_question %}<p><strong>Vorbereitete Rückfrage:</strong> „{{ result.sample_output.clarification_question }}“</p>{% endif %}</div>{% endif %}
+            {% if result.beispiel.das_fehlt or result.beispiel.rueckfrage %}<div class="sample-missing"><p class="sample-story-label">Das fehlt noch</p>{% if result.beispiel.das_fehlt %}<p>{{ result.beispiel.das_fehlt|join(' · ') }}</p>{% endif %}{% if result.beispiel.rueckfrage %}<p><strong>Vorbereitete Rückfrage:</strong> „{{ result.beispiel.rueckfrage }}“</p>{% endif %}</div>{% endif %}
         </div>
     </section>
 
-    <section class="result-block human-check-callout" data-result-block aria-labelledby="check-title">
-        <div><p class="section-kicker">DEINE SICHERHEIT</p><h2 id="check-title">Nichts geht ohne dich raus</h2></div>
-        {% if result.is_non_ai %}
-        <p>Die vorhandene Funktion unterstützt dich, aber entscheidet nichts für dich. Du prüfst einmal, ob alles so eingestellt ist, wie du es brauchst.</p>
-        {% else %}
-        <p>Die KI schreibt den Entwurf, aber verschickt nichts und rechnet nichts ab. Du schaust einmal drüber und gibst frei — das dauert weniger als eine Minute. Preise, Zusagen an Kunden und Rechnungen entscheidest weiterhin du.</p>
-        {% endif %}
+    {% if result.dein_tag_danach %}
+    <section class="result-block future-workflow" data-result-block aria-labelledby="future-title">
+        <p class="section-kicker">DEIN NEUER ABLAUF</p>
+        <h2 id="future-title">So sieht dein Tag danach aus</h2>
+        <p>{{ result.dein_tag_danach }}</p>
     </section>
+    {% endif %}
+
+    <section class="result-block human-check-callout" data-result-block aria-labelledby="check-title">
+        <div><p class="section-kicker">DEINE SICHERHEIT</p><h2 id="check-title">Das bleibt bei dir</h2></div>
+        <p>{{ result.das_bleibt_bei_dir }}</p>
+    </section>
+
+    {% if result.was_zuerst_fehlt %}
+    <section class="result-block missing-first" data-result-block aria-labelledby="missing-title">
+        <p class="section-kicker">EHRLICH GESAGT</p>
+        <h2 id="missing-title">Das fehlt zuerst</h2>
+        <ul class="missing-list">{% for punkt in result.was_zuerst_fehlt %}<li>{{ punkt }}</li>{% endfor %}</ul>
+    </section>
+    {% endif %}
 
     <section class="result-block first-step" data-result-block aria-labelledby="first-step-title">
         <p class="section-kicker">DEIN ERSTER SCHRITT</p>
         <h2 id="first-step-title">So klein fängst du an</h2>
-        <p>{{ result.first_step_text }}</p>
-        {% if result.first_step_follow_up %}<p class="supporting-copy">{{ result.first_step_follow_up }}</p>{% endif %}
+        <p>{{ result.erster_schritt }}</p>
     </section>
 
     <form class="another-process-action" action="{{ url_for('analyze_another_process_public') }}" method="post" data-disable-on-submit><button class="text-button" type="submit">Einen anderen Ablauf ansehen</button></form>

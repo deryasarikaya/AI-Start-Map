@@ -12,20 +12,12 @@ logger = logging.getLogger(__name__)
 
 
 def _final_analysis_json_schema(schema: dict[str, Any]) -> None:
-    """Keep legacy bookkeeping private and require the current runtime contract."""
+    """Structured Outputs verlangt jede Eigenschaft in required."""
 
     properties = schema.get("properties", {})
-    if isinstance(properties, dict):
-        properties.pop("legacy_filled_fields", None)
     required = schema.setdefault("required", [])
-    if isinstance(required, list):
-        for field_name in (
-            "software_rule",
-            "open_details",
-            "smallest_usable_version",
-            "not_automated",
-            "autonomy_level",
-        ):
+    if isinstance(properties, dict) and isinstance(required, list):
+        for field_name in properties:
             if field_name not in required:
                 required.append(field_name)
 
@@ -425,6 +417,19 @@ class SecondaryOpportunity(StrictResultModel):
     description: Annotated[str, Field(min_length=1, max_length=220)]
 
 
+class CustomerSampleField(StrictResultModel):
+    """Eine Zeile im Beispielblock.
+
+    Beschriftung und Wert stammen beide vom Modell aus derselben erfundenen
+    Nachricht. Es gibt keine feste Feldliste mehr, in die nachtraeglich
+    umgeschrieben wird - genau daher kam der Fehler, dass ein Datum unter
+    "Wer kuemmert sich" landete.
+    """
+
+    label: Annotated[str, Field(min_length=1, max_length=45)]
+    wert: Annotated[str, Field(min_length=1, max_length=140)]
+
+
 class FinalAnalysisResult(StrictResultModel):
     model_config = ConfigDict(
         extra="forbid",
@@ -432,277 +437,70 @@ class FinalAnalysisResult(StrictResultModel):
         json_schema_extra=_final_analysis_json_schema,
     )
 
-    primary_recommendation: Annotated[str, Field(min_length=1, max_length=110)]
-    promise: Annotated[str, Field(min_length=1, max_length=220)]
-    short_reason: Annotated[str, Field(min_length=1, max_length=300)]
-    before_process: list[Annotated[str, Field(min_length=1, max_length=140)]] = Field(
-        min_length=1, max_length=3
+    # --- Kundentext: schreibt das Modell aus dem Briefing ---------------------
+    engpass: Annotated[str, Field(min_length=1, max_length=600)]
+    vorschlag_titel: Annotated[str, Field(min_length=1, max_length=120)]
+    vorschlag_erklaerung: Annotated[str, Field(min_length=1, max_length=600)]
+    das_nimmt_die_ki_ab: list[
+        Annotated[str, Field(min_length=1, max_length=220)]
+    ] = Field(min_length=5, max_length=8)
+    beispiel_nachricht: Annotated[str, Field(min_length=1, max_length=600)]
+    beispiel_kanal: Annotated[str, Field(min_length=1, max_length=40)]
+    beispiel_daraus_wird: list[CustomerSampleField] = Field(
+        min_length=2, max_length=8
     )
-    future_process: list[Annotated[str, Field(min_length=1, max_length=220)]] = Field(
-        min_length=3, max_length=6
-    )
-    sample_output: SampleOutput
-    user_action: Annotated[str, Field(min_length=1, max_length=180)]
-    ai_task: Annotated[str, Field(min_length=1, max_length=180)]
-    visible_result: Annotated[str, Field(min_length=1, max_length=180)]
-    human_check: Annotated[str, Field(min_length=1, max_length=200)]
-    software_rule: Annotated[str, Field(max_length=180)] = ""
-    customer_benefits: list[Annotated[str, Field(min_length=1, max_length=140)]] = Field(
-        min_length=1, max_length=3
-    )
-    required_prerequisites: list[
+    beispiel_das_fehlt: list[
         Annotated[str, Field(min_length=1, max_length=140)]
+    ] = Field(min_length=1, max_length=3)
+    beispiel_rueckfrage: Annotated[str, Field(min_length=1, max_length=240)]
+    dein_tag_danach: Annotated[str, Field(min_length=1, max_length=900)]
+    das_bleibt_bei_dir: Annotated[str, Field(min_length=1, max_length=400)]
+    erster_schritt: Annotated[str, Field(min_length=1, max_length=600)]
+    spaeter_moeglich: list[
+        Annotated[str, Field(min_length=1, max_length=220)]
     ] = Field(default_factory=list, max_length=3)
-    implementation_path: list[
-        Annotated[str, Field(min_length=1, max_length=160)]
-    ] = Field(min_length=2, max_length=4)
-    later_stage: Annotated[str, Field(max_length=220)] = ""
-    open_details: list[
-        Annotated[str, Field(min_length=1, max_length=140)]
-    ] = Field(default_factory=list, max_length=6)
-    smallest_usable_version: Annotated[str, Field(max_length=360)] = ""
-    not_automated: list[
-        Annotated[str, Field(min_length=1, max_length=160)]
-    ] = Field(default_factory=list, max_length=5)
-    autonomy_level: Literal["A0", "A1", "A2", "A3", "A4", "A5"] | None = None
-    secondary_opportunities: list[SecondaryOpportunity] = Field(
-        default_factory=list, max_length=2
-    )
-    error_boundaries: list[
-        Annotated[str, Field(min_length=1, max_length=160)]
+    was_zuerst_fehlt: list[
+        Annotated[str, Field(min_length=1, max_length=220)]
     ] = Field(default_factory=list, max_length=3)
+
+    # --- Ist-Ablauf und Diagnose: unveraendert --------------------------------
     process_summary: NonEmptyText
     as_is_steps: list[NonEmptyText]
+    as_is_problem_step_indexes: list[int] = Field(default_factory=list, max_length=4)
+    to_be_steps: list[NonEmptyText] = Field(default_factory=list, max_length=6)
     core_bottleneck: NonEmptyText
     bottleneck_symptom: str = ""
     bottleneck_cause: str = ""
     bottleneck_effect: str = ""
-    as_is_problem_step_indexes: list[int] = Field(default_factory=list, max_length=4)
-    to_be_steps: list[NonEmptyText] = Field(default_factory=list, max_length=6)
     uncertainties: list[NonEmptyText] = Field(max_length=4)
-    legacy_filled_fields: list[str] = Field(
+
+    # --- Sicherheitsfelder: setzt Python nach dem Modellaufruf ----------------
+    autonomy_level: Literal["A0", "A1", "A2", "A3", "A4", "A5"] | None = None
+    not_automated: list[
+        Annotated[str, Field(min_length=1, max_length=160)]
+    ] = Field(default_factory=list, max_length=5)
+    error_boundaries: list[
+        Annotated[str, Field(min_length=1, max_length=160)]
+    ] = Field(default_factory=list, max_length=3)
+
+    #: Felder, deren Wortlaut lokal repariert wurde. Nur zur Protokollierung.
+    repaired_fields: list[str] = Field(
         default_factory=list,
         exclude=True,
         repr=False,
     )
 
-    @field_validator("user_action", mode="before")
-    @classmethod
-    def repair_direct_user_action(cls, value: Any) -> Any:
-        return _ensure_direct_customer_language(
-            value,
-            prefix="Du übernimmst: ",
-            max_length=180,
-        )
-
-    @field_validator("human_check", mode="before")
+    @field_validator("das_bleibt_bei_dir", mode="before")
     @classmethod
     def repair_direct_human_check(cls, value: Any) -> Any:
         return _ensure_direct_customer_language(
             value,
             prefix="Du prüfst: ",
-            max_length=200,
+            max_length=400,
         )
-
-    @field_validator("future_process", mode="before")
-    @classmethod
-    def repair_direct_future_step_grammar(cls, value: Any) -> Any:
-        if not isinstance(value, list):
-            return value
-        return [
-            re.sub(
-                r"^(?:Der )?Nutzer wählt oder übermittelt\b",
-                "Du wählst oder übermittelst",
-                re.sub(r"\bDu wählt\b", "Du wählst", item),
-                flags=re.IGNORECASE,
-            )
-            if isinstance(item, str)
-            else item
-            for item in value
-        ]
-
-    @model_validator(mode="before")
-    @classmethod
-    def neutralize_internal_references(cls, value: Any) -> Any:
-        if not isinstance(value, Mapping):
-            return value
-        payload, changed = _neutralize_internal_reference_fields(dict(value))
-        if not changed or not isinstance(payload, dict):
-            return payload
-        uncertainties = payload.get("uncertainties")
-        warning = "Ein internes oder nicht belegtes Detail wurde als noch offen markiert."
-        if isinstance(uncertainties, list) and warning not in uncertainties:
-            payload["uncertainties"] = [*uncertainties[:3], warning]
-        logger.warning("final_analysis.internal_reference_neutralized")
-        return payload
-
-    @model_validator(mode="before")
-    @classmethod
-    def fill_legacy_core_output(cls, value: Any) -> Any:
-        """Map legacy model/test payloads to the concise customer contract."""
-
-        if not isinstance(value, Mapping):
-            return value
-        payload = dict(value)
-        if "primary_recommendation" in payload:
-            return payload
-        generated_fields: set[str] = set()
-        opportunities = payload.get("opportunities")
-        primary_value = (
-            opportunities[0]
-            if isinstance(opportunities, list) and opportunities
-            else {}
-        )
-        primary = (
-            primary_value.model_dump()
-            if isinstance(primary_value, BaseModel)
-            else primary_value
-            if isinstance(primary_value, Mapping)
-            else {}
-        )
-        blueprint = payload.get("blueprint")
-        blueprint_data = (
-            blueprint.model_dump()
-            if isinstance(blueprint, BaseModel)
-            else blueprint
-            if isinstance(blueprint, Mapping)
-            else {}
-        )
-        process_summary = str(payload.get("process_summary") or "Der Ablauf bleibt noch offen.")
-        if not payload.get("process_summary"):
-            generated_fields.add("process_summary")
-        core_problem = str(
-            payload.get("core_bottleneck")
-            or primary.get("problem")
-            or "Der aktuelle Ablauf ist nicht eindeutig verbunden."
-        )
-        if not payload.get("core_bottleneck") and not primary.get("problem"):
-            generated_fields.update({"short_reason", "core_bottleneck"})
-        first_change = str(
-            primary.get("recommendation")
-            or primary.get("first_step")
-            or "Die wichtigsten Angaben einheitlich erfassen."
-        )
-        if not primary.get("recommendation") and not primary.get("first_step"):
-            generated_fields.update(
-                {
-                    "primary_recommendation",
-                    "promise",
-                    "customer_benefits",
-                    "implementation_path",
-                }
-            )
-        human_check = str(
-            primary.get("human_approval")
-            or blueprint_data.get("human_review_point")
-            or "Ein Mensch prüft und bestätigt das Ergebnis."
-        )
-        if not primary.get("human_approval") and not blueprint_data.get("human_review_point"):
-            generated_fields.add("human_check")
-        mini_test = primary.get("mini_test")
-        if not isinstance(mini_test, list) or not mini_test:
-            mini_test = [str(primary.get("first_step") or first_change)]
-        required_inputs = blueprint_data.get("required_inputs")
-        input_text = (
-            ", ".join(str(item) for item in required_inputs)
-            if isinstance(required_inputs, list) and required_inputs
-            else "Die bereits vorhandenen Auftragsangaben"
-        )
-        if not isinstance(required_inputs, list) or not required_inputs:
-            generated_fields.add("user_action")
-        as_is_steps = [str(item) for item in payload.get("as_is_steps", [])]
-        future_steps = [str(item) for item in payload.get("to_be_steps", [])]
-        if not future_steps:
-            future_steps = [str(item) for item in blueprint_data.get("workflow_steps", [])]
-        future_steps_were_padded = len(future_steps) < 3
-        while len(future_steps) < 3:
-            future_steps.append(("Du prüfst das Ergebnis." if len(future_steps) == 2 else first_change))
-        if future_steps_were_padded:
-            generated_fields.update({"future_process", "to_be_steps"})
-        legacy_human_check = str(payload.get("human_check") or human_check)
-        if re.search(r"\bdu\b", legacy_human_check, re.IGNORECASE) is None:
-            legacy_human_check = f"Du prüfst und bestätigst: {legacy_human_check}"
-        payload.setdefault("primary_recommendation", str(primary.get("title") or first_change))
-        payload.setdefault("promise", str(payload.get("ai_support") or primary.get("benefit") or first_change))
-        payload.setdefault("short_reason", core_problem)
-        payload.setdefault("before_process", as_is_steps[:3] or [process_summary])
-        payload.setdefault("future_process", future_steps[:4])
-        payload["to_be_steps"] = future_steps[:4]
-        output_text = str(payload.get("ai_output") or blueprint_data.get("output") or "Ein prüfbarer Entwurf")
-        if not payload.get("ai_output") and not blueprint_data.get("output"):
-            generated_fields.update({"sample_output", "visible_result"})
-        payload.setdefault("sample_output", {
-            "title": output_text[:80],
-            "fields": [{"label": "Ergebnis", "value": output_text[:140]}],
-            "open_items": [],
-            "attachments": [],
-            "preview_notice": "Vorschau – die endgültigen Angaben prüfst du selbst.",
-        })
-        user_action = str(payload.get("ai_input") or input_text)
-        if re.search(r"\bdu\b", user_action, re.IGNORECASE) is None:
-            user_action = f"Du gibst ein: {user_action}."
-        payload.setdefault("user_action", user_action)
-        if "ai_task" not in payload:
-            generated_fields.add("ai_task")
-        payload.setdefault("ai_task", "Die KI erkennt und ordnet die relevanten Angaben.")
-        payload.setdefault("visible_result", output_text)
-        payload["human_check"] = legacy_human_check
-        payload.setdefault("customer_benefits", [str(primary.get("benefit") or first_change)])
-        old_prerequisites = payload.get("required_prerequisites", [])
-        payload["required_prerequisites"] = list(old_prerequisites)[:3] if isinstance(old_prerequisites, list) else []
-        payload.setdefault("implementation_path", [str(item) for item in mini_test[:4]])
-        while len(payload["implementation_path"]) < 2:
-            payload["implementation_path"].append(first_change)
-            generated_fields.add("implementation_path")
-        payload.setdefault("later_stage", str(payload.get("later_automation") or ""))
-        old_opportunities = payload.get("opportunities", [])
-        legacy_secondary: list[dict[str, str]] = []
-        if isinstance(old_opportunities, list):
-            for item in old_opportunities[1:3]:
-                item_data = item.model_dump() if isinstance(item, BaseModel) else item
-                if isinstance(item_data, Mapping):
-                    legacy_secondary.append({
-                        "title": str(item_data.get("title", "")),
-                        "description": str(item_data.get("benefit", "")),
-                    })
-        payload.setdefault("secondary_opportunities", legacy_secondary)
-        legacy_error = str(primary.get("acceptance_risk") or "").strip()
-        payload.setdefault("error_boundaries", [legacy_error] if legacy_error else [])
-        for legacy_key in (
-            "core_problem", "first_change", "ai_support", "ai_input", "ai_output",
-            "weekly_test", "weekly_test_success", "later_automation", "why_this_first",
-            "human_decisions", "current_process_summary", "optional_details",
-            "opportunities", "blueprint",
-        ):
-            payload.pop(legacy_key, None)
-        payload["legacy_filled_fields"] = sorted(generated_fields)
-        if generated_fields:
-            logger.info(
-                "final_analysis.legacy_fields_filled fields=%s",
-                sorted(generated_fields),
-            )
-        return payload
 
     @model_validator(mode="after")
-    def validate_concise_customer_output(self) -> FinalAnalysisResult:
-        if not self.legacy_filled_fields:
-            missing_new_fields = [
-                name
-                for name, value in (
-                    ("software_rule", self.software_rule),
-                    ("smallest_usable_version", self.smallest_usable_version),
-                    ("not_automated", self.not_automated),
-                    ("autonomy_level", self.autonomy_level),
-                )
-                if not value
-            ]
-            if missing_new_fields:
-                raise ValueError(
-                    "Der neue Kundenvertrag ist unvollständig: "
-                    + ", ".join(missing_new_fields)
-                )
-        if len(re.findall(r"[\wÄÖÜäöüß]+", self.primary_recommendation)) > 14:
-            raise ValueError("Die Hauptempfehlung darf höchstens 14 Wörter enthalten.")
+    def validate_customer_output(self) -> FinalAnalysisResult:
         if SUMMARY_META_PATTERN.search(self.process_summary) is not None:
             self.process_summary = (
                 " ".join(self.as_is_steps)
@@ -730,12 +528,42 @@ class FinalAnalysisResult(StrictResultModel):
         }
         if len(normalized_uncertainties) != len(self.uncertainties):
             raise ValueError("Unsicherheiten dürfen nicht doppelt vorkommen.")
-        if any(index < 0 or index >= len(self.as_is_steps) for index in self.as_is_problem_step_indexes):
+        if any(
+            index < 0 or index >= len(self.as_is_steps)
+            for index in self.as_is_problem_step_indexes
+        ):
             raise ValueError("Eine markierte Problemstelle liegt außerhalb des Ist-Ablaufs.")
-        direct_fields = (self.user_action, self.human_check)
-        if any(DIRECT_CUSTOMER_LANGUAGE_PATTERN.search(item) is None for item in direct_fields):
-            raise ValueError("Nutzerhandlung und menschliche Prüfung müssen direkt mit du formuliert sein.")
-        customer_output = self.model_dump(exclude={"process_summary", "as_is_steps", "core_bottleneck", "bottleneck_symptom", "bottleneck_cause", "bottleneck_effect", "as_is_problem_step_indexes", "to_be_steps", "uncertainties"})
+        if DIRECT_CUSTOMER_LANGUAGE_PATTERN.search(self.erster_schritt) is None:
+            raise ValueError("Der erste Schritt muss direkt mit du formuliert sein.")
+
+        # Ein Wert muss zu seiner Beschriftung gehoeren. Frueher wurden Werte
+        # positionsbasiert unter fremde Beschriftungen geschrieben; jetzt kommen
+        # beide aus derselben Quelle, geprueft wird trotzdem.
+        beispiel_labels = [item.label.casefold().strip() for item in self.beispiel_daraus_wird]
+        if len(set(beispiel_labels)) != len(beispiel_labels):
+            raise ValueError("Im Beispiel darf keine Beschriftung doppelt vorkommen.")
+        gefuellte_labels = set(beispiel_labels)
+        for fehlend in self.beispiel_das_fehlt:
+            normalisiert = fehlend.casefold().strip()
+            if normalisiert in gefuellte_labels:
+                raise ValueError(
+                    "Ein Feld darf nicht gleichzeitig ausgefüllt und als fehlend "
+                    "markiert sein."
+                )
+
+        customer_output = self.model_dump(
+            exclude={
+                "process_summary",
+                "as_is_steps",
+                "core_bottleneck",
+                "bottleneck_symptom",
+                "bottleneck_cause",
+                "bottleneck_effect",
+                "as_is_problem_step_indexes",
+                "to_be_steps",
+                "uncertainties",
+            }
+        )
         distant_matches = {
             match.group(0).casefold()
             for match in DISTANT_CUSTOMER_LANGUAGE_PATTERN.finditer(str(customer_output))
@@ -748,21 +576,4 @@ class FinalAnalysisResult(StrictResultModel):
             ungrounded_matches.add("der mitarbeiter")
         if ungrounded_matches:
             raise ValueError("Die Kundenausgabe enthält distanzierte Ansprache.")
-        generic_ai_phrases = (
-            "ki kann deinen prozess optimieren",
-            "ki kann den prozess optimieren",
-            "ki kann dabei helfen",
-        )
-        if any(phrase in self.promise.casefold() for phrase in generic_ai_phrases):
-            raise ValueError("Die KI-Unterstützung muss konkret beschrieben werden.")
         return self
-
-    def customer_visible_dump(self) -> dict[str, Any]:
-        """Unterdrückt ausschließlich vom Legacy-Shim erfundene Platzhalter."""
-
-        payload = self.model_dump()
-        for field_name in self.legacy_filled_fields:
-            if field_name not in payload:
-                continue
-            payload[field_name] = [] if isinstance(payload[field_name], list) else ""
-        return payload

@@ -65,6 +65,11 @@ class SolutionPattern(CatalogModel):
     minimum_information: list[str] = Field(min_length=1)
     user_action: str
     ai_task: str
+    # Konkreter Wortschatz fuer "Das nimmt dir die KI ab". Das Modell waehlt
+    # daraus die zutreffenden Punkte und uebersetzt sie in die Sprache des
+    # Betriebs, statt sie abzuschreiben.
+    ai_capabilities: list[str] = Field(min_length=1)
+    ai_capabilities_exclusion: str = ""
     visible_output: str
     human_check: str
     technical_prerequisites: list[str] = Field(min_length=1)
@@ -155,6 +160,9 @@ class RecommendationCatalog(CatalogModel):
     failure_patterns: list[FailurePattern]
     autonomy_levels: list[AutonomyLevel]
     non_genai_mechanisms: list[NonGenAiMechanism] = Field(min_length=1)
+    # Aufgaben, die normale Software erledigt. Liegt der Engpass hier, gehoert
+    # das ins Ergebnis - mit dem Hinweis, dass dafuer keine KI noetig ist.
+    software_not_ai: list[str] = Field(min_length=1)
 
     @model_validator(mode="after")
     def validate_catalog(self) -> "RecommendationCatalog":

@@ -617,6 +617,20 @@
       ],
       "user_action": "Du leitest Anfragen an einen festen Eingang oder erfasst den Anruf kurz.",
       "ai_task": "Die KI ordnet Kerndaten, zeigt fehlende Angaben und bereitet eine Antwort vor.",
+      "ai_capabilities": [
+        "nimmt Nachrichten aus WhatsApp, Mail, Instagram, Formular und Shop entgegen",
+        "wandelt eine Sprachnachricht in Text um",
+        "erkennt, worum es dem Kunden überhaupt geht",
+        "liest die wichtigen Angaben heraus: was, wann, wohin, wie viel",
+        "hängt mitgeschickte Fotos und Dateien an die richtige Anfrage",
+        "erkennt, ob die Anfrage zu einem bestehenden Kunden gehört",
+        "führt mehrere Nachrichten zur selben Sache zusammen",
+        "markiert, welche Angaben noch fehlen",
+        "bereitet die passende Rückfrage vor",
+        "erkennt, dass eine Anfrage noch unbeantwortet ist",
+        "sortiert nach Art des Anliegens",
+        "fasst die Anfrage in zwei Zeilen zusammen"
+      ],
       "visible_output": "Eine Anfragekarte mit Status, offenen Angaben und Antwortentwurf.",
       "human_check": "Du entscheidest über Dringlichkeit, Annahme, Termin und Antwort.",
       "technical_prerequisites": [
@@ -722,6 +736,17 @@
       ],
       "user_action": "Du aktualisierst den Status nur bei einem realen Ereignis.",
       "ai_task": "Die KI fasst Notizen zusammen und erkennt offene Punkte.",
+      "ai_capabilities": [
+        "ordnet neue Nachrichten dem laufenden Vorgang zu",
+        "fasst zusammen, was seit dem letzten Mal passiert ist",
+        "erkennt den nächsten offenen Schritt",
+        "markiert, wo etwas gerade hängt",
+        "erkennt, dass etwas liegen geblieben ist",
+        "zeigt, worauf der Kunde noch wartet",
+        "hebt hervor, was sich zuletzt geändert hat",
+        "bereitet eine Zwischenmeldung an den Kunden vor",
+        "stellt die Tagesliste zusammen: heute fällig, unvollständig, neu"
+      ],
       "visible_output": "Eine Vorgangskarte mit Stand, Blockade und nächster Aktion.",
       "human_check": "Du bestätigst Status, Abschluss, Meldung und Ausnahmen.",
       "technical_prerequisites": [
@@ -830,6 +855,18 @@
       ],
       "user_action": "Du schickst nach dem Einsatz eine Sprachnachricht, Fotos und den Bon.",
       "ai_task": "Die KI ordnet Sprache, Fotos und Bon dem Einsatz zu und markiert Unsicherheit.",
+      "ai_capabilities": [
+        "wandelt die Sprachnachricht nach dem Einsatz in Text um",
+        "liest den Bon: Lieferant, Datum, Betrag, Positionen",
+        "ordnet Fotos dem richtigen Einsatz zu",
+        "erkennt Tätigkeit, Dauer und verwendetes Material",
+        "erkennt zusätzlich ausgeführte Arbeiten",
+        "erkennt festgestellte, aber nicht erledigte Sachen",
+        "markiert unsichere oder fehlende Angaben",
+        "erstellt die Einsatznotiz als Entwurf",
+        "bereitet eine Rückfrage ans Büro oder an den Kunden vor",
+        "bereitet aus bestätigten Notizen später den Rechnungsentwurf vor"
+      ],
       "visible_output": "Eine prüfbare Einsatznotiz mit Anhängen und offenen Angaben.",
       "human_check": "Du prüfst Zuordnung, Zeit, Material, Zusatzarbeit und Beleg.",
       "technical_prerequisites": [
@@ -939,6 +976,15 @@
       ],
       "user_action": "Du gibst Objekt und Auftrag dieselbe Kennung und aktualisierst den realen Ort.",
       "ai_task": "Die KI ordnet Wünsche, Preisgrenze und offene Angaben; sie errät nie den Ort.",
+      "ai_capabilities": [
+        "liest aus der Annahme heraus, was gemacht werden soll",
+        "hält den Zustand bei Annahme mit Fotos fest",
+        "verbindet Auftragsnummer, Kunde und Gegenstand",
+        "zeigt, was zu diesem Gegenstand vereinbart wurde",
+        "erkennt Gegenstände, die ungewöhnlich lange liegen",
+        "bereitet die Fertigmeldung an den Kunden vor"
+      ],
+      "ai_capabilities_exclusion": "Ausdrücklich nicht: den Ablageort erraten oder aus Notizen ableiten. Der Ort wird beim Weglegen erfasst, sonst gar nicht.",
       "visible_output": "Eine Auftragskarte mit eindeutiger Objekt- und Ortszuordnung.",
       "human_check": "Du prüfst Kennzeichnung, Zustand, Ort, Fertigmeldung und Herausgabe.",
       "technical_prerequisites": [
@@ -1038,6 +1084,15 @@
       ],
       "user_action": "Du führst Terminwünsche zusammen und prüfst die reale Kapazität.",
       "ai_task": "Die KI erkennt fehlende Angaben und schlägt passende Optionen vor.",
+      "ai_capabilities": [
+        "liest den Terminwunsch aus der Nachricht",
+        "erkennt, welche Leistung gewünscht ist und wie lange sie dauert",
+        "markiert fehlende Angaben",
+        "bereitet Terminvorschläge aus vorhandenen freien Zeiten vor",
+        "bereitet Bestätigung und Erinnerung vor",
+        "nimmt Verschiebung und Absage auf",
+        "erkennt Doppelbelegung"
+      ],
       "visible_output": "Eine Terminanfrage mit Optionen und Kapazitätsstatus.",
       "human_check": "Du bestätigst Personal, Ausnahme und den verbindlichen Termin.",
       "technical_prerequisites": [
@@ -1146,6 +1201,16 @@
       ],
       "user_action": "Du lädst das Dokument hoch und prüfst die vorgeschlagenen Angaben.",
       "ai_task": "Die KI extrahiert Felder und markiert Unsicherheit und Widersprüche.",
+      "ai_capabilities": [
+        "liest Rechnungen, Bons, Lieferscheine und Formulare",
+        "erkennt Lieferant, Datum, Betrag, Nummer und Positionen",
+        "ordnet das Dokument dem richtigen Auftrag oder Kunden zu",
+        "benennt die Datei und legt sie ab",
+        "markiert unsichere Stellen und Widersprüche",
+        "zeigt die gelesenen Angaben neben dem Original",
+        "erkennt, dass ein Beleg fehlt",
+        "fasst Angaben aus mehreren Unterlagen zusammen"
+      ],
       "visible_output": "Ein bestätigbarer Datensatz neben dem Original.",
       "human_check": "Du prüfst Zuordnung, Beträge, Mengen und kritische Felder.",
       "technical_prerequisites": [
@@ -1252,6 +1317,14 @@
       ],
       "user_action": "Du meldest die Abweichung und pausierst bis zur Entscheidung.",
       "ai_task": "Die KI strukturiert Befund und bereitet Änderungsfrage und Entwurf vor.",
+      "ai_capabilities": [
+        "erkennt, dass sich am Auftrag etwas geändert hat",
+        "hält fest, was zugesagt wurde und von wem",
+        "führt nach, welche Fassung gerade gilt",
+        "markiert offene Freigaben",
+        "bereitet die Rückfrage zur Änderung vor",
+        "bereitet den aktualisierten Auftrag vor"
+      ],
       "visible_output": "Ein Änderungsfall mit Version, Status und Entscheidung.",
       "human_check": "Du prüfst Technik, Preis, Termin, Zustimmung und Wiederaufnahme.",
       "technical_prerequisites": [
@@ -1358,6 +1431,15 @@
       ],
       "user_action": "Du bestätigst Materialentnahme und Stufenwechsel an klaren Übergaben.",
       "ai_task": "Die KI bereitet Aufgaben vor und markiert fehlendes Material oder Widersprüche.",
+      "ai_capabilities": [
+        "erkennt, welches Material für einen Auftrag gebraucht wird",
+        "erkennt niedrigen Bestand",
+        "stellt die Einkaufsliste zusammen",
+        "ordnet Lieferungen der Bestellung zu",
+        "erkennt fehlende oder verspätete Lieferungen",
+        "hält Verbrauch fest",
+        "markiert Aufträge, die auf Material warten"
+      ],
       "visible_output": "Ein Board mit Auftrag, Materialstatus, Schritt und Blockade.",
       "human_check": "Du prüfst Stückliste, Menge, Priorität, Qualität und Versand.",
       "technical_prerequisites": [
@@ -1464,6 +1546,16 @@
       ],
       "user_action": "Du gibst den Leistungsnachweis frei und prüfst Entwurf und offene Fälle.",
       "ai_task": "Die KI schlägt Positionen vor, markiert Belege und erstellt Erinnerungsentwürfe.",
+      "ai_capabilities": [
+        "sammelt bestätigte Leistungen zu einem Auftrag",
+        "übernimmt Material und Zeiten aus dem Auftrag",
+        "bereitet den Rechnungsentwurf vor",
+        "ordnet Belege der richtigen Rechnung zu",
+        "erkennt überfällige Rechnungen",
+        "bereitet die Zahlungserinnerung im passenden Ton vor",
+        "erkennt Angebote, auf die niemand geantwortet hat",
+        "sammelt die Unterlagen für die Buchhaltung"
+      ],
       "visible_output": "Ein Rechnungsentwurf oder eine Liste offener Zahlungen.",
       "human_check": "Du prüfst Preis, Steuer, Leistung, Versand und Eskalation.",
       "technical_prerequisites": [
@@ -1569,6 +1661,13 @@
       ],
       "user_action": "Du sprichst oder notierst nach einer wichtigen Entscheidung kurz den Stand.",
       "ai_task": "Die KI strukturiert Notiz, offene Aufgabe und bestätigte Historie.",
+      "ai_capabilities": [
+        "macht aus einer kurzen Notiz eine Übergabe",
+        "fasst zusammen, was entschieden wurde",
+        "hält fest, was offen ist und wer übernimmt",
+        "findet frühere Absprachen zu diesem Kunden",
+        "beantwortet wiederkehrende Fragen aus vorhandenen Unterlagen"
+      ],
       "visible_output": "Eine kompakte Übergabenotiz im richtigen Vorgang.",
       "human_check": "Du bestätigst Entscheidung, Zugriff, Verantwortung und Übernahme.",
       "technical_prerequisites": [
@@ -2439,5 +2538,14 @@
       "task": "Physischer Lagerort",
       "mechanism": "Kennzeichnung und bestätigtes Scan-/Buchungsereignis"
     }
+  ],
+  "software_not_ai": [
+    "eine Auftrags- oder Objektnummer vergeben",
+    "den Status umschalten, wenn etwas passiert ist",
+    "Preise, Mengen und Summen rechnen",
+    "Fälligkeiten und Erinnerungen auslösen",
+    "eine Nachricht in den richtigen Ordner legen",
+    "Zugriffsrechte regeln",
+    "festhalten, wo ein Gegenstand physisch liegt"
   ]
 }

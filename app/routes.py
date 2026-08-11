@@ -1418,60 +1418,48 @@ def _persist_final_analysis(
                     "effect": result.bottleneck_effect,
                 },
                 "core_output": {
-                    "primary_recommendation": result.primary_recommendation,
-                    "promise": result.promise,
-                    "short_reason": result.short_reason,
-                    "before_process": result.before_process,
-                    "future_process": result.future_process,
-                    "sample_output": result.sample_output.model_dump(),
-                    "user_action": result.user_action,
-                    "ai_task": result.ai_task,
-                    "software_rule": result.software_rule,
-                    "visible_result": result.visible_result,
-                    "human_check": result.human_check,
-                    "customer_benefits": result.customer_benefits,
-                    "required_prerequisites": result.required_prerequisites,
-                    "implementation_path": result.implementation_path,
-                    "later_stage": result.later_stage,
-                    "open_details": result.open_details,
-                    "smallest_usable_version": result.smallest_usable_version,
-                    "not_automated": result.not_automated,
-                    "autonomy_level": result.autonomy_level,
-                    "secondary_opportunities": [
-                        item.model_dump() for item in result.secondary_opportunities
+                    "contract_version": "customer-briefing-v4",
+                    "engpass": result.engpass,
+                    "vorschlag_titel": result.vorschlag_titel,
+                    "vorschlag_erklaerung": result.vorschlag_erklaerung,
+                    "das_nimmt_die_ki_ab": result.das_nimmt_die_ki_ab,
+                    "beispiel_nachricht": result.beispiel_nachricht,
+                    "beispiel_kanal": result.beispiel_kanal,
+                    "beispiel_daraus_wird": [
+                        item.model_dump() for item in result.beispiel_daraus_wird
                     ],
+                    "beispiel_das_fehlt": result.beispiel_das_fehlt,
+                    "beispiel_rueckfrage": result.beispiel_rueckfrage,
+                    "dein_tag_danach": result.dein_tag_danach,
+                    "das_bleibt_bei_dir": result.das_bleibt_bei_dir,
+                    "erster_schritt": result.erster_schritt,
+                    "spaeter_moeglich": result.spaeter_moeglich,
+                    "was_zuerst_fehlt": result.was_zuerst_fehlt,
+                    "not_automated": result.not_automated,
                     "error_boundaries": result.error_boundaries,
+                    "autonomy_level": result.autonomy_level,
                 },
             },
         )
     )
-    stored_opportunities = [
-        {
-            "title": result.primary_recommendation,
-            "description": result.short_reason,
-            "benefit": result.customer_benefits[0],
-        },
-        *[item.model_dump() | {"benefit": item.description} for item in result.secondary_opportunities],
-    ]
-    for rank, opportunity in enumerate(stored_opportunities, start=1):
-        database_session.add(
-            AutomationOpportunity(
-                session_id=session_id,
-                rank=rank,
-                title=str(opportunity["title"]),
-                problem=result.short_reason,
-                recommendation=str(opportunity.get("description") or result.primary_recommendation),
-                benefit=str(opportunity["benefit"]),
-                human_approval=result.human_check,
-                first_step=result.implementation_path[0],
-                blueprint_json={
-                    "contract_version": "recommendation-v3",
-                    "sample_output": result.sample_output.model_dump() if rank == 1 else None,
-                    "implementation_path": result.implementation_path if rank == 1 else [],
-                    "later_stage": result.later_stage if rank == 1 else "",
-                },
-            )
+    # Der neue Kundenvertrag kennt genau eine Empfehlung. Sekundaere
+    # Moeglichkeiten entfallen; die Tabelle behaelt dafuer eine Zeile.
+    database_session.add(
+        AutomationOpportunity(
+            session_id=session_id,
+            rank=1,
+            title=result.vorschlag_titel,
+            problem=result.engpass,
+            recommendation=result.vorschlag_erklaerung,
+            benefit=result.das_nimmt_die_ki_ab[0],
+            human_approval=result.das_bleibt_bei_dir,
+            first_step=result.erster_schritt,
+            blueprint_json={
+                "contract_version": "customer-briefing-v4",
+                "spaeter_moeglich": result.spaeter_moeglich,
+            },
         )
+    )
     database_session.commit()
 
 
@@ -1630,6 +1618,9 @@ def _generate_and_persist_final_analysis(
                     str(error),
                 )
         recommendation_context = recommendation.model_dump()
+        recommendation_context["software_not_ai"] = list(
+            recommendation_catalog.software_not_ai
+        )
         recommendation_context["failure_guardrails"] = [
             {
                 "trigger": item.trigger,
@@ -2040,43 +2031,6 @@ def _customer_future_steps(value: object) -> list[str]:
     ]
 
 
-def _customer_sample_output(
-    value: object,
-    *,
-    solution_id: str,
-    is_non_ai: bool,
-) -> dict[str, object]:
-    source = value if isinstance(value, dict) else {}
-    source_fields = source.get("fields")
-    existing_fields = source_fields if isinstance(source_fields, list) else []
-    structure = output_structure_for(solution_id) if solution_id else None
-    fields = [
-        {
-            "label": str(item.get("label") or ""),
-            "value": str(item.get("value") or ""),
-        }
-        for item in existing_fields[:7]
-        if isinstance(item, dict) and item.get("label") and item.get("value")
-    ]
-    if structure is not None:
-        title = structure.name
-    else:
-        title = str(source.get("title") or "Ergebnis")
-    return {
-        "title": title,
-        "input_context": str(source.get("input_context") or ""),
-        "incoming_message": str(source.get("incoming_message") or ""),
-        "incoming_note": str(source.get("incoming_note") or ""),
-        "fields": fields,
-        "missing_details": [
-            str(item) for item in source.get("missing_details", [])[:2]
-        ] if isinstance(source.get("missing_details"), list) else [],
-        "clarification_question": str(source.get("clarification_question") or ""),
-        "preview_notice": str(source.get("preview_notice") or PREVIEW_NOTICE),
-        "used_catalog_fallback": bool(source.get("used_catalog_fallback")),
-    }
-
-
 def _question_from_open_detail(value: object) -> str:
     text = customer_plain_text(value, "customer_output.open_question").strip()
     if not text:
@@ -2198,6 +2152,13 @@ def _result_view(
     analysis: Analysis,
     opportunities: list[AutomationOpportunity],
 ) -> dict[str, object]:
+    """Reicht den geschriebenen Kundentext durch.
+
+    Es wird nichts mehr in eine feste Ausgabestruktur umgeschrieben und nichts
+    aus Katalog-Beispielwerten aufgefuellt. Was das Modell geschrieben hat, geht
+    so heraus - geprueft, aber nicht umsortiert.
+    """
+
     step_data = analysis.as_is_steps
     if isinstance(step_data, dict):
         as_is_steps = [str(item) for item in step_data.get("steps", [])]
@@ -2206,231 +2167,61 @@ def _result_view(
             for index in step_data.get("problem_step_indexes", [])
             if isinstance(index, int)
         ]
-        to_be_steps = [str(item) for item in step_data.get("to_be_steps", [])]
     else:
         as_is_steps = [str(item) for item in step_data]
         problem_indexes = []
-        to_be_steps = []
 
     uncertainty_data = analysis.uncertainties
     if isinstance(uncertainty_data, dict):
-        uncertainties = [str(item) for item in uncertainty_data.get("items", [])]
-        raw_bottleneck = uncertainty_data.get("bottleneck", {})
-        bottleneck = raw_bottleneck if isinstance(raw_bottleneck, dict) else {}
         raw_core_output = uncertainty_data.get("core_output", {})
         core_output = raw_core_output if isinstance(raw_core_output, dict) else {}
     else:
-        uncertainties = [str(item) for item in uncertainty_data]
-        bottleneck = {}
         core_output = {}
 
-    opportunity_views: list[dict[str, object]] = []
-    blueprint: dict[str, object] | None = None
-    for opportunity in opportunities:
-        stored_meta = opportunity.blueprint_json
-        if isinstance(stored_meta, dict) and "category" in stored_meta:
-            meta = stored_meta
-            if opportunity.rank == 1 and isinstance(meta.get("blueprint"), dict):
-                blueprint = meta["blueprint"]
-        else:
-            meta = {}
-            if opportunity.rank == 1 and isinstance(stored_meta, dict):
-                blueprint = stored_meta
-        opportunity_views.append(
-            {
-                "rank": opportunity.rank,
-                "title": _customer_recommendation_title(opportunity.title),
-                "problem": opportunity.problem,
-                "recommendation": opportunity.recommendation,
-                "benefit": opportunity.benefit,
-                "human_approval": opportunity.human_approval,
-                "first_step": opportunity.first_step,
-                "category": meta.get("category") or _opportunity_category(opportunity),
-                "prerequisite": meta.get("prerequisite") or opportunity.first_step,
-                "mini_test": meta.get("mini_test") or [opportunity.first_step],
-                "effort": meta.get("effort") or ("niedrig" if opportunity.rank == 1 else "mittel"),
-                "acceptance_risk": meta.get("acceptance_risk") or "Im kleinen Test mit den beteiligten Personen prüfen.",
-            }
-        )
-    if not to_be_steps and blueprint:
-        to_be_steps = [str(item) for item in blueprint.get("workflow_steps", [])]
-    first = opportunity_views[0]
-    blueprint_steps = (
-        [str(item) for item in blueprint.get("workflow_steps", [])]
-        if isinstance(blueprint, dict)
-        else []
-    )
-    primary_mini_test = [str(item) for item in first["mini_test"]][:4]
-    is_new_contract = bool(core_output.get("primary_recommendation"))
-    legacy_human_check = str(core_output.get("human_check") or first["human_approval"])
-    if not any(marker in legacy_human_check.casefold() for marker in ("du ", "dein", "dir ")):
-        legacy_human_check = f"Du prüfst und bestätigst: {legacy_human_check}"
-    if core_output.get("autonomy_level") == "A0" and "noch offen" in legacy_human_check.casefold():
-        legacy_human_check = (
-            "Du prüfst an einem konkreten Beispiel, ob die vorhandene Funktion "
-            "oder Regel "
-            "wie gewünscht greift."
-        )
-    secondary = core_output.get("secondary_opportunities")
-    if not isinstance(secondary, list):
-        secondary = [
-            {"title": item["title"], "description": item["benefit"]}
-            for item in opportunity_views[1:3]
-        ]
-    secondary = [
-        {
-            **item,
-            "title": _customer_recommendation_title(item.get("title")),
-        }
-        if isinstance(item, dict)
-        else item
-        for item in secondary
-    ]
-    sample_output = core_output.get("sample_output")
-    if not isinstance(sample_output, dict):
-        legacy_output = str(core_output.get("ai_output") or "")
-        sample_output = {
-            "title": legacy_output,
-            "fields": (
-                [{"label": "Ergebnis", "value": legacy_output}]
-                if legacy_output
-                else []
-            ),
-            "open_items": [],
-            "attachments": [],
-            "preview_notice": (
-                "Vorschau – die endgültigen Angaben prüfst du selbst."
-                if legacy_output
-                else ""
-            ),
-        }
-    user_action = str(core_output.get("user_action") or core_output.get("ai_input") or "")
-    if user_action and not any(marker in user_action.casefold() for marker in ("du ", "dein", "dir ")):
-        user_action = f"Du gibst ein: {user_action}."
-    implementation_path = core_output.get("implementation_path")
-    if not isinstance(implementation_path, list) or len(implementation_path) < 2:
-        implementation_path = core_output.get("weekly_test") or blueprint_steps or primary_mini_test
-    stored_error_boundaries = core_output.get("error_boundaries")
-    if not isinstance(stored_error_boundaries, list):
-        stored_error_boundaries = [] if is_new_contract else [str(first["acceptance_risk"])]
-    internal_view = {
-        "as_is_steps": as_is_steps,
-        "problem_step_indexes": problem_indexes,
-        "to_be_steps": to_be_steps,
-        "uncertainties": uncertainties,
-        "bottleneck": {
-            "symptom": bottleneck.get("symptom") or first["problem"],
-            "cause": bottleneck.get("cause") or analysis.core_bottleneck,
-            "effect": bottleneck.get("effect") or first["benefit"],
-        },
-        "opportunities": opportunity_views,
-        "blueprint": blueprint,
-        "primary_recommendation": _customer_recommendation_title(
-            core_output.get("primary_recommendation") or first["title"]
-        ),
-        "promise": core_output.get("promise") or core_output.get("ai_support") or first["benefit"],
-        "short_reason": core_output.get("short_reason") or core_output.get("core_problem") or analysis.core_bottleneck,
-        "before_process": core_output.get("before_process") or as_is_steps[:3],
-        "future_process": _customer_future_steps(
-            core_output.get("future_process") or to_be_steps[:4]
-        ),
-        "sample_output": sample_output,
-        "user_action": user_action,
-        "ai_task": core_output.get("ai_task") or "",
-        "software_rule": core_output.get("software_rule") or "",
-        "visible_result": core_output.get("visible_result") or core_output.get("ai_output") or sample_output["title"],
-        "human_check": legacy_human_check,
-        "customer_benefits": core_output.get("customer_benefits") or [first["benefit"]],
-        "required_prerequisites": core_output.get("required_prerequisites")
-        or ([] if is_new_contract else [first["prerequisite"]]),
-        "implementation_path": [str(item) for item in implementation_path][:4],
-        "later_stage": core_output.get("later_stage") or core_output.get("later_automation") or "",
-        "open_details": core_output.get("open_details") or [],
-        "smallest_usable_version": core_output.get("smallest_usable_version") or "",
-        "not_automated": core_output.get("not_automated") or [],
-        "autonomy_level": core_output.get("autonomy_level"),
-        "secondary_opportunities": secondary[:2],
-        "human_decisions": [legacy_human_check],
-        "error_boundaries": [str(item) for item in stored_error_boundaries][:3],
-        "current_process_summary": analysis.process_summary,
-    }
+    # Analysen aus dem alten Feldvertrag koennen den neuen Kundentext nicht
+    # liefern. Sie werden nicht rekonstruiert und nicht erfunden.
+    if core_output.get("contract_version") != "customer-briefing-v4":
+        logger.info("customer_output.legacy_analysis_not_rendered")
+        return {}
 
-    raw_primary_title = core_output.get("primary_recommendation") or first["title"]
-    solution_id = _solution_id_for_title(raw_primary_title)
-    primary_title = _customer_recommendation_title(raw_primary_title)
-    is_non_ai = core_output.get("autonomy_level") == "A0"
-    preview = _customer_sample_output(
-        sample_output,
-        solution_id=solution_id,
-        is_non_ai=is_non_ai,
-    )
-    preview_open_items = (
-        sample_output.get("open_items", [])
-        if isinstance(sample_output, dict)
-        else []
-    )
-    open_questions = _deduplicate_open_questions(
-        internal_view["open_details"],
-        preview_open_items,
-        uncertainties,
-    )
-    first_step_text = str(
-        internal_view["smallest_usable_version"]
-        or (internal_view["implementation_path"][0] if internal_view["implementation_path"] else "")
-    )
-    first_step_follow_up = ""
-    future_process = list(internal_view["future_process"][:6])
-    short_reason = str(internal_view["short_reason"])
-    promise = str(internal_view["promise"])
-    visible_result = str(internal_view["visible_result"])
-    required_prerequisites = list(internal_view["required_prerequisites"][:3])
-    open_questions = [
-        question
-        for question in open_questions
-        if not any(
-            _same_required_topic(question, prerequisite)
-            for prerequisite in required_prerequisites
-        )
-    ][:3]
-    later_stage = str(internal_view["later_stage"])
-    if later_stage.strip().casefold() in {
-        "noch offen",
-        "derzeit noch offen",
-        "noch nicht festgelegt",
-    }:
-        later_stage = ""
-    if later_stage and (
-        _normalized_similarity(later_stage, first_step_text) >= 0.7
-        or _normalized_similarity(later_stage, first_step_follow_up) >= 0.7
-    ):
-        later_stage = ""
-    bottleneck_cause = str(internal_view["bottleneck"]["cause"])
-    if contains_forbidden_customer_term(bottleneck_cause):
-        logger.warning("customer_output.field_omitted field=customer_output.bottleneck.cause")
-        bottleneck_cause = ""
+    beispiel_daraus_wird = [
+        {"label": str(item.get("label") or ""), "wert": str(item.get("wert") or "")}
+        for item in core_output.get("beispiel_daraus_wird", [])
+        if isinstance(item, dict) and item.get("label") and item.get("wert")
+    ]
 
     customer_payload = {
-        "is_non_ai": is_non_ai,
-        "short_reason": short_reason,
-        "bottleneck": {
-            "cause": bottleneck_cause,
+        "is_non_ai": core_output.get("autonomy_level") == "A0",
+        "engpass": str(core_output.get("engpass") or ""),
+        "vorschlag_titel": str(core_output.get("vorschlag_titel") or ""),
+        "vorschlag_erklaerung": str(core_output.get("vorschlag_erklaerung") or ""),
+        "das_nimmt_die_ki_ab": [
+            str(item) for item in core_output.get("das_nimmt_die_ki_ab", [])
+        ],
+        "beispiel": {
+            "nachricht": str(core_output.get("beispiel_nachricht") or ""),
+            "kanal": str(core_output.get("beispiel_kanal") or ""),
+            "daraus_wird": beispiel_daraus_wird,
+            "das_fehlt": [
+                str(item) for item in core_output.get("beispiel_das_fehlt", [])
+            ],
+            "rueckfrage": str(core_output.get("beispiel_rueckfrage") or ""),
+            "hinweis": PREVIEW_NOTICE,
         },
-        "primary_recommendation": primary_title,
-        "promise": promise,
-        "visible_result": visible_result,
-        "future_process": future_process,
-        "sample_output": preview,
-        "sample_heading": "Beispiel \u2014 so könnte dein Ergebnis aussehen",
-        "first_step_text": first_step_text,
-        "first_step_follow_up": first_step_follow_up,
-        "required_prerequisites": required_prerequisites,
-        "open_questions": open_questions,
-        "later_stage": later_stage,
-        "secondary_opportunities": _customer_secondary_opportunities(secondary),
-        "as_is_steps": internal_view["as_is_steps"][:5],
-        "problem_step_indexes": internal_view["problem_step_indexes"],
-        "current_process_summary": internal_view["current_process_summary"],
-        "contact_recommendation": primary_title,
+        "dein_tag_danach": str(core_output.get("dein_tag_danach") or ""),
+        "das_bleibt_bei_dir": str(core_output.get("das_bleibt_bei_dir") or ""),
+        "erster_schritt": str(core_output.get("erster_schritt") or ""),
+        "spaeter_moeglich": [
+            str(item) for item in core_output.get("spaeter_moeglich", [])
+        ],
+        "was_zuerst_fehlt": [
+            str(item) for item in core_output.get("was_zuerst_fehlt", [])
+        ],
+        "not_automated": [str(item) for item in core_output.get("not_automated", [])],
+        "as_is_steps": as_is_steps[:5],
+        "problem_step_indexes": problem_indexes,
+        "current_process_summary": analysis.process_summary,
+        "contact_recommendation": str(core_output.get("vorschlag_titel") or ""),
     }
     sanitized = sanitize_customer_payload(customer_payload)
     if contains_forbidden_customer_term(sanitized):
