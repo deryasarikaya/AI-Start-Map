@@ -1418,23 +1418,23 @@ def _persist_final_analysis(
                     "effect": result.bottleneck_effect,
                 },
                 "core_output": {
-                    "contract_version": "customer-briefing-v4",
-                    "engpass": result.engpass,
-                    "vorschlag_titel": result.vorschlag_titel,
-                    "vorschlag_erklaerung": result.vorschlag_erklaerung,
-                    "das_nimmt_die_ki_ab": result.das_nimmt_die_ki_ab,
-                    "beispiel_nachricht": result.beispiel_nachricht,
-                    "beispiel_kanal": result.beispiel_kanal,
-                    "beispiel_daraus_wird": [
-                        item.model_dump() for item in result.beispiel_daraus_wird
+                    "contract_version": "ergebnis-spec-v5",
+                    "engpass_titel": result.engpass_titel,
+                    "engpass_text": result.engpass_text,
+                    "moeglichkeiten": [
+                        item.model_dump() for item in result.moeglichkeiten
                     ],
-                    "beispiel_das_fehlt": result.beispiel_das_fehlt,
-                    "beispiel_rueckfrage": result.beispiel_rueckfrage,
-                    "dein_tag_danach": result.dein_tag_danach,
-                    "das_bleibt_bei_dir": result.das_bleibt_bei_dir,
-                    "erster_schritt": result.erster_schritt,
-                    "spaeter_moeglich": result.spaeter_moeglich,
-                    "was_zuerst_fehlt": result.was_zuerst_fehlt,
+                    "loesung": result.loesung.model_dump(),
+                    "beispiel": (
+                        result.beispiel.model_dump()
+                        if result.beispiel is not None
+                        else None
+                    ),
+                    "voraussetzungen": result.voraussetzungen.model_dump(),
+                    "umsetzung": result.umsetzung.model_dump(),
+                    "bleibt_bei_dir": result.bleibt_bei_dir,
+                    "grenzen": result.grenzen,
+                    "spaeter": result.spaeter,
                     "not_automated": result.not_automated,
                     "error_boundaries": result.error_boundaries,
                     "autonomy_level": result.autonomy_level,
@@ -1448,15 +1448,16 @@ def _persist_final_analysis(
         AutomationOpportunity(
             session_id=session_id,
             rank=1,
-            title=result.vorschlag_titel,
-            problem=result.engpass,
-            recommendation=result.vorschlag_erklaerung,
-            benefit=result.das_nimmt_die_ki_ab[0],
-            human_approval=result.das_bleibt_bei_dir,
-            first_step=result.erster_schritt,
+            title=result.loesung.titel,
+            problem=result.engpass_text,
+            recommendation=result.loesung.was_dabei_rauskommt,
+            benefit=result.loesung.was_die_ki_macht,
+            human_approval=result.bleibt_bei_dir,
+            first_step=result.umsetzung.erster_schritt,
             blueprint_json={
-                "contract_version": "customer-briefing-v4",
-                "spaeter_moeglich": result.spaeter_moeglich,
+                "contract_version": "ergebnis-spec-v5",
+                "ergebnis_art": result.loesung.ergebnis_art,
+                "spaeter": result.spaeter,
             },
         )
     )
@@ -2178,50 +2179,84 @@ def _result_view(
     else:
         core_output = {}
 
-    # Analysen aus dem alten Feldvertrag koennen den neuen Kundentext nicht
+    # Analysen aus einem aelteren Feldvertrag koennen den neuen Kundentext nicht
     # liefern. Sie werden nicht rekonstruiert und nicht erfunden.
-    if core_output.get("contract_version") != "customer-briefing-v4":
+    if core_output.get("contract_version") != "ergebnis-spec-v5":
         logger.info("customer_output.legacy_analysis_not_rendered")
         return {}
 
-    beispiel_daraus_wird = [
-        {"label": str(item.get("label") or ""), "wert": str(item.get("wert") or "")}
-        for item in core_output.get("beispiel_daraus_wird", [])
-        if isinstance(item, dict) and item.get("label") and item.get("wert")
-    ]
+    loesung = core_output.get("loesung") or {}
+    beispiel = core_output.get("beispiel")
+    voraussetzungen = core_output.get("voraussetzungen") or {}
+    umsetzung = core_output.get("umsetzung") or {}
 
+    # Reihenfolge nach docs/auftrag/ERGEBNIS_SPEC.md. "spaeter" steckt bereits
+    # in moeglichkeiten mit Rang "spaeter" und wird nicht zweimal gezeigt.
     customer_payload = {
         "is_non_ai": core_output.get("autonomy_level") == "A0",
-        "engpass": str(core_output.get("engpass") or ""),
-        "vorschlag_titel": str(core_output.get("vorschlag_titel") or ""),
-        "vorschlag_erklaerung": str(core_output.get("vorschlag_erklaerung") or ""),
-        "das_nimmt_die_ki_ab": [
-            str(item) for item in core_output.get("das_nimmt_die_ki_ab", [])
-        ],
-        "beispiel": {
-            "nachricht": str(core_output.get("beispiel_nachricht") or ""),
-            "kanal": str(core_output.get("beispiel_kanal") or ""),
-            "daraus_wird": beispiel_daraus_wird,
-            "das_fehlt": [
-                str(item) for item in core_output.get("beispiel_das_fehlt", [])
-            ],
-            "rueckfrage": str(core_output.get("beispiel_rueckfrage") or ""),
-            "hinweis": PREVIEW_NOTICE,
-        },
-        "dein_tag_danach": str(core_output.get("dein_tag_danach") or ""),
-        "das_bleibt_bei_dir": str(core_output.get("das_bleibt_bei_dir") or ""),
-        "erster_schritt": str(core_output.get("erster_schritt") or ""),
-        "spaeter_moeglich": [
-            str(item) for item in core_output.get("spaeter_moeglich", [])
-        ],
-        "was_zuerst_fehlt": [
-            str(item) for item in core_output.get("was_zuerst_fehlt", [])
-        ],
-        "not_automated": [str(item) for item in core_output.get("not_automated", [])],
+        "engpass_titel": str(core_output.get("engpass_titel") or ""),
+        "engpass_text": str(core_output.get("engpass_text") or ""),
         "as_is_steps": as_is_steps[:5],
         "problem_step_indexes": problem_indexes,
+        "moeglichkeiten": [
+            {
+                "rang": str(item.get("rang") or ""),
+                "titel": str(item.get("titel") or ""),
+                "begruendung": str(item.get("begruendung") or ""),
+            }
+            for item in core_output.get("moeglichkeiten", [])
+            if isinstance(item, dict) and item.get("titel")
+        ],
+        "loesung": {
+            "titel": str(loesung.get("titel") or ""),
+            "ablauf_heute": [str(item) for item in loesung.get("ablauf_heute", [])],
+            "ablauf_kuenftig": [str(item) for item in loesung.get("ablauf_kuenftig", [])],
+            "was_reinkommt": str(loesung.get("was_reinkommt") or ""),
+            "was_die_ki_macht": str(loesung.get("was_die_ki_macht") or ""),
+            "was_du_machst": str(loesung.get("was_du_machst") or ""),
+            "was_dabei_rauskommt": str(loesung.get("was_dabei_rauskommt") or ""),
+            "ergebnis_art": str(loesung.get("ergebnis_art") or ""),
+        },
+        "beispiel": (
+            {
+                "titel": str(beispiel.get("titel") or ""),
+                "kanal": str(beispiel.get("kanal") or ""),
+                "nachricht": str(beispiel.get("nachricht") or ""),
+                "daraus_wird": [
+                    {"label": str(feld.get("label") or ""), "wert": str(feld.get("wert") or "")}
+                    for feld in beispiel.get("daraus_wird", [])
+                    if isinstance(feld, dict) and feld.get("label") and feld.get("wert")
+                ],
+                "fehlt": [str(item) for item in beispiel.get("fehlt", [])],
+                "rueckfrage": str(beispiel.get("rueckfrage") or ""),
+                "hinweis": PREVIEW_NOTICE,
+            }
+            if isinstance(beispiel, dict)
+            else None
+        ),
+        "voraussetzungen": {
+            "vorhandene_werkzeuge": [
+                str(item) for item in voraussetzungen.get("vorhandene_werkzeuge", [])
+            ],
+            "neu_hinzukommend": [
+                str(item) for item in voraussetzungen.get("neu_hinzukommend", [])
+            ],
+            "geraete_und_zugang": str(voraussetzungen.get("geraete_und_zugang") or ""),
+            "musst_du_besorgen": [
+                str(item) for item in voraussetzungen.get("musst_du_besorgen", [])
+            ],
+        },
+        "umsetzung": {
+            "hinweis": str(umsetzung.get("hinweis") or ""),
+            "einrichtungsschritte": [
+                str(item) for item in umsetzung.get("einrichtungsschritte", [])
+            ],
+            "erster_schritt": str(umsetzung.get("erster_schritt") or ""),
+        },
+        "bleibt_bei_dir": str(core_output.get("bleibt_bei_dir") or ""),
+        "grenzen": str(core_output.get("grenzen") or ""),
         "current_process_summary": analysis.process_summary,
-        "contact_recommendation": str(core_output.get("vorschlag_titel") or ""),
+        "contact_recommendation": str(loesung.get("titel") or ""),
     }
     sanitized = sanitize_customer_payload(customer_payload)
     if contains_forbidden_customer_term(sanitized):

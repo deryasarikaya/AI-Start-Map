@@ -4,75 +4,104 @@
 <nav class="journey-progress" aria-label="Fortschritt"><span class="done">Erzählen ✓</span><span class="done">Verstehen ✓</span><span class="current">Ergebnis ●</span></nav>
 
 <div class="result-layout">
+    {# 1 — Überschrift und Engpass. Die Überschrift kommt aus dem Modell. #}
     <section class="result-block result-intro" data-result-block aria-labelledby="result-title">
         <p class="section-kicker">DEINE AUSWERTUNG · {{ process.process_name|customer_text }}</p>
-        <h1 id="result-title">Das ist der Engpass</h1>
-        <p class="result-bottleneck">{{ result.engpass }}</p>
+        <h1 id="result-title">{{ result.engpass_titel }}</h1>
+        <p class="result-bottleneck">{{ result.engpass_text }}</p>
     </section>
 
+    {# 2 — So läuft es heute #}
     <section class="result-block current-workflow" data-result-block aria-labelledby="current-title">
         <p class="section-kicker">SO LÄUFT ES HEUTE</p>
         <h2 id="current-title">So habe ich deinen heutigen Ablauf verstanden</h2>
         {% if result.as_is_steps %}<ol class="process-strip compact">{% for step in result.as_is_steps[:5] %}<li class="{% if loop.index0 in result.problem_step_indexes %}problem{% endif %}"><span>{{ loop.index }}</span><p>{{ step }}</p></li>{% endfor %}</ol>{% endif %}
     </section>
 
-    <section class="result-block recommendation-focus" data-result-block aria-labelledby="recommendation-title">
-        <p class="section-kicker">DAS SCHLAGE ICH DIR VOR</p>
-        <h2 id="recommendation-title">{{ result.vorschlag_titel }}</h2>
-        <p class="recommendation-promise">{{ result.vorschlag_erklaerung }}</p>
-    </section>
-
-    {% if result.das_nimmt_die_ki_ab %}
-    <section class="result-block ai-takes-over" data-result-block aria-labelledby="takeover-title">
-        <p class="section-kicker">DEINE ENTLASTUNG</p>
-        <h2 id="takeover-title">Das nimmt dir die KI ab</h2>
-        <ul class="takeover-list">{% for punkt in result.das_nimmt_die_ki_ab %}<li>{{ punkt }}</li>{% endfor %}</ul>
+    {# 3 — Erkannte Möglichkeiten, absteigend nach Hebel #}
+    {% if result.moeglichkeiten %}
+    <section class="result-block opportunities" data-result-block aria-labelledby="opportunities-title">
+        <p class="section-kicker">WO ARBEIT WEGFÄLLT</p>
+        <h2 id="opportunities-title">Hier lässt sich Arbeit aus deinem Ablauf nehmen</h2>
+        <ol class="opportunity-list">{% for item in result.moeglichkeiten %}<li class="rang-{{ item.rang }}"><p class="opportunity-rank">{% if item.rang == 'groesster_hebel' %}Größter Hebel{% elif item.rang == 'danach' %}Danach{% else %}Später{% endif %}</p><h3>{{ item.titel }}</h3><p>{{ item.begruendung }}</p></li>{% endfor %}</ol>
     </section>
     {% endif %}
 
-    <section class="result-block concrete-output" data-result-block aria-labelledby="output-title">
-        <p class="section-kicker">DEIN KONKRETES ERGEBNIS</p>
-        <h2 id="output-title">So sieht das in echt aus</h2>
-        <div class="sample-output-compact customer-example-block" data-customer-example-block>
-            <div class="sample-output-heading"><h3>Beispiel — so könnte dein Ergebnis aussehen</h3><span>Beispiel</span></div>
-            <p class="preview-notice">{{ result.beispiel.hinweis }}</p>
-            <div class="sample-story">
-                <section><p class="sample-story-label">So kommt es heute bei dir an{% if result.beispiel.kanal %} — {{ result.beispiel.kanal }}{% endif %}</p><blockquote>{{ result.beispiel.nachricht }}</blockquote></section>
-                <section><p class="sample-story-label">Das macht die KI daraus</p><dl>{% for feld in result.beispiel.daraus_wird %}<div><dt>{{ feld.label }}</dt><dd>{{ feld.wert }}</dd></div>{% endfor %}</dl></section>
-            </div>
-            {% if result.beispiel.das_fehlt or result.beispiel.rueckfrage %}<div class="sample-missing"><p class="sample-story-label">Das fehlt noch</p>{% if result.beispiel.das_fehlt %}<p>{{ result.beispiel.das_fehlt|join(' · ') }}</p>{% endif %}{% if result.beispiel.rueckfrage %}<p><strong>Vorbereitete Rückfrage:</strong> „{{ result.beispiel.rueckfrage }}“</p>{% endif %}</div>{% endif %}
+    {# 4 — Die Lösung. Überschrift kommt aus dem Modell. #}
+    <section class="result-block recommendation-focus" data-result-block aria-labelledby="recommendation-title">
+        <p class="section-kicker">SO WÜRDE DEINE LÖSUNG AUSSEHEN</p>
+        <h2 id="recommendation-title">{{ result.loesung.titel }}</h2>
+        <dl class="solution-grid">
+            <div><dt>Was reinkommt</dt><dd>{{ result.loesung.was_reinkommt }}</dd></div>
+            <div><dt>Was die KI macht</dt><dd>{{ result.loesung.was_die_ki_macht }}</dd></div>
+            <div><dt>Was du machst</dt><dd>{{ result.loesung.was_du_machst }}</dd></div>
+            <div><dt>Was dabei rauskommt</dt><dd>{{ result.loesung.was_dabei_rauskommt }}</dd></div>
+        </dl>
+    </section>
+
+    {# 4b — Heute gegen nach der Einrichtung #}
+    <section class="result-block flow-compare" data-result-block aria-labelledby="compare-title">
+        <h2 id="compare-title" class="visually-hidden">Heute und nach der Einrichtung</h2>
+        <div class="flow-compare-columns">
+            <div><p class="section-kicker">HEUTE</p><ol class="future-process-line">{% for step in result.loesung.ablauf_heute %}<li><span>{{ loop.index }}</span><p>{{ step }}</p></li>{% endfor %}</ol></div>
+            <div><p class="section-kicker">NACH DER EINRICHTUNG</p><ol class="future-process-line">{% for step in result.loesung.ablauf_kuenftig %}<li><span>{{ loop.index }}</span><p>{{ step }}</p></li>{% endfor %}</ol></div>
         </div>
     </section>
 
-    {% if result.dein_tag_danach %}
-    <section class="result-block future-workflow" data-result-block aria-labelledby="future-title">
-        <p class="section-kicker">DEIN NEUER ABLAUF</p>
-        <h2 id="future-title">So sieht dein Tag danach aus</h2>
-        <p>{{ result.dein_tag_danach }}</p>
+    {# 5 — Beispiel, nur wenn gesetzt. Zeigt genau das, was in ergebnis_art steht. #}
+    {% if result.beispiel %}
+    <section class="result-block concrete-output" data-result-block aria-labelledby="output-title">
+        <p class="section-kicker">DEIN KONKRETES ERGEBNIS</p>
+        <h2 id="output-title">{{ result.beispiel.titel }}</h2>
+        <div class="sample-output-compact customer-example-block" data-customer-example-block>
+            <div class="sample-output-heading"><h3>{{ result.loesung.ergebnis_art }}</h3><span>Beispiel</span></div>
+            <p class="preview-notice">{{ result.beispiel.hinweis }}</p>
+            <div class="sample-story">
+                <section><p class="sample-story-label">So kommt es heute bei dir an{% if result.beispiel.kanal %} — {{ result.beispiel.kanal }}{% endif %}</p><blockquote>{{ result.beispiel.nachricht }}</blockquote></section>
+                {% if result.beispiel.daraus_wird %}<section><p class="sample-story-label">Das macht die KI daraus</p><dl>{% for feld in result.beispiel.daraus_wird %}<div><dt>{{ feld.label }}</dt><dd>{{ feld.wert }}</dd></div>{% endfor %}</dl></section>{% endif %}
+            </div>
+            {% if result.beispiel.fehlt or result.beispiel.rueckfrage %}<div class="sample-missing"><p class="sample-story-label">Das fehlt noch</p>{% if result.beispiel.fehlt %}<p>{{ result.beispiel.fehlt|join(' · ') }}</p>{% endif %}{% if result.beispiel.rueckfrage %}<p><strong>Vorbereitete Rückfrage:</strong> „{{ result.beispiel.rueckfrage }}“</p>{% endif %}</div>{% endif %}
+        </div>
     </section>
     {% endif %}
 
+    {# 6 — Was bleibt, was dazukommt #}
+    <section class="result-block prerequisites" data-result-block aria-labelledby="prerequisites-title">
+        <p class="section-kicker">WAS DU DAFÜR BRAUCHST</p>
+        <h2 id="prerequisites-title">Das behältst du, das kommt dazu</h2>
+        {% if result.voraussetzungen.vorhandene_werkzeuge %}<div class="prereq-group"><h3>Das bleibt</h3><ul>{% for item in result.voraussetzungen.vorhandene_werkzeuge %}<li>{{ item }}</li>{% endfor %}</ul></div>{% endif %}
+        {% if result.voraussetzungen.neu_hinzukommend %}<div class="prereq-group"><h3>Das kommt dazu</h3><ul>{% for item in result.voraussetzungen.neu_hinzukommend %}<li>{{ item }}</li>{% endfor %}</ul></div>{% else %}<p class="prereq-none">Es kommt nichts Neues dazu, was du lernen müsstest.</p>{% endif %}
+        {% if result.voraussetzungen.geraete_und_zugang %}<p class="prereq-devices">{{ result.voraussetzungen.geraete_und_zugang }}</p>{% endif %}
+        {% if result.voraussetzungen.musst_du_besorgen %}<div class="prereq-group"><h3>Das müsstest du besorgen</h3><ul>{% for item in result.voraussetzungen.musst_du_besorgen %}<li>{{ item }}</li>{% endfor %}</ul></div>{% endif %}
+    </section>
+
+    {# 7 — Was Derya einrichtet #}
+    <section class="result-block implementation" data-result-block aria-labelledby="implementation-title">
+        <p class="section-kicker">WAS ICH DAFÜR EINRICHTE</p>
+        <h2 id="implementation-title">Das würde ich für dich bauen oder verbinden</h2>
+        {% if result.umsetzung.hinweis %}<p class="implementation-notice">{{ result.umsetzung.hinweis }}</p>{% endif %}
+        {% if result.umsetzung.einrichtungsschritte %}<ol class="implementation-steps">{% for step in result.umsetzung.einrichtungsschritte %}<li>{{ step }}</li>{% endfor %}</ol>{% endif %}
+        {% if result.umsetzung.erster_schritt %}<p class="implementation-first">{{ result.umsetzung.erster_schritt }}</p>{% endif %}
+    </section>
+
+    {# 8 — Was beim Kunden bleibt #}
     <section class="result-block human-check-callout" data-result-block aria-labelledby="check-title">
         <div><p class="section-kicker">DEINE SICHERHEIT</p><h2 id="check-title">Das bleibt bei dir</h2></div>
-        <p>{{ result.das_bleibt_bei_dir }}</p>
+        <p>{{ result.bleibt_bei_dir }}</p>
     </section>
 
-    {% if result.was_zuerst_fehlt %}
-    <section class="result-block missing-first" data-result-block aria-labelledby="missing-title">
+    {# 9 — Eine ehrliche Grenze, nur wenn gesetzt #}
+    {% if result.grenzen %}
+    <section class="result-block limits" data-result-block aria-labelledby="limits-title">
         <p class="section-kicker">EHRLICH GESAGT</p>
-        <h2 id="missing-title">Das fehlt zuerst</h2>
-        <ul class="missing-list">{% for punkt in result.was_zuerst_fehlt %}<li>{{ punkt }}</li>{% endfor %}</ul>
+        <h2 id="limits-title">Eine Grenze</h2>
+        <p>{{ result.grenzen }}</p>
     </section>
     {% endif %}
-
-    <section class="result-block first-step" data-result-block aria-labelledby="first-step-title">
-        <p class="section-kicker">DEIN ERSTER SCHRITT</p>
-        <h2 id="first-step-title">So klein fängst du an</h2>
-        <p>{{ result.erster_schritt }}</p>
-    </section>
 
     <form class="another-process-action" action="{{ url_for('analyze_another_process_public') }}" method="post" data-disable-on-submit><button class="text-button" type="submit">Einen anderen Ablauf ansehen</button></form>
 
+    {# 10 — Kontakt #}
     <section class="contact-cta" aria-labelledby="contact-title">
         <div>
             <p class="section-kicker">GEMEINSAM UMSETZEN</p>

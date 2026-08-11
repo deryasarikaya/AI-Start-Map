@@ -417,17 +417,147 @@ class SecondaryOpportunity(StrictResultModel):
     description: Annotated[str, Field(min_length=1, max_length=220)]
 
 
-class CustomerSampleField(StrictResultModel):
-    """Eine Zeile im Beispielblock.
+GENERATED_HEADING_MAX_WORDS = 8
 
-    Beschriftung und Wert stammen beide vom Modell aus derselben erfundenen
-    Nachricht. Es gibt keine feste Feldliste mehr, in die nachtraeglich
-    umgeschrieben wird - genau daher kam der Fehler, dass ein Datum unter
-    "Wer kuemmert sich" landete.
-    """
+CUSTOMER_AS_IMPLEMENTER_PATTERN = re.compile(
+    r"\b(?:probier\w*|teste?\s+(?:es\s+)?ab\s+morgen|fang\s+\w*\s*(?:n[äa]chste|kommende)"
+    r"\w*\s+Woche\s+an|leg\s+(?:einfach\s+)?los|mach\s+(?:einfach\s+)?selbst)\b",
+    re.IGNORECASE,
+)
+
+
+def _validate_generated_heading(value: str, field_name: str) -> str:
+    """Ueberschriften tragen Inhalt: kurz, ohne Doppelpunkt und Fragezeichen."""
+
+    text = value.strip()
+    if len(re.findall(r"[\wÄÖÜäöüß]+", text)) > GENERATED_HEADING_MAX_WORDS:
+        raise ValueError(
+            f"{field_name} darf höchstens {GENERATED_HEADING_MAX_WORDS} Wörter haben."
+        )
+    if ":" in text or "?" in text:
+        raise ValueError(f"{field_name} enthält keinen Doppelpunkt und kein Fragezeichen.")
+    return text
+
+
+class Moeglichkeit(StrictResultModel):
+    """Eine erkannte Stelle, an der Arbeit rausgenommen werden kann."""
+
+    rang: Literal["groesster_hebel", "danach", "spaeter"]
+    titel: Annotated[str, Field(min_length=1, max_length=120)]
+    begruendung: Annotated[str, Field(min_length=1, max_length=300)]
+
+
+class BeispielFeld(StrictResultModel):
+    """Beschriftung und Wert stammen beide aus derselben erfundenen Nachricht."""
 
     label: Annotated[str, Field(min_length=1, max_length=45)]
     wert: Annotated[str, Field(min_length=1, max_length=140)]
+
+
+class Beispiel(StrictResultModel):
+    """Eine Instanz von loesung.ergebnis_art, keine feste Kartenform."""
+
+    titel: Annotated[str, Field(min_length=1, max_length=120)]
+    kanal: Annotated[str, Field(min_length=1, max_length=40)]
+    nachricht: Annotated[str, Field(min_length=1, max_length=600)]
+    daraus_wird: list[BeispielFeld] = Field(default_factory=list, max_length=8)
+    fehlt: list[
+        Annotated[str, Field(min_length=1, max_length=140)]
+    ] = Field(default_factory=list, max_length=3)
+    rueckfrage: Annotated[str, Field(max_length=240)] = ""
+
+    @field_validator("titel")
+    @classmethod
+    def check_titel(cls, value: str) -> str:
+        return _validate_generated_heading(value, "beispiel.titel")
+
+    @model_validator(mode="after")
+    def check_beispiel(self) -> Beispiel:
+        labels = [item.label.casefold().strip() for item in self.daraus_wird]
+        if len(set(labels)) != len(labels):
+            raise ValueError("Im Beispiel darf keine Beschriftung doppelt vorkommen.")
+        gefuellt = set(labels)
+        for eintrag in self.fehlt:
+            if eintrag.casefold().strip() in gefuellt:
+                raise ValueError(
+                    "Ein Feld darf nicht gleichzeitig ausgefüllt und als fehlend "
+                    "markiert sein."
+                )
+        return self
+
+
+class Loesung(StrictResultModel):
+    titel: Annotated[str, Field(min_length=1, max_length=120)]
+    ablauf_heute: list[
+        Annotated[str, Field(min_length=1, max_length=180)]
+    ] = Field(min_length=3, max_length=6)
+    ablauf_kuenftig: list[
+        Annotated[str, Field(min_length=1, max_length=180)]
+    ] = Field(min_length=3, max_length=6)
+    was_reinkommt: Annotated[str, Field(min_length=1, max_length=400)]
+    was_die_ki_macht: Annotated[str, Field(min_length=1, max_length=700)]
+    was_du_machst: Annotated[str, Field(min_length=1, max_length=400)]
+    was_dabei_rauskommt: Annotated[str, Field(min_length=1, max_length=400)]
+    ergebnis_art: Annotated[str, Field(min_length=1, max_length=60)]
+
+    @field_validator("titel")
+    @classmethod
+    def check_titel(cls, value: str) -> str:
+        return _validate_generated_heading(value, "loesung.titel")
+
+    @model_validator(mode="after")
+    def check_ablauf(self) -> Loesung:
+        normalize = lambda items: [
+            re.sub(r"[^a-z0-9äöüß]+", " ", item.casefold()).strip() for item in items
+        ]
+        if normalize(self.ablauf_heute) == normalize(self.ablauf_kuenftig):
+            raise ValueError(
+                "Heutiger und künftiger Ablauf müssen sich erkennbar unterscheiden."
+            )
+        return self
+
+
+class Voraussetzungen(StrictResultModel):
+    vorhandene_werkzeuge: list[
+        Annotated[str, Field(min_length=1, max_length=140)]
+    ] = Field(min_length=1, max_length=8)
+    neu_hinzukommend: list[
+        Annotated[str, Field(min_length=1, max_length=180)]
+    ] = Field(default_factory=list, max_length=5)
+    geraete_und_zugang: Annotated[str, Field(min_length=1, max_length=500)]
+    musst_du_besorgen: list[
+        Annotated[str, Field(min_length=1, max_length=220)]
+    ] = Field(default_factory=list, max_length=3)
+
+    @model_validator(mode="after")
+    def check_kein_ueberschneiden(self) -> Voraussetzungen:
+        """Was bleibt und was dazukommt, darf nicht dieselbe Sache sein."""
+
+        normalize = lambda value: re.sub(r"[^a-z0-9äöüß]+", "", value.casefold())
+        bleibt = {normalize(item) for item in self.vorhandene_werkzeuge}
+        neu = {normalize(item) for item in self.neu_hinzukommend}
+        if bleibt & neu:
+            raise ValueError(
+                "Ein Werkzeug steht gleichzeitig unter vorhandene_werkzeuge und "
+                "neu_hinzukommend."
+            )
+        return self
+
+
+class Umsetzung(StrictResultModel):
+    hinweis: Annotated[str, Field(min_length=1, max_length=400)]
+    einrichtungsschritte: list[
+        Annotated[str, Field(min_length=1, max_length=220)]
+    ] = Field(min_length=3, max_length=5)
+    erster_schritt: Annotated[str, Field(min_length=1, max_length=700)]
+
+    @model_validator(mode="after")
+    def check_umsetzung(self) -> Umsetzung:
+        if CUSTOMER_AS_IMPLEMENTER_PATTERN.search(self.erster_schritt) is not None:
+            raise ValueError(
+                "Der erste Umsetzungsschritt macht den Kunden zum Umsetzer."
+            )
+        return self
 
 
 class FinalAnalysisResult(StrictResultModel):
@@ -437,29 +567,19 @@ class FinalAnalysisResult(StrictResultModel):
         json_schema_extra=_final_analysis_json_schema,
     )
 
-    # --- Kundentext: schreibt das Modell aus dem Briefing ---------------------
-    engpass: Annotated[str, Field(min_length=1, max_length=600)]
-    vorschlag_titel: Annotated[str, Field(min_length=1, max_length=120)]
-    vorschlag_erklaerung: Annotated[str, Field(min_length=1, max_length=600)]
-    das_nimmt_die_ki_ab: list[
-        Annotated[str, Field(min_length=1, max_length=220)]
-    ] = Field(min_length=5, max_length=8)
-    beispiel_nachricht: Annotated[str, Field(min_length=1, max_length=600)]
-    beispiel_kanal: Annotated[str, Field(min_length=1, max_length=40)]
-    beispiel_daraus_wird: list[CustomerSampleField] = Field(
-        min_length=2, max_length=8
-    )
-    beispiel_das_fehlt: list[
-        Annotated[str, Field(min_length=1, max_length=140)]
-    ] = Field(min_length=1, max_length=3)
-    beispiel_rueckfrage: Annotated[str, Field(min_length=1, max_length=240)]
-    dein_tag_danach: Annotated[str, Field(min_length=1, max_length=900)]
-    das_bleibt_bei_dir: Annotated[str, Field(min_length=1, max_length=400)]
-    erster_schritt: Annotated[str, Field(min_length=1, max_length=600)]
-    spaeter_moeglich: list[
-        Annotated[str, Field(min_length=1, max_length=220)]
-    ] = Field(default_factory=list, max_length=3)
-    was_zuerst_fehlt: list[
+    # --- Kundentext nach ERGEBNIS_SPEC.md ------------------------------------
+    engpass_titel: Annotated[str, Field(min_length=1, max_length=120)]
+    engpass_text: Annotated[str, Field(min_length=1, max_length=600)]
+    moeglichkeiten: list[Moeglichkeit] = Field(min_length=1, max_length=3)
+    loesung: Loesung
+    beispiel: Beispiel | None = None
+    voraussetzungen: Voraussetzungen
+    umsetzung: Umsetzung
+    bleibt_bei_dir: Annotated[str, Field(min_length=1, max_length=400)]
+    grenzen: Annotated[str, Field(max_length=400)] = ""
+    #: Wird nicht als eigener Block gezeigt - steckt in moeglichkeiten mit Rang
+    #: "spaeter". Doppelt zeigen ist laut Spec ein Fehler.
+    spaeter: list[
         Annotated[str, Field(min_length=1, max_length=220)]
     ] = Field(default_factory=list, max_length=3)
 
@@ -483,16 +603,14 @@ class FinalAnalysisResult(StrictResultModel):
         Annotated[str, Field(min_length=1, max_length=160)]
     ] = Field(default_factory=list, max_length=3)
 
-    #: Felder, deren Wortlaut lokal repariert wurde. Nur zur Protokollierung.
-    repaired_fields: list[str] = Field(
-        default_factory=list,
-        exclude=True,
-        repr=False,
-    )
-
-    @field_validator("das_bleibt_bei_dir", mode="before")
+    @field_validator("engpass_titel")
     @classmethod
-    def repair_direct_human_check(cls, value: Any) -> Any:
+    def check_engpass_titel(cls, value: str) -> str:
+        return _validate_generated_heading(value, "engpass_titel")
+
+    @field_validator("bleibt_bei_dir", mode="before")
+    @classmethod
+    def repair_direct_bleibt_bei_dir(cls, value: Any) -> Any:
         return _ensure_direct_customer_language(
             value,
             prefix="Du prüfst: ",
@@ -501,6 +619,10 @@ class FinalAnalysisResult(StrictResultModel):
 
     @model_validator(mode="after")
     def validate_customer_output(self) -> FinalAnalysisResult:
+        raenge = [item.rang for item in self.moeglichkeiten]
+        if len(set(raenge)) != len(raenge):
+            raise ValueError("Jeder Rang darf in moeglichkeiten nur einmal vorkommen.")
+
         if SUMMARY_META_PATTERN.search(self.process_summary) is not None:
             self.process_summary = (
                 " ".join(self.as_is_steps)
@@ -533,23 +655,6 @@ class FinalAnalysisResult(StrictResultModel):
             for index in self.as_is_problem_step_indexes
         ):
             raise ValueError("Eine markierte Problemstelle liegt außerhalb des Ist-Ablaufs.")
-        if DIRECT_CUSTOMER_LANGUAGE_PATTERN.search(self.erster_schritt) is None:
-            raise ValueError("Der erste Schritt muss direkt mit du formuliert sein.")
-
-        # Ein Wert muss zu seiner Beschriftung gehoeren. Frueher wurden Werte
-        # positionsbasiert unter fremde Beschriftungen geschrieben; jetzt kommen
-        # beide aus derselben Quelle, geprueft wird trotzdem.
-        beispiel_labels = [item.label.casefold().strip() for item in self.beispiel_daraus_wird]
-        if len(set(beispiel_labels)) != len(beispiel_labels):
-            raise ValueError("Im Beispiel darf keine Beschriftung doppelt vorkommen.")
-        gefuellte_labels = set(beispiel_labels)
-        for fehlend in self.beispiel_das_fehlt:
-            normalisiert = fehlend.casefold().strip()
-            if normalisiert in gefuellte_labels:
-                raise ValueError(
-                    "Ein Feld darf nicht gleichzeitig ausgefüllt und als fehlend "
-                    "markiert sein."
-                )
 
         customer_output = self.model_dump(
             exclude={

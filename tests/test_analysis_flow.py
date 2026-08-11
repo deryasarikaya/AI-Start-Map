@@ -68,60 +68,7 @@ def _suggestions() -> ProcessSuggestionResult:
 
 
 def _final_result() -> FinalAnalysisResult:
-    return FinalAnalysisResult(
-        process_summary="Eine Anfrage wird aufgenommen, geprüft und bestätigt.",
-        as_is_steps=["Anfrage aufnehmen", "Angaben prüfen", "Auftrag bestätigen"],
-        core_bottleneck="Die Auftragsangaben werden mehrfach manuell übertragen.",
-        software_rule="Pflichtangaben und Freigabestatus werden regelbasiert geprüft.",
-        smallest_usable_version="Neue Anfragen in einem einheitlichen Entwurf erfassen.",
-        not_automated=["Auftragsbestätigung", "Ausnahmeentscheidung"],
-        autonomy_level="A2",
-        uncertainties=["Die tatsächliche Fallzahl ist unbekannt."],
-        opportunities=[
-            AutomationOpportunityResult(
-                rank=1,
-                title="Auftragsangaben einmalig strukturiert erfassen",
-                problem="Dieselben Angaben werden wiederholt übertragen.",
-                recommendation="Eine gemeinsame strukturierte Erfassung vorbereiten.",
-                benefit="Weniger Übertragungsfehler und ein klarer Ausgangspunkt.",
-                human_approval="Der Auftrag wird vor der Bestätigung geprüft.",
-                first_step="Pflichtangaben für einen Auftrag festlegen.",
-            ),
-            AutomationOpportunityResult(
-                rank=2,
-                title="Vollständigkeit vor der Bearbeitung prüfen",
-                problem="Fehlende Angaben führen zu Rückfragen.",
-                recommendation="Fehlende Pflichtangaben sichtbar markieren.",
-                benefit="Rückfragen werden früher erkannt.",
-                human_approval="Eine Person entscheidet über Ausnahmen.",
-                first_step="Häufig fehlende Angaben sammeln.",
-            ),
-            AutomationOpportunityResult(
-                rank=3,
-                title="Geprüfte Arbeitsunterlage erzeugen",
-                problem="Informationen werden für die Ausführung neu zusammengestellt.",
-                recommendation="Aus freigegebenen Angaben einen Entwurf erstellen.",
-                benefit="Die Übergabe wird nachvollziehbarer.",
-                human_approval="Die Unterlage wird vor der Nutzung freigegeben.",
-                first_step="Die heutige Arbeitsunterlage dokumentieren.",
-            ),
-        ],
-        blueprint=AutomationBlueprint(
-            objective="Auftragsangaben einmalig und vollständig erfassen.",
-            trigger="Eine neue Kundenanfrage geht ein.",
-            required_inputs=["Kundenanfrage", "festgelegte Pflichtangaben"],
-            workflow_steps=[
-                "Anfrage erfassen",
-                "Pflichtangaben prüfen",
-                "Prüfung durch eine Person anfordern",
-            ],
-            human_review_point="Vor der verbindlichen Auftragsbestätigung.",
-            output="Eine geprüfte Auftragsübersicht.",
-            exceptions=["Unvollständige oder widersprüchliche Angaben"],
-        ),
-    )
-
-
+    return FinalAnalysisResult.model_validate(spec_payload())
 @pytest.fixture(autouse=True)
 def mock_retrieval(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(

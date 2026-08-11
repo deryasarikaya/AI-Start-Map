@@ -820,12 +820,15 @@ def generate_final_analysis(
         logger.error("final_analysis.forbidden_term_persisted")
 
     # Jede Zahl im Beispiel muss in der erfundenen Nachricht stehen.
-    incoming_numbers = set(
-        re.findall(r"(?<!\w)\d+(?:[.,]\d+)?", result.beispiel_nachricht)
+    beispiel = result.beispiel
+    incoming_numbers = (
+        set(re.findall(r"(?<!\w)\d+(?:[.,]\d+)?", beispiel.nachricht))
+        if beispiel is not None
+        else set()
     )
     field_numbers = {
         number
-        for item in result.beispiel_daraus_wird
+        for item in (beispiel.daraus_wird if beispiel is not None else [])
         for number in re.findall(r"(?<!\w)\d+(?:[.,]\d+)?", item.wert)
     }
     unsupported_sample_numbers = sorted(field_numbers - incoming_numbers)

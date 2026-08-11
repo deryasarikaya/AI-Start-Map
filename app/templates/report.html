@@ -1,55 +1,86 @@
 {% extends "base.html" %}
 {% block title %}Deine AI-Start-Map-Auswertung{% endblock %}
 {% block content %}
+{# Der Druckhinweis steht nur auf der Seite, nie im gedruckten Dokument. #}
 <div class="print-toolbar"><p>Wähle „Als PDF speichern“ und schalte „Kopf- und Fußzeilen“ aus.</p><button class="primary-button" type="button" onclick="window.print()">PDF speichern</button></div>
 <article class="customer-report">
     <section class="report-page report-page-one">
         <header class="report-header">
-            <div><p class="eyebrow">AI START MAP</p><h1>Deine Empfehlung</h1><p>{{ process.process_name|customer_text }} · {{ analysis_date }}</p></div>
+            <div><p class="eyebrow">AI START MAP</p><h1>{{ result.engpass_titel }}</h1><p>{{ process.process_name|customer_text }} · {{ analysis_date }}</p></div>
             <p class="report-disclaimer">Diese Auswertung ist eine Diagnose und noch keine fertige Einrichtung.</p>
         </header>
 
         <section class="report-bottleneck" aria-labelledby="report-bottleneck-title">
             <h2 id="report-bottleneck-title">Das ist der Engpass</h2>
-            <p class="report-bottleneck-text">{{ result.engpass }}</p>
+            <p class="report-bottleneck-text">{{ result.engpass_text }}</p>
         </section>
 
-        <section class="report-primary" aria-labelledby="report-recommendation-title">
-            <p class="section-kicker">DAS SCHLAGE ICH DIR VOR</p>
-            <h2 id="report-recommendation-title">{{ result.vorschlag_titel }}</h2>
-            <p class="report-promise">{{ result.vorschlag_erklaerung }}</p>
-        </section>
-
-        {% if result.das_nimmt_die_ki_ab %}
-        <section class="report-takeover" aria-labelledby="report-takeover-title">
-            <p class="section-kicker">DEINE ENTLASTUNG</p>
-            <h2 id="report-takeover-title">Das nimmt dir die KI ab</h2>
-            <ul class="report-takeover-list">{% for punkt in result.das_nimmt_die_ki_ab %}<li>{{ punkt }}</li>{% endfor %}</ul>
+        {% if result.as_is_steps %}
+        <section class="report-current" aria-labelledby="report-current-title">
+            <p class="section-kicker">SO LÄUFT ES HEUTE</p>
+            <h2 id="report-current-title">Dein heutiger Ablauf</h2>
+            <ol class="report-flow">{% for step in result.as_is_steps[:5] %}<li><span>{{ loop.index }}</span><p>{{ step }}</p></li>{% endfor %}</ol>
         </section>
         {% endif %}
 
-        <section class="report-sample customer-example-block" data-customer-example-block aria-labelledby="report-output-title">
-            <div class="report-title-row"><div><p class="section-kicker">BEISPIELAUSGABE</p><h3 id="report-output-title">Beispiel — so könnte dein Ergebnis aussehen</h3></div><span class="preview-badge">Beispiel</span></div>
-            <p class="preview-notice">{{ result.beispiel.hinweis }}</p>
-            <div class="report-sample-story"><section><p class="sample-story-label">So kommt es heute bei dir an{% if result.beispiel.kanal %} — {{ result.beispiel.kanal }}{% endif %}</p><blockquote>{{ result.beispiel.nachricht }}</blockquote></section><section><p class="sample-story-label">Das macht die KI daraus</p><dl>{% for feld in result.beispiel.daraus_wird %}<dt>{{ feld.label }}</dt><dd>{{ feld.wert }}</dd>{% endfor %}</dl></section></div>
-            {% if result.beispiel.das_fehlt or result.beispiel.rueckfrage %}<div class="sample-missing"><p class="sample-story-label">Das fehlt noch</p>{% if result.beispiel.das_fehlt %}<p>{{ result.beispiel.das_fehlt|join(' · ') }}</p>{% endif %}{% if result.beispiel.rueckfrage %}<p><strong>Vorbereitete Rückfrage:</strong> „{{ result.beispiel.rueckfrage }}“</p>{% endif %}</div>{% endif %}
+        {% if result.moeglichkeiten %}
+        <section class="report-opportunities" aria-labelledby="report-opportunities-title">
+            <p class="section-kicker">WO ARBEIT WEGFÄLLT</p>
+            <h2 id="report-opportunities-title">Hier lässt sich Arbeit rausnehmen</h2>
+            <ol class="report-opportunity-list">{% for item in result.moeglichkeiten %}<li><strong>{% if item.rang == 'groesster_hebel' %}Größter Hebel{% elif item.rang == 'danach' %}Danach{% else %}Später{% endif %} — {{ item.titel }}</strong><p>{{ item.begruendung }}</p></li>{% endfor %}</ol>
         </section>
+        {% endif %}
+
+        <section class="report-primary" aria-labelledby="report-recommendation-title">
+            <p class="section-kicker">SO WÜRDE DEINE LÖSUNG AUSSEHEN</p>
+            <h2 id="report-recommendation-title">{{ result.loesung.titel }}</h2>
+            <dl class="report-solution-grid">
+                <dt>Was reinkommt</dt><dd>{{ result.loesung.was_reinkommt }}</dd>
+                <dt>Was die KI macht</dt><dd>{{ result.loesung.was_die_ki_macht }}</dd>
+                <dt>Was du machst</dt><dd>{{ result.loesung.was_du_machst }}</dd>
+                <dt>Was dabei rauskommt</dt><dd>{{ result.loesung.was_dabei_rauskommt }}</dd>
+            </dl>
+        </section>
+
+        <section class="report-compare" aria-labelledby="report-compare-title">
+            <h2 id="report-compare-title" class="visually-hidden">Heute und nach der Einrichtung</h2>
+            <div class="report-compare-columns">
+                <div><p class="section-kicker">HEUTE</p><ol class="report-flow">{% for step in result.loesung.ablauf_heute %}<li><span>{{ loop.index }}</span><p>{{ step }}</p></li>{% endfor %}</ol></div>
+                <div><p class="section-kicker">NACH DER EINRICHTUNG</p><ol class="report-flow">{% for step in result.loesung.ablauf_kuenftig %}<li><span>{{ loop.index }}</span><p>{{ step }}</p></li>{% endfor %}</ol></div>
+            </div>
+        </section>
+
+        {% if result.beispiel %}
+        <section class="report-sample customer-example-block" data-customer-example-block aria-labelledby="report-output-title">
+            <div class="report-title-row"><div><p class="section-kicker">BEISPIEL</p><h3 id="report-output-title">{{ result.beispiel.titel }}</h3></div><span class="preview-badge">{{ result.loesung.ergebnis_art }}</span></div>
+            <p class="preview-notice">{{ result.beispiel.hinweis }}</p>
+            <div class="report-sample-story"><section><p class="sample-story-label">So kommt es heute bei dir an{% if result.beispiel.kanal %} — {{ result.beispiel.kanal }}{% endif %}</p><blockquote>{{ result.beispiel.nachricht }}</blockquote></section>{% if result.beispiel.daraus_wird %}<section><p class="sample-story-label">Das macht die KI daraus</p><dl>{% for feld in result.beispiel.daraus_wird %}<dt>{{ feld.label }}</dt><dd>{{ feld.wert }}</dd>{% endfor %}</dl></section>{% endif %}</div>
+            {% if result.beispiel.fehlt or result.beispiel.rueckfrage %}<div class="sample-missing"><p class="sample-story-label">Das fehlt noch</p>{% if result.beispiel.fehlt %}<p>{{ result.beispiel.fehlt|join(' · ') }}</p>{% endif %}{% if result.beispiel.rueckfrage %}<p><strong>Vorbereitete Rückfrage:</strong> „{{ result.beispiel.rueckfrage }}“</p>{% endif %}</div>{% endif %}
+        </section>
+        {% endif %}
     </section>
 
     <section class="report-page report-page-two">
-        <header class="report-page-heading"><p class="eyebrow">WAS DU WISSEN SOLLTEST</p><h2>Das bleibt bei dir</h2></header>
+        <header class="report-page-heading"><p class="eyebrow">WAS DU WISSEN SOLLTEST</p><h2>Was du brauchst und was ich einrichte</h2></header>
 
-        <section class="report-block report-safety">
-            <p>{{ result.das_bleibt_bei_dir }}</p>
+        <section class="report-block">
+            <h3>Das behältst du, das kommt dazu</h3>
+            {% if result.voraussetzungen.vorhandene_werkzeuge %}<p><strong>Das bleibt:</strong> {{ result.voraussetzungen.vorhandene_werkzeuge|join(' · ') }}</p>{% endif %}
+            {% if result.voraussetzungen.neu_hinzukommend %}<p><strong>Das kommt dazu:</strong> {{ result.voraussetzungen.neu_hinzukommend|join(' · ') }}</p>{% else %}<p>Es kommt nichts Neues dazu, was du lernen müsstest.</p>{% endif %}
+            {% if result.voraussetzungen.geraete_und_zugang %}<p>{{ result.voraussetzungen.geraete_und_zugang }}</p>{% endif %}
+            {% if result.voraussetzungen.musst_du_besorgen %}<p><strong>Das müsstest du besorgen:</strong> {{ result.voraussetzungen.musst_du_besorgen|join(' · ') }}</p>{% endif %}
         </section>
 
-        {% if result.dein_tag_danach %}<section class="report-block"><h3>So sieht dein Tag danach aus</h3><p>{{ result.dein_tag_danach }}</p></section>{% endif %}
+        <section class="report-block">
+            <h3>Was ich dafür einrichte</h3>
+            {% if result.umsetzung.hinweis %}<p>{{ result.umsetzung.hinweis }}</p>{% endif %}
+            {% if result.umsetzung.einrichtungsschritte %}<ol>{% for step in result.umsetzung.einrichtungsschritte %}<li>{{ step }}</li>{% endfor %}</ol>{% endif %}
+            {% if result.umsetzung.erster_schritt %}<p>{{ result.umsetzung.erster_schritt }}</p>{% endif %}
+        </section>
 
-        {% if result.was_zuerst_fehlt %}<section class="report-block"><h3>Das fehlt zuerst</h3><ul>{% for item in result.was_zuerst_fehlt[:3] %}<li>{{ item }}</li>{% endfor %}</ul></section>{% endif %}
+        <section class="report-block report-safety"><h3>Das bleibt bei dir</h3><p>{{ result.bleibt_bei_dir }}</p></section>
 
-        <section class="report-block"><h3>So klein fängst du an</h3><p>{{ result.erster_schritt }}</p></section>
-
-        {% if result.spaeter_moeglich %}<section class="report-block"><h3>Was später dazukommen könnte</h3><ul>{% for item in result.spaeter_moeglich[:3] %}<li>{{ item }}</li>{% endfor %}</ul></section>{% endif %}
+        {% if result.grenzen %}<section class="report-block"><h3>Eine Grenze</h3><p>{{ result.grenzen }}</p></section>{% endif %}
 
         <section class="report-contact"><h3>Möchtest du das umsetzen?</h3><p>Ich bin Derya. Genau das würde ich für dich einrichten: {{ result.contact_recommendation }}. Du schickst weiter wie bisher, ich baue den Rest.</p><p><a href="mailto:deryaxsarikaya@gmail.com?subject=AI-Start-Map%20Umsetzung">Umsetzung besprechen</a></p></section>
 

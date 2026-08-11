@@ -63,89 +63,9 @@ def _understanding() -> ProcessUnderstandingResult:
 
 
 def _final_result() -> FinalAnalysisResult:
-    return FinalAnalysisResult(
-        process_summary="Anfragen werden aufgenommen, auf Papier notiert, bearbeitet und nach einer Suche nach dem aktuellen Stand übergeben.",
-        as_is_steps=_understanding().as_is_steps,
-        core_bottleneck="Auftrag und aktueller Stand sind nicht zuverlässig verbunden.",
-        software_rule="Auftragsnummer und Status werden regelbasiert zusammengehalten.",
-        smallest_usable_version="Neue Aufträge mit einer eindeutigen Nummer erfassen.",
-        not_automated=["Statusfreigabe", "Übergabe"],
-        autonomy_level="A1",
-        bottleneck_symptom="Bei Rückfragen muss der aktuelle Stand zusammengesucht werden.",
-        bottleneck_cause="Auftrag und aktueller Stand sind nicht zuverlässig verbunden.",
-        bottleneck_effect="Es entstehen Suchaufwand, Rückfragen und Unsicherheit.",
-        as_is_problem_step_indexes=[3],
-        to_be_steps=[
-            "Anfrage annehmen",
-            "Eindeutige Auftragsnummer vergeben",
-            "Auftrag und Ablageort gemeinsam notieren",
-            "Status nach der Bearbeitung aktualisieren",
-            "Geprüften Auftrag übergeben",
-        ],
-        uncertainties=["Die Zahl gleichzeitig offener Aufträge ist noch nicht klar."],
-        opportunities=[
-            AutomationOpportunityResult(
-                rank=1,
-                title="Auftrag und Ablageort eindeutig verbinden",
-                problem="Bei Rückfragen muss der aktuelle Stand zusammengesucht werden.",
-                recommendation="Zuerst eine eindeutige Nummer für Auftrag und Ablage verwenden.",
-                benefit="Der aktuelle Auftrag lässt sich ohne mehrere Suchwege zuordnen.",
-                human_approval="Eine Person bestätigt Status und Übergabe.",
-                first_step="Eine einfache Nummernfolge festlegen.",
-                category="Ordnung und Standardisierung",
-                prerequisite="Ein gemeinsames Nummernschema ist festgelegt.",
-                mini_test=[
-                    "Eine Nummernfolge festlegen",
-                    "Nummer auf Auftrag und Ablage verwenden",
-                    "Eine Woche mit wenigen Aufträgen testen",
-                ],
-                effort="niedrig",
-                acceptance_risk="Die Nummer muss bei jeder Ablage konsequent notiert werden.",
-            ),
-            AutomationOpportunityResult(
-                rank=2,
-                title="Status an einer Stelle sichtbar machen",
-                problem="Der aktuelle Stand ist verteilt.",
-                recommendation="Nach dem Nummerntest eine gemeinsame Statusübersicht erproben.",
-                benefit="Rückfragen lassen sich schneller beantworten.",
-                human_approval="Eine Person setzt den Status bewusst.",
-                first_step="Wenige verständliche Statuswerte festlegen.",
-                category="einfache Digitalisierung",
-                prerequisite="Nummern und Statuswerte werden einheitlich verwendet.",
-                effort="mittel",
-                acceptance_risk="Die Übersicht hilft nur, wenn Änderungen zeitnah eingetragen werden.",
-            ),
-            AutomationOpportunityResult(
-                rank=3,
-                title="Fertigmeldung vorbereiten",
-                problem="Fertige Aufträge werden nicht immer mitgeteilt.",
-                recommendation="Nach menschlicher Fertigmeldung einen Hinweis vorbereiten lassen.",
-                benefit="Kunden erhalten verlässlicher eine Nachricht.",
-                human_approval="Eine Person bestätigt die Fertigstellung und den Versand.",
-                first_step="Einen verständlichen Nachrichtentext festlegen.",
-                category="regelbasierte Automatisierung",
-                prerequisite="Fertigstatus und Kontaktdaten sind zuverlässig vorhanden.",
-                effort="mittel",
-                acceptance_risk="Vor dem Versand muss der Kontaktweg geprüft werden.",
-            ),
-        ],
-        blueprint=AutomationBlueprint(
-            objective="Auftrag und Ablageort eindeutig zuordnen.",
-            trigger="Eine neue Anfrage wird zum Auftrag.",
-            required_inputs=["Auftragsnummer", "Ablagebereich"],
-            workflow_steps=[
-                "Auftragsnummer vergeben",
-                "Nummer am Auftrag verwenden",
-                "Ablagebereich notieren",
-                "Status durch eine Person aktualisieren",
-            ],
-            human_review_point="Vor der Übergabe bestätigt eine Person Auftrag und Status.",
-            output="Ein eindeutig zugeordneter Auftrag.",
-            exceptions=["Ein Auftrag wechselt den Ablagebereich."],
-        ),
+    return FinalAnalysisResult.model_validate(
+        spec_payload(as_is_steps=_understanding().as_is_steps)
     )
-
-
 @pytest.fixture(autouse=True)
 def mock_retrieval(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(routes, "_retrieval_context", lambda _query, _phase: ["Internes Muster"])
