@@ -55,12 +55,11 @@ class AIServiceError(RuntimeError):
 StructuredResult = TypeVar("StructuredResult", bound=BaseModel)
 logger = logging.getLogger(__name__)
 OPENAI_REQUEST_TIMEOUT_SECONDS = 45.0
-# Das Ergebnisobjekt nach ERGEBNIS_SPEC ist deutlich groesser als der fruehere
-# flache Feldsatz. Mit 120 Sekunden lief der Aufruf reproduzierbar in den
-# Timeout, bevor eine Antwort zurueckkam.
-# 240 statt 180: Der Handwerksfall lief reproduzierbar in 180 hinein, bei nur
-# einer Erzeugung. Das ist ein Zwischenstand - die eigentliche Ursache ist die
-# Laenge der Fliesstextfelder, siehe docs/KNOWN_ISSUES.md.
+# Bleibt bei 240. Gemessen am Handwerksfall (der inhaltsreichsten der drei
+# Erzaehlungen), je ohne Doppelerzeugung: 84,7 s und 207,1 s. Die Streuung
+# kommt von der API, nicht von der Ausgabelaenge - die Fliesstextfelder liegen
+# deutlich unter ihren Deckeln. 180 waere damit ein reproduzierbarer
+# Fehlschlag, und ein Fehlschlag wiegt schwerer als eine Minute Wartezeit.
 FINAL_ANALYSIS_TIMEOUT_SECONDS = 240.0
 OPENAI_RETRIEVAL_TIMEOUT_SECONDS = 6.0
 _openai_call_count: contextvars.ContextVar[int] = contextvars.ContextVar(

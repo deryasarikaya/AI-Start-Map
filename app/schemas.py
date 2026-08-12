@@ -572,7 +572,8 @@ class Loesung(StrictResultModel):
     was_reinkommt: Annotated[str, Field(min_length=1, max_length=400)]
     was_die_ki_macht: Annotated[str, Field(min_length=1, max_length=700)]
     was_du_machst: Annotated[str, Field(min_length=1, max_length=400)]
-    was_dabei_rauskommt: Annotated[str, Field(min_length=1, max_length=400)]
+    # gemessenes Maximum 84 Zeichen
+    was_dabei_rauskommt: Annotated[str, Field(min_length=1, max_length=200)]
     ergebnis_art: Annotated[str, Field(min_length=1, max_length=60)]
     #: Welche Art Loesung ueberhaupt richtig ist - die kleinste Stufe, die den
     #: Engpass loest. Steuert den Text, wird dem Kunden nie als Wort gezeigt.
@@ -635,7 +636,8 @@ class Umsetzung(StrictResultModel):
     einrichtungsschritte: list[
         Annotated[str, Field(min_length=1, max_length=220)]
     ] = Field(min_length=3, max_length=5)
-    erster_schritt: Annotated[str, Field(min_length=1, max_length=700)]
+    # gemessenes Maximum 224 Zeichen
+    erster_schritt: Annotated[str, Field(min_length=1, max_length=400)]
 
     @model_validator(mode="after")
     def check_umsetzung(self) -> Umsetzung:
@@ -673,13 +675,15 @@ class FinalAnalysisResult(StrictResultModel):
 
     # --- Kundentext nach ERGEBNIS_SPEC.md ------------------------------------
     engpass_titel: Annotated[str, Field(min_length=1, max_length=120)]
-    engpass_text: Annotated[str, Field(min_length=1, max_length=600)]
+    # gemessenes Maximum 270 Zeichen
+    engpass_text: Annotated[str, Field(min_length=1, max_length=450)]
     moeglichkeiten: list[Moeglichkeit] = Field(min_length=1, max_length=3)
     loesung: Loesung
     beispiel: Beispiel | None = None
     voraussetzungen: Voraussetzungen
     umsetzung: Umsetzung
-    bleibt_bei_dir: Annotated[str, Field(min_length=1, max_length=400)]
+    # gemessenes Maximum 187 Zeichen
+    bleibt_bei_dir: Annotated[str, Field(min_length=1, max_length=320)]
     grenzen: Annotated[str, Field(max_length=400)] = ""
     #: Wird nicht als eigener Block gezeigt - steckt in moeglichkeiten mit Rang
     #: "spaeter". Doppelt zeigen ist laut Spec ein Fehler.
