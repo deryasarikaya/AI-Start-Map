@@ -179,13 +179,14 @@ def test_complete_public_journey_and_customer_report(
     assert analyzed.json()["redirect_url"] == "/results"
     results = client.get("/results")
     for text in (
-        "Das ist der Engpass",
-        "DAS SCHLAGE ICH DIR VOR",
-        "So würde es künftig laufen",
-            "So sieht die Hilfe konkret aus",
-        "Nichts geht ohne dich raus",
-        "So klein fängst du an",
+        "DEINE AUSWERTUNG",
         "So habe ich deinen heutigen Ablauf verstanden",
+        "Hier lässt sich Arbeit aus deinem Ablauf nehmen",
+        "SO WÜRDE DEINE LÖSUNG AUSSEHEN",
+        "NACH DER EINRICHTUNG",
+        "Das behältst du, das kommt dazu",
+        "Das würde ich für dich bauen oder verbinden",
+        "Das bleibt bei dir",
         "PDF speichern",
         "Umsetzung besprechen",
     ):
@@ -197,12 +198,12 @@ def test_complete_public_journey_and_customer_report(
     assert report.status_code == 200
     for text in (
         "AI START MAP",
-        "Deine Empfehlung",
-            "Das ist der Engpass",
-        "DAS SCHLAGE ICH DIR VOR",
-        "So würde es künftig laufen",
-        "BEISPIELAUSGABE",
-        "Nichts geht ohne dich raus",
+        "Das ist der Engpass",
+        "WO ARBEIT WEGFÄLLT",
+        "SO WÜRDE DEINE LÖSUNG AUSSEHEN",
+        "NACH DER EINRICHTUNG",
+        "Was ich dafür einrichte",
+        "Das bleibt bei dir",
         "PDF speichern",
     ):
         assert text in report.text
