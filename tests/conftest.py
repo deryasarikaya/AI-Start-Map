@@ -142,10 +142,12 @@ def spec_payload(**overrides: object) -> dict[str, object]:
             "was_du_machst": "Du prüfst die Angaben und gibst die Bestellung frei.",
             "was_dabei_rauskommt": "Eine Bestellkarte mit allen Angaben an einer Stelle.",
             "ergebnis_art": "Bestellkarte",
+            "reifestufe": "genai",
         },
         "beispiel": {
             "titel": "Was aus einer WhatsApp-Nachricht wird",
             "kanal": "WhatsApp",
+            "darstellung": "karte",
             "nachricht": (
                 "Hallo, ich bräuchte einen Strauß für Samstag, gerne in Rosa "
                 "und Weiß. Für meine Mutter zum Geburtstag. Können Sie den "

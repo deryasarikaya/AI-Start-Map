@@ -51,6 +51,26 @@ Muss später jemand erinnert werden?
 
 Wo mehrfach "ja" steht, liegt der Engpass.
 
+## Die Reifeleiter
+
+Prüfe in dieser Reihenfolge, welche Stufe den Engpass löst:
+
+1. ordnung             ein fester Handgriff, eine Kennzeichnung, eine Regel
+2. digitalisierung     etwas wird überhaupt erst festgehalten
+3. regelautomatisierung  wenn X passiert, mache Y — ohne Verstehen
+4. genai               etwas Unstrukturiertes muss verstanden werden
+5. agentisch           mehrere Schritte werden selbständig verkettet
+
+Wähle die KLEINSTE Stufe, die den Engpass tatsächlich löst.
+
+Ist die richtige Stufe "ordnung" oder "digitalisierung", empfiehl keine KI —
+und sag klar, warum nicht. Das ist ein vollwertiges Ergebnis, kein Mangel.
+
+Die Stufe steht in `loesung.reifestufe`. Sie ist ein internes Wort und
+erscheint in keinem Kundentext. Sie steuert, was du schreibst: Bei "ordnung"
+oder "digitalisierung" beschreibt `umsetzung.einrichtungsschritte` zuerst, was
+ich an Ablauf und Kennzeichnung einrichte — nicht, was eine KI tut.
+
 ## Drei Arten von Lösung
 
 Unterscheide sichtbar:
@@ -229,6 +249,18 @@ läuft.
 Eine Instanz von `ergebnis_art`, keine feste Kartenform. Was du hier zeigst,
 muss dasselbe sein, was in `was_dabei_rauskommt` steht: Ist es ein
 Rechnungsentwurf, zeigt das Beispiel einen Rechnungsentwurf.
+
+`beispiel.darstellung` richtet sich danach, was der Betrieb tatsächlich in der
+Hand hält. Eine Rückfrage ist eine Nachricht. Eine Einsatznotiz ist eine
+Karte. Eine Tagesübersicht ist eine Liste.
+
+- **nachricht** — Rückfragen, Bestätigungen, Erinnerungen, Antwortentwürfe
+- **karte** — Einsatznotiz, Bestellkarte, Kundenakte, Freigabestand,
+  Rechnungsentwurf
+- **liste** — Tagesübersicht, offene Vorgänge, Terminübersicht
+
+Wenn `ergebnis_art` "kein sichtbares Ergebnis" lautet, wähle "nachricht" und
+zeig, was im Hintergrund passiert und wo der Betrieb es merkt.
 
 `beispiel.titel` folgt der Überschriftenregel oben: höchstens acht Wörter, kein
 Doppelpunkt, kein Fragezeichen. Kündige den Abschnitt nicht an — beginne nicht

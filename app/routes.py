@@ -2182,6 +2182,8 @@ def _result_view(
             {
                 "titel": str(beispiel.get("titel") or ""),
                 "kanal": str(beispiel.get("kanal") or ""),
+                # Steuert, in welcher Form das Beispiel gerendert wird.
+                "darstellung": str(beispiel.get("darstellung") or "karte"),
                 "nachricht": str(beispiel.get("nachricht") or ""),
                 "daraus_wird": [
                     {"label": str(feld.get("label") or ""), "wert": str(feld.get("wert") or "")}

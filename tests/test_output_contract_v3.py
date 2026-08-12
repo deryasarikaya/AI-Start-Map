@@ -97,6 +97,67 @@ def test_two_opportunities_are_enough() -> None:
 
 
 # ---------------------------------------------------------------------------
+# Reifestufe — welche Art Loesung ueberhaupt richtig ist
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "stufe",
+    ("ordnung", "digitalisierung", "regelautomatisierung", "genai", "agentisch"),
+)
+def test_every_rung_of_the_maturity_ladder_is_allowed(stufe: str) -> None:
+    loesung = dict(spec_payload()["loesung"])  # type: ignore[arg-type]
+    loesung["reifestufe"] = stufe
+    assert _result(loesung=loesung).loesung.reifestufe == stufe
+
+
+def test_an_invented_rung_is_rejected() -> None:
+    loesung = dict(spec_payload()["loesung"])  # type: ignore[arg-type]
+    loesung["reifestufe"] = "digitalisierungsoffensive"
+    with pytest.raises(Exception):
+        _result(loesung=loesung)
+
+
+def test_maturity_level_stays_independent_of_the_autonomy_level() -> None:
+    """Beide bleiben nebeneinander: die eine sagt was, die andere wie selbständig."""
+
+    loesung = dict(spec_payload()["loesung"])  # type: ignore[arg-type]
+    loesung["reifestufe"] = "ordnung"
+    result = _result(loesung=loesung, autonomy_level="A0")
+    assert result.loesung.reifestufe == "ordnung"
+    assert result.autonomy_level == "A0"
+
+
+def test_the_maturity_level_is_never_a_word_in_the_customer_text() -> None:
+    """Die Stufe steuert den Text, sie erscheint nicht darin."""
+
+    kundentext = str(_result().model_dump(include=CUSTOMER_TEXT_FIELDS))
+    for stufe in ("regelautomatisierung", "agentisch", "Reifestufe", "Reifeleiter"):
+        assert stufe not in kundentext
+
+
+# ---------------------------------------------------------------------------
+# Darstellung — die Form richtet sich nach dem Ergebnis
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("form", ("nachricht", "karte", "liste"))
+def test_every_presentation_type_is_allowed(form: str) -> None:
+    beispiel = dict(spec_payload()["beispiel"])  # type: ignore[arg-type]
+    beispiel["darstellung"] = form
+    result = _result(beispiel=beispiel)
+    assert result.beispiel is not None
+    assert result.beispiel.darstellung == form
+
+
+def test_an_invented_presentation_type_is_rejected() -> None:
+    beispiel = dict(spec_payload()["beispiel"])  # type: ignore[arg-type]
+    beispiel["darstellung"] = "tabelle"
+    with pytest.raises(Exception):
+        _result(beispiel=beispiel)
+
+
+# ---------------------------------------------------------------------------
 # Beispiel — keine Zahl ohne Grundlage
 # ---------------------------------------------------------------------------
 

@@ -517,6 +517,9 @@ class Beispiel(StrictResultModel):
 
     titel: Annotated[str, Field(min_length=1, max_length=120)]
     kanal: Annotated[str, Field(min_length=1, max_length=40)]
+    #: Die Form, in der das Beispiel gezeigt wird - richtet sich danach, was
+    #: der Betrieb tatsaechlich in der Hand haelt.
+    darstellung: Literal["nachricht", "karte", "liste"]
     nachricht: Annotated[str, Field(min_length=1, max_length=600)]
     daraus_wird: list[BeispielFeld] = Field(default_factory=list, max_length=8)
     fehlt: list[
@@ -571,6 +574,17 @@ class Loesung(StrictResultModel):
     was_du_machst: Annotated[str, Field(min_length=1, max_length=400)]
     was_dabei_rauskommt: Annotated[str, Field(min_length=1, max_length=400)]
     ergebnis_art: Annotated[str, Field(min_length=1, max_length=60)]
+    #: Welche Art Loesung ueberhaupt richtig ist - die kleinste Stufe, die den
+    #: Engpass loest. Steuert den Text, wird dem Kunden nie als Wort gezeigt.
+    #: Unabhaengig von den Autonomiestufen A0-A5: die beschreiben, wie
+    #: selbstaendig die KI arbeitet, nicht ob ueberhaupt KI richtig ist.
+    reifestufe: Literal[
+        "ordnung",
+        "digitalisierung",
+        "regelautomatisierung",
+        "genai",
+        "agentisch",
+    ]
 
     @field_validator("titel")
     @classmethod
