@@ -3,53 +3,10 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from app.schemas import customer_plain_text
+from tests.conftest import spec_view
 
 
 ROOT = Path(__file__).resolve().parents[1]
-
-
-def _result(**overrides: object) -> dict[str, object]:
-    result: dict[str, object] = {
-        "is_non_ai": False,
-        "short_reason": "Fotos, Notizen und Bons liegen heute an verschiedenen Stellen.",
-        "bottleneck": {"cause": "Beim Rechnungsschreiben musst du alles wieder zusammensuchen."},
-        "primary_recommendation": "Mobile Einsatzdokumentation aus Sprache, Fotos und Bon",
-        "promise": "Nach jedem Einsatz hast du eine fertige Notiz mit Zeit, Material und Fotos.",
-        "future_process": [
-            "Nach dem Einsatz sendest du Sprache, Fotos und Bon.",
-            "Die KI liest T\u00e4tigkeit, Zeit und Material heraus.",
-            "Fehlende oder unsichere Angaben werden markiert.",
-            "Eine Einsatznotiz entsteht als Entwurf.",
-            "Du pr\u00fcfst und best\u00e4tigst sie.",
-            "Danach kann sie als Grundlage f\u00fcr die Rechnung dienen.",
-        ],
-        "sample_heading": "Beispiel \u2014 so k\u00f6nnte deine Einsatznotiz aussehen",
-        "sample_output": {
-            "input_context": "Sprachnachricht nach dem Einsatz",
-            "incoming_message": "Die Dichtung am Waschbecken ist getauscht. Der Einsatz dauerte 45 Minuten.",
-            "incoming_note": "Mit zwei Fotos und einem Bon",
-            "fields": [
-                {"label": "F\u00fcr wen", "value": "Hausverwaltung Nord \u00b7 Lindenstra\u00dfe 12"},
-                {"label": "Was gemacht wurde", "value": "Waschbecken-Dichtung getauscht"},
-                {"label": "Wie lange", "value": "45 Minuten"},
-                {"label": "Material", "value": "Dichtungssatz, 12,40 \u20ac"},
-                {"label": "Besonderheiten", "value": "Zugang nur \u00fcber die Hausverwaltung"},
-                {"label": "Noch zu kl\u00e4ren", "value": "T\u00fcr nachstellen \u2013 abrechnen?"},
-                {"label": "Dabei", "value": "2 Fotos, 1 Bon, deine Sprachnachricht"},
-            ],
-            "preview_notice": "Beispielangaben zur Veranschaulichung \u2013 hier stehen sp\u00e4ter deine tats\u00e4chlichen Angaben.",
-            "missing_details": ["Tür nachstellen abrechnen"],
-            "clarification_question": "Soll das Nachstellen der Tür mit abgerechnet werden?",
-        },
-        "first_step_text": "Probier es bei den n\u00e4chsten f\u00fcnf Eins\u00e4tzen aus.",
-        "first_step_follow_up": "Erst danach lohnt sich der n\u00e4chste Schritt.",
-        "contact_recommendation": "Mobile Einsatzdokumentation aus Sprache, Fotos und Bon",
-        "secondary_opportunities": [],
-        "as_is_steps": ["Angaben auf dem Handy sammeln.", "Abends alles zusammensuchen."],
-        "problem_step_indexes": [1],
-    }
-    result.update(overrides)
-    return result
 
 
 def _render(result: dict[str, object]) -> str:
@@ -65,55 +22,59 @@ def _render(result: dict[str, object]) -> str:
     )
 
 
-def test_results_have_seven_visible_blocks_in_the_approved_order() -> None:
-    html = _render(_result())
-    headings = [
-        "Das ist der Engpass",
-        "So habe ich deinen heutigen Ablauf verstanden",
-        "Das schlage ich dir vor".upper(),
-        "So w\u00fcrde es k\u00fcnftig laufen",
-        "So sieht die Hilfe konkret aus",
-        "Nichts geht ohne dich raus",
-        "So klein f\u00e4ngst du an",
-        "M\u00f6chtest du das umsetzen?",
+def test_results_follow_the_binding_section_order() -> None:
+    """Reihenfolge nach ERGEBNIS_SPEC, Abschnitt "Reihenfolge der Ergebnisseite"."""
+
+    html = _render(spec_view(grenzen="Ein nicht dokumentiertes Gespräch bleibt weg."))
+    abschnitte = [
+        "DEINE AUSWERTUNG",                              # 1 Engpass
+        "So habe ich deinen heutigen Ablauf verstanden",  # 2 heute
+        "Hier lässt sich Arbeit aus deinem Ablauf nehmen",  # 3 moeglichkeiten
+        "SO WÜRDE DEINE LÖSUNG AUSSEHEN",                # 4 loesung
+        "NACH DER EINRICHTUNG",                          # 4b Vergleich
+        "DEIN KONKRETES ERGEBNIS",                       # 5 beispiel
+        "Das behältst du, das kommt dazu",               # 6 voraussetzungen
+        "Das würde ich für dich bauen oder verbinden",   # 7 umsetzung
+        "Das bleibt bei dir",                            # 8 bleibt_bei_dir
+        "Eine Grenze",                                   # 9 grenzen
+        "Möchtest du das umsetzen?",                     # 10 Kontakt
     ]
-    positions = [html.index(heading) for heading in headings]
-    assert positions == sorted(positions)
-    assert html.count("data-result-block") == 7
-    assert "Normale Software oder Regeln" not in html
+    positionen = [html.index(text) for text in abschnitte]
+    assert positionen == sorted(positionen)
     assert "Autonomiestufe" not in html
     assert "/sessions/" not in html
 
 
-def test_non_ai_result_has_no_visible_internal_level() -> None:
-    html = _render(
-        _result(
-            is_non_ai=True,
-            primary_recommendation="Vorhandene Kalenderfunktion nutzen",
-            promise="F\u00fcr diesen Schritt ist keine KI notwendig.",
-            contact_recommendation="die vorhandene Kalenderfunktion passend einstellen",
-        )
-    )
-    assert "keine KI notwendig" in html
-    assert "Autonomiestufe" not in html
-    assert "A0" not in html
+def test_optional_sections_disappear_when_their_field_is_empty() -> None:
+    """Beispiel und Grenze entfallen, wenn ihr Feld leer ist."""
+
+    html = _render(spec_view(beispiel=None, grenzen=""))
+    assert "DEIN KONKRETES ERGEBNIS" not in html
+    assert "Eine Grenze" not in html
+    assert "SO WÜRDE DEINE LÖSUNG AUSSEHEN" in html
 
 
-def test_example_is_central_and_technical_detail_sections_are_hidden() -> None:
-    html = _render(_result())
-    assert "Beispiel \u2014 so k\u00f6nnte deine Einsatznotiz aussehen" in html
-    assert "Hausverwaltung Nord" in html
-    assert "Voraussetzungen und Grenzen" not in html
-    assert "Fehler- und Pr\u00fcfgrenzen" not in html
-    assert "Sp\u00e4tere Ausbaustufe" not in html
-    assert "So habe ich deinen heutigen Ablauf verstanden" in html
+def test_later_rank_is_shown_once_and_not_as_its_own_block() -> None:
+    """spaeter steckt in moeglichkeiten und darf nicht doppelt erscheinen."""
+
+    view = spec_view()
+    view["moeglichkeiten"] = [
+        {"rang": "groesster_hebel", "titel": "Ein Eingang für alles",
+         "begruendung": "Hier geht die meiste Zeit verloren."},
+        {"rang": "spaeter", "titel": "Bestätigte Anfragen übergeben",
+         "begruendung": "Erst wenn die Aufnahme zuverlässig läuft."},
+    ]
+    html = _render(view)
+    assert html.count("Bestätigte Anfragen übergeben") == 1
+    assert html.count(">Später<") == 1
 
 
-def test_secondary_item_without_complete_content_is_not_rendered() -> None:
-    html = _render(
-        _result(secondary_opportunities=[])
-    )
-    assert "Weitere M\u00f6glichkeiten" not in html
+def test_example_values_stay_inside_the_marked_block() -> None:
+    html = _render(spec_view())
+    marker = html.index("data-customer-example-block")
+    ende = html.index('data-result-block aria-labelledby="prerequisites-title"', marker)
+    assert "Rosa und Weiß" in html[marker:ende]
+    assert "Rosa und Weiß" not in html[:marker] + html[ende:]
 
 
 def test_result_typography_is_bounded_for_desktop_and_mobile() -> None:

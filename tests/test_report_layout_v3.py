@@ -6,52 +6,10 @@ import pytest
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from app.schemas import customer_plain_text
+from tests.conftest import spec_view
 
 
 ROOT = Path(__file__).resolve().parents[1]
-
-
-def _result(**overrides: object) -> dict[str, object]:
-    result: dict[str, object] = {
-        "is_non_ai": False,
-        "short_reason": "Fotos, Notizen und Bons liegen heute an verschiedenen Stellen. Beim Rechnungsschreiben musst du alles wieder zusammensuchen.",
-        "primary_recommendation": "Mobile Einsatzdokumentation aus Sprache, Fotos und Bon",
-        "promise": "Nach jedem Einsatz hast du eine fertige Notiz mit Zeit, Material und Fotos.",
-        "future_process": [
-            "Nach dem Einsatz sendest du Sprache, Fotos und Bon.",
-            "Die KI liest T\u00e4tigkeit, Zeit und Material heraus.",
-            "Fehlende oder unsichere Angaben werden markiert.",
-            "Eine Einsatznotiz entsteht als Entwurf.",
-            "Du pr\u00fcfst und best\u00e4tigst sie.",
-            "Danach kann sie als Grundlage f\u00fcr die Rechnung dienen.",
-        ],
-        "sample_heading": "Beispiel \u2014 so k\u00f6nnte deine Einsatznotiz aussehen",
-        "sample_output": {
-            "input_context": "Sprachnachricht nach dem Einsatz",
-            "incoming_message": "Die Dichtung am Waschbecken ist getauscht. Der Einsatz dauerte 45 Minuten.",
-            "incoming_note": "Mit zwei Fotos und einem Bon",
-            "fields": [
-                {"label": "F\u00fcr wen", "value": "Hausverwaltung Nord \u00b7 Lindenstra\u00dfe 12"},
-                {"label": "Was gemacht wurde", "value": "Waschbecken-Dichtung getauscht"},
-                {"label": "Wie lange", "value": "45 Minuten"},
-                {"label": "Material", "value": "Dichtungssatz, 12,40 \u20ac"},
-                {"label": "Besonderheiten", "value": "Zugang nur \u00fcber die Hausverwaltung"},
-                {"label": "Noch zu kl\u00e4ren", "value": "T\u00fcr nachstellen \u2013 abrechnen?"},
-                {"label": "Dabei", "value": "2 Fotos, 1 Bon, deine Sprachnachricht"},
-            ],
-            "preview_notice": "Beispielangaben zur Veranschaulichung \u2013 hier stehen sp\u00e4ter deine tats\u00e4chlichen Angaben.",
-            "missing_details": ["Tür nachstellen abrechnen"],
-            "clarification_question": "Soll das Nachstellen der Tür mit abgerechnet werden?",
-        },
-        "required_prerequisites": ["Ein fester Weg zum Senden der Angaben"],
-        "open_questions": ["Wie erkennst du heute, zu welchem Auftrag ein Bon geh\u00f6rt?"],
-        "first_step_text": "Probier es bei den n\u00e4chsten f\u00fcnf Eins\u00e4tzen aus.",
-        "first_step_follow_up": "Erst danach lohnt sich der n\u00e4chste Schritt.",
-        "later_stage": "Sp\u00e4ter kann ein Rechnungsentwurf vorbereitet werden.",
-        "contact_recommendation": "Mobile Einsatzdokumentation aus Sprache, Fotos und Bon",
-    }
-    result.update(overrides)
-    return result
 
 
 def _render(result: dict[str, object]) -> str:
@@ -64,25 +22,26 @@ def _render(result: dict[str, object]) -> str:
     return environment.get_template("report.html").render(
         result=result,
         process={"process_name": "Einsatz bis Rechnung"},
-        analysis_date="07.08.2026",
+        analysis_date="12.08.2026",
     )
 
 
 def test_report_contains_exactly_the_two_approved_pages() -> None:
-    html = _render(_result())
+    html = _render(spec_view(grenzen="Ein nicht dokumentiertes Gespräch bleibt weg."))
     for text in (
         "Diagnose und noch keine fertige Einrichtung",
         "Das ist der Engpass",
-        "DAS SCHLAGE ICH DIR VOR",
-        "So w\u00fcrde es k\u00fcnftig laufen",
-        "BEISPIELAUSGABE",
-        "Nichts geht ohne dich raus",
-        "Was vorher da sein muss",
-        "Diese Fragen sind noch zu kl\u00e4ren",
-        "So klein f\u00e4ngst du an",
-        "M\u00f6chtest du das umsetzen?",
+        "WO ARBEIT WEGFÄLLT",
+        "SO WÜRDE DEINE LÖSUNG AUSSEHEN",
+        "NACH DER EINRICHTUNG",
+        "BEISPIEL",
+        "Das behältst du, das kommt dazu",
+        "Was ich dafür einrichte",
+        "Das bleibt bei dir",
+        "Eine Grenze",
+        "Möchtest du das umsetzen?",
     ):
-        assert text in html
+        assert text in html, text
     assert html.count('class="report-page ') == 2
     assert "report-page-three" not in html
     assert "Autonomiestufe" not in html
@@ -90,30 +49,23 @@ def test_report_contains_exactly_the_two_approved_pages() -> None:
     assert "session_id" not in html
 
 
-def test_non_ai_report_uses_plain_language_without_internal_level() -> None:
-    html = _render(
-        _result(
-            is_non_ai=True,
-            primary_recommendation="Vorhandene Kalenderfunktion nutzen",
-            promise="F\u00fcr diesen Schritt ist keine KI notwendig.",
-            contact_recommendation="die vorhandene Kalenderfunktion passend einstellen",
-        )
-    )
-    assert "keine KI notwendig" in html
-    assert "Autonomiestufe" not in html
-    assert "A0" not in html
+def test_report_keeps_two_pages_without_optional_sections() -> None:
+    """Auch ohne Beispiel und ohne Grenze bleiben es genau zwei Seiten."""
 
-
-def test_optional_secondary_content_never_creates_a_third_page() -> None:
-    html = _render(
-        _result(
-            secondary_opportunities=[
-                {"title": "Sp\u00e4tere M\u00f6glichkeit", "description": "Erst nach dem sicheren Einstieg pr\u00fcfen."}
-            ]
-        )
-    )
+    html = _render(spec_view(beispiel=None, grenzen=""))
     assert html.count('class="report-page ') == 2
-    assert "OPTIONALE WEITERE M\u00d6GLICHKEITEN" not in html
+    assert "BEISPIEL" not in html
+    assert "Eine Grenze" not in html
+
+
+def test_print_hint_stays_out_of_the_printed_document() -> None:
+    """Der Hinweis auf die Kopfzeilen gehoert auf die Seite, nicht ins PDF."""
+
+    html = _render(spec_view())
+    assert "Kopf- und Fußzeilen" in html
+    assert "print-toolbar" in html
+    css = (ROOT / "app" / "static" / "styles.css").read_text(encoding="utf-8")
+    assert ".print-toolbar" in css
 
 
 def test_print_css_suppresses_urls_and_forces_two_compact_pages() -> None:
@@ -128,7 +80,7 @@ def test_housekeeper_pdf_has_exactly_two_pages(tmp_path: Path) -> None:
     if not chrome.exists():
         pytest.skip("Chrome is required for the local print regression.")
     css = (ROOT / "app" / "static" / "styles.css").read_text(encoding="utf-8")
-    html = _render(_result())
+    html = _render(spec_view(grenzen="Ein nicht dokumentiertes Gespräch bleibt weg."))
     html = re.sub(
         r'<link rel="stylesheet"[^>]+>',
         f"<style>{css}</style>",
