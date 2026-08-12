@@ -25,6 +25,7 @@ from app.schemas import (
     ProcessSuggestionResult,
     ProcessUnderstandingResult,
     CUSTOMER_TEXT_FIELDS,
+    FORBIDDEN_CUSTOMER_TERMS,
     contains_forbidden_customer_term,
 )
 
@@ -781,6 +782,9 @@ def generate_final_analysis(
         },
         "GEWAEHLTES_MUSTER": _selected_pattern_briefing(recommendation_context),
         "SOFTWARE_STATT_KI": list(context.get("software_not_ai") or []),
+        # Genau die Liste, die nachher geprueft wird. Steht sie nur im
+        # Prompttext, laeuft sie mit dem Filter auseinander.
+        "VERBOTENE_WOERTER": list(FORBIDDEN_CUSTOMER_TERMS),
         "NUR_INTERNES_VERGLEICHSWISSEN_NIE_AUSGEBEN": list(knowledge_chunks),
         "FACHLICHE_ABLEITUNGEN": {
             "regel": (

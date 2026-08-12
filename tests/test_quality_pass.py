@@ -834,9 +834,14 @@ def test_final_prompt_separates_facts_patterns_inferences_and_recommendations(
         "SO_ERZAEHLT_ES_DER_BETRIEB",
         "GEWAEHLTES_MUSTER",
         "SOFTWARE_STATT_KI",
+        "VERBOTENE_WOERTER",
         "NUR_INTERNES_VERGLEICHSWISSEN_NIE_AUSGEBEN",
         "FACHLICHE_ABLEITUNGEN",
     }
+    # Die geprueften Begriffe gehen als Liste mit, damit Prompt und Filter
+    # nicht auseinanderlaufen.
+    assert "Minimalformular" in payload["VERBOTENE_WOERTER"]
+    assert "extrahieren" in payload["VERBOTENE_WOERTER"]
 
 
 def test_process_summary_is_neutralized_without_discarding_analysis() -> None:

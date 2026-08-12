@@ -110,10 +110,29 @@ Web-Eingang, Layout, Extraktion, extrahieren, Prozessregel, Belegerkennung,
 Spracherkennung, Transkription, transkribieren, Versionierung, versionieren,
 konfigurieren, browser-basiert.
 
-Sag stattdessen, was passiert. Nicht "Ich konfiguriere Regeln", sondern "Ich
-stelle ein, welche Angaben die KI heraussuchen soll". Nicht "Transkription",
-sondern "aus der Sprachnachricht wird Text". Nicht "Inbox", sondern "eine
-Seite, auf der alle Anfragen untereinander stehen".
+**Unter `VERBOTENE_WOERTER` steht die vollständige Liste.** Sie wird nach dem
+Schreiben geprüft, samt aller Wortformen und Zusammensetzungen: Steht
+"Minimalformular" auf der Liste, ist auch "ein kurzes Minimalformular"
+verboten. Geh die Liste durch, bevor du ausgibst.
+
+Sag stattdessen, was passiert. Diese Ersetzungen benutzt du wörtlich:
+
+| statt | schreib |
+|---|---|
+| extrahieren, die extrahierten Angaben | herauslesen, was die KI herausgelesen hat |
+| Extraktion | das Heraussuchen der Angaben |
+| Transkription, transkribieren | aus der Sprachnachricht wird Text |
+| Medien | Fotos und Dateien |
+| Versionierung, versionieren | welche Fassung gerade gilt |
+| Inbox, Posteingang | eine Seite, auf der alles untereinander steht |
+| konfigurieren | einstellen |
+| Pflichtfelder, Pflichtangaben | die Angaben, die nicht fehlen dürfen |
+| Minimalformular, Webformular | ein kurzes Formular |
+| Belegerkennung | der Bon wird gelesen |
+| Spracherkennung | die Sprachnachricht wird gelesen |
+
+Wenn dir ein Wort einfällt, das nach Software klingt, frag dich, wie du es
+einem Handwerker am Tresen sagen würdest — und schreib das.
 
 Kein Marketing. Keine Begeisterung. Ruhig und sachlich.
 

@@ -67,6 +67,33 @@ PROHIBITED_CUSTOMER_LANGUAGE_PATTERN = re.compile(
     r"handschriftenkapazität)\b",
     re.IGNORECASE,
 )
+#: Dieselben Begriffe in lesbarer Form. Sie gehen zur Laufzeit in den Prompt,
+#: damit das Modell genau die Liste sieht, die auch geprueft wird. Frueher
+#: standen beide Listen getrennt und liefen auseinander: der Filter kannte
+#: Woerter, die der Prompt nie genannt hat, und verwarf dann fertige Analysen.
+FORBIDDEN_CUSTOMER_TERMS: tuple[str, ...] = (
+    "Anker", "Vorgangsanker", "Einsatzanker",
+    "Datensatz", "Zielschema", "Zieloutput", "Metadaten", "Datenobjekt",
+    "Pflichtfeld", "Pflichtfelder", "Pflichtfragen", "Pflichtangaben",
+    "Feldvalidierung", "Formate",
+    "Upload", "mobiler Eingang", "Erfassungskanal",
+    "Einsatz-ID", "Auftrags-ID", "Objekt-ID", "ID-Vergabe",
+    "Softwareregel", "Regelwerk", "deterministisch",
+    "Autonomiestufe", "Solution Pattern", "Problemfamilie", "Pattern", "Muster",
+    "Human Check", "Freigabe-Gate", "Gate", "Guardrail",
+    "RAG", "Retrieval", "Klassifikation", "Index",
+    "konfigurieren", "aktivieren", "Implementierung", "Pilot", "Rollout",
+    "strukturiert", "strukturiertes Erfassen", "Prozessreife",
+    "Vorgangsakte", "Vorgangsuebersicht", "Vorgangsentwurf", "Entwurfsstatus",
+    "Medien", "Konsolidierung", "konsolidieren",
+    "Minimalformular", "Einstiegsformular", "Webformular",
+    "Inbox", "Posteingang", "Webhook", "Web-Eingang",
+    "Layout", "Extraktion", "extrahieren",
+    "Prozessregel", "Belegerkennung", "Spracherkennung",
+    "browser-basiert", "Versionierung", "versionieren",
+    "Transkription", "transkribieren",
+)
+
 FORBIDDEN_CUSTOMER_TERM_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"\b\w*anker\w*\b", re.IGNORECASE),
     re.compile(r"\b\w*datens(?:atz|\u00e4tze)\w*\b|\bZielschema\w*\b|\bMetadaten\w*\b", re.IGNORECASE),
@@ -84,9 +111,10 @@ FORBIDDEN_CUSTOMER_TERM_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"\bRAG\b|\bRetrieval\w*\b|\bKlassifikation\w*\b|\bInd(?:ex|izes?)\w*\b", re.IGNORECASE),
     re.compile(r"\b(?:PF|SP|OUT|GAI|FAIL|GATE)-[A-Z0-9_-]+\b", re.IGNORECASE),
     re.compile(r"\bKonfigurier\w*\b|\bAktivier\w*\b|\bImplementierung\w*\b|\bPilot\w*\b|\bRollout\w*\b", re.IGNORECASE),
-    re.compile(r"\bstrukturiertes Erfassen\b|\binformelle Notizpraxis\b|\bProzessreife\w*\b", re.IGNORECASE),
+    re.compile(r"\bstrukturiert\w*\b|\binformelle Notizpraxis\b|\bProzessreife\w*\b", re.IGNORECASE),
     re.compile(
-        r"\bVorgangsakte\w*\b|\bVorgangsentwurf\w*\b|\bZieloutput\w*\b|"
+        r"\bVorgangsakte\w*\b|\bVorgangs(?:übersicht|uebersicht)\w*\b|"
+        r"\bVorgangsentwurf\w*\b|\bZieloutput\w*\b|"
         r"\bMedien\b|\bDatenobjekt\w*\b|\bEntwurfsstatus\w*\b|"
         r"\bKonsolidierung\w*\b|\bkonsolidier\w*\b|\(\s*nicht verbindlich\s*\)",
         re.IGNORECASE,
