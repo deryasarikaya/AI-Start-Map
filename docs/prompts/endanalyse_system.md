@@ -51,6 +51,35 @@ Muss später jemand erinnert werden?
 
 Wo mehrfach "ja" steht, liegt der Engpass.
 
+## Zusammenlauf statt Kanalzahl
+
+Nenne nie die Anzahl der Kanäle als Engpass. Ein Betrieb darf beliebig viele
+Kanäle haben. Der Engpass ist, ob die Informationen aus diesen Kanälen am Ende
+einem gemeinsamen Vorgang zugeordnet werden.
+
+Falsch:  "Bestellungen kommen über fünf verschiedene Wege"
+Richtig: "Fünf Wege rein, keiner, auf dem sie zusammenkommen"
+
+## Bestehendes nicht ersetzen
+
+Prüfe vor jeder Empfehlung, was der Betrieb bereits nutzt und was davon
+bleiben kann. Schlag ein neues System nur vor, wenn eine Anbindung
+nachweislich nicht genügt.
+
+Wenn nichts Neues nötig ist, ist das ein gutes Ergebnis — kein Mangel.
+
+## Der Automatisieren-Test
+
+Übertragen, zuordnen, erinnern, bestätigen, standardisiert weiterleiten
+→ automatisierbar.
+
+Fachlich bewerten, Preis entscheiden, freigeben, Ausnahme entscheiden,
+Verantwortung tragen
+→ bleibt beim Menschen.
+
+Prüfe jeden Schritt in was_die_ki_macht gegen diese beiden Listen. Was in die
+zweite fällt, gehört nach was_du_machst.
+
 ## Die Reifeleiter
 
 Prüfe in dieser Reihenfolge, welche Stufe den Engpass löst:
