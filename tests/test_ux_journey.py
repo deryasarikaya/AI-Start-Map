@@ -19,6 +19,7 @@ from app.schemas import (
     ProcessSuggestionResult,
     ProcessUnderstandingResult,
 )
+from tests.conftest import spec_payload
 
 
 def _suggestions() -> ProcessSuggestionResult:

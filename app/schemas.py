@@ -91,6 +91,23 @@ FORBIDDEN_CUSTOMER_TERM_PATTERNS: tuple[re.Pattern[str], ...] = (
         r"\bKonsolidierung\w*\b|\bkonsolidier\w*\b|\(\s*nicht verbindlich\s*\)",
         re.IGNORECASE,
     ),
+    # Aus den Live-Laeufen Blumenladen, Fotograf und Handwerk. Geprueft wird der
+    # Wortstamm, nicht das exakte Wort: "Pflichtfeld" war verboten,
+    # "Pflichtfragen" und "Pflichtangaben" rutschten durch.
+    re.compile(
+        r"\bPflicht(?:feld|frage|angabe|eingabe)\w*\b|"
+        r"\bMinimalformular\w*\b|\bEinstiegsformular\w*\b|\bWebformular\w*\b|"
+        r"\bInbox\w*\b|\bPosteingang\w*\b|\bWebhook\w*\b|\bWeb-?Eingang\w*\b|"
+        r"\bExtraktion\w*\b|\bextrahier\w*\b|"
+        r"\bProzessregel\w*\b|\bBelegerkennung\w*\b|\bSpracherkennung\w*\b|"
+        r"\bbrowser-?basiert\w*\b|\bVersionierung\w*\b|\bversionier\w*\b|"
+        r"\bTranskription\w*\b|\btranskribier\w*\b",
+        re.IGNORECASE,
+    ),
+    # Schreibungsabhaengig: als deutsches Substantiv gross geschrieben.
+    # Kleingeschrieben steckt es in CSS-Klassennamen wie "result-layout",
+    # die beim Pruefen des gerenderten HTML sonst falsch anschlagen.
+    re.compile(r"\bLayout\w*\b"),
 )
 
 UNSUBSTANTIATED_BENEFIT_PATTERN = re.compile(
@@ -430,7 +447,10 @@ def _validate_generated_heading(value: str, field_name: str) -> str:
     """Ueberschriften tragen Inhalt: kurz, ohne Doppelpunkt und Fragezeichen."""
 
     text = value.strip()
-    if len(re.findall(r"[\wÄÖÜäöüß]+", text)) > GENERATED_HEADING_MAX_WORDS:
+    # Zusammengesetzte Woerter mit Bindestrich zaehlen als eines:
+    # "Shop-Bestellung" ist ein Wort, nicht zwei.
+    words = re.findall(r"[\wÄÖÜäöüß]+(?:-[\wÄÖÜäöüß]*)*", text)
+    if len(words) > GENERATED_HEADING_MAX_WORDS:
         raise ValueError(
             f"{field_name} darf höchstens {GENERATED_HEADING_MAX_WORDS} Wörter haben."
         )
@@ -445,6 +465,16 @@ class Moeglichkeit(StrictResultModel):
     rang: Literal["groesster_hebel", "danach", "spaeter"]
     titel: Annotated[str, Field(min_length=1, max_length=120)]
     begruendung: Annotated[str, Field(min_length=1, max_length=300)]
+
+
+#: Woerter, die in "das fehlt noch" nichts ueber den Inhalt aussagen und
+#: deshalb beim Abgleich mit der Nachricht nicht mitzaehlen.
+_FEHLT_FUELLWOERTER = frozenset({
+    "genaue", "genauer", "genaues", "exakte", "exakter", "exaktes",
+    "konkrete", "konkreter", "konkretes", "vereinbarte", "vereinbartes",
+    "gewuenschte", "gewünschte", "welche", "welcher", "welches", "oder",
+    "sowie", "beziehungsweise",
+})
 
 
 class BeispielFeld(StrictResultModel):
@@ -482,6 +512,20 @@ class Beispiel(StrictResultModel):
                 raise ValueError(
                     "Ein Feld darf nicht gleichzeitig ausgefüllt und als fehlend "
                     "markiert sein."
+                )
+        # Was fehlt, darf in der Nachricht nicht vorkommen. Im Handwerksfall
+        # fragte die Rueckfrage nach dem Bonfoto, obwohl "Foto angehaengt" in
+        # der Nachricht stand. Geprueft werden die Inhaltswoerter des Eintrags.
+        nachricht = self.nachricht.casefold()
+        for eintrag in self.fehlt:
+            woerter = [
+                wort
+                for wort in re.findall(r"[a-zäöüß]{4,}", eintrag.casefold())
+                if wort not in _FEHLT_FUELLWOERTER
+            ]
+            if woerter and all(wort in nachricht for wort in woerter):
+                raise ValueError(
+                    f"Als fehlend markiert, steht aber in der Nachricht: {eintrag!r}"
                 )
         return self
 
@@ -558,6 +602,24 @@ class Umsetzung(StrictResultModel):
                 "Der erste Umsetzungsschritt macht den Kunden zum Umsetzer."
             )
         return self
+
+
+#: Die Felder, die das Modell als Kundentext schreibt. Nur diese unterliegen
+#: dem Wortfilter. Ist-Ablauf, Diagnose und die aus dem Katalog gefuellten
+#: Sicherheitsfelder (not_automated, error_boundaries) sind bewusst
+#: ausgenommen: dort steht internes Vokabular, das nie beim Kunden landet.
+CUSTOMER_TEXT_FIELDS = frozenset({
+    "engpass_titel",
+    "engpass_text",
+    "moeglichkeiten",
+    "loesung",
+    "beispiel",
+    "voraussetzungen",
+    "umsetzung",
+    "bleibt_bei_dir",
+    "grenzen",
+    "spaeter",
+})
 
 
 class FinalAnalysisResult(StrictResultModel):

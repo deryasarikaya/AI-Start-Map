@@ -74,6 +74,7 @@ from app.solution_knowledge import (
     solution_workflow_context,
 )
 from app.schemas import (
+    CUSTOMER_TEXT_FIELDS,
     FinalAnalysisResult,
     contains_forbidden_customer_term,
     contains_internal_reference,
@@ -1405,7 +1406,7 @@ def _persist_final_analysis(
             as_is_steps={
                 "steps": result.as_is_steps,
                 "problem_step_indexes": result.as_is_problem_step_indexes,
-                "to_be_steps": result.to_be_steps or result.future_process,
+                "to_be_steps": result.to_be_steps or result.loesung.ablauf_kuenftig,
             },
             core_bottleneck=result.core_bottleneck,
             uncertainties={
@@ -1663,76 +1664,36 @@ def _generate_and_persist_final_analysis(
 
         stage = "final_openai_call"
         stage_started = perf_counter()
-        result: FinalAnalysisResult | None = None
-        critical_hits: list[dict[str, str]] = []
-        for customer_attempt in range(2):
-            result = generate_final_analysis(
-                answers=_answer_payload(all_questions),
-                selected_process=_process_payload(process),
-                knowledge_chunks=knowledge,
-                agent_state=agent_state,
-                recommendation_context=recommendation_context,
+        # Die eine erlaubte Neuerzeugung bei einem Fachwort-Treffer macht
+        # generate_final_analysis selbst. Hier wird nur noch geprueft - es wird
+        # nichts ersetzt und nichts geloescht.
+        result = generate_final_analysis(
+            answers=_answer_payload(all_questions),
+            selected_process=_process_payload(process),
+            knowledge_chunks=knowledge,
+            agent_state=agent_state,
+            recommendation_context=recommendation_context,
+        )
+        remaining_hits = _forbidden_customer_fields(
+            result.model_dump(
+                include=CUSTOMER_TEXT_FIELDS
             )
-            generated_customer_fields = {
-                "primary_recommendation": result.primary_recommendation,
-                "promise": result.promise,
-                "short_reason": result.short_reason,
-                "future_process": result.future_process,
-                "sample_output": result.sample_output.model_dump(),
-                "visible_result": result.visible_result,
-                "required_prerequisites": result.required_prerequisites,
-                "open_details": result.open_details,
-                "later_stage": result.later_stage,
-                "smallest_usable_version": result.smallest_usable_version,
-                "secondary_opportunities": [
-                    item.model_dump() for item in result.secondary_opportunities
-                ],
-                "process_summary": result.process_summary,
-                "as_is_steps": result.as_is_steps,
-                "core_bottleneck": result.core_bottleneck,
-                "bottleneck_cause": result.bottleneck_cause,
-            }
-            all_hits = _forbidden_customer_fields(generated_customer_fields)
-            critical_paths = {
-                "short_reason",
-                "promise",
-                "visible_result",
-                "future_process[0]",
-                "smallest_usable_version",
-            }
-            critical_hits = [
-                {
-                    "field": (
-                        "first_step_text"
-                        if hit["field"] == "smallest_usable_version"
-                        else hit["field"]
-                    ),
-                    "rejected_text": hit["rejected_text"],
-                }
-                for hit in all_hits
-                if hit["field"] in critical_paths
-            ]
-            if not all_hits:
-                break
-            for hit in all_hits:
-                logger.warning(
-                    "customer_output.field_rejected field=customer_output.%s attempt=%d",
-                    hit["field"],
-                    customer_attempt + 1,
-                )
-            if customer_attempt == 0:
-                recommendation_context["customer_language_retry"] = all_hits
-                continue
-            break
-        if result is None or critical_hits:
+        )
+        for hit in remaining_hits:
+            logger.warning(
+                "customer_output.field_rejected field=customer_output.%s text=%r",
+                hit["field"],
+                hit["rejected_text"],
+            )
+        if remaining_hits:
             raise AIServiceError(
                 "Die verständliche Ergebnisfassung konnte nicht sicher erstellt werden."
             )
         logger.info(
             "recommendation.output_validated validation_result=passed "
-            "primary_solution=%s secondary_count=%d",
+            "primary_solution=%s ergebnis_art=%s",
             primary_solution_id or "A0",
-            len(result.secondary_opportunities),
+            result.loesung.ergebnis_art,
         )
         logger.info(
             "analysis.stage_complete stage=final_openai_call duration_seconds=%.3f "

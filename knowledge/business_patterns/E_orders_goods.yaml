@@ -1,0 +1,189 @@
+business_pattern: E_orders_goods
+business_example: Blumenladen
+
+diagnostic_focus: >
+  Wie wird aus Nachrichten, Fotos und Sonderwünschen eine eindeutige,
+  vollständige Bestellung? Der Engpass liegt fast immer auf der Kette
+  Eingang → Vollständigkeit → Zuordnung → aktuelle Fassung → Fertigung →
+  Übergabe. Nicht bei Marketing oder Sichtbarkeit.
+
+typical_workflows:
+  - Kundenanfrage oder Bestellung entgegennehmen
+  - fehlende Angaben klären
+  - Bestellung verbindlich erfassen
+  - Ware und Material prüfen und vorbereiten
+  - Produkt fertigen oder zusammenstellen
+  - Lieferung oder Abholung organisieren
+  - Übergabe durchführen
+  - Zahlung oder Rechnung bearbeiten
+  - Änderungen und Sonderfälle nachhalten
+
+channels:
+  - Telefon
+  - WhatsApp
+  - Instagram und andere soziale Netzwerke
+  - E-Mail
+  - persönlich im Laden
+  - Website oder Bestellformular, falls vorhanden
+
+domain_vocabulary:
+  - Bestellung
+  - Strauß
+  - Gesteck
+  - Arrangement
+  - Anlass
+  - Geburtstag
+  - Hochzeit
+  - Trauer
+  - Jubiläum
+  - Farbe
+  - Stil
+  - Blumensorte
+  - Saisonblumen
+  - Budget
+  - Größe
+  - Karte
+  - Grußtext
+  - Schleife
+  - Vase
+  - Lieferung
+  - Lieferadresse
+  - Abholung
+  - Abholzeit
+  - Lieferzeit
+  - Empfänger
+  - Besteller
+  - Sonderwunsch
+  - Referenzfoto
+  - Verfügbarkeit
+  - Ersatzblume
+  - Anzahlung
+
+important_entities:
+  - Kunde oder Besteller
+  - Empfänger
+  - Bestellung
+  - Anlass
+  - Produkt oder Arrangement
+  - Referenzfoto
+  - Ware und Material
+  - Lieferadresse
+  - Abhol- oder Liefertermin
+  - Preis oder Budget
+  - Grußkarte
+  - Zahlungsstatus
+
+required_information:
+  - Was wird bestellt
+  - Für welchen Anlass
+  - gewünschte Größe
+  - gewünschter Stil und Farben
+  - gewünschte oder ausgeschlossene Sorten
+  - Budget oder Preisrahmen
+  - gewünschter Termin
+  - Abholung oder Lieferung
+  - bei Lieferung die vollständige Adresse
+  - Name des Empfängers
+  - Kontaktmöglichkeit für Rückfragen
+  - Grußtext, falls gewünscht
+  - Referenzfoto, falls vorhanden
+  - besondere Wünsche
+  - Zahlungsart oder Zahlungsstatus, wo relevant
+
+typical_handoffs:
+  - Kunde an Bestellung
+  - Bestellung an Mitarbeiter im Laden
+  - Bestellung an Einkauf und Warenbestand
+  - Bestellung an Fertigung
+  - Fertigung an Lieferung oder Abholung
+  - Bestellung an Zahlung oder Rechnung
+
+typical_statuses:
+  - Anfrage eingegangen
+  - Angaben unvollständig
+  - Rückfrage offen
+  - bestätigt
+  - wartet auf Ware
+  - in Vorbereitung
+  - fertig
+  - abholbereit
+  - in Lieferung
+  - ausgeliefert
+  - abgeholt
+  - bezahlt
+  - storniert
+
+typical_bottlenecks:
+  - Bestellungen kommen über mehrere Kanäle und laufen nicht an einer Stelle zusammen
+  - wichtige Angaben fehlen in der ersten Nachricht
+  - Sonderwünsche stehen nur im Chat
+  - Referenzfotos sind keiner Bestellung eindeutig zugeordnet
+  - Änderungen kommen später über einen anderen Kanal
+  - Abhol- und Lieferzeiten müssen aus Nachrichten rekonstruiert werden
+  - unklar, welche Fassung einer Bestellung gerade gilt
+  - Besteller und Empfänger werden verwechselt
+  - Angaben werden handschriftlich oder aus dem Gedächtnis ergänzt
+  - beim Fertigen fällt erst auf, dass etwas fehlt
+  - verfügbare Ware passt nicht genau zum Wunsch
+  - Lieferangaben liegen getrennt von der Bestellung
+  - der Stand einer Bestellung ist für andere nicht sichtbar
+
+typical_exceptions:
+  - gewünschte Sorte nicht verfügbar
+  - Ersatz nötig
+  - Kunde ändert Farbe oder Stil
+  - Budget wird erhöht oder gesenkt
+  - Abholung wird kurzfristig zur Lieferung
+  - Lieferadresse ändert sich
+  - Termin wird vorgezogen
+  - Empfänger ist nicht erreichbar
+  - Referenzfoto kommt erst später
+  - Grußtext wird nachträglich geändert
+  - Bestellung am selben Tag
+  - Sonderanfertigung
+  - Stornierung
+  - Hochzeit oder Trauerfall mit hoher Abstimmung
+  - mehrere Produkte in einer Bestellung
+
+realistic_customer_language:
+  - "Hallo, ich brauche für morgen einen schönen Strauß für meine Mama, so rosa weiß ungefähr. Kann ich den gegen 14 Uhr holen?"
+  - "Hi, könnt ihr sowas in der Art machen? [Foto] Sollte so um die 40 Euro sein."
+  - "Ich brauche heute noch Blumen zum Geburtstag. Könnt ihr die auch liefern?"
+  - "Bitte doch nicht rot, lieber eher beige, weiß und bisschen grün."
+  - "Kann noch eine Karte dazu? Schreib bitte: Alles Liebe zum Geburtstag."
+  - "Ich hatte euch gestern auf Insta wegen dem Hochzeitsstrauß geschrieben."
+
+realistic_worker_language: []
+
+diagnostically_relevant_questions:
+  - Wie kommen Bestellungen heute bei euch rein?
+  - Wo wird eine Bestellung verbindlich festgehalten?
+  - Woran erkennt ihr, welche Nachricht oder welches Foto zu welcher Bestellung gehört?
+  - Welche Angaben fehlen besonders häufig?
+  - Was passiert, wenn nachträglich etwas geändert wird?
+  - Woran sieht jemand anderes den aktuellen Stand einer Bestellung?
+  - Wie werden Abhol- und Liefertermine festgehalten?
+  - Wie merkt ihr, dass eine Bestellung vollständig ist und vorbereitet werden kann?
+  - Was passiert, wenn eine gewünschte Sorte nicht verfügbar ist?
+  - Woher weiß die Person, die das Produkt fertigt, was zuletzt vereinbart wurde?
+  - Wie werden Lieferadresse, Empfänger und Grußtext der richtigen Bestellung zugeordnet?
+
+diagnostic_signals:
+  - mehrere Eingangskanäle
+  - wiederholte Rückfragen an denselben Kunden
+  - Abschreiben zwischen Nachrichten und Zetteln
+  - Referenzfotos ohne eindeutige Zuordnung
+  - Änderungen über verschiedene Kanäle
+  - fehlende Pflichtangaben
+  - Bestellung wird erst kurz vor der Fertigung vollständig
+  - Informationen hängen an einer Person
+
+do_not_assume:
+  - dass der Betrieb einen Onlineshop hat
+  - dass soziale Netzwerke genutzt werden
+  - dass geliefert wird
+  - dass der Warenbestand digital geführt wird
+  - dass alle Bestellungen individuell sind
+  - dass mehrere Mitarbeiter vorhanden sind
+  - dass ein Kundenverwaltungssystem sinnvoll ist
+  - dass KI die erste sinnvolle Lösung ist

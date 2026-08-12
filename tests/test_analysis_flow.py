@@ -31,6 +31,7 @@ from app.schemas import (
     ProcessSuggestion,
     ProcessSuggestionResult,
 )
+from tests.conftest import spec_payload
 
 
 def _start_and_answer_intro(client: TestClient) -> int:

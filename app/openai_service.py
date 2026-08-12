@@ -24,6 +24,7 @@ from app.schemas import (
     ProcessBoundaryResult,
     ProcessSuggestionResult,
     ProcessUnderstandingResult,
+    CUSTOMER_TEXT_FIELDS,
     contains_forbidden_customer_term,
 )
 
@@ -53,7 +54,13 @@ class AIServiceError(RuntimeError):
 StructuredResult = TypeVar("StructuredResult", bound=BaseModel)
 logger = logging.getLogger(__name__)
 OPENAI_REQUEST_TIMEOUT_SECONDS = 45.0
-FINAL_ANALYSIS_TIMEOUT_SECONDS = 120.0
+# Das Ergebnisobjekt nach ERGEBNIS_SPEC ist deutlich groesser als der fruehere
+# flache Feldsatz. Mit 120 Sekunden lief der Aufruf reproduzierbar in den
+# Timeout, bevor eine Antwort zurueckkam.
+# 240 statt 180: Der Handwerksfall lief reproduzierbar in 180 hinein, bei nur
+# einer Erzeugung. Das ist ein Zwischenstand - die eigentliche Ursache ist die
+# Laenge der Fliesstextfelder, siehe docs/KNOWN_ISSUES.md.
+FINAL_ANALYSIS_TIMEOUT_SECONDS = 240.0
 OPENAI_RETRIEVAL_TIMEOUT_SECONDS = 6.0
 _openai_call_count: contextvars.ContextVar[int] = contextvars.ContextVar(
     "openai_call_count",
@@ -804,7 +811,11 @@ def generate_final_analysis(
 
     # Der Wortfilter prueft nur. Bei einem Treffer wird genau einmal neu
     # erzeugt - es wird nichts ersetzt und nichts geloescht.
-    if contains_forbidden_customer_term(result.model_dump()):
+    # Geprueft wird ausschliesslich der vom Modell geschriebene Kundentext:
+    # not_automated und error_boundaries stammen aus dem Katalog und enthalten
+    # zwangslaeufig internes Vokabular. Wurden sie mitgeprueft, loeste jede
+    # Analyse eine unnoetige zweite Erzeugung aus.
+    if contains_forbidden_customer_term(result.model_dump(include=CUSTOMER_TEXT_FIELDS)):
         logger.warning(
             "final_analysis.forbidden_term_detected retry=%s", _quality_retry
         )

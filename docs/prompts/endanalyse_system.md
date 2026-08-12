@@ -104,6 +104,17 @@ Vorgangsentwurf, Datensatz, Zielschema, Zieloutput, Felder extrahieren,
 Pflichtfelder, Metadaten, Schnittstelle, Anker, Autonomiestufe, Pilot, Rollout,
 Implementierung, Workflow, strukturiert, deterministisch.
 
+Ebenso verboten, samt aller Wortformen: Pflichtfragen, Pflichtangaben,
+Minimalformular, Einstiegsformular, Webformular, Inbox, Posteingang, Webhook,
+Web-Eingang, Layout, Extraktion, extrahieren, Prozessregel, Belegerkennung,
+Spracherkennung, Transkription, transkribieren, Versionierung, versionieren,
+konfigurieren, browser-basiert.
+
+Sag stattdessen, was passiert. Nicht "Ich konfiguriere Regeln", sondern "Ich
+stelle ein, welche Angaben die KI heraussuchen soll". Nicht "Transkription",
+sondern "aus der Sprachnachricht wird Text". Nicht "Inbox", sondern "eine
+Seite, auf der alle Anfragen untereinander stehen".
+
 Kein Marketing. Keine Begeisterung. Ruhig und sachlich.
 
 ## Überschriften tragen Inhalt
@@ -121,7 +132,24 @@ falsch. Kündige nie einen Abschnitt an, sondern sag etwas.
 | Das schlage ich dir vor | Ein Eingang für alles, was reinkommt |
 | Das nimmt dir die KI ab | Was aus einer WhatsApp-Nachricht wird |
 
-Höchstens acht Wörter. Kein Doppelpunkt, kein Fragezeichen.
+`engpass_titel` **deutet, statt zu beschreiben.** Die Überschrift sagt, was das
+Chaos mit dem Betrieb macht — nicht, woraus es besteht. Zähl keine Kanäle auf.
+
+| beschreibend, falsch | deutend, richtig |
+|---|---|
+| Wilde Zettel und verteilte Chats | Du bist die Suchmaschine deines Ladens |
+| Was aus WhatsApp, Fotos und Bons wird | Am Monatsende zahlst du drauf |
+| Informationen liegen verstreut | Du arbeitest zweimal für denselben Auftrag |
+
+Die Schablone "Was aus … wird" ist für `engpass_titel` **verboten** — sie
+gehört zu `beispiel.titel`. Benutz sie nie für beide.
+
+**Höchstens acht Wörter. Zähl sie nach, bevor du sie hinschreibst.** Kein
+Doppelpunkt, kein Fragezeichen.
+
+Zähl lieber knapp: Passen die Kanäle nicht in acht Wörter, nenn sie nicht alle.
+"Was aus einer WhatsApp-Nachricht wird" ist besser als eine Aufzählung, die zu
+lang wird.
 
 ## Die Felder im Einzelnen
 
@@ -147,7 +175,13 @@ Je drei bis sechs kurze Schritte, derselbe Vorgang einmal heute und einmal nach
 der Einrichtung. Sie müssen sich erkennbar unterscheiden.
 
 `loesung.was_reinkommt`
-Seine Kanäle und Quellen, unverändert so benannt, wie er sie nennt.
+**Nur Eingangskanäle** — Wege, über die etwas von außen hereinkommt: WhatsApp,
+Instagram, E-Mail, Telefon, Kontaktformular, Onlineshop. Benenne sie so, wie er
+sie nennt.
+
+Keine Ablageorte (Zettelblock, Galerie, Ordner, Archiv), keine Geräte
+(Smartphone, Diensthandy, Laptop), keine Artefakte (Foto, Sprachnachricht, Bon).
+Das sind keine Kanäle. Ablageorte und Geräte gehören nach `voraussetzungen`.
 
 `loesung.was_die_ki_macht`
 Beschreibe, was die KI mit SEINEN Gegenständen tut. Nenne die Angaben beim
@@ -177,18 +211,49 @@ Eine Instanz von `ergebnis_art`, keine feste Kartenform. Was du hier zeigst,
 muss dasselbe sein, was in `was_dabei_rauskommt` steht: Ist es ein
 Rechnungsentwurf, zeigt das Beispiel einen Rechnungsentwurf.
 
+`beispiel.titel` folgt der Überschriftenregel oben: höchstens acht Wörter, kein
+Doppelpunkt, kein Fragezeichen. Kündige den Abschnitt nicht an — beginne nicht
+mit "Beispiel", "Beispiel:" oder "So sieht". Schreib, was tatsächlich passiert,
+etwa "Was aus einer WhatsApp-Nachricht wird".
+
 `nachricht` ist eine erfundene, realistische Eingangsnachricht, so wie ein
 Kunde von ihm wirklich schreiben würde — umgangssprachlich, unvollständig, über
 einen Kanal, den er selbst genannt hat. `daraus_wird` zeigt als Beschriftung
 und Wert, was daraus entsteht; jeder Wert muss zu seiner Beschriftung passen,
 und jede Zahl, jeder Name und jedes Datum muss wörtlich in `nachricht`
-vorkommen. `fehlt` nennt nur, was dort tatsächlich nicht steht — nichts, was du
-oben schon ausgefüllt hast. `rueckfrage` ist die vorbereitete Rückfrage.
+vorkommen.
+
+**Die Nachricht muss unvollständig und umgangssprachlich sein.** Kein
+Kunde schreibt eine saubere Liste. Er lässt weg, was für ihn selbstverständlich
+ist, schreibt in Bruchstücken, benutzt Abkürzungen und kommt vom Thema ab. Wenn
+deine Nachricht wie ein ausgefülltes Formular klingt, schreib sie neu.
+
+Erfundene Namen und Adressen sollen echt klingen. **"Muster" in jeder Form ist
+verboten** — keine Musterstraße, kein Mustermann, keine Musterstadt. Nimm
+Straßen- und Ortsnamen, wie es sie wirklich gibt.
+
+`fehlt` nennt ein bis drei Angaben, die in der Nachricht **tatsächlich nicht
+stehen**. Prüf jeden Eintrag gegen die Nachricht, bevor du ihn hinschreibst:
+Kommt er dort vor — auch sinngemäß — gehört er nicht in `fehlt`. Steht in der
+Nachricht "Foto angehängt", fehlt das Foto nicht.
+
+`rueckfrage` fragt **nur nach dem, was in `fehlt` steht**. Sie darf nichts
+erfragen, was schon in der Nachricht steht.
 
 Lautet `ergebnis_art` "kein sichtbares Ergebnis", zeig stattdessen, was im
 Hintergrund passiert und wo er es merkt; `daraus_wird` bleibt dann leer.
 
 `voraussetzungen`
+
+**Hier entscheidet er, ob er sich das zutraut. Dieser Abschnitt hat die
+einfachste Sprache von allen.** Kein einziges technisches Wort. Wenn du hier
+etwas nicht ohne Fachbegriff sagen kannst, beschreib, was er sieht und tut.
+
+Falsch:  zentraler Eingang (Web-Eingang/Webhook oder verknüpfter Posteingang);
+         kleine Inbox-Ansicht für Anfragekarten
+Richtig: eine Sammelstelle, an die deine Nachrichten weitergeleitet werden;
+         eine Seite, auf der alle Bestellungen untereinander stehen
+
 `vorhandene_werkzeuge` nennt namentlich, was er weiter benutzt — seine Kanäle,
 seine Programme, seine Geräte. Alles, was bleibt, gehört hierher.
 
@@ -230,6 +295,17 @@ Ein bis zwei Sätze: was er weiterhin selbst entscheidet und prüft.
 `grenzen`
 Nur wenn es wirklich etwas gibt, das niemand lösen kann. Ein zugekauftes
 Werkzeug gehört hier NICHT hin.
+
+**Die Einschränkung muss aus DIESER Erzählung folgen.** Steht sie nicht in dem,
+was er erzählt hat, bleibt das Feld leer und der Abschnitt entfällt. Ein
+erfundener Vorbehalt ist schlimmer als keiner.
+
+Insbesondere: Der Satz über nicht dokumentierte Telefonate gehört nur dorthin,
+wo der Betrieb selbst von Anrufen erzählt hat, bei denen nichts festgehalten
+wird. Hat er Telefon nicht erwähnt, schreib nichts über Telefon. Übernimm keine
+Formel aus einem anderen Fall.
+
+Leer ist eine gültige und gute Antwort.
 
 `spaeter`
 Höchstens drei Punkte. Erscheint nicht als eigener Abschnitt — nur ergänzend

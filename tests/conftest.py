@@ -207,6 +207,34 @@ def spec_payload(**overrides: object) -> dict[str, object]:
     return payload
 
 
+def spec_core_output(**overrides: object) -> dict[str, object]:
+    """Der Kernoutput so, wie _persist_final_analysis ihn in JSONB ablegt.
+
+    Wer die Wortfilter oder die View-Abbildung prueft, baut damit einen
+    gespeicherten Stand, ohne die Ablageform ein zweites Mal abzuschreiben.
+    """
+
+    payload = spec_payload()
+    core: dict[str, object] = {
+        "contract_version": "ergebnis-spec-v5",
+        "engpass_titel": payload["engpass_titel"],
+        "engpass_text": payload["engpass_text"],
+        "moeglichkeiten": payload["moeglichkeiten"],
+        "loesung": payload["loesung"],
+        "beispiel": payload["beispiel"],
+        "voraussetzungen": payload["voraussetzungen"],
+        "umsetzung": payload["umsetzung"],
+        "bleibt_bei_dir": payload["bleibt_bei_dir"],
+        "grenzen": payload["grenzen"],
+        "spaeter": payload["spaeter"],
+        "not_automated": payload["not_automated"],
+        "error_boundaries": payload["error_boundaries"],
+        "autonomy_level": payload["autonomy_level"],
+    }
+    core.update(overrides)
+    return core
+
+
 def spec_view(**overrides: object) -> dict[str, object]:
     """Kundenpayload so, wie ihn _result_view an die Templates gibt."""
 

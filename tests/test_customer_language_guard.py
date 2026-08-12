@@ -23,6 +23,9 @@ CASES = (
 )
 
 
+from tests.conftest import spec_core_output, spec_payload
+
+
 def _catalog_title(solution_id: str) -> str:
     catalog = load_recommendation_catalog()
     return next(
@@ -33,53 +36,49 @@ def _catalog_title(solution_id: str) -> str:
 
 
 def _view(case_name: str, solution_id: str, level: str) -> dict[str, object]:
+    """Ein gespeicherter Stand, in den absichtlich Fachwoerter gestreut sind.
+
+    Geprueft wird, dass davon nichts in der gerenderten Seite ankommt.
+    """
+
     primary_title = (
         _catalog_title(solution_id)
         if solution_id
         else "Vorhandene Funktion oder einfache Regel zuerst nutzen"
     )
-    core_output = {
-        "primary_recommendation": primary_title,
-        "promise": "Du erh\u00e4ltst ein verst\u00e4ndliches Ergebnis, das du selbst pr\u00fcfst.",
-        "short_reason": "Einsatzanker, Pflichtfelder und Upload-Zuordnung fehlen heute.",
-        "future_process": [
-            "Du schickst die vorhandenen Angaben.",
-            "Die KI bereitet einen Entwurf vor.",
-            "Softwareregeln pr\u00fcfen Pflichtfelder und Formate.",
-            "Du pr\u00fcfst und best\u00e4tigst das Ergebnis.",
-        ],
-        "sample_output": {
-            "title": "[Preview] Musterhaus",
-            "fields": [
-                {"label": "Einsatz-ID", "value": "Beispiel: [Preview] Musterhaus"},
-                {"label": "Pflichtfeld", "value": "noch offen"},
-            ],
-            "open_items": [
-                "Wie erkennst du heute, zu welchem Auftrag ein Bon geh\u00f6rt?",
-                "Wie erkennst du heute, zu welchem Auftrag ein Bon geh\u00f6rt?",
-                "Wie viele Auftr\u00e4ge pro Woche gibt es?",
-                "Ein nicht belegtes Detail im heutigen Ablauf bleibt noch offen.",
-            ],
-        },
-        "visible_result": "Ein pr\u00fcfbarer Entwurf.",
-        "human_check": "Du pr\u00fcfst und best\u00e4tigst das Ergebnis.",
-        "smallest_usable_version": "Starte einen Pilot und konfiguriere Pflichtfelder.",
-        "implementation_path": ["Pilot starten.", "Rollout vorbereiten."],
-        "required_prerequisites": ["Ein eindeutiger Vorgangsanker", "Ein mobiler Eingang"],
-        "open_details": [
-            "Die Freigaberolle ist noch offen.",
-            "Wie die Ablage heute funktioniert, ist noch nicht klar.",
-        ],
-        "later_stage": "Sp\u00e4ter kann ein Rechnungsentwurf vorbereitet werden.",
-        "secondary_opportunities": [
-            {"title": "noch offen", "description": "Noch keine Beschreibung"},
-            {"title": "", "description": "Ohne Titel"},
-        ],
-        "autonomy_level": level,
-    }
+    loesung = dict(spec_payload()["loesung"])
+    loesung["titel"] = primary_title
+    loesung["was_die_ki_macht"] = (
+        "Softwareregeln pruefen Pflichtfelder und Formate; der Upload wird "
+        "dem Einsatzanker zugeordnet."
+    )
+    beispiel = dict(spec_payload()["beispiel"])
+    beispiel["titel"] = "Was aus einer Nachricht wird"
+    beispiel["daraus_wird"] = [
+        {"label": "Einsatz-ID", "wert": "Beispiel: Musterhaus"},
+        {"label": "Pflichtfeld", "wert": "noch offen"},
+    ]
+    umsetzung = dict(spec_payload()["umsetzung"])
+    umsetzung["erster_schritt"] = (
+        "Wir starten einen Pilot und konfigurieren die Pflichtfelder; nach zwei "
+        "Wochen sehen wir, ob die Angaben vollstaendig ankommen."
+    )
+    voraussetzungen = dict(spec_payload()["voraussetzungen"])
+    voraussetzungen["neu_hinzukommend"] = [
+        "Ein eindeutiger Vorgangsanker",
+        "Ein mobiler Eingang",
+    ]
+    core_output = spec_core_output(
+        loesung=loesung,
+        beispiel=beispiel,
+        umsetzung=umsetzung,
+        voraussetzungen=voraussetzungen,
+        grenzen="Der Datensatz bleibt ohne Zielschema unvollstaendig.",
+        autonomy_level=level,
+    )
     analysis = Analysis(
         session_id=1,
-        process_summary=f"Der heutige Ablauf f\u00fcr {case_name} wurde best\u00e4tigt.",
+        process_summary=f"Der heutige Ablauf für {case_name} wurde bestätigt.",
         as_is_steps={
             "steps": ["Angaben annehmen", "Informationen zusammensuchen"],
             "problem_step_indexes": [1],
@@ -98,8 +97,8 @@ def _view(case_name: str, solution_id: str, level: str) -> dict[str, object]:
         problem="Informationen liegen an mehreren Stellen.",
         recommendation="Einen Entwurf vorbereiten.",
         benefit="Du musst weniger zusammensuchen.",
-        human_approval="Du pr\u00fcfst das Ergebnis.",
-        first_step="Mit f\u00fcnf Beispielen beginnen.",
+        human_approval="Du prüfst das Ergebnis.",
+        first_step="Mit fünf Beispielen beginnen.",
         blueprint_json=None,
     )
     return _result_view(analysis, [opportunity])
@@ -168,23 +167,19 @@ def test_example_values_only_appear_inside_the_marked_preview(
             else html.index('class="report-page report-page-two"', marker)
         )
         outside = html[:marker] + html[block_end:]
-        for field in result["sample_output"]["fields"]:
-            assert field["value"] in html[marker:block_end]
-            assert field["value"] not in outside
+        for feld in result["beispiel"]["daraus_wird"]:
+            assert feld["wert"] in html[marker:block_end]
+            assert feld["wert"] not in outside
 
 
-def test_open_questions_are_concrete_deduplicated_and_limited() -> None:
+def test_missing_details_never_repeat_what_the_message_already_says() -> None:
+    """Was als fehlend markiert ist, darf nicht in der Beispielnachricht stehen."""
+
     result = _view("Hausmeister", "SP-03", "A1")
-    questions = result["open_questions"]
-    assert len(questions) <= 3
-    assert len(questions) == len({item.casefold() for item in questions})
-    assert all(item.endswith("?") for item in questions)
-    assert all("pro Woche" not in item for item in questions)
-
-
-def test_empty_secondary_suggestions_are_not_returned() -> None:
-    result = _view("Hausmeister", "SP-03", "A1")
-    assert result.get("secondary_opportunities", []) == []
+    beispiel = result["beispiel"]
+    nachricht = beispiel["nachricht"].casefold()
+    for eintrag in beispiel["fehlt"]:
+        assert eintrag.casefold() not in nachricht
 
 
 def test_unsubstantiated_benefit_claim_is_removed_without_word_replacement() -> None:
@@ -228,8 +223,13 @@ def test_old_slogan_and_wrong_name_are_absent_from_tracked_files() -> None:
         check=False,
         text=True,
     )
+    # docs/auftrag/ ist ausgenommen: dort steht die Schreibweise ausdruecklich
+    # als Gegenbeispiel in der Regel, die sie verbietet.
     wrong_name = subprocess.run(
-        ["git", "grep", "-ni", "-w", "Da" + "ria"],
+        [
+            "git", "grep", "-ni", "-w", "Da" + "ria",
+            "--", ":(exclude)docs/auftrag",
+        ],
         cwd=ROOT,
         capture_output=True,
         check=False,
