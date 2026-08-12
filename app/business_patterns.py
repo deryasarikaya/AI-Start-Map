@@ -53,13 +53,60 @@ FINAL_ANALYSIS_FIELDS: tuple[str, ...] = (
 )
 
 
+#: Vorauswahl ueber den Betriebstyp. Nur A, D und E haben derzeit eine
+#: Wissensdatei; die uebrigen Buchstaben laden bewusst nichts, bis die
+#: Dateien geschrieben sind.
+BUSINESS_TYPE_TO_PATTERN: dict[str, str] = {
+    typ: buchstabe
+    for buchstabe, typen in {
+        "A": (
+            "hausmeisterservice", "elektriker", "maler", "sanitaer", "dachdecker",
+            "reinigungsservice", "mobiler_reparaturdienst", "gartenpflege",
+            "physischer_servicebetrieb", "mobiler_servicebetrieb",
+        ),
+        "B": ("kfz_werkstatt", "fahrradwerkstatt", "schuhmacher", "schneiderei"),
+        "C": (
+            "friseur", "kosmetik", "massage", "fitnessstudio", "fahrschule",
+            "physiotherapie",
+        ),
+        "D": (
+            "fotograf", "architekturbuero", "kreativagentur", "kleine_agentur",
+            "freelancer", "b2b_agentur", "designer",
+        ),
+        "E": (
+            "blumenladen", "konditorei", "einzelhandel", "onlinehandel",
+            "kleine_manufaktur", "catering", "veranstaltungsdienstleister",
+        ),
+        "F": (
+            "coach", "mentor", "berater", "beratungsteam", "b2b_dienstleister",
+            "virtuelle_assistenz",
+        ),
+        "G": ("hausverwaltung", "immobilienmakler", "kfz_gutachter", "ferienwohnung"),
+    }.items()
+    for typ in typen
+}
+
+#: Woran ein gewaehlter Prozess eine andere Betriebsart verraet. Derselbe
+#: Fotograf faellt beim Kundenprojekt unter D und beim Beratungsgespraech
+#: unter F - die Betriebsart haengt am Prozess, nicht am Unternehmen.
+PROCESS_SIGNALS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("D", ("briefing", "freigabe", "fassung", "korrekturschleife", "entwurf",
+           "gestaltung", "abnahme")),
+    ("F", ("beratung", "gespräch", "gespraech", "sitzung", "coaching",
+           "erstgespräch", "erstgespraech")),
+    ("C", ("terminanfrage", "terminvergabe", "buchung", "behandlung")),
+    ("E", ("bestellung", "lieferung", "ware", "sortiment")),
+    ("A", ("einsatz", "vor ort", "baustelle", "montage", "wartung")),
+)
+
+
 def _normalize(value: str) -> str:
     return " ".join(re.findall(r"[a-z0-9äöüß]+", value.casefold().replace("_", " ")))
 
 
 @lru_cache(maxsize=1)
-def _patterns_by_business_example() -> dict[str, dict[str, object]]:
-    """Alle Musterdateien, verschluesselt ueber ihr business_example."""
+def _patterns_by_letter() -> dict[str, dict[str, object]]:
+    """Alle Musterdateien, verschluesselt ueber ihren Buchstaben (A, D, E …)."""
 
     patterns: dict[str, dict[str, object]] = {}
     if not PATTERN_DIRECTORY.is_dir():
@@ -72,29 +119,77 @@ def _patterns_by_business_example() -> dict[str, dict[str, object]]:
             continue
         if not isinstance(data, dict):
             continue
-        beispiel = _normalize(str(data.get("business_example") or ""))
-        if beispiel:
-            patterns[beispiel] = data
+        name = str(data.get("business_pattern") or "")
+        buchstabe = name.split("_", 1)[0].upper()
+        if buchstabe:
+            patterns[buchstabe] = data
     return patterns
 
 
-def load_business_pattern(business_type: str | None) -> dict[str, object] | None:
-    """Genau die Datei zur Betriebsart, oder keine.
+def _letter_from_process(selected_process: str) -> tuple[str | None, bool]:
+    """Was der gewaehlte Prozess ueber die Betriebsart verraet.
 
-    Es wird ausschliesslich auf ``business_example`` abgeglichen. Passt nichts
-    eindeutig, wird nichts geladen — lieber kein Branchenwissen als das eines
-    Nachbargewerbes.
+    Rueckgabe: (Buchstabe oder None, mehrdeutig). Die beiden Faelle sind
+    verschieden — kein Signal heisst Rueckfall auf die Vorauswahl,
+    mehrdeutig heisst gar nichts laden.
     """
 
-    gesucht = _normalize(business_type or "")
-    if not gesucht:
+    text = _normalize(selected_process)
+    if not text:
+        return None, False
+    treffer = {
+        buchstabe
+        for buchstabe, signale in PROCESS_SIGNALS
+        if any(signal in text for signal in signale)
+    }
+    if len(treffer) == 1:
+        return treffer.pop(), False
+    return None, bool(treffer)
+
+
+def load_business_pattern(
+    business_type: str | None,
+    selected_process: str = "",
+) -> dict[str, object] | None:
+    """Die Wissensdatei zur Betriebsart des gewaehlten Prozesses, oder keine.
+
+    Der Betriebstyp aus der Klassifikation ist ein Hinweis, keine Festlegung.
+    Verraet der gewaehlte Prozess erkennbar eine andere Betriebsart, gilt die
+    des Prozesses: derselbe Fotograf faellt beim Kundenprojekt unter D und beim
+    Beratungsgespraech unter F.
+
+    Ist die Zuordnung nicht eindeutig, wird nichts geladen.
+    """
+
+    aus_typ = BUSINESS_TYPE_TO_PATTERN.get(
+        _normalize(business_type or "").replace(" ", "_")
+    )
+    aus_prozess, mehrdeutig = _letter_from_process(selected_process)
+    if mehrdeutig:
+        logger.info(
+            "business_pattern.ambiguous_process process=%s", selected_process[:60]
+        )
         return None
-    treffer = _patterns_by_business_example().get(gesucht)
+    buchstabe = aus_prozess or aus_typ
+    if buchstabe is None:
+        logger.info(
+            "business_pattern.no_match business_type=%s process=%s",
+            business_type,
+            selected_process[:60],
+        )
+        return None
+    treffer = _patterns_by_letter().get(buchstabe)
     if treffer is None:
-        logger.info("business_pattern.no_match business_type=%s", business_type)
+        logger.info(
+            "business_pattern.no_file letter=%s business_type=%s",
+            buchstabe,
+            business_type,
+        )
         return None
     logger.info(
-        "business_pattern.matched business_type=%s pattern=%s",
+        "business_pattern.matched letter=%s source=%s business_type=%s pattern=%s",
+        buchstabe,
+        "prozess" if aus_prozess else "betriebstyp",
         business_type,
         treffer.get("business_pattern"),
     )
@@ -105,10 +200,11 @@ def pattern_context(
     business_type: str | None,
     *,
     fields: tuple[str, ...],
+    selected_process: str = "",
 ) -> dict[str, object]:
     """Die Musterdatei auf die Felder eines Aufrufs zugeschnitten."""
 
-    pattern = load_business_pattern(business_type)
+    pattern = load_business_pattern(business_type, selected_process)
     if pattern is None:
         return {}
     zugeschnitten = {

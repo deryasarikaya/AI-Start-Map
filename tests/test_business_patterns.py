@@ -72,9 +72,13 @@ def test_no_pattern_assumes_that_ai_comes_first() -> None:
     ("business_type", "erwartet"),
     [
         ("fotograf", "D_project_briefing_approval"),
+        ("kreativagentur", "D_project_briefing_approval"),
+        ("freelancer", "D_project_briefing_approval"),
         ("blumenladen", "E_orders_goods"),
+        ("catering", "E_orders_goods"),
         ("hausmeisterservice", "A_field_service"),
-        ("Fotograf", "D_project_briefing_approval"),
+        ("elektriker", "A_field_service"),
+        ("maler", "A_field_service"),
     ],
 )
 def test_a_known_business_type_finds_its_pattern(
@@ -88,13 +92,40 @@ def test_a_known_business_type_finds_its_pattern(
 
 @pytest.mark.parametrize(
     "business_type",
-    ("kreativagentur", "catering", "fahrschule", "", None, "blumen"),
+    ("kfz_werkstatt", "friseur", "coach", "hausverwaltung", "", None, "blumen"),
 )
-def test_an_unclear_business_type_loads_nothing(business_type: str | None) -> None:
-    """Lieber kein Branchenwissen als das eines Nachbargewerbes."""
+def test_a_type_without_a_file_loads_nothing(business_type: str | None) -> None:
+    """B, C, F und G haben noch keine Datei - das ist richtig und bleibt so."""
 
     assert load_business_pattern(business_type) is None
     assert pattern_context(business_type, fields=FINAL_ANALYSIS_FIELDS) == {}
+
+
+def test_the_selected_process_outranks_the_business_type() -> None:
+    """Die Betriebsart haengt am Prozess, nicht am Unternehmen.
+
+    Derselbe Fotograf faellt beim Kundenprojekt unter D und beim
+    Beratungsgespraech unter F - und F hat noch keine Datei.
+    """
+
+    projekt = load_business_pattern("fotograf", "Kundenbriefing bis Freigabe")
+    assert projekt is not None
+    assert projekt["business_pattern"] == "D_project_briefing_approval"
+
+    beratung = load_business_pattern("fotograf", "Erstgespräch und Beratung")
+    assert beratung is None
+
+
+def test_an_ambiguous_process_falls_back_to_the_business_type() -> None:
+    pattern = load_business_pattern("blumenladen", "Ablauf allgemein ansehen")
+    assert pattern is not None
+    assert pattern["business_pattern"] == "E_orders_goods"
+
+
+def test_a_process_pointing_two_ways_loads_nothing() -> None:
+    """Mehrdeutig heisst: keine Datei, keine Naeherung."""
+
+    assert load_business_pattern("fotograf", "Briefing und Beratungsgespräch") is None
 
 
 def test_the_final_analysis_gets_vocabulary_but_not_the_interview_questions() -> None:

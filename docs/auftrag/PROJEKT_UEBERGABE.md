@@ -267,7 +267,9 @@ Weitere Symptome aus demselben Lauf:
 - Nicht committen: `.env`, Datenbanken, produktive FAISS-Dateien, temporäre
   Evaluationsartefakte.
 - Evaluationsdaten bleiben aus allen Indizes ausgeschlossen.
-- Autor und Committer: **Derya** — mit y, nicht „Daria".
+- Autor und Committer: **Derya** — mit y in der Mitte, nicht mit i. Die
+  falsche Schreibweise ist in einem früheren Durchgang mehrfach vorgekommen;
+  ein Test prüft das inzwischen repositoryweit.
 - Vor größeren Änderungen einen Rückweg-Tag setzen und pushen.
 
 ### Zwei Regeln aus schmerzhafter Erfahrung

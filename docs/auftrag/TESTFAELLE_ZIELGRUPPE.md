@@ -1,4 +1,4 @@
-# Testfälle — sieben Betriebe aus der Zielgruppe
+# Testfälle — acht Betriebe aus der Zielgruppe
 
 **Zielgruppe:** Kleine Unternehmen, die bereits digital arbeiten, deren
 Informationen aber über mehrere Kanäle verteilt, unstrukturiert oder manuell
@@ -159,6 +159,35 @@ Freigabe-Problematik erkennt, ohne sie in eine Standardfrage zu verwandeln.
 
 ---
 
+## 8 — Malerbetrieb, überwiegend telefonisch
+
+> Wir sind ein kleiner Malerbetrieb, mein Bruder und ich. Die meisten Aufträge
+> kommen übers Telefon rein oder die Leute sprechen mich direkt an, wenn ich
+> irgendwo auf der Baustelle bin. Ich hab dann meistens keinen Zettel dabei
+> und merk es mir einfach. Manchmal schreib ich es abends auf, manchmal nicht.
+> Eine richtige Auftragsnummer haben wir nicht, wir sagen einfach „die Frau
+> Schneider in der Bahnhofstraße". Wenn dann drei Wochen später jemand anruft
+> und fragt, wann wir kommen, muss ich erstmal überlegen, wer das war und was
+> genau ausgemacht war. Bei den Preisen ist es das Gleiche — ich hab was
+> gesagt, aber es steht nirgends. Und wenn mein Bruder anfängt und ich war
+> beim Kunden, dann erzähl ich ihm das eben schnell im Auto. Es geht meistens
+> gut, aber manchmal machen wir was doppelt oder es fehlt Material, weil
+> keiner mehr weiß, was vereinbart war.
+
+**Erwartet:** `reifestufe` `ordnung` oder `digitalisierung` — **nicht** `genai`.
+Die Empfehlung enthält keine KI-Lösung als ersten Schritt. Der erste Schritt
+ist eine einfache, verbindliche Erfassung: nach jedem Anruf oder Gespräch eine
+kurze Notiz mit Kunde, Anliegen, Termin und Stand. `moeglichkeiten` darf einen
+späteren KI-Schritt nennen, aber nicht als größten Hebel. Der Text sagt
+ausdrücklich, warum KI hier noch nicht greift: Es gibt keine Aufzeichnung, aus
+der eine KI etwas machen könnte.
+
+Verbotene Formulierungen für diesen Fall: alles, was so klingt, als wäre der
+Betrieb zu rückständig oder als hätte er etwas falsch gemacht. Er arbeitet so,
+wie es funktioniert hat. Der Ton bleibt sachlich und respektvoll.
+
+---
+
 # Wie du sie benutzt
 
 **Zum Prüfen der Auswertung:** Einen Text nehmen, komplett durchlaufen lassen,
@@ -166,7 +195,7 @@ und gegen die Prüfliste halten — sagt es „du" statt „der Betrieb", kommt 
 Fachwort vor, steht eine Zahl da, die niemand wissen kann, ist der erste
 Schritt morgen machbar.
 
-**Zum Prüfen der Musterauswahl:** Alle sieben nacheinander. Landet jeder auf
+**Zum Prüfen der Musterauswahl:** Alle acht nacheinander. Landet jeder auf
 dem erwarteten Muster? Wo zwei Muster vertretbar sind, zählt beides als
 richtig — aber die Begründung des Modells muss zum gewählten passen.
 

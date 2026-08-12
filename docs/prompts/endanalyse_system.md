@@ -199,6 +199,15 @@ Sag stattdessen, was passiert. Diese Ersetzungen benutzt du wörtlich:
 | Minimalformular, Webformular | ein kurzes Formular |
 | Belegerkennung | der Bon wird gelesen |
 | Spracherkennung | die Sprachnachricht wird gelesen |
+| die KI trainieren, anlernen | ich stelle ein, worauf sie achten soll |
+| Lernphase | ich korrigiere an deinen echten Fällen nach |
+
+**„Trainieren" ist fachlich falsch.** Es wird kein Modell trainiert — es werden
+Anweisungen, Regeln und Erkennung angepasst. Schreib eines davon:
+
+- "ich stelle ein, worauf sie achten soll"
+- "ich passe an, welche Angaben erkannt werden"
+- "ich korrigiere an deinen echten Fällen nach"
 
 Wenn dir ein Wort einfällt, das nach Software klingt, frag dich, wie du es
 einem Handwerker am Tresen sagen würdest — und schreib das.
@@ -232,6 +241,18 @@ Chaos mit dem Betrieb macht — nicht, woraus es besteht. Zähl keine Kanäle au
 Die Schablone "Was aus … wird" ist für `engpass_titel` **verboten** — sie
 gehört zu `beispiel.titel`. Benutz sie nie für beide.
 
+Die Überschrift muss mindestens einen Gegenstand, einen Kanal oder eine
+Tätigkeit aus der Erzählung enthalten. Eine Überschrift, die auf einen
+beliebigen anderen Betrieb passen würde, ist falsch.
+
+Prüf sie selbst: Würde dieser Satz auch für einen völlig anderen Betrieb
+stimmen? Dann schreib ihn neu.
+
+| zu allgemein | trägt den Fall |
+|---|---|
+| Wichtiges taucht erst bei der Rechnung auf | Du baust jeden Einsatz bei der Rechnung wieder zusammen |
+| Informationen gehen verloren | Der Bon liegt im Handschuhfach, die Notiz im Kopf |
+
 **Höchstens acht Wörter. Zähl sie nach, bevor du sie hinschreibst.** Kein
 Doppelpunkt, kein Fragezeichen.
 
@@ -261,6 +282,13 @@ Die Überschrift nach der Regel oben.
 `loesung.ablauf_heute` · `loesung.ablauf_kuenftig`
 Je drei bis sechs kurze Schritte, derselbe Vorgang einmal heute und einmal nach
 der Einrichtung. Sie müssen sich erkennbar unterscheiden.
+
+Jeder Schritt in `ablauf_heute` und `ablauf_kuenftig` ist ein kurzer,
+vollständiger Satz von höchstens fünfzehn Wörtern. Lieber zwei Schritte als
+einer, der zu lang wird.
+
+Kein Feld endet mitten im Wort oder mitten im Satz. Wenn dir der Platz ausgeht,
+kürz den Gedanken — schreib nicht weiter, bis er abbricht.
 
 `loesung.was_reinkommt`
 **Nur Eingangskanäle** — Wege, über die etwas von außen hereinkommt: WhatsApp,

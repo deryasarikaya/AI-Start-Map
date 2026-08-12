@@ -92,6 +92,7 @@ FORBIDDEN_CUSTOMER_TERMS: tuple[str, ...] = (
     "Prozessregel", "Belegerkennung", "Spracherkennung",
     "browser-basiert", "Versionierung", "versionieren",
     "Transkription", "transkribieren",
+    "trainieren", "antrainieren", "anlernen", "Modell trainieren", "Lernphase",
 )
 
 FORBIDDEN_CUSTOMER_TERM_PATTERNS: tuple[re.Pattern[str], ...] = (
@@ -129,7 +130,11 @@ FORBIDDEN_CUSTOMER_TERM_PATTERNS: tuple[re.Pattern[str], ...] = (
         r"\bExtraktion\w*\b|\bextrahier\w*\b|"
         r"\bProzessregel\w*\b|\bBelegerkennung\w*\b|\bSpracherkennung\w*\b|"
         r"\bbrowser-?basiert\w*\b|\bVersionierung\w*\b|\bversionier\w*\b|"
-        r"\bTranskription\w*\b|\btranskribier\w*\b",
+        r"\bTranskription\w*\b|\btranskribier\w*\b|"
+        # Es wird kein Modell trainiert - Anweisungen, Regeln und Erkennung
+        # werden angepasst. Wem Training versprochen wird, der erwartet etwas
+        # anderes als das, was tatsaechlich passiert.
+        r"\b(?:an)?trainier\w*\b|\banlern\w*\b|\bLernphase\w*\b",
         re.IGNORECASE,
     ),
     # Schreibungsabhaengig: als deutsches Substantiv gross geschrieben.
@@ -563,11 +568,15 @@ class Beispiel(StrictResultModel):
 
 class Loesung(StrictResultModel):
     titel: Annotated[str, Field(min_length=1, max_length=120)]
+    # Bewusst weit ueber dem, was je gebraucht wird. Bei 180 schrieb das Modell
+    # bis genau an die Grenze und brach mitten im Wort ab - ein abgeschnittener
+    # Satz ist fuer den Kunden schlimmer als ein langer. Die Kuerze kommt aus
+    # dem Prompt (hoechstens fuenfzehn Woerter je Schritt), nicht von hier.
     ablauf_heute: list[
-        Annotated[str, Field(min_length=1, max_length=180)]
+        Annotated[str, Field(min_length=1, max_length=400)]
     ] = Field(min_length=3, max_length=6)
     ablauf_kuenftig: list[
-        Annotated[str, Field(min_length=1, max_length=180)]
+        Annotated[str, Field(min_length=1, max_length=400)]
     ] = Field(min_length=3, max_length=6)
     was_reinkommt: Annotated[str, Field(min_length=1, max_length=400)]
     was_die_ki_macht: Annotated[str, Field(min_length=1, max_length=700)]

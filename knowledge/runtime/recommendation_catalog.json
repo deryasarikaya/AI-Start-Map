@@ -623,7 +623,7 @@
         "erkennt, worum es dem Kunden überhaupt geht",
         "liest die wichtigen Angaben heraus: was, wann, wohin, wie viel",
         "hängt mitgeschickte Fotos und Dateien an die richtige Anfrage",
-        "erkennt, ob die Anfrage zu einem bestehenden Kunden gehört",
+        "erkennt, wenn mehrere Nachrichten zur selben Anfrage gehören",
         "führt mehrere Nachrichten zur selben Sache zusammen",
         "markiert, welche Angaben noch fehlen",
         "bereitet die passende Rückfrage vor",
@@ -1433,7 +1433,7 @@
       "ai_task": "Die KI bereitet Aufgaben vor und markiert fehlendes Material oder Widersprüche.",
       "ai_capabilities": [
         "erkennt, welches Material für einen Auftrag gebraucht wird",
-        "erkennt niedrigen Bestand",
+        "erkennt, wenn für einen Auftrag Material fehlt",
         "stellt die Einkaufsliste zusammen",
         "ordnet Lieferungen der Bestellung zu",
         "erkennt fehlende oder verspätete Lieferungen",

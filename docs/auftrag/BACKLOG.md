@@ -7,17 +7,78 @@ nichts verlorengeht und nichts zu früh angefangen wird.
 
 ---
 
-## Läuft gerade
+## Erledigt
 
-Prompt-Runde und Wortfilter sind durch. Offen bei Claude Code:
+Vertragsmigration, Ausbau Blöcke 0 bis 6, Abschlusslauf. 268 Tests grün.
+Vorher-Nachher-Vergleich liegt als `lauf_vorher.md` und `lauf_nachher.md` vor.
 
-1. Builder auf `conftest.spec_payload()` ziehen
-2. `test_output_contract_v3.py` neu aus den Abnahmebedingungen
-3. Committen und pushen
-4. Danach: `max_length` auf den Fließtextfeldern, damit das Zeitbudget von
-   240 wieder auf 180 kann
+Ein Befund daraus, der eine frühere Annahme widerlegt: Die Langsamkeit kam
+nicht von der Ausgabelänge, sondern davon, dass die Verbotsliste im Code und
+die im Prompt auseinandergelaufen waren. Das Modell wusste nicht, welche
+Wörter es vermeiden soll, schrieb sie, und die fertige Analyse wurde
+verworfen — jedes Mal eine komplette zweite Erzeugung. Die Liste steht jetzt
+einmal zentral und wird zur Laufzeit in den Prompt gegeben.
 
-**Bis das durch ist, kommt nichts Neues dazu.**
+---
+
+## Jetzt — vor dem Merge nach `main`
+
+### Ein Testfall, der auf „ordnung" landen muss
+
+Alle drei Fälle landen auf `reifestufe: genai`. Das ist für diese drei
+richtig — aber es heißt, dass dein eigentliches Alleinstellungsmerkmal
+ungetestet ist: „Hier hilft KI noch nicht, das musst du zuerst ordnen."
+
+`TESTFAELLE_ZIELGRUPPE.md` braucht einen Fall, der zwingend auf `ordnung`
+oder `digitalisierung` landet. Zum Beispiel ein Betrieb, der Aufträge
+telefonisch annimmt und nirgends festhält — es gibt schlicht keine digitale
+Spur, mit der eine KI arbeiten könnte.
+
+Ohne diesen Fall ist nicht belegt, dass das System den ehrlichen Ausgang
+überhaupt findet.
+
+### Eine austauschbare Überschrift
+
+„Wichtiges taucht erst bei der Rechnung auf" (Handwerksbetrieb) enthält
+weder Gegenstand noch Kanal dieses Falls und würde genauso auf den Fotografen
+passen. Fünf von sechs Überschriften sitzen, diese nicht.
+
+Prompt schärfen: Die Überschrift muss mindestens einen Gegenstand oder Kanal
+aus der Erzählung enthalten.
+
+### Abgeschnittener Satz im Ablauf
+
+Beim Blumenladen endet ein `ablauf_kuenftig`-Schritt auf „…und gewünschte/ü"
+— exakt bei 180 Zeichen, dem Deckel des Feldes. Das Modell schreibt bis an die
+Grenze.
+
+Ein Deckel ist hier das falsche Werkzeug. Er muss so hoch liegen, dass er nie
+erreicht wird; die Kürze kommt aus dem Prompt: „höchstens fünfzehn Wörter pro
+Schritt". Aktuell sieht ein Kunde einen mitten im Wort abgeschnittenen Satz.
+
+### Zuordnungstabelle Betriebstyp zu Betriebsart
+
+Derzeit finden nur `fotograf`, `blumenladen` und `hausmeisterservice` ihre
+Wissensdatei — die Zuordnung läuft über `business_example`. Die übrigen 21
+bekannten Typen laden nichts.
+
+Das war die richtige konservative Entscheidung (kein Nachbargewerbe raten),
+braucht aber eine ausdrückliche Liste, die Derya festlegt. Kein Raten, eine
+Tabelle:
+
+```
+A: hausmeisterservice, elektriker, maler, sanitaer, dachdecker,
+   reinigungsservice, mobiler_reparaturdienst, gartenpflege
+B: kfz_werkstatt, fahrradwerkstatt, schuhmacher, schneiderei
+C: friseur, kosmetik, massage, fitnessstudio, fahrschule, physiotherapie
+D: fotograf, architekturbuero, kreativagentur, kleine_agentur, freelancer,
+   designer
+E: blumenladen, konditorei, einzelhandel, onlinehandel, manufaktur, catering
+F: coach, mentor, berater, beratungsteam, virtuelle_assistenz
+G: hausverwaltung, immobilienmakler, kfz_gutachter, ferienwohnung
+```
+
+Was nicht in der Tabelle steht, lädt weiterhin nichts.
 
 ---
 
@@ -96,34 +157,27 @@ selbständig die KI arbeitet; die Reifestufe beschreibt, welche Art Lösung
 
 ---
 
-## Als Nächstes — je ein halber Tag
+## Als Nächstes
 
-### Darstellungsarten für den Beispielblock
+### Darstellungsart `liste` ist ungeprüft
 
-Feld `beispiel.darstellung` mit `nachricht | karte | liste`, später `dokument`.
-Das Modell wählt, das Template rendert. Entwurf liegt vor.
+Keiner der drei Fälle hat sie gewählt. Sie ist nur im Template-Test belegt,
+nie an echten Modelldaten. Zusätzlich weicht die Umsetzung von der Anweisung
+ab: Sie füllt die Zeilen aus `daraus_wird` (Beschriftung, Wert, Status), die
+Anweisung beschreibt eine echte Terminübersicht mit Zeit in fester Breite.
 
-**Warum:** Derselbe Inhalt in drei Formen statt einer grauen Feldtabelle. Eine
-Einsatznotiz sieht aus wie eine Notiz, eine Rückfrage wie eine Nachricht, eine
-Tagesübersicht wie eine Liste.
+Erst prüfen, wenn ein Fall sie tatsächlich wählt — etwa ein Terminbetrieb.
 
-### Zweispalter heute gegen künftig
+### Interviewpfad für das Betriebsartenwissen
 
-`ablauf_heute` und `ablauf_kuenftig` nebeneinander statt untereinander, in
-getönten Flächen.
+Die Tabelle in `BRANCHENWISSEN.md` sieht vor, dass der Interview-Agent
+`diagnostically_relevant_questions`, `typical_exceptions` und
+`required_information` bekommt. Nicht verkabelt, weil der Betriebstyp erst in
+der Klassifikation während der Analyse entsteht — davor ist er unbekannt.
 
-### Stylesheet-Runde
-
-Reine `styles.css`-Arbeit, keine Logik:
-- Übergänge auf Kacheln beim Überfahren
-- sanftes Einblenden beim Scrollen
-- Statuspunkte in Farbe
-- `moeglichkeiten` als Kacheln statt Textzeilen
-
-### Dritte Betriebsart-Datei
-
-`D_project_briefing_approval` für den Fotografen. Struktur steht, `E` und `A`
-liegen als Vorlage vor.
+Der Lader und die Feldliste stehen fertig in `business_patterns.py`, nur der
+Aufruf fehlt. Braucht einen zusätzlichen Modellaufruf im Interview. Eigene
+Entscheidung, eigener Aufwand.
 
 ### Erwartungen pro Prozess statt pro Fall
 

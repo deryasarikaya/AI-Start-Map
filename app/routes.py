@@ -1624,10 +1624,15 @@ def _generate_and_persist_final_analysis(
         recommendation_context["software_not_ai"] = list(
             recommendation_catalog.software_not_ai
         )
-        # Branchenwissen, auf die Endanalyse zugeschnitten. Passt keine
-        # Betriebsart eindeutig, bleibt es leer - kein Nachbargewerbe.
+        # Branchenwissen, auf die Endanalyse zugeschnitten. Die Betriebsart
+        # haengt am gewaehlten Prozess, nicht am Unternehmen - der Betriebstyp
+        # ist nur der Hinweis. Passt nichts eindeutig, bleibt es leer.
         recommendation_context["branchenwissen"] = pattern_context(
-            business_type, fields=FINAL_ANALYSIS_FIELDS
+            business_type,
+            fields=FINAL_ANALYSIS_FIELDS,
+            selected_process=" ".join(
+                str(wert) for wert in _process_payload(process).values() if wert
+            ),
         )
         recommendation_context["failure_guardrails"] = [
             {
