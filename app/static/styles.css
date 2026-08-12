@@ -15,6 +15,17 @@
     --radius-sm: .7rem;
     --radius: 1rem;
     --radius-lg: 1.25rem;
+    /* Semantische Ebene ueber der Palette. Die Ergebnisdarstellung benennt
+       Bedeutung statt Farbe, damit sich die Palette aendern laesst. */
+    --text-primary: var(--text);
+    --text-secondary: var(--muted);
+    --border-strong: #b9c3bc;
+    --text-success: #1f5b46;
+    --bg-success: var(--green-soft);
+    --text-danger: #a2452c;
+    --bg-danger: #fbe9e2;
+    --text-warning: #7d5a12;
+    --bg-warning: #fbf1d8;
 }
 
 * { box-sizing: border-box; }
@@ -362,3 +373,62 @@ input:focus, textarea:focus { border-color: var(--green); }
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
+
+/* ---------------------------------------------------------------------------
+   Ergebnisdarstellung: drei Beispielformen, Zweispalter, Moeglichkeitskacheln
+   --------------------------------------------------------------------------- */
+
+.example-hint { margin: 0 0 .75rem; font-size: .8125rem; color: var(--text-secondary); }
+
+/* nachricht — Sprechblasen, abwechselnd */
+.example-thread { display: flex; flex-direction: column; gap: .6rem; }
+.example-turn { display: flex; flex-direction: column; max-width: 82%; }
+.example-turn.incoming { align-self: flex-start; align-items: flex-start; }
+.example-turn.reply { align-self: flex-end; align-items: flex-end; }
+.example-speaker { margin: 0 0 .2rem; font-size: .75rem; color: var(--text-secondary); }
+.example-bubble { margin: 0; padding: .6rem .8rem; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; }
+.example-turn.incoming .example-bubble { border-bottom-left-radius: 4px; }
+.example-turn.reply .example-bubble { background: var(--bg-success); border-color: var(--bg-success); color: var(--text-success); border-bottom-right-radius: 4px; }
+.example-note { margin: .5rem 0 0; font-size: .8125rem; color: var(--text-secondary); }
+
+/* karte — umrandeter Block mit Feldtabelle */
+.example-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.example-card-head { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .6rem .85rem; }
+.example-card-head h4 { margin: 0; font-size: .9375rem; font-weight: 500; }
+.example-fields { margin: 0; padding: .3rem .85rem .6rem; border-top: 1px solid var(--border); display: grid; grid-template-columns: 38% 1fr; column-gap: .75rem; }
+.example-fields dt { padding: .3rem 0; font-size: .8125rem; color: var(--text-secondary); }
+.example-fields dd { margin: 0; padding: .3rem 0; color: var(--text-primary); }
+.example-card-foot { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; padding: .55rem .85rem; border-top: 1px solid var(--border); font-size: .8125rem; }
+.example-card-foot .missing { color: var(--text-danger); }
+.example-card-foot .approval { color: var(--text-secondary); white-space: nowrap; }
+
+/* liste — Zeilen mit Statuspille */
+.example-list { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.example-list-head { padding: .6rem .85rem; font-size: .9375rem; font-weight: 500; }
+.example-row { display: flex; align-items: baseline; gap: .75rem; padding: .5rem .85rem; border-top: 1px solid var(--border); }
+.example-row .when { min-width: 8.5rem; font-size: .8125rem; color: var(--text-secondary); }
+.example-row .what { flex: 1; }
+
+.status-pill { display: inline-block; padding: .1rem .5rem; border-radius: 999px; font-size: .75rem; white-space: nowrap; }
+.status-pill.ready { background: var(--bg-success); color: var(--text-success); }
+.status-pill.missing { background: var(--bg-danger); color: var(--text-danger); }
+.status-pill.check { background: var(--bg-warning); color: var(--text-warning); }
+
+/* Zweispalter heute gegen kuenftig */
+.flow-compare-columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.flow-side { padding: .85rem; border-radius: 12px; }
+.flow-side.today { background: var(--bg-danger); }
+.flow-side.future { background: var(--bg-success); }
+.flow-side h3 { margin: 0 0 .5rem; font-size: .75rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+.flow-side.today h3 { color: var(--text-danger); }
+.flow-side.future h3 { color: var(--text-success); }
+.flow-side ol { margin: 0; padding: 0; list-style: none; counter-reset: flowstep; }
+.flow-side li { counter-increment: flowstep; padding: .3rem 0 .3rem 1.6rem; position: relative; font-size: .9375rem; }
+.flow-side li::before { content: counter(flowstep); position: absolute; left: 0; top: .35rem; font-size: .75rem; color: var(--text-secondary); }
+
+/* Moeglichkeiten als Kacheln */
+.opportunity-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
+.opportunity-tile { background: var(--surface); border: .5px solid var(--border); border-radius: 12px; padding: .85rem; }
+.opportunity-tile .rank { margin: 0 0 .35rem; font-size: .6875rem; letter-spacing: .06em; text-transform: uppercase; color: var(--text-secondary); }
+.opportunity-tile h3 { margin: 0 0 .3rem; font-size: 15px; font-weight: 500; }
+.opportunity-tile p { margin: 0; font-size: 13px; color: var(--text-secondary); }

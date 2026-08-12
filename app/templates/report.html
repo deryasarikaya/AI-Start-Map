@@ -27,7 +27,7 @@
         <section class="report-opportunities" aria-labelledby="report-opportunities-title">
             <p class="section-kicker">WO ARBEIT WEGFÄLLT</p>
             <h2 id="report-opportunities-title">Hier lässt sich Arbeit rausnehmen</h2>
-            <ol class="report-opportunity-list">{% for item in result.moeglichkeiten %}<li><strong>{% if item.rang == 'groesster_hebel' %}Größter Hebel{% elif item.rang == 'danach' %}Danach{% else %}Später{% endif %} — {{ item.titel }}</strong><p>{{ item.begruendung }}</p></li>{% endfor %}</ol>
+            <ol class="opportunity-tiles">{% for item in result.moeglichkeiten %}<li class="opportunity-tile"><p class="rank">{% if item.rang == 'groesster_hebel' %}Größter Hebel{% elif item.rang == 'danach' %}Danach{% else %}Später{% endif %}</p><h3>{{ item.titel }}</h3><p>{{ item.begruendung }}</p></li>{% endfor %}</ol>
         </section>
         {% endif %}
 
@@ -44,18 +44,35 @@
 
         <section class="report-compare" aria-labelledby="report-compare-title">
             <h2 id="report-compare-title" class="visually-hidden">Heute und nach der Einrichtung</h2>
-            <div class="report-compare-columns">
-                <div><p class="section-kicker">HEUTE</p><ol class="report-flow">{% for step in result.loesung.ablauf_heute %}<li><span>{{ loop.index }}</span><p>{{ step }}</p></li>{% endfor %}</ol></div>
-                <div><p class="section-kicker">NACH DER EINRICHTUNG</p><ol class="report-flow">{% for step in result.loesung.ablauf_kuenftig %}<li><span>{{ loop.index }}</span><p>{{ step }}</p></li>{% endfor %}</ol></div>
+            <div class="flow-compare-columns">
+                <div class="flow-side today"><h3>So läuft es heute</h3><ol>{% for step in result.loesung.ablauf_heute %}<li>{{ step }}</li>{% endfor %}</ol></div>
+                <div class="flow-side future"><h3>Nach der Einrichtung</h3><ol>{% for step in result.loesung.ablauf_kuenftig %}<li>{{ step }}</li>{% endfor %}</ol></div>
             </div>
         </section>
 
         {% if result.beispiel %}
         <section class="report-sample customer-example-block" data-customer-example-block aria-labelledby="report-output-title">
             <div class="report-title-row"><div><p class="section-kicker">BEISPIEL</p><h3 id="report-output-title">{{ result.beispiel.titel }}</h3></div><span class="preview-badge">{{ result.loesung.ergebnis_art }}</span></div>
-            <p class="preview-notice">{{ result.beispiel.hinweis }}</p>
-            <div class="report-sample-story"><section><p class="sample-story-label">So kommt es heute bei dir an{% if result.beispiel.kanal %} — {{ result.beispiel.kanal }}{% endif %}</p><blockquote>{{ result.beispiel.nachricht }}</blockquote></section>{% if result.beispiel.daraus_wird %}<section><p class="sample-story-label">Das macht die KI daraus</p><dl>{% for feld in result.beispiel.daraus_wird %}<dt>{{ feld.label }}</dt><dd>{{ feld.wert }}</dd>{% endfor %}</dl></section>{% endif %}</div>
-            {% if result.beispiel.fehlt or result.beispiel.rueckfrage %}<div class="sample-missing"><p class="sample-story-label">Das fehlt noch</p>{% if result.beispiel.fehlt %}<p>{{ result.beispiel.fehlt|join(' · ') }}</p>{% endif %}{% if result.beispiel.rueckfrage %}<p><strong>Vorbereitete Rückfrage:</strong> „{{ result.beispiel.rueckfrage }}“</p>{% endif %}</div>{% endif %}
+            <p class="example-hint">{{ result.beispiel.hinweis }}</p>
+            {% if result.beispiel.darstellung == 'nachricht' %}
+            <div class="example-thread">
+                <div class="example-turn incoming"><p class="example-speaker">{{ result.beispiel.kanal }} · Kundennachricht</p><blockquote class="example-bubble">{{ result.beispiel.nachricht }}</blockquote></div>
+                {% if result.beispiel.rueckfrage %}<div class="example-turn reply"><p class="example-speaker">Vorbereitet für dich</p><blockquote class="example-bubble">{{ result.beispiel.rueckfrage }}</blockquote></div>{% endif %}
+            </div>
+            {% elif result.beispiel.darstellung == 'liste' %}
+            <div class="example-list">
+                <p class="example-list-head">{{ result.loesung.ergebnis_art }}</p>
+                {% for feld in result.beispiel.daraus_wird %}<div class="example-row"><span class="when">{{ feld.label }}</span><span class="what">{{ feld.wert }}</span><span class="status-pill ready">bereit</span></div>{% endfor %}
+                {% for eintrag in result.beispiel.fehlt %}<div class="example-row"><span class="when">{{ eintrag }}</span><span class="what">noch offen</span><span class="status-pill missing">fehlt</span></div>{% endfor %}
+            </div>
+            {% else %}
+            <div class="example-card">
+                <div class="example-card-head"><h4>{{ result.loesung.ergebnis_art }}</h4><span class="status-pill check">zu prüfen</span></div>
+                {% if result.beispiel.daraus_wird %}<dl class="example-fields">{% for feld in result.beispiel.daraus_wird %}<dt>{{ feld.label }}</dt><dd>{{ feld.wert }}</dd>{% endfor %}</dl>{% endif %}
+                {% if result.beispiel.fehlt %}<div class="example-card-foot"><span class="missing">Fehlt noch: {{ result.beispiel.fehlt|join(' · ') }}</span><span class="approval">geht erst nach deiner Freigabe raus</span></div>{% endif %}
+            </div>
+            {% endif %}
+            <p class="example-note">So kam es an ({{ result.beispiel.kanal }}): „{{ result.beispiel.nachricht }}“{% if result.beispiel.rueckfrage %} — vorbereitete Rückfrage: „{{ result.beispiel.rueckfrage }}“{% endif %}</p>
         </section>
         {% endif %}
     </section>

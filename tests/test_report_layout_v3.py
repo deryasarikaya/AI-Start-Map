@@ -33,7 +33,7 @@ def test_report_contains_exactly_the_two_approved_pages() -> None:
         "Das ist der Engpass",
         "WO ARBEIT WEGFÄLLT",
         "SO WÜRDE DEINE LÖSUNG AUSSEHEN",
-        "NACH DER EINRICHTUNG",
+        "Nach der Einrichtung",
         "BEISPIEL",
         "Das behältst du, das kommt dazu",
         "Was ich dafür einrichte",

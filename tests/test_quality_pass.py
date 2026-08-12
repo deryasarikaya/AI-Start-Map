@@ -456,7 +456,7 @@ def test_shoe_repair_quality_flow_contains_only_grounded_current_steps(
         assert forbidden not in lower_text
     assert "Beim Vorbereiten schaust du jedes Mal in mehreren Chats" in result_text
     assert "Kunden nach Fertigmeldung benachrichtigen" not in result_text
-    assert "NACH DER EINRICHTUNG" in result_text
+    assert "Nach der Einrichtung" in result_text
     assert database_session.scalar(
         select(func.count())
         .select_from(AutomationOpportunity)

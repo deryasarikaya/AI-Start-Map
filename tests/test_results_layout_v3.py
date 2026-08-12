@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import pytest
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from app.schemas import customer_plain_text
@@ -31,7 +32,7 @@ def test_results_follow_the_binding_section_order() -> None:
         "So habe ich deinen heutigen Ablauf verstanden",  # 2 heute
         "Hier lässt sich Arbeit aus deinem Ablauf nehmen",  # 3 moeglichkeiten
         "SO WÜRDE DEINE LÖSUNG AUSSEHEN",                # 4 loesung
-        "NACH DER EINRICHTUNG",                          # 4b Vergleich
+        "Nach der Einrichtung",                          # 4b Vergleich
         "DEIN KONKRETES ERGEBNIS",                       # 5 beispiel
         "Das behältst du, das kommt dazu",               # 6 voraussetzungen
         "Das würde ich für dich bauen oder verbinden",   # 7 umsetzung
@@ -67,6 +68,59 @@ def test_later_rank_is_shown_once_and_not_as_its_own_block() -> None:
     html = _render(view)
     assert html.count("Bestätigte Anfragen übergeben") == 1
     assert html.count(">Später<") == 1
+
+
+@pytest.mark.parametrize(
+    ("form", "marker"),
+    [
+        ("nachricht", "example-thread"),
+        ("karte", "example-card"),
+        ("liste", "example-list"),
+    ],
+)
+def test_each_presentation_type_renders_its_own_shape(form: str, marker: str) -> None:
+    """Die Form richtet sich nach beispiel.darstellung, nicht nach dem Muster."""
+
+    view = spec_view()
+    view["beispiel"] = {**view["beispiel"], "darstellung": form}
+    html = _render(view)
+    assert marker in html
+    for fremd in {"example-thread", "example-card", "example-list"} - {marker}:
+        assert fremd not in html
+
+
+def test_the_message_form_shows_incoming_and_prepared_reply() -> None:
+    view = spec_view()
+    view["beispiel"] = {**view["beispiel"], "darstellung": "nachricht"}
+    html = _render(view)
+    assert html.count("example-bubble") == 2
+    assert "incoming" in html and "reply" in html
+
+
+def test_the_list_form_marks_missing_details_as_missing() -> None:
+    view = spec_view()
+    view["beispiel"] = {**view["beispiel"], "darstellung": "liste"}
+    html = _render(view)
+    assert "status-pill missing" in html
+    assert "status-pill ready" in html
+
+
+def test_today_and_future_stand_side_by_side() -> None:
+    html = _render(spec_view())
+    assert "flow-compare-columns" in html
+    assert "flow-side today" in html
+    assert "flow-side future" in html
+
+
+def test_opportunities_render_as_tiles_without_padding_the_list() -> None:
+    view = spec_view()
+    view["moeglichkeiten"] = [
+        {"rang": "groesster_hebel", "titel": "Ein Eingang für alles",
+         "begruendung": "Hier geht die meiste Zeit verloren."},
+    ]
+    html = _render(view)
+    assert "opportunity-tiles" in html
+    assert html.count("opportunity-tile ") == 1
 
 
 def test_example_values_stay_inside_the_marked_block() -> None:
