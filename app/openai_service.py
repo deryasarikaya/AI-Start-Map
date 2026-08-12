@@ -11,7 +11,7 @@ from time import perf_counter
 from typing import TypeVar
 
 from dotenv import load_dotenv
-from openai import OpenAI, OpenAIError
+from openai import APITimeoutError, OpenAI, OpenAIError
 from pydantic import BaseModel, ValidationError
 
 from app.schemas import (
@@ -55,12 +55,12 @@ class AIServiceError(RuntimeError):
 StructuredResult = TypeVar("StructuredResult", bound=BaseModel)
 logger = logging.getLogger(__name__)
 OPENAI_REQUEST_TIMEOUT_SECONDS = 45.0
-# Bleibt bei 240. Gemessen am Handwerksfall (der inhaltsreichsten der drei
-# Erzaehlungen), je ohne Doppelerzeugung: 84,7 s und 207,1 s. Die Streuung
-# kommt von der API, nicht von der Ausgabelaenge - die Fliesstextfelder liegen
-# deutlich unter ihren Deckeln. 180 waere damit ein reproduzierbarer
-# Fehlschlag, und ein Fehlschlag wiegt schwerer als eine Minute Wartezeit.
-FINAL_ANALYSIS_TIMEOUT_SECONDS = 240.0
+# Die Streuung kommt von der API, nicht von der Eingabe- oder Ausgabelaenge.
+# Kontrolliert am Handwerksfall gemessen: mit Wissensdatei 87,1 s bei 4933
+# Zeichen Kundentext, ohne Wissensdatei 245,3 s bei 5309 Zeichen. Der Lauf mit
+# der groesseren Eingabe war dreimal schneller und erzeugte weniger Text.
+# Derselbe Fall lief an anderer Stelle in 89,3 s und in 289,7 s.
+FINAL_ANALYSIS_TIMEOUT_SECONDS = 300.0
 OPENAI_RETRIEVAL_TIMEOUT_SECONDS = 6.0
 _openai_call_count: contextvars.ContextVar[int] = contextvars.ContextVar(
     "openai_call_count",
@@ -464,6 +464,16 @@ def _parse_structured_output(
     ) from last_error
 
 
+def _was_timeout(error: BaseException | None) -> bool:
+    """Ob ein Fehlschlag auf einen Zeitablauf zurueckgeht."""
+
+    while error is not None:
+        if isinstance(error, APITimeoutError):
+            return True
+        error = error.__cause__
+    return False
+
+
 COMMON_GROUNDING_RULES = """
 Du unterstützt eine Prozessdiagnose für ein kleines Unternehmen. Verwende nur die
 als Nutzerangaben markierten Inhalte als Fakten über diesen Betrieb. Die
@@ -813,11 +823,25 @@ def generate_final_analysis(
             ),
         }
 
-    result = _parse_structured_output(
-        system_prompt=_endanalyse_system_prompt(),
-        payload=payload,
-        result_type=FinalAnalysisResult,
-    )
+    # Ein Zeitablauf bekommt genau einen zweiten Versuch mit frischem Budget.
+    # Die Laufzeit desselben Falls schwankt gemessen zwischen 87 und 290
+    # Sekunden, ohne dass sich Eingabe oder Ausgabe unterscheiden - ein
+    # Fehlschlag daran ist kein Code-, sondern ein Laufzeitproblem.
+    try:
+        result = _parse_structured_output(
+            system_prompt=_endanalyse_system_prompt(),
+            payload=payload,
+            result_type=FinalAnalysisResult,
+        )
+    except AIServiceError as error:
+        if _quality_retry or not _was_timeout(error):
+            raise
+        logger.warning("final_analysis.timeout_retry")
+        result = _parse_structured_output(
+            system_prompt=_endanalyse_system_prompt(),
+            payload=payload,
+            result_type=FinalAnalysisResult,
+        )
     result = _apply_safety_contract(result, recommendation_context)
     result = _validate_final_grounding(result, answers, selected_process)
 

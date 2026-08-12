@@ -79,7 +79,27 @@ def test_follow_up_payload_is_normalized_to_today_without_repair_call() -> None:
 
 
 def test_final_analysis_allows_two_medium_reasoning_attempts() -> None:
-    assert openai_service.FINAL_ANALYSIS_TIMEOUT_SECONDS == 240.0
+    assert openai_service.FINAL_ANALYSIS_TIMEOUT_SECONDS == 300.0
+
+
+def test_a_timeout_gets_one_more_attempt_with_a_fresh_budget() -> None:
+    """Die Laufzeit desselben Falls schwankt zwischen 87 und 290 Sekunden.
+
+    Ein Fehlschlag daran ist kein Code-, sondern ein Laufzeitproblem — also
+    genau ein zweiter Versuch, und nur bei Zeitablauf.
+    """
+
+    import httpx
+    from openai import APITimeoutError
+
+    zeitablauf = openai_service.AIServiceError("abgelaufen")
+    zeitablauf.__cause__ = APITimeoutError(request=httpx.Request("POST", "http://x"))
+    assert openai_service._was_timeout(zeitablauf)
+
+    anderer = openai_service.AIServiceError("etwas anderes")
+    anderer.__cause__ = ValueError("kein Zeitablauf")
+    assert not openai_service._was_timeout(anderer)
+    assert not openai_service._was_timeout(None)
 
 
 def _fact(value: str) -> FactRecord:

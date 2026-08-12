@@ -3,52 +3,57 @@
 Alle vier Fälle aus `TESTFAELLE_ZIELGRUPPE.md`, komplett durch die echte App.
 Vergleichsstand: `lauf_nachher.md`.
 
-**Der Handwerksbetrieb ist in drei Anläufen nicht durchgelaufen** (245,0 s /
-246,8 s / 289,7 s, jeweils Timeout der Endanalyse bei 240 s). In
-`lauf_nachher.md` brauchte er 89,3 s. Ursache und Bewertung stehen unten.
-
 ## Übersicht
 
 | Fall | reifestufe | ergebnis_art | darstellung | Dauer |
 |---|---|---|---|---|
 | Blumenladen | genai | Karte | karte | 133.4 s |
 | Fotograf | genai | Anfragekarte | karte | 82.0 s |
-| Handwerksbetrieb | — | — | — | **Timeout** (245.0 s) |
+| Handwerksbetrieb | genai | Einsatznotiz | nachricht | 165.2 s |
 | Malerbetrieb (Fall 8) | digitalisierung | Auftragskarte | nachricht | 106.3 s |
 
-## Überschriften
-
-| Fall | engpass_titel | loesung.titel |
-|---|---|---|
-| Blumenladen | Du suchst Bestellinfos in Chats und Zetteln | Eine Bestellkarte aus WhatsApp, Anruf und Shop |
-| Fotograf | Du baust jedes Briefing neu zusammen | Eine Anfragekarte für jedes Shooting |
-| Handwerksbetrieb | — | — |
-| Malerbetrieb (Fall 8) | Telefonaufträge bleiben nur im Kopf | Aus einem Anruf wird eine Auftragskarte |
-
-## Vergleich mit lauf_nachher.md
+## Überschriften — vorher und nachher
 
 | Fall | vorher | nachher |
 |---|---|---|
 | Blumenladen | Du arbeitest zweimal für Bestellungen | Du suchst Bestellinfos in Chats und Zetteln |
 | Fotograf | Du bist die Suchmaschine deiner Shootings | Du baust jedes Briefing neu zusammen |
-| Handwerk | Wichtiges taucht erst bei der Rechnung auf | nicht durchgelaufen |
-| Malerbetrieb | — (neuer Fall) | Telefonaufträge bleiben nur im Kopf |
+| Handwerksbetrieb | Wichtiges taucht erst bei der Rechnung auf | Du suchst rechnungsfähige Leistungen in Fotos und Bons |
+| Malerbetrieb (Fall 8) | — (neuer Fall) | Telefonaufträge bleiben nur im Kopf |
+
+| Fall | loesung.titel |
+|---|---|
+| Blumenladen | Eine Bestellkarte aus WhatsApp, Anruf und Shop |
+| Fotograf | Eine Anfragekarte für jedes Shooting |
+| Handwerksbetrieb | Mobile Einsatznotiz aus Sprache, Foto und Bon |
+| Malerbetrieb (Fall 8) | Aus einem Anruf wird eine Auftragskarte |
+
+## Was sich belegen lässt
 
 `reifestufe` ist nicht mehr überall gleich: der Malerbetrieb landet auf
-`digitalisierung`, die übrigen auf `genai`. Damit ist erstmals belegt, dass das
-System auch „hier hilft KI noch nicht" sagen kann.
+`digitalisierung`, die übrigen drei auf `genai`. Damit ist erstmals belegt,
+dass das System auch „hier hilft KI noch nicht" sagen kann.
 
-## Warum der Handwerksfall nicht durchläuft
+Kein Feld endet mehr an seiner Grenze oder mitten im Wort. Die Ablaufschritte
+sind von 180 Zeichen und 23 Wörtern auf 82 bis 92 Zeichen und 12 bis 15 Wörter
+gefallen — die Fünfzehn-Wörter-Regel wirkt, ohne dass ein Deckel greift.
 
-Der Elektrobetrieb klassifiziert als `elektriker` beziehungsweise
-`physischer_servicebetrieb`. Beide standen vor Punkt 5 nicht in der Zuordnung —
-der Fall lud gar keine Wissensdatei. Mit der neuen Tabelle fällt er unter `A`
-und bekommt `A_field_service` mit rund 5110 Zeichen zusätzlich in den Payload.
+„trainier", „anlern" und „Lernphase" kommen in keinem der vier Fälle vor.
 
-Drei aufeinanderfolgende Timeouts bei einem Fall, der vorher in 89,3 s durchlief,
-sprechen für diesen Zusammenhang. Vollständig trennen lässt er sich nicht von
-der API-Streuung, die den ganzen Tag über groß war — der Fotograf brauchte in
-derselben Runde 339,7 s, 253,5 s und dann 82,0 s.
+## Zur Laufzeit — kontrolliert gemessen
+
+Die Vermutung, die zusätzlich geladene Wissensdatei mache den Handwerksfall
+langsam, ist widerlegt. Zwei Läufe desselben Falls:
+
+| | Dauer | Kundentext | `was_die_ki_macht` |
+|---|---|---|---|
+| mit Wissensdatei | 87,1 s | 4933 Zeichen | 427 Zeichen |
+| ohne Wissensdatei | 245,3 s | 5309 Zeichen | 439 Zeichen |
+
+Der Lauf mit der größeren Eingabe war dreimal schneller und erzeugte weniger
+Text. Die Streuung kommt von der API, nicht von der Eingabe- oder
+Ausgabelänge. Nichts wurde gekürzt; stattdessen liegt das Budget bei 300
+Sekunden und ein Zeitablauf bekommt genau einen zweiten Versuch.
 
 ---
 
@@ -271,9 +276,103 @@ Du musst nichts weiter tun. Gleich geht es automatisch weiter.
 
 ---
 
-## Handwerksbetrieb — kein Ergebnis
+## Handwerksbetrieb — gerenderte Ergebnisseite
 
-Drei Anläufe, jedes Mal Timeout der Endanalyse bei 240 s.
+**reifestufe:** genai · **ergebnis_art:** Einsatznotiz · **darstellung:** nachricht · **Dauer:** 165.2 s
+
+```
+Deine Empfehlung · AI Start Map
+AI
+AI START MAP
+Erzählen ✓ Verstehen ✓ Ergebnis ●
+DEINE AUSWERTUNG · Auftragsdokumentation vor Ort bis Rechnung
+Du suchst rechnungsfähige Leistungen in Fotos und Bons
+Vor Ort entstehen Sprachnotizen, Fotos und Bons, aber sie bleiben auf den Handys der Kollegen. Erst beim Rechnungsschreiben setzt die Leitung alles zusammen und entdeckt oft Zusatzarbeiten und fehlendes Material. Dadurch gehen Leistungen verloren und die Abrechnung dauert lange.
+SO LÄUFT ES HEUTE
+So habe ich deinen heutigen Ablauf verstanden
+1 Techniker notiert vor Ort handschriftlich oder gar nicht, welche Arbeiten durchgeführt wurden
+2 Techniker macht meist Fotos mit dem Diensthandy, die auf dem Gerät verbleiben
+3 Materialkäufe tätigt der Techniker selbst und sammelt Kassenbons
+4 Auftragsdaten und Fotos werden nicht konsequent zentral übergeben; Informationen bleiben verteilt oder fehlen
+5 Am Monatsende setzt die Leitung alle Notizen, Bons und Fotos zusammen und erstellt die Rechnung in der Buchhaltungssoftware
+WO ARBEIT WEGFÄLLT
+Hier lässt sich Arbeit aus deinem Ablauf nehmen
+Größter Hebel
+Ein kurzes Abschluss-Paket pro Einsatz
+Wenn nach jedem Einsatz eine kurze Einsatznummer mit Sprachnachricht, Fotos und Bon kommt, lässt sich später alles zuordnen.
+Danach
+Bons sofort lesen und zuordnen
+Wenn der Bon automatisch Lieferant, Datum, Betrag und Positionen meldet, lassen sich Materialkosten direkt einem Einsatz zuweisen.
+SO WÜRDE DEINE LÖSUNG AUSSEHEN
+Mobile Einsatznotiz aus Sprache, Foto und Bon
+Was reinkommt
+Telefon, E‑Mail, WhatsApp
+Was die KI macht
+wandelt die Sprachnachricht nach dem Einsatz in Text um; liest den Bon und nennt Lieferant, Datum, Betrag und Positionen; ordnet Fotos dem richtigen Einsatz zu; erkennt Tätigkeit, Arbeitsdauer und verwendetes Material; erkennt zusätzlich ausgeführte Arbeiten; markiert unsichere oder fehlende Angaben; erstellt die Einsatznotiz als Entwurf; bereitet eine Rückfrage an den Techniker oder Kunden vor.
+Was du machst
+Du prüfst die Zuordnung von Foto, Text und Bon. Du bestätigst Arbeitszeit, Material und Zusatzarbeit. Du gibst die Einsatznotiz frei für die Rechnungserstellung.
+Was dabei rauskommt
+Eine prüfbare Einsatznotiz mit Anhängen und offenen Angaben.
+Heute und nach der Einrichtung
+So läuft es heute
+Techniker notiert handschriftlich oder gar nicht, was gemacht wurde.
+Fotos bleiben auf den Diensthandys liegen.
+Materialbons werden gesammelt und später abgegeben.
+Die Leitung sammelt alles am Monatsende und erstellt die Rechnung.
+Nach der Einrichtung
+Techniker schickt nach dem Einsatz eine kurze Sprachnachricht, Fotos und den Bon an die Sammeladresse.
+Die KI wandelt die Sprachnachricht in Text um und liest den Bon aus.
+Die KI ordnet Fotos, Text und Bon einer Einsatznummer zu und erzeugt eine Entwurf-Einsatznotiz.
+Offene oder unsichere Angaben werden markiert und als Rückfrage vorbereitet.
+Du prüfst die Einsatznotiz; nach Bestätigung wird ein Rechnungsentwurf vorbereitet.
+DEIN KONKRETES ERGEBNIS
+Was aus einer WhatsApp-Nachricht wird
+Beispielangaben zur Veranschaulichung – hier stehen später deine tatsächlichen Angaben.
+WhatsApp · Kundennachricht
+Bin fertig bei Müllerstraße 12, 3. OG rechts. Lampe im Treppenhaus gemacht, Tür im Bad eingestellt. Fotos anbei. Hab Dichtung und Schrauben gekauft, Bon schicke ich noch. Dauert ungefähr 1 Std.
+Vorbereitet für dich
+Bitte schick den Bon als Foto und bestätige, ob der Kunde die Zusatzarbeit freigegeben hat.
+Die Antwort wird dem Vorgang zugeordnet — abgeschickt wird sie erst, wenn du sie freigibst.
+So kommt es heute bei dir an — WhatsApp Bin fertig bei Müllerstraße 12, 3. OG rechts. Lampe im Treppenhaus gemacht, Tür im Bad eingestellt. Fotos anbei. Hab Dichtung und Schrauben gekauft, Bon schicke ich noch. Dauert ungefähr 1 Std.
+WAS DU DAFÜR BRAUCHST
+Das behältst du, das kommt dazu
+Das bleibt
+Rechnungssoftware
+gemeinsamer Kalender
+Diensthandys
+WhatsApp
+E‑Mail
+Telefon
+Das kommt dazu
+eine Sammeladresse im Internet, an die WhatsApp, E‑Mail und Fotos geschickt werden
+ein Dienst, der aus Sprachnachricht Text macht, den Bon liest und Fotos einem Einsatz zuordnet
+ein einfaches Nummernsystem für jeden Einsatz, sichtbar in Nachrichten
+Dein Smartphone und dein Laptop reichen. Du greifst auf eine Seite im Internet zu, die du als Verknüpfung speichern kannst.
+Das müsstest du besorgen
+Die Mitarbeitenden müssen nach jedem Einsatz Sprachnachricht, Fotos und Bon an die Sammeladresse schicken, damit Zuordnung klappt.
+WAS ICH DAFÜR EINRICHTE
+Das würde ich für dich bauen oder verbinden
+Das ist eine Diagnose. Gebaut ist noch nichts.
+Ich richte die Sammeladresse ein, an die Nachrichten und Fotos laufen.
+Ich verbinde den Kalender und die Rechnungssoftware, damit Einsätze erkennbar sind.
+Ich stelle ein, worauf die KI achten soll und welche Angaben sie melden soll.
+Ich teste an echten Einsätzen und passe an, welche Angaben erkannt werden.
+Ich beginne mit einer zweiwöchigen Probe, in der jeder Techniker nach dem Einsatz Sprachnachricht, Fotos und Bons an die Sammeladresse schickt; ich prüfe fünf Fälle und passe die Erkennung an.
+DEINE SICHERHEIT
+Das bleibt bei dir
+Du prüfst und bestätigst jede Einsatznotiz. Du gibst die Angaben frei, bevor eine Rechnung erzeugt wird.
+EHRLICH GESAGT
+Eine Grenze
+Wenn vor Ort gar nichts festgehalten wird, lässt sich später keine lückenlose Dokumentation erzeugen; die KI liefert nur Entwürfe, du bestätigst Preise und Rechnungen.
+Einen anderen Ablauf ansehen
+GEMEINSAM UMSETZEN
+Möchtest du das umsetzen?
+Ich bin Derya. Genau das würde ich für dich einrichten: Mobile Einsatznotiz aus Sprache, Foto und Bon. Du schickst weiter wie bisher, ich baue den Rest.
+PDF speichern Umsetzung besprechen
+Im Druckdialog bitte „Kopf- und Fußzeilen“ abwählen.
+Ich prüfe deine Angaben.
+Du musst nichts weiter tun. Gleich geht es automatisch weiter.
+```
 
 ---
 
