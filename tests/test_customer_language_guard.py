@@ -223,13 +223,8 @@ def test_old_slogan_and_wrong_name_are_absent_from_tracked_files() -> None:
         check=False,
         text=True,
     )
-    # docs/auftrag/ ist ausgenommen: dort steht die Schreibweise ausdruecklich
-    # als Gegenbeispiel in der Regel, die sie verbietet.
     wrong_name = subprocess.run(
-        [
-            "git", "grep", "-ni", "-w", "Da" + "ria",
-            "--", ":(exclude)docs/auftrag",
-        ],
+        ["git", "grep", "-ni", "-w", "Da" + "ria"],
         cwd=ROOT,
         capture_output=True,
         check=False,
