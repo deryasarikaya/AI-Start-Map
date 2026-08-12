@@ -21,6 +21,7 @@ from app.schemas import (
     ProcessSuggestion,
     ProcessSuggestionResult,
 )
+from tests.conftest import spec_payload
 
 
 @pytest.fixture(autouse=True)
@@ -118,12 +119,15 @@ def _shoe_answers() -> dict[str, str]:
 
 
 def _shoe_result() -> FinalAnalysisResult:
-    return FinalAnalysisResult(
-        process_summary=(
+    """Fallbezogener Ist-Ablauf auf dem kanonischen Ergebnisvertrag."""
+
+    return FinalAnalysisResult.model_validate(
+        spec_payload(
+            process_summary=(
             "Reparaturgegenstände werden mit handschriftlichen Angaben angenommen, "
             "über lose Nummern zugeordnet, repariert und zur Abholung bereitgelegt."
         ),
-        as_is_steps=[
+            as_is_steps=[
             "Reparaturgegenstand und Kundenangaben annehmen.",
             "Arbeitsauftrag auf einem Papierzettel und im Heft notieren.",
             "Eine lose Nummer dem Gegenstand zuordnen.",
@@ -131,85 +135,18 @@ def _shoe_result() -> FinalAnalysisResult:
             "Statusfragen beantworten; die Fertigmeldung erfolgt nicht immer.",
             "Fertigen Gegenstand an den Kunden übergeben.",
         ],
-        core_bottleneck=(
+            core_bottleneck=(
             "Auftragsangaben, Zuordnung und Bearbeitungsstand liegen nicht an einer "
             "gemeinsamen verlässlichen Stelle."
         ),
-        software_rule="Nummer, Status und bestätigter Ablageort werden regelbasiert verbunden.",
-        smallest_usable_version="Neue Aufträge mit Nummer und bestätigtem Ablageort erfassen.",
-        not_automated=["Preisfreigabe", "Zusatzarbeit", "Fertigstellung", "Herausgabe"],
-        autonomy_level="A2",
-        uncertainties=[
+            not_automated=["Preisfreigabe", "Zusatzarbeit", "Fertigstellung", "Herausgabe"],
+            autonomy_level="A2",
+            uncertainties=[
             "Die Zahl der gleichzeitig offenen Reparaturaufträge ist unbekannt.",
             "Der heutige Ablauf bei nicht erreichbaren Kunden ist nicht eindeutig.",
         ],
-        opportunities=[
-            AutomationOpportunityResult(
-                rank=1,
-                title="Zentrale digitale Auftragskarte einführen",
-                problem="Papierzettel, Heft und lose Nummern trennen wichtige Angaben.",
-                recommendation=(
-                    "Jeden Auftrag einmal in einer zentralen digitalen Auftragskarte "
-                    "mit eindeutiger Zuordnung erfassen."
-                ),
-                benefit="Angaben und Verlauf sind an einer Stelle nachvollziehbar.",
-                human_approval=(
-                    "Der Inhaber prüft Auftrag, Preis und vereinbarte Arbeit vor der "
-                    "Freigabe."
-                ),
-                first_step="Die heute benötigten Auftragsangaben gemeinsam festlegen.",
-            ),
-            AutomationOpportunityResult(
-                rank=2,
-                title="Status und Ablageort zentral führen",
-                problem="Kunden fragen nach, weil der aktuelle Stand nicht klar ist.",
-                recommendation=(
-                    "Bearbeitungsstand und Ablageort in einer gemeinsamen "
-                    "Statusübersicht pflegen."
-                ),
-                benefit="Offene und fertige Aufträge sind schneller auffindbar.",
-                human_approval="Der Inhaber setzt den Status bewusst auf fertig.",
-                first_step="Die wenigen benötigten Statusstufen festlegen.",
-            ),
-            AutomationOpportunityResult(
-                rank=3,
-                title="Kunden nach Fertigmeldung benachrichtigen",
-                problem="Fertige Aufträge werden nicht immer mitgeteilt.",
-                recommendation=(
-                    "Nach der menschlichen Fertigmeldung automatisch einen "
-                    "vorbereiteten Hinweis an den Kunden auslösen."
-                ),
-                benefit="Weniger Statusfragen und zeitnahe Abholung.",
-                human_approval=(
-                    "Nur der Inhaber bestätigt die Fertigstellung und löst damit den "
-                    "Hinweis aus."
-                ),
-                first_step="Den heutigen Text für eine Fertigmeldung festhalten.",
-            ),
-        ],
-        blueprint=AutomationBlueprint(
-            objective="Alle Auftragsangaben und Änderungen zentral nachvollziehen.",
-            trigger="Ein Reparaturgegenstand wird angenommen.",
-            required_inputs=[
-                "Kundenangaben",
-                "Beschreibung des Reparaturauftrags",
-                "eindeutige Zuordnung zum Gegenstand",
-            ],
-            workflow_steps=[
-                "Auftragskarte anlegen.",
-                "Gegenstand eindeutig zuordnen.",
-                "Status und Ablageort pflegen.",
-                "Änderungen und Kundenfreigaben dokumentieren.",
-            ],
-            human_review_point=(
-                "Der Inhaber bestätigt Preis, Zusatzarbeit und Fertigstellung."
-            ),
-            output="Eine vollständige zentrale Auftragskarte.",
-            exceptions=["Kunde ist für eine notwendige Rückfrage nicht erreichbar."],
-        ),
+        )
     )
-
-
 def _carpentry_answers() -> dict[str, str]:
     return {
         "process_boundary": (
@@ -241,94 +178,34 @@ def _carpentry_answers() -> dict[str, str]:
 
 
 def _carpentry_result() -> FinalAnalysisResult:
-    return FinalAnalysisResult(
-        process_summary=(
+    """Fallbezogener Ist-Ablauf auf dem kanonischen Ergebnisvertrag."""
+
+    return FinalAnalysisResult.model_validate(
+        spec_payload(
+            process_summary=(
             "Nach der Auftragsfreigabe werden Maße, Zeichnungen und Änderungen aus "
             "mehreren Kanälen für die Arbeitsvorbereitung zusammengeführt."
         ),
-        as_is_steps=[
+            as_is_steps=[
             "Freigegebenen Auftrag übernehmen.",
             "Maße, Zeichnungen und Änderungen aus mehreren Kanälen zusammensuchen.",
             "Angaben für die Arbeitsvorbereitung zusammenstellen.",
             "Technische Unterlagen durch eine Person prüfen und freigeben.",
         ],
-        core_bottleneck=(
+            core_bottleneck=(
             "Aktuelle und veraltete Informationen sind über mehrere Kanäle verteilt."
         ),
-        software_rule="Version und Freigabestatus werden nach festen Regeln geführt.",
-        smallest_usable_version=(
-            "Probier ab morgen fünf neue Änderungen aus und prüfe, ob die "
-            "gemeinsame Übersicht stimmt."
-        ),
-        not_automated=["Technische Bewertung", "Konstruktive Freigabe"],
-        autonomy_level="A2",
-        uncertainties=[
+            not_automated=["Technische Bewertung", "Konstruktive Freigabe"],
+            bleibt_bei_dir=(
+                "Du behältst die technische oder konstruktive Freigabe. Die KI "
+                "bereitet nur vor, entschieden wird von dir."
+            ),
+            autonomy_level="A2",
+            uncertainties=[
             "Es ist unbekannt, wie Änderungen heute eindeutig als aktuell markiert werden."
         ],
-        opportunities=[
-            AutomationOpportunityResult(
-                rank=1,
-                title="Aktuellen Auftragsstand zentral zusammenführen",
-                problem="Maße, Zeichnungen und Änderungen liegen verteilt vor.",
-                recommendation=(
-                    "Eine zentrale digitale Auftragskarte mit aktuellem Stand und "
-                    "nachvollziehbarem Verlauf verwenden."
-                ),
-                benefit="Die Arbeitsvorbereitung erkennt den gültigen Informationsstand.",
-                human_approval=(
-                    "Eine fachkundige Person prüft und bestätigt jede technische oder "
-                    "konstruktive Freigabe."
-                ),
-                first_step="Die heute verteilten Informationsarten erfassen.",
-            ),
-            AutomationOpportunityResult(
-                rank=2,
-                title="Änderungen eindeutig kennzeichnen",
-                problem="Veraltete Angaben können weiterverwendet werden.",
-                recommendation=(
-                    "Für Änderungen einen einheitlichen nachvollziehbaren Verlauf mit "
-                    "klarer menschlicher Freigabe festlegen."
-                ),
-                benefit="Der aktuelle Stand ist vor der Vorbereitung erkennbar.",
-                human_approval="Eine fachkundige Person bestätigt den gültigen Stand.",
-                first_step="Den heutigen Freigabeweg für Änderungen dokumentieren.",
-            ),
-            AutomationOpportunityResult(
-                rank=3,
-                title="Vollständigkeit teilweise automatisiert prüfen",
-                problem="Fehlende Unterlagen fallen erst bei der Vorbereitung auf.",
-                recommendation=(
-                    "Vor der Arbeitsvorbereitung automatisch auf vorhandene "
-                    "Pflichtunterlagen hinweisen, ohne technische Inhalte zu bewerten."
-                ),
-                benefit="Fehlende Unterlagen werden früher sichtbar.",
-                human_approval=(
-                    "Die technische Bewertung und Freigabe bleibt vollständig bei "
-                    "einer fachkundigen Person."
-                ),
-                first_step="Benötigte Unterlagen je Auftrag festhalten.",
-            ),
-        ],
-        blueprint=AutomationBlueprint(
-            objective="Den aktuellen Informationsstand zentral bereitstellen.",
-            trigger="Ein Auftrag ist freigegeben.",
-            required_inputs=["Maße", "Zeichnungen", "freigegebene Änderungen"],
-            workflow_steps=[
-                "Auftragskarte anlegen.",
-                "Unterlagen zuordnen.",
-                "Änderungen nachvollziehbar erfassen.",
-                "Menschliche Prüfung anfordern.",
-            ],
-            human_review_point=(
-                "Vor jeder technischen oder konstruktiven Freigabe prüft eine "
-                "fachkundige Person den Stand."
-            ),
-            output="Geprüfte aktuelle Unterlagen für die Arbeitsvorbereitung.",
-            exceptions=["Eine Änderung ist noch nicht fachlich freigegeben."],
-        ),
+        )
     )
-
-
 def _run_quality_case(
     *,
     client: TestClient,
@@ -577,14 +454,14 @@ def test_shoe_repair_quality_flow_contains_only_grounded_current_steps(
         "mapping",
     ):
         assert forbidden not in lower_text
-    assert "Auftragsangaben, Zuordnung und Bearbeitungsstand" in result_text
+    assert "Beim Vorbereiten schaust du jedes Mal in mehreren Chats" in result_text
     assert "Kunden nach Fertigmeldung benachrichtigen" not in result_text
-    assert "So würde es künftig laufen" in result_text
+    assert "NACH DER EINRICHTUNG" in result_text
     assert database_session.scalar(
         select(func.count())
         .select_from(AutomationOpportunity)
         .where(AutomationOpportunity.session_id == session_id)
-    ) == 3
+    ) == 1
 
 
 def test_carpentry_quality_flow_keeps_technical_approval_human(
@@ -628,8 +505,8 @@ def test_carpentry_quality_flow_keeps_technical_approval_human(
         "wip",
     ):
         assert forbidden not in lower_text
-    assert "Nichts geht ohne dich raus" in result_text
-    assert "Du schaust einmal drüber und gibst frei" in result_text
+    assert "Das bleibt bei dir" in result_text
+    assert "technische oder konstruktive Freigabe" in result_text
     blueprints = dict(
         database_session.execute(
             select(
@@ -646,10 +523,10 @@ def test_carpentry_quality_flow_keeps_technical_approval_human(
     )
     assert human_approval is not None
     assert "technische oder konstruktive Freigabe" in human_approval
-    assert blueprints[1]["contract_version"] == "recommendation-v3"
-    assert blueprints[1]["sample_output"] is not None
-    assert blueprints[2]["sample_output"] is None
-    assert blueprints[3]["sample_output"] is None
+    # Genau eine Empfehlung, und sie traegt die Ergebnisart des Falls.
+    assert set(blueprints) == {1}
+    assert blueprints[1]["contract_version"] == "ergebnis-spec-v5"
+    assert blueprints[1]["ergebnis_art"]
 
 
 def test_unmentioned_current_fact_is_removed_but_solution_uncertainty_remains() -> None:
@@ -718,7 +595,7 @@ def test_processing_status_and_completed_analysis_are_idempotent(
         select(func.count())
         .select_from(AutomationOpportunity)
         .where(AutomationOpportunity.session_id == session_id)
-    ) == 3
+    ) == 1
     assert client.get(f"/sessions/{session_id}/analysis-status").json()[
         "state"
     ] == "complete"
@@ -946,19 +823,19 @@ def test_final_prompt_separates_facts_patterns_inferences_and_recommendations(
     )
     prompt = str(captured["system_prompt"])
     payload = captured["payload"]
-    assert "A. USER FACTS" in prompt
-    assert "B. RETRIEVED PATTERNS" in prompt
-    assert "C. ALLOWED INFERENCES" in prompt
-    assert "D. RECOMMENDATIONS" in prompt
-    assert sum(f"\n{index}." in f"\n{prompt}" for index in range(1, 16)) == 15
+    # Der Briefing-Prompt beschreibt Haltung und Felder; die Trennung von
+    # Nutzerfakten, Vergleichswissen, Ableitungen und gewaehltem Muster
+    # passiert im Payload, nicht mehr ueber Abschnittsbuchstaben im Text.
+    assert "Das gewählte Lösungsmuster" in prompt
     assert "max_length" not in prompt
     assert "min_length" not in prompt
     assert isinstance(payload, dict)
     assert set(payload) == {
-        "A_USER_FACTS",
-        "B_RETRIEVED_PATTERNS_INTERNAL_ONLY",
-        "C_ALLOWED_INFERENCES",
-        "D_RECOMMENDATIONS",
+        "SO_ERZAEHLT_ES_DER_BETRIEB",
+        "GEWAEHLTES_MUSTER",
+        "SOFTWARE_STATT_KI",
+        "NUR_INTERNES_VERGLEICHSWISSEN_NIE_AUSGEBEN",
+        "FACHLICHE_ABLEITUNGEN",
     }
 
 
@@ -969,7 +846,7 @@ def test_process_summary_is_neutralized_without_discarding_analysis() -> None:
     )
     meta_result = FinalAnalysisResult.model_validate(meta_payload)
     assert "Aus den vorliegenden Angaben" not in meta_result.process_summary
-    assert meta_result.primary_recommendation
+    assert meta_result.loesung.titel
 
     repeated_payload = _carpentry_result().model_dump()
     repeated_payload["process_summary"] = (
@@ -986,4 +863,4 @@ def test_process_summary_is_neutralized_without_discarding_analysis() -> None:
         },
     )
     assert not grounded.process_summary.startswith("„Auftragsfreigabe")
-    assert grounded.primary_recommendation
+    assert grounded.loesung.titel
