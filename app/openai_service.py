@@ -724,6 +724,7 @@ def generate_follow_up_questions(
     answers: dict[str, str],
     selected_process: dict[str, str],
     knowledge_chunks: Sequence[str],
+    business_pattern: dict[str, object] | None = None,
 ) -> FollowUpResult:
     result = _parse_structured_output(
         system_prompt=(
@@ -756,6 +757,9 @@ def generate_follow_up_questions(
                 "Nur Lücken in den Nutzerangaben erkennen; keine fremden Fakten "
                 "oder Risiken übernehmen."
             ),
+            # Worauf man bei dieser Betriebsart achten kann. Es begruendet
+            # keine Rueckfrage allein - belegt bleibt allein A.
+            "D_WORAUF_ACHTEN_BETRIEBSART": business_pattern or {},
         },
         result_type=FollowUpResult,
     )
@@ -782,6 +786,11 @@ def generate_final_analysis(
         },
         "GEWAEHLTES_MUSTER": _selected_pattern_briefing(recommendation_context),
         "SOFTWARE_STATT_KI": list(context.get("software_not_ai") or []),
+        # Worauf man bei dieser Betriebsart achten kann - nie, welche Loesung
+        # der Betrieb braucht. Leer, wenn keine Betriebsart eindeutig passt.
+        "WORAUF_DU_BEI_DIESER_BETRIEBSART_ACHTEN_KANNST": (
+            context.get("branchenwissen") or {}
+        ),
         # Genau die Liste, die nachher geprueft wird. Steht sie nur im
         # Prompttext, laeuft sie mit dem Filter auseinander.
         "VERBOTENE_WOERTER": list(FORBIDDEN_CUSTOMER_TERMS),

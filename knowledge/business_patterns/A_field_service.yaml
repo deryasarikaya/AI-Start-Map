@@ -183,6 +183,7 @@ realistic_worker_language:
   - "Konnte nicht fertig machen, Mieter war nicht da."
 
 diagnostically_relevant_questions:
+  - Wo laufen diese Informationen heute am Ende zusammen?
   - Wie kommt ein neuer Auftrag heute bei dir an?
   - Wo wird der Auftrag danach festgehalten?
   - Woran erkennst du später, welche Fotos zu welchem Einsatz gehören?

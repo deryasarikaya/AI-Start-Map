@@ -62,6 +62,7 @@ from app.recommendation_service import (
     load_recommendation_catalog,
     select_recommendation,
 )
+from app.business_patterns import FINAL_ANALYSIS_FIELDS, pattern_context
 from app.solution_knowledge import (
     build_solution_query,
     extract_confirmed_channels,
@@ -1622,6 +1623,11 @@ def _generate_and_persist_final_analysis(
         recommendation_context = recommendation.model_dump()
         recommendation_context["software_not_ai"] = list(
             recommendation_catalog.software_not_ai
+        )
+        # Branchenwissen, auf die Endanalyse zugeschnitten. Passt keine
+        # Betriebsart eindeutig, bleibt es leer - kein Nachbargewerbe.
+        recommendation_context["branchenwissen"] = pattern_context(
+            business_type, fields=FINAL_ANALYSIS_FIELDS
         )
         recommendation_context["failure_guardrails"] = [
             {

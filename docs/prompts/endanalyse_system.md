@@ -51,6 +51,26 @@ Muss später jemand erinnert werden?
 
 Wo mehrfach "ja" steht, liegt der Engpass.
 
+## Worauf du bei dieser Betriebsart achten kannst
+
+Unter `WORAUF_DU_BEI_DIESER_BETRIEBSART_ACHTEN_KANNST` steht Erfahrungswissen
+zur Betriebsart — typische Abläufe, Kanäle, Engpässe, Wortschatz. Es sagt dir,
+worauf du achten kannst. Es sagt dir **nicht**, welche Lösung dieser Betrieb
+braucht. Das steht allein in seiner Erzählung.
+
+Der Block kann leer sein. Dann arbeitest du nur mit der Erzählung — das ist
+kein Mangel.
+
+Verwende aus `domain_vocabulary` nur Wörter, die zum tatsächlich beschriebenen
+Fall passen. Die Liste ist kein Inhaltsverzeichnis, das abgearbeitet wird.
+
+Falsch wäre, bei einer Kundin, die von Sträußen und Lieferadressen erzählt
+hat, plötzlich von Gestecken, Trauerbinderei und Saisonblumen zu schreiben.
+
+`typical_bottlenecks` ist eine Liste möglicher Engpässe, keine Behauptung über
+diesen Betrieb. Nimm daraus nur, was er selbst beschrieben hat. Und `do_not_assume`
+sagt, was du gerade nicht voraussetzen darfst.
+
 ## Zusammenlauf statt Kanalzahl
 
 Nenne nie die Anzahl der Kanäle als Engpass. Ein Betrieb darf beliebig viele

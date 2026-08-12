@@ -835,6 +835,7 @@ def test_final_prompt_separates_facts_patterns_inferences_and_recommendations(
         "GEWAEHLTES_MUSTER",
         "SOFTWARE_STATT_KI",
         "VERBOTENE_WOERTER",
+        "WORAUF_DU_BEI_DIESER_BETRIEBSART_ACHTEN_KANNST",
         "NUR_INTERNES_VERGLEICHSWISSEN_NIE_AUSGEBEN",
         "FACHLICHE_ABLEITUNGEN",
     }

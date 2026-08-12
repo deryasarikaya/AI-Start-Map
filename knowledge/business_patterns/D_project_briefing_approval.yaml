@@ -1,0 +1,141 @@
+business_pattern: D_project_briefing_approval
+business_example: Fotograf
+
+diagnostic_focus: >
+  Steht an einer Stelle, welche Fassung gerade gilt und was schon freigegeben
+  ist? Anforderungen und Änderungen kommen über Wochen und über mehrere
+  Kanäle. Der Engpass ist selten die Menge, sondern die fehlende gemeinsame
+  Fassung.
+
+typical_workflows:
+  - Anfrage kommt herein, Wünsche und Beispiele werden gesammelt
+  - Aus verstreuten Nachrichten wird ein Briefing zusammengeschrieben
+  - Termin und Ort werden abgestimmt und bestätigt
+  - Leistung wird erbracht, Ergebnisse werden aufbereitet
+  - Auswahl wird dem Kunden zur Ansicht gegeben
+  - Änderungswünsche kommen zurück und werden abgearbeitet
+  - Freigabe wird eingeholt und festgehalten
+  - Endfassung wird ausgeliefert
+  - Rechnung wird gegen das Vereinbarte geschrieben
+
+channels:
+  - WhatsApp
+  - E-Mail
+  - Instagram
+  - Kontaktformular auf der Website
+  - Kommentare in der Bildergalerie
+  - Telefon
+
+domain_vocabulary:
+  - Briefing
+  - Shooting
+  - Auswahl
+  - Fassung
+  - Freigabe
+  - Änderungswunsch
+  - Korrekturschleife
+  - Beispielbild
+  - Stilwunsch
+  - Ort und Uhrzeit
+  - Teilnehmende
+  - Galerie
+  - Auslieferung
+  - Nutzungsrecht
+  - Angebot
+  - Leistungsumfang
+  - Zusatzwunsch
+  - Termin
+  - Anzahlung
+  - Endabnahme
+
+important_entities:
+  - Auftrag
+  - Kunde
+  - Briefing
+  - Fassung
+  - Freigabe
+  - Änderungswunsch
+  - Termin
+  - Rechnung
+
+required_information:
+  - Wer ist der Kunde und wie ist er erreichbar
+  - Worum geht es inhaltlich
+  - Wann und wo findet es statt
+  - Wer ist beteiligt
+  - Welcher Stil oder welche Vorgabe gilt
+  - Was ist im Preis enthalten
+  - Bis wann wird geliefert
+  - Wer gibt frei
+
+typical_handoffs:
+  - Von der Anfrage in das Briefing
+  - Vom Briefing in die Durchführung
+  - Von der Durchführung in die Auswahl
+  - Von der Auswahl in die Korrekturschleife
+  - Von der Freigabe in die Auslieferung
+  - Von der Auslieferung in die Rechnung
+
+typical_statuses:
+  - angefragt
+  - Briefing offen
+  - Briefing steht
+  - Termin bestätigt
+  - in Bearbeitung
+  - zur Ansicht gegeben
+  - Änderung offen
+  - freigegeben
+  - ausgeliefert
+  - abgerechnet
+
+typical_bottlenecks:
+  - Anforderungen kommen über Wochen und über mehrere Kanäle herein
+  - Das Briefing wird jedes Mal von Hand zusammengesucht
+  - Änderungswünsche kommen auf anderen Wegen als die ursprüngliche Anfrage
+  - Es ist unklar, welche Fassung gerade gilt
+  - Es ist unklar, was bereits freigegeben wurde
+  - Eine ältere Fassung wird versehentlich ausgeliefert
+  - Beim Rechnungschreiben ist unklar, was vereinbart war
+  - Zusatzwünsche werden mündlich zugesagt und nirgends festgehalten
+
+typical_exceptions:
+  - Der Termin wird kurzfristig verschoben
+  - Der Kunde meldet sich nach der Ansicht wochenlang nicht
+  - Eine Änderung kommt nach der Freigabe
+  - Der Umfang wächst während der Bearbeitung
+  - Mehrere Personen auf Kundenseite geben widersprüchliche Rückmeldungen
+  - Nutzungsrechte werden erst nachträglich geklärt
+
+realistic_customer_language:
+  - "Bild 14 bitte heller"
+  - "Das mit der Oma nochmal anders beschneiden"
+  - "Können wir den Termin eine Woche später machen?"
+  - "Passt so, von mir aus freigegeben"
+  - "Ich dachte, das wäre mit drin"
+
+realistic_worker_language: []
+
+diagnostically_relevant_questions:
+  - Wo laufen diese Informationen heute am Ende zusammen?
+  - Woran erkennst du heute, welche Fassung die aktuelle ist?
+  - Wo steht, was der Kunde freigegeben hat?
+  - Über welche Wege kommen Änderungswünsche herein?
+  - Was passiert, wenn nach der Freigabe noch eine Änderung kommt?
+  - Woran siehst du beim Rechnungschreiben, was vereinbart war?
+
+diagnostic_signals:
+  - Anforderungen kommen verteilt über Zeit und Kanäle
+  - Ein Briefing wird von Hand aus Nachrichten zusammengesetzt
+  - Es gibt mehrere Fassungen desselben Ergebnisses
+  - Freigaben werden mündlich oder im Chat erteilt
+  - Nacharbeit entsteht durch eine falsche Fassung
+  - Die Abrechnung braucht einen Blick zurück in die Absprache
+
+do_not_assume:
+  - dass KI die erste sinnvolle Lösung ist
+  - dass es eine Projektsoftware gibt
+  - dass Freigaben heute schriftlich festgehalten werden
+  - dass alle Beteiligten denselben Kanal nutzen
+  - dass der Leistungsumfang schriftlich vereinbart wurde
+  - dass Dateien nachvollziehbar benannt sind
+  - dass es feste Korrekturschleifen gibt

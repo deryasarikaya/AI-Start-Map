@@ -156,6 +156,7 @@ realistic_customer_language:
 realistic_worker_language: []
 
 diagnostically_relevant_questions:
+  - Wo laufen diese Informationen heute am Ende zusammen?
   - Wie kommen Bestellungen heute bei euch rein?
   - Wo wird eine Bestellung verbindlich festgehalten?
   - Woran erkennt ihr, welche Nachricht oder welches Foto zu welcher Bestellung gehört?
