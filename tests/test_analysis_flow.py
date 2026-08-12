@@ -392,7 +392,7 @@ def test_final_analysis_stores_one_primary_and_at_most_two_secondary_opportuniti
         .select_from(AutomationOpportunity)
         .where(AutomationOpportunity.session_id == session_id)
     )
-    assert count == 3
+    assert count == 1
 
 
 def test_primary_and_optional_secondary_opportunity_ranks_are_contiguous(
@@ -408,7 +408,7 @@ def test_primary_and_optional_secondary_opportunity_ranks_are_contiguous(
             .order_by(AutomationOpportunity.rank)
         )
     )
-    assert ranks == [1, 2, 3]
+    assert ranks == [1]
 
 
 def test_analysis_can_store_only_the_primary_opportunity(
@@ -447,11 +447,10 @@ def test_concise_output_and_presentation_metadata_are_stored(
             ).where(AutomationOpportunity.session_id == session_id)
         ).all()
     )
-    assert blueprints[1]["contract_version"] == "recommendation-v3"
-    assert blueprints[1]["sample_output"] is not None
-    assert blueprints[1]["implementation_path"]
-    assert blueprints[2]["sample_output"] is None
-    assert blueprints[3]["sample_output"] is None
+    # Der neue Vertrag kennt genau eine Empfehlung.
+    assert set(blueprints) == {1}
+    assert blueprints[1]["contract_version"] == "ergebnis-spec-v5"
+    assert blueprints[1]["ergebnis_art"]
 
 
 def test_failed_analysis_leaves_no_partial_results(
@@ -550,33 +549,30 @@ def test_model_prompt_context_contains_no_internal_metadata() -> None:
     [
         ("process_summary", "Bekannter Testfall M-01"),
         ("process_summary", "Interner Fall RB03-C01-01"),
-        ("as_is_steps", "Interner Chunk wurde verwendet"),
         ("core_bottleneck", "Ableitung aus pattern_id"),
-        ("primary_recommendation", "Quelle content_origin"),
-        ("sample_output", "Aus einem Referenzfall übernommen"),
+        ("engpass_titel", "Quelle content_origin"),
+        ("engpass_text", "Aus einem Referenzfall übernommen"),
     ],
 )
-def test_visible_analysis_fields_neutralize_internal_references(
+def test_internal_references_are_rejected_not_rewritten(
     field_name: str,
     marker: str,
 ) -> None:
-    payload = _final_result().model_dump()
-    if field_name == "as_is_steps":
-        payload[field_name][0] = marker
-    elif field_name == "sample_output":
-        payload[field_name]["fields"][0]["value"] = marker
-    else:
-        payload[field_name] = marker
+    """Eine interne Referenz verwirft die Analyse, statt das Feld zu ersetzen.
 
-    result = FinalAnalysisResult.model_validate(payload)
-    if field_name == "as_is_steps":
-        assert result.as_is_steps[0] == "noch offen"
-    elif field_name == "sample_output":
-        assert result.sample_output.fields[0].value == "noch offen"
-    else:
-        assert getattr(result, field_name) == "noch offen"
-    assert result.visible_result
-    assert any("internes" in item for item in result.uncertainties)
+    Frueher wurde das betroffene Feld auf "noch offen" gesetzt. Der
+    Ergebnisvertrag ersetzt nichts mehr - ein Treffer ist ein Fehler.
+    """
+
+    with pytest.raises(ValidationError, match="Interne Wissensreferenzen"):
+        FinalAnalysisResult.model_validate(spec_payload(**{field_name: marker}))
+
+
+def test_internal_reference_inside_the_current_flow_is_rejected() -> None:
+    payload = spec_payload()
+    payload["as_is_steps"][0] = "Interner Chunk wurde verwendet"
+    with pytest.raises(ValidationError, match="Interne Wissensreferenzen"):
+        FinalAnalysisResult.model_validate(payload)
 
 
 @pytest.mark.parametrize(
@@ -628,10 +624,10 @@ def test_demo_route_creates_session_and_redirects_to_real_results(
         .select_from(AutomationOpportunity)
         .where(AutomationOpportunity.session_id == session_id)
     )
-    assert opportunity_count == 3
+    assert opportunity_count == 1
     result_response = client.get(f"/sessions/{session_id}/results")
     assert result_response.status_code == 200
-    assert "Das ist der Engpass" in result_response.text
+    assert "DEINE AUSWERTUNG" in result_response.text
     visible_text = result_response.text.casefold()
     for marker in ("m-01", "testfall", "chunk", "pattern_id", "content_origin"):
         assert marker not in visible_text
@@ -818,4 +814,4 @@ def test_all_workflow_pages_render_without_template_errors(
     client.post(f"/sessions/{session_id}/analyze")
     results = client.get(f"/sessions/{session_id}/results")
     assert results.status_code == 200
-    assert "So klein fängst du an" in results.text
+    assert "Das würde ich für dich bauen oder verbinden" in results.text
