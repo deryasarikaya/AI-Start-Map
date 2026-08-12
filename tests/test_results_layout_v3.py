@@ -123,6 +123,52 @@ def test_opportunities_render_as_tiles_without_padding_the_list() -> None:
     assert html.count("opportunity-tile ") == 1
 
 
+def test_without_javascript_nothing_is_hidden() -> None:
+    """Der Startzustand haengt an einer Klasse, die nur das Skript setzt.
+
+    Stuende die Deckkraft direkt auf [data-reveal], waere die Seite ohne
+    JavaScript leer.
+    """
+
+    css = (ROOT / "app" / "static" / "styles.css").read_text(encoding="utf-8")
+    versteckend = [
+        zeile
+        for zeile in css.splitlines()
+        if "data-reveal" in zeile and "opacity: .001" in zeile
+    ]
+    assert versteckend, "Der Startzustand fehlt ganz"
+    for zeile in versteckend:
+        assert ".reveal-armed" in zeile, zeile
+
+    script = (ROOT / "app" / "static" / "app.js").read_text(encoding="utf-8")
+    assert 'classList.add("reveal-armed")' in script
+
+
+def test_the_print_view_resets_every_reveal_rule() -> None:
+    """Sonst waere das PDF leer oder halb leer."""
+
+    css = (ROOT / "app" / "static" / "styles.css").read_text(encoding="utf-8")
+    druckblock = css[css.rindex("@media print"):]
+    assert "data-reveal" in druckblock
+    assert "opacity: 1 !important" in druckblock
+    assert "transform: none !important" in druckblock
+
+
+def test_reduced_motion_switches_every_transition_off() -> None:
+    css = (ROOT / "app" / "static" / "styles.css").read_text(encoding="utf-8")
+    block = css[css.index("@media (prefers-reduced-motion: reduce)"):]
+    assert "transition: none !important" in block
+    script = (ROOT / "app" / "static" / "app.js").read_text(encoding="utf-8")
+    assert "prefers-reduced-motion" in script
+
+
+def test_tiles_lift_on_hover_without_shadow_or_fill_change() -> None:
+    css = (ROOT / "app" / "static" / "styles.css").read_text(encoding="utf-8")
+    block = css[css.index(".opportunity-tile { transition"):]
+    assert "transform: translateY(-3px)" in block
+    assert "border-color: var(--border-strong)" in block
+
+
 def test_example_values_stay_inside_the_marked_block() -> None:
     html = _render(spec_view())
     marker = html.index("data-customer-example-block")

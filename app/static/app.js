@@ -122,3 +122,25 @@
         });
     });
 })();
+
+/* Sanftes Einblenden. Der Startzustand wird erst hier gesetzt: ohne
+   JavaScript bleibt die Seite vollstaendig sichtbar. Bei reduzierter
+   Bewegung wird gar nichts angefasst. */
+(() => {
+    const elemente = document.querySelectorAll("[data-reveal]");
+    if (!elemente.length) return;
+    const ruhig = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (ruhig || !("IntersectionObserver" in window)) return;
+    document.documentElement.classList.add("reveal-armed");
+    const beobachter = new IntersectionObserver((eintraege) => {
+        eintraege.forEach((eintrag) => {
+            if (!eintrag.isIntersecting) return;
+            eintrag.target.classList.add("revealed");
+            beobachter.unobserve(eintrag.target);
+        });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.05 });
+    elemente.forEach((element) => beobachter.observe(element));
+    window.addEventListener("beforeprint", () => {
+        document.documentElement.classList.remove("reveal-armed");
+    });
+})();

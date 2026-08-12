@@ -432,3 +432,31 @@ input:focus, textarea:focus { border-color: var(--green); }
 .opportunity-tile .rank { margin: 0 0 .35rem; font-size: .6875rem; letter-spacing: .06em; text-transform: uppercase; color: var(--text-secondary); }
 .opportunity-tile h3 { margin: 0 0 .3rem; font-size: 15px; font-weight: 500; }
 .opportunity-tile p { margin: 0; font-size: 13px; color: var(--text-secondary); }
+
+/* ---------------------------------------------------------------------------
+   Bewegung: Kacheln beim Ueberfahren, sanftes Einblenden beim Scrollen
+   --------------------------------------------------------------------------- */
+
+.opportunity-tile { transition: transform .18s ease, border-color .18s ease; }
+.opportunity-tile:hover,
+.opportunity-tile:focus-within { transform: translateY(-3px); border-color: var(--border-strong); }
+
+/* Der Startzustand haengt an .reveal-armed. Die Klasse setzt ausschliesslich
+   app.js. Ohne JavaScript existiert sie nicht - dann ist alles sichtbar. */
+.reveal-armed [data-reveal] { opacity: .001; transform: translateY(8px); }
+.reveal-armed [data-reveal].revealed { opacity: 1; transform: translateY(0); }
+[data-reveal] { transition: opacity .35s ease, transform .35s ease; }
+
+@media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+    .reveal-armed [data-reveal] { opacity: 1; transform: none; }
+    .opportunity-tile:hover,
+    .opportunity-tile:focus-within { transform: none; }
+}
+
+@media print {
+    /* Im Druck ist alles sichtbar - unabhaengig davon, was das Skript
+       gesetzt hat. Sonst waere das PDF leer oder halb leer. */
+    .reveal-armed [data-reveal],
+    [data-reveal] { opacity: 1 !important; transform: none !important; transition: none !important; }
+}
