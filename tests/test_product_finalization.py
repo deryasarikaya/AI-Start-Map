@@ -18,7 +18,9 @@ from app.schemas import (
     FinalAnalysisResult,
     OptionalAnalysisDetails,
     ProcessUnderstandingResult,
+    customer_plain_text,
 )
+from tests.conftest import spec_payload
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -77,7 +79,7 @@ def test_follow_up_payload_is_normalized_to_today_without_repair_call() -> None:
 
 
 def test_final_analysis_allows_two_medium_reasoning_attempts() -> None:
-    assert openai_service.FINAL_ANALYSIS_TIMEOUT_SECONDS == 120.0
+    assert openai_service.FINAL_ANALYSIS_TIMEOUT_SECONDS == 240.0
 
 
 def _fact(value: str) -> FactRecord:
@@ -89,171 +91,58 @@ def _fact(value: str) -> FactRecord:
     )
 
 
-def _analysis_result(
-    *,
-    core_problem: str,
-    first_change: str,
-    ai_support: str,
-    ai_input: str,
-    ai_task: str,
-    ai_output: str,
-    human_check: str,
-    later_automation: str,
-) -> FinalAnalysisResult:
-    opportunities = [
-        AutomationOpportunityResult(
-            rank=rank,
-            title=title,
-            problem=core_problem,
-            recommendation=first_change,
-            benefit="Der aktuelle Stand wird verlässlich nachvollziehbar.",
-            human_approval=human_check,
-            first_step="Den kleinen Test mit neuen Vorgängen beginnen.",
-            category=category,
-            prerequisite="Die benötigten Angaben sind einheitlich benannt.",
-            mini_test=["Neue Vorgänge einheitlich erfassen."],
-            effort="niedrig" if rank == 1 else "mittel",
-            acceptance_risk="Ausnahmen werden im Test sichtbar gehalten.",
-        )
-        for rank, title, category in (
-            (1, "Einheitlich beginnen", "Ordnung und Standardisierung"),
-            (2, "KI-Unterstützung erproben", "KI-Unterstützung"),
-            (3, "Bestätigten Schritt vorbereiten", "regelbasierte Automatisierung"),
-        )
-    ]
-    return FinalAnalysisResult(
-        software_rule="Pflichtangaben und Freigabestatus werden regelbasiert geprüft.",
-        smallest_usable_version="Einen neuen Vorgang als prüfbaren Entwurf erfassen.",
-        not_automated=["Fachliche Freigabe"],
-        autonomy_level="A2",
-        core_problem=core_problem,
-        first_change=first_change,
-        ai_support=ai_support,
-        ai_input=ai_input,
-        ai_task=ai_task,
-        ai_output=ai_output,
-        human_check=human_check,
-        weekly_test=[
-            "Nur neue Vorgänge einheitlich erfassen.",
-            "Fehlende Angaben sichtbar markieren.",
-            "Am Ende der Woche die Auffindbarkeit prüfen.",
-        ],
-        weekly_test_success="Jeder neue Vorgang ist ohne zusätzliche Suche auffindbar.",
-        later_automation=later_automation,
-        why_this_first="Ohne verlässliche Zuordnung würde Technik das heutige Durcheinander nur übernehmen.",
-        required_prerequisites=["Eine gemeinsame Bezeichnung für die Pflichtangaben."],
-        human_decisions=[human_check],
-        current_process_summary="Angaben kommen an, werden notiert, bearbeitet und nach menschlicher Prüfung abgeschlossen.",
-        optional_details=OptionalAnalysisDetails(
-            current_difficulties=[core_problem],
-            additional_prerequisites=[],
-            later_possibilities=[later_automation],
-        ),
-        process_summary="Angaben kommen an, werden notiert, bearbeitet und nach menschlicher Prüfung abgeschlossen.",
-        as_is_steps=["Angaben annehmen", "Notieren", "Bearbeiten", "Prüfen"],
-        core_bottleneck=core_problem,
-        bottleneck_symptom="Der aktuelle Stand muss gesucht werden.",
-        bottleneck_cause=core_problem,
-        bottleneck_effect="Rückfragen und Suchaufwand entstehen.",
-        as_is_problem_step_indexes=[1],
-        to_be_steps=["Erfassen", "Prüfen", "Bestätigen"],
-        uncertainties=["Das genaue Wochenvolumen ist unbekannt."],
-        opportunities=opportunities,
-        blueprint=AutomationBlueprint(
-            objective="Neue Vorgänge verlässlich zuordnen.",
-            trigger="Ein neuer Vorgang kommt an.",
-            required_inputs=["Pflichtangaben"],
-            workflow_steps=["Vorgang erfassen", "Angaben prüfen", "Ergebnis bestätigen"],
-            human_review_point=human_check,
-            output="Ein bestätigter, auffindbarer Vorgang.",
-            exceptions=["Eine Angabe bleibt unklar."],
-        ),
-    )
+def test_structured_output_requires_the_whole_customer_contract() -> None:
+    """Structured Outputs verlangt jede Eigenschaft in required."""
 
-
-def test_structured_output_requires_the_new_customer_core() -> None:
-    required = set(FinalAnalysisResult.model_json_schema()["required"])
+    schema = FinalAnalysisResult.model_json_schema()
+    required = set(schema["required"])
     assert {
-        "primary_recommendation",
-        "promise",
-        "short_reason",
-        "before_process",
-        "future_process",
-        "sample_output",
-        "user_action",
-        "ai_task",
-        "visible_result",
-        "human_check",
-        "customer_benefits",
-        "implementation_path",
+        "engpass_titel",
+        "engpass_text",
+        "moeglichkeiten",
+        "loesung",
+        "beispiel",
+        "voraussetzungen",
+        "umsetzung",
+        "bleibt_bei_dir",
+        "grenzen",
     } <= required
-    assert "weekly_test" not in FinalAnalysisResult.model_json_schema()["properties"]
-    assert "weekly_test_success" not in FinalAnalysisResult.model_json_schema()["properties"]
+    assert set(schema["properties"]) <= required
+    for entfallen in ("primary_recommendation", "promise", "sample_output",
+                      "secondary_opportunities", "weekly_test"):
+        assert entfallen not in schema["properties"]
 
 
-def test_generic_ai_claim_is_rejected() -> None:
-    with pytest.raises(ValidationError):
-        _analysis_result(
-            core_problem="Der aktuelle Stand ist verteilt.",
-            first_change="Eine gemeinsame Übersicht anlegen.",
-            ai_support="KI kann deinen Prozess optimieren.",
-            ai_input="Eine Nachricht",
-            ai_task="Angaben ordnen",
-            ai_output="Ein Entwurf",
-            human_check="Ein Mensch bestätigt den Entwurf.",
-            later_automation="Nach der Bestätigung kann eine Nachricht vorbereitet werden.",
+def test_unsubstantiated_benefit_claims_do_not_reach_the_customer() -> None:
+    """Eine Ersparnis ohne Grundlage wird ausgelassen, nicht umformuliert."""
+
+    behauptung = (
+        "Du sammelst alles an einer Stelle. Das reduziert deine Suchzeit deutlich."
+    )
+    bereinigt = customer_plain_text(behauptung, "test")
+    assert "Du sammelst alles an einer Stelle." in bereinigt
+    assert "Suchzeit" not in bereinigt
+
+
+def test_ai_is_not_recommended_when_nothing_is_written_down_yet() -> None:
+    """A0: Wenn KI hier noch nicht hilft, sagt das Ergebnis genau das."""
+
+    result = FinalAnalysisResult.model_validate(
+        spec_payload(
+            autonomy_level="A0",
+            engpass_titel="Du hältst Telefonbestellungen nirgends fest",
+            engpass_text=(
+                "Bestellungen am Telefon schreibst du nicht auf. Was nirgends steht, "
+                "kann später niemand wiederfinden."
+            ),
+            bleibt_bei_dir=(
+                "Du entscheidest über Preis und Zusage. Zuerst brauchst du eine feste "
+                "kleine Gewohnheit, sonst hilft dir hier noch keine KI."
+            ),
         )
-
-
-def test_shoe_repair_output_is_concrete_and_grounded() -> None:
-    result = _analysis_result(
-        core_problem="Auftrag, Schuh und Regalplatz sind nicht zuverlässig verbunden.",
-        first_change="Vergib eine einheitliche Nummer und dokumentiere den Regalplatz.",
-        ai_support="Mitarbeitende sprechen oder schreiben neue Aufträge ein; KI ordnet die Angaben und markiert Lücken.",
-        ai_input="Name, Telefonnummer, Reparaturwunsch und Regalplatz als Sprache oder Text.",
-        ai_task="Die KI extrahiert die vier Angaben und weist auf fehlende Angaben hin.",
-        ai_output="Ein strukturierter Auftragsentwurf mit eindeutiger Nummer und Regalplatz.",
-        human_check="Ein Mensch prüft Auftrag, Preis, Regalplatz und Fertigstellung.",
-        later_automation="Wenn Zuordnung und Status verlässlich sind, kann eine Fertigmeldung vorbereitet werden.",
     )
-    visible = " ".join(
-        (result.short_reason, result.primary_recommendation, result.promise, result.later_stage)
-    ).casefold()
-    assert "auftrag, schuh und regalplatz" in visible
-    assert "sprache oder text" in result.user_action.casefold()
-    assert "fertigmeldung" in result.later_stage.casefold()
-    assert not any(term in visible for term in ("chatbot", "qr-code", "sicherheitsvorfall"))
-
-
-def test_massage_output_keeps_appointment_confirmation_human() -> None:
-    result = _analysis_result(
-        core_problem="Anfragen, Verfügbarkeit und Bestätigung liegen über mehrere Kanäle verteilt.",
-        first_change="Führe alle Anfragen in einer Übersicht mit klaren Statuswerten zusammen.",
-        ai_support="KI liest oder hört Anfragen und bereitet passende Terminoptionen vor.",
-        ai_input="Behandlung, Dauer, Personenzahl und Wunschzeit aus Nachricht oder Sprache.",
-        ai_task="Die KI extrahiert die Angaben und gleicht sie mit der gepflegten Verfügbarkeit ab.",
-        ai_output="Prüfbare Terminoptionen mit sichtbar fehlenden Angaben.",
-        human_check="Ein Mensch wählt und bestätigt den Termin.",
-        later_automation="Nach menschlicher Terminbestätigung kann die bestätigte Nachricht zum Versand vorbereitet werden.",
-    )
-    assert "mehrere kanäle" in result.short_reason.casefold()
-    assert all(term in result.user_action.casefold() for term in ("behandlung", "dauer", "personenzahl", "wunschzeit"))
-    assert "du" in result.human_check.casefold()
-
-
-def test_no_digital_foundation_states_that_ai_is_not_first() -> None:
-    result = _analysis_result(
-        core_problem="Auftragsdaten werden uneinheitlich und nur auf losen Zetteln festgehalten.",
-        first_change="Lege zuerst ein einheitliches Auftragsblatt mit wenigen Pflichtangaben fest.",
-        ai_support="KI ist heute noch nicht der erste Schritt. Sobald Auftragsdaten einheitlich erfasst werden, kann KI gesprochene Angaben ordnen.",
-        ai_input="Einheitlich erfasste oder eingesprochene Auftragsangaben.",
-        ai_task="Die KI überträgt Angaben in einen prüfbaren Entwurf.",
-        ai_output="Ein vollständiger Auftragsentwurf.",
-        human_check="Ein Mensch prüft Preis, Inhalt und Freigabe.",
-        later_automation="Nach einem stabilen Test kann eine bestätigte Statusmeldung vorbereitet werden.",
-    )
-    assert result.promise.startswith("KI ist heute noch nicht der erste Schritt.")
-    assert "preis" in result.human_check.casefold()
+    assert result.autonomy_level == "A0"
+    assert "noch keine KI" in result.bleibt_bei_dir
 
 
 def test_agent_asks_only_for_solution_changing_anchor_and_rejects_repeats() -> None:
