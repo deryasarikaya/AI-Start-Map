@@ -210,7 +210,7 @@ class Summary(StrictResultModel):
 
     engpass_satz: NonEmptyText
     loesungsname: NonEmptyText
-    relevante_module: Annotated[list[NonEmptyText], Field(min_length=3, max_length=5)]
+    relevante_module: Annotated[list[NonEmptyText], Field(max_length=5)]
 
 
 # Zwei Belege sind die Untergrenze, unter der der Abschnitt nicht mehr trägt:
@@ -289,14 +289,19 @@ class TargetPicture(StrictResultModel):
 
     name: NonEmptyText
     beschreibung: NonEmptyText
-    ablauf: Annotated[list[FlowStage], Field(min_length=2, max_length=6)]
+    # Keine Untergrenze: Ein Betrieb, dessen Arbeit in einer Ebene
+    # zusammenläuft, bekommt eine Ebene. Zwei zu verlangen erzwingt eine
+    # Verzweigung, die es nicht gibt.
+    ablauf: Annotated[list[FlowStage], Field(max_length=6)]
 
 
 class Comparison(StrictResultModel):
     """Derselbe Vorgang heute und künftig (`vergleich`)."""
 
-    heute: Annotated[list[NonEmptyText], Field(min_length=5, max_length=7)]
-    kuenftig: Annotated[list[NonEmptyText], Field(min_length=5, max_length=7)]
+    # Fünf Zeilen waren eine Zahl aus dem Entwurf. Ein einfacher Ablauf hat
+    # drei Schritte, und drei erfundene dazu wären keine Beschreibung mehr.
+    heute: Annotated[list[NonEmptyText], Field(max_length=7)]
+    kuenftig: Annotated[list[NonEmptyText], Field(max_length=7)]
 
 
 class Module(StrictResultModel):
@@ -483,8 +488,8 @@ class Boundary(StrictResultModel):
 class Division(StrictResultModel):
     """Was das System übernimmt und was beim Menschen bleibt."""
 
-    system: Annotated[list[NonEmptyText], Field(min_length=5, max_length=8)]
-    mensch: Annotated[list[NonEmptyText], Field(min_length=4, max_length=6)]
+    system: Annotated[list[NonEmptyText], Field(max_length=8)]
+    mensch: Annotated[list[NonEmptyText], Field(max_length=6)]
     grenzen: Annotated[list[Boundary], Field(max_length=3)] = []
 
     @model_validator(mode="after")
@@ -522,8 +527,8 @@ class Value(StrictResultModel):
     lässt sich aus einem Gespräch nicht belegen.
     """
 
-    faellt_weg: Annotated[list[NonEmptyText], Field(min_length=5, max_length=8)]
-    zeit_fuer: Annotated[list[NonEmptyText], Field(min_length=3, max_length=5)]
+    faellt_weg: Annotated[list[NonEmptyText], Field(max_length=8)]
+    zeit_fuer: Annotated[list[NonEmptyText], Field(max_length=5)]
 
     @model_validator(mode="after")
     def no_numbers_or_durations(self) -> Value:
@@ -587,7 +592,7 @@ class Diagnose(StrictResultModel):
     verstanden: Understanding
     #: Der Vorgang, wie er heute läuft. Das sind Kundenfakten und gehören
     #: deshalb hierher, nicht zur Lösung.
-    vergleich_heute: Annotated[list[NonEmptyText], Field(min_length=5, max_length=7)]
+    vergleich_heute: Annotated[list[NonEmptyText], Field(max_length=7)]
     rueckfrage: FollowUp | None = None
 
 
@@ -613,10 +618,10 @@ class Zielarchitektur(StrictResultModel):
     begruendung: NonEmptyText
     selected_solution_family_ids: Annotated[list[str], Field(max_length=8)]
     loesungsname: NonEmptyText
-    relevante_module: Annotated[list[NonEmptyText], Field(min_length=3, max_length=5)]
+    relevante_module: Annotated[list[NonEmptyText], Field(max_length=5)]
     warum_diese_loesung: NonEmptyText
     zielbild: TargetPicture
-    vergleich_kuenftig: Annotated[list[NonEmptyText], Field(min_length=5, max_length=7)]
+    vergleich_kuenftig: Annotated[list[NonEmptyText], Field(max_length=7)]
     module: Annotated[list[SelectedModule], Field(max_length=9)]
 
     @model_validator(mode="after")
@@ -653,10 +658,10 @@ class Zielarchitektur(StrictResultModel):
                 "Keine gültige Lösungsfamilie ausgewählt. Wenn nichts "
                 "passt, setze catalog_fit auf false."
             )
-        if len(self.module) < 3:
+        if not self.module:
             raise ValueError(
-                "Ein Zielbild trägt ab drei Modulen. Wenn weniger passen, "
-                "setze catalog_fit auf false und begründe es."
+                "Es wurden Familien gewählt, aber kein Modul daraus gebaut. "
+                "Wenn nichts passt, setze catalog_fit auf false."
             )
         self.selected_solution_family_ids = gueltig
         for modul in self.module:
@@ -701,11 +706,15 @@ class ResultPartOne(StrictResultModel):
     warum_diese_loesung: NonEmptyText
     zielbild: TargetPicture
     vergleich: Comparison
-    # Drei ist die Untergrenze, nicht sechs: Ein Dreipersonenbetrieb konnte
-    # vorher gar kein kleineres Zielbild bekommen als eine Hausverwaltung mit
-    # 450 Einheiten. Im Goldlauf vom 20.08. lagen darum vier von neun Fällen
-    # über ihrer Modulzahl — und alle vier zu hoch, keiner zu niedrig.
-    module: Annotated[list[Module], Field(min_length=3, max_length=9)]
+    # **Die Diagnose bestimmt die Größe, nicht das Schema.**
+    #
+    # Erst waren es sechs Module Mindestmenge, dann drei. Beide Zahlen
+    # standen ohne Begründung da, und beide erzwangen bei kleinen Betrieben
+    # eine Lösung, die größer war als ihr Problem. Ein Fall, dem ein Modul
+    # hilft, bekommt ein Modul; ein Fall ohne Katalogtreffer bekommt keins.
+    # Die Obergrenze bleibt — sie schützt vor einer Aufzählung statt einer
+    # Lösung.
+    module: Annotated[list[Module], Field(max_length=9)]
     # `None` ist der Normalfall und kein Mangel: Ein Agent, der nur fragt,
     # wenn er etwas braucht, wirkt klüger als einer, der immer fragt. Der
     # Vorgabewert steht hier, damit ein älteres gespeichertes Ergebnis ohne
@@ -739,7 +748,9 @@ class ResultPartTwoViews(StrictResultModel):
     Aufruf 1 und starb in fast der Hälfte der Läufe.
     """
 
-    ansichten: Annotated[list[View], Field(min_length=2, max_length=4)]
+    # Null bis vier: Eine Ansicht entsteht, wenn sie etwas erklärt. Zwei zu
+    # verlangen hiess, für einen einfachen Fall eine zweite zu erfinden.
+    ansichten: Annotated[list[View], Field(max_length=4)]
 
 
 class ResultPartTwoRest(StrictResultModel):
@@ -751,9 +762,11 @@ class ResultPartTwoRest(StrictResultModel):
 
     aufgabenteilung: Division
     wert: Value
-    systeme: Annotated[list[ConnectedSystem], Field(min_length=4, max_length=7)]
-    architektur: Annotated[list[ArchitectureLayer], Field(min_length=4, max_length=5)]
-    umsetzung: Annotated[list[NonEmptyText], Field(min_length=6, max_length=9)]
+    # Systeme kommen aus der Erzählung. Vier zu verlangen hiess, bei einem
+    # Betrieb mit Telefon und Zettel zwei zu erfinden.
+    systeme: Annotated[list[ConnectedSystem], Field(max_length=7)]
+    architektur: Annotated[list[ArchitectureLayer], Field(max_length=5)]
+    umsetzung: Annotated[list[NonEmptyText], Field(max_length=9)]
     # Keine Untergrenze, obwohl der Prompt zwei bis vier verlangt: Die
     # Prüfung unten sortiert aus, und eine leere Liste ist ein gültiges
     # Ergebnis. Ein erfundener Ratschlag ist schlimmer als kein Abschnitt.

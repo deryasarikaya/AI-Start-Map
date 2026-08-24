@@ -773,11 +773,19 @@ def test_three_modules_are_enough_for_a_small_business() -> None:
     assert len(teil.module) == 3
 
 
-def test_two_modules_are_not_a_target_picture() -> None:
-    """Unter drei ist es kein Zielbild mehr, sondern eine Aufzählung."""
+def test_one_module_is_enough_when_that_is_the_answer() -> None:
+    """Die Diagnose bestimmt die Größe, nicht das Schema.
 
-    with pytest.raises(ValidationError):
-        ResultPartOne.model_validate(_part_one(module=_module(2)), context=_kontext())
+    Erst waren sechs Module Pflicht, dann drei. Beide Zahlen standen ohne
+    Begründung da und erzwangen bei kleinen Betrieben eine Lösung, die
+    größer war als ihr Problem.
+    """
+
+    teil = ResultPartOne.model_validate(
+        _part_one(module=_module(1)), context=_kontext()
+    )
+
+    assert len(teil.module) == 1
 
 
 def test_ten_modules_are_still_too_many() -> None:

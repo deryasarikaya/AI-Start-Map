@@ -239,13 +239,32 @@ def test_too_many_families_are_rejected() -> None:
         _gewaehlt(selected_solution_family_ids=erlaubt)
 
 
-def test_a_target_picture_needs_at_least_three_modules() -> None:
-    """Unter drei Modulen ist es kein Zielbild, sondern eine Einzelautomation."""
+def test_one_module_is_a_valid_solution() -> None:
+    """Eine Einzelautomation ist eine Lösung, wenn der Fall eine ist."""
 
     daten = _zielarchitektur()
-    daten["module"] = daten["module"][:2]
+    daten["module"] = daten["module"][:1]
+    daten["selected_solution_family_ids"] = daten["module"][0][
+        "solution_family_ids"
+    ]
 
-    with pytest.raises(ValidationError, match="ab drei Modulen"):
+    with narrative(ERZAEHLUNG):
+        gewaehlt = Zielarchitektur.model_validate(daten)
+
+    assert len(gewaehlt.module) == 1
+
+
+def test_families_without_a_module_are_rejected() -> None:
+    """Wer Familien wählt, muss auch etwas daraus bauen.
+
+    Sonst stünde eine Auswahl da, die auf der Seite nirgends ankommt —
+    und niemand könnte sagen, was empfohlen wurde.
+    """
+
+    daten = _zielarchitektur()
+    daten["module"] = []
+
+    with pytest.raises(ValidationError, match="kein Modul daraus"):
         with narrative(ERZAEHLUNG):
             Zielarchitektur.model_validate(daten)
 
