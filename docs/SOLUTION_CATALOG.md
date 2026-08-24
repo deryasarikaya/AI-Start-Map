@@ -180,6 +180,23 @@ jede Empfehlung nachvollziehbar.
 
 ---
 
+## Das Geländer endet nicht bei den Modulen
+
+Auch Ansichten, Systeme, Architekturebenen und Umsetzungsschritte tragen
+intern `module_refs` — den Namen des Moduls, aus dem sie folgen. Der Server
+prüft, dass jeder Bezug zu einem bereits geprüften Modul gehört; was sich auf
+nichts beruft, kommt nicht durch.
+
+Damit kann keine Funktion nachträglich entstehen: Ohne diese Prüfung könnte
+eine Ansicht etwas zeigen, das in keinem Modul steht — und der Kunde würde
+glauben, es gäbe die Sache dahinter.
+
+**Bei SF-25 kommt eine Zahlensperre dazu.** Die Familie sagt zu,
+Deckungsbeitrag und Liquidität später aus den Daten des Betriebs zu rechnen.
+Solange das nicht geschehen ist, darf im Ergebnis kein Eurobetrag stehen —
+beschrieben werden darf die Rechnung, behauptet werden darf das Ergebnis
+nicht.
+
 ## Wenn nichts passt
 
 Das Modell wird nicht gezwungen, etwas zu wählen:

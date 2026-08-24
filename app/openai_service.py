@@ -34,6 +34,7 @@ from openai import APITimeoutError, OpenAI, OpenAIError
 from pydantic import BaseModel, ValidationError
 
 from app.result_schema import (
+    freigegebene_module,
     MINIMUM_EVIDENCE,
     Diagnose,
     ResultPartOne,
@@ -1001,7 +1002,15 @@ def generate_result_part_two(
         recommendation_context,
         loesungswissen,
     )
-    with narrative(narrative_text):
+    # **Der Geltungsbereich für Aufruf 3 und 4.** Innerhalb dieses Rahmens
+    # muss sich jede Ansicht, jedes System, jede Ebene und jeder Schritt
+    # auf eines der geprüften Module berufen. Was sich auf nichts beruft,
+    # kommt nicht durch.
+    module = [modul.name for modul in part_one.module]
+    familien = [
+        kennung for modul in part_one.module for kennung in modul.solution_family_ids
+    ]
+    with narrative(narrative_text), freigegebene_module(module, familien):
         ansichten = parse_structured_output(
             system_prompt=_prompt("ergebnis_teil2a"),
             payload=payload,

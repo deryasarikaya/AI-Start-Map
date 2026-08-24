@@ -228,7 +228,8 @@
   System.</p>
   <div class="doing">
     <b>Die Schritte dorthin</b>
-    <ul>{% for schritt in e.umsetzung %}<li>{{ schritt }}</li>{% endfor %}</ul>
+    {# Der Schritt trägt intern seine Herkunft; gezeigt wird nur der Text. #}
+    <ul>{% for schritt in e.umsetzung %}<li>{{ schritt.text }}</li>{% endfor %}</ul>
   </div>
 </div>
 </section>

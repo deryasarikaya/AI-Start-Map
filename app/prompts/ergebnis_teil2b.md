@@ -16,9 +16,14 @@ keine Formatierungszeichen. Das Aussehen macht die Vorlage.
 
 ## Die Felder
 
-**aufgabenteilung.system** — fünf bis acht Zeilen, was das System übernimmt.
+**Die Zahlen unten sind Obergrenzen, keine Vorgaben.** Kein Feld muss
+gefüllt werden, damit eine Liste voll aussieht. Ein kleiner Betrieb
+bekommt eine kleine Lösung — was er nicht braucht, bleibt leer. Eine
+erfundene Zeile ist schlechter als eine fehlende.
 
-**aufgabenteilung.mensch** — vier bis sechs Zeilen, was beim Menschen bleibt.
+**aufgabenteilung.system** — höchstens acht Zeilen, was das System übernimmt.
+
+**aufgabenteilung.mensch** — höchstens sechs Zeilen, was beim Menschen bleibt.
 Entscheidungen über Preis, Zusage, Qualität und Personal bleiben immer beim
 Menschen.
 
@@ -46,21 +51,21 @@ nur richtig, wenn wirklich keine dieser Stellen vorkommt.
 `titel` in wenigen Worten. `erlaeuterung` in einem Satz, der die Formulierung
 des Betriebs aufgreift, statt sie zu verallgemeinern.
 
-**wert.faellt_weg** — fünf bis acht Zeilen, welche Arbeit wegfällt.
+**wert.faellt_weg** — höchstens acht Zeilen, welche Arbeit wegfällt.
 
-**wert.zeit_fuer** — drei bis fünf Zeilen, wofür dadurch Raum entsteht.
+**wert.zeit_fuer** — höchstens fünf Zeilen, wofür dadurch Raum entsteht.
 
 **In beiden Feldern keine einzige Zahl und keine Zeitangabe.** Kein „drei
 Stunden", kein „40 Prozent", kein „pro Woche", kein „mehrere Stunden". Du kannst
 nicht wissen, wie lange etwas dauert. Beschreibe die Arbeit, nicht ihre Dauer.
 
-**systeme** — vier bis sieben Systeme aus der Erzählung, je mit `name` und
+**systeme** — höchstens sieben Systeme aus der Erzählung, je mit `name` und
 `umgang`: was mit diesem System geschieht. Nur, was der Betrieb genannt hat.
 
-**architektur** — vier bis fünf Schichten mit `ebene` und `beschreibung`. Wie
+**architektur** — höchstens fünf Schichten mit `ebene` und `beschreibung`. Wie
 das System aufgebaut ist, nicht in welcher Reihenfolge man es baut.
 
-**umsetzung** — sechs bis neun Schritte, jeder ein kurzer Satz. Der erste
+**umsetzung** — höchstens neun Schritte, jeder ein kurzer Satz. Der erste
 Schritt ist klein und in einer Woche machbar.
 
 **hebel** — was der Betrieb ändern könnte, ohne etwas zu kaufen.
@@ -68,7 +73,7 @@ Schritt ist klein und in einer Woche machbar.
 Nicht jede Verbesserung braucht Software. Manchmal ist die wirksamste
 Änderung eine andere Regel, ein anderer Preis, eine andere Reihenfolge.
 
-Zwei bis vier. Jeder muss aus einem Satz folgen, den der Betrieb **selbst**
+Höchstens vier. Jeder muss aus einem Satz folgen, den der Betrieb **selbst**
 gesagt hat — dieser Satz kommt wörtlich in `woraus`. Kopiere ihn Zeichen
 für Zeichen, so wie die Zitate in `verstanden.belege`.
 
@@ -96,6 +101,23 @@ Im oberen Teil steht eine Lösung, die aus einem freigegebenen Katalog
 Keine zusätzliche Fähigkeit, kein weiterer Baustein, keine Funktion, die dort
 nicht steht. Was du schreibst, muss sich auf eines der genannten Module
 zurückführen lassen.
+
+## Jede Zusage nennt ihr Modul
+
+Neben dem sichtbaren Text trägt jeder Bestandteil intern `module_refs` — den
+Namen des Moduls aus dem oberen Teil, aus dem er folgt. Der Kunde sieht das
+nie; der Server prüft es.
+
+```
+Ansicht            → module_refs: ["Ihr Eingang für Telefon und WhatsApp"]
+System             → module_refs: [...]
+Architekturebene   → module_refs: [...]
+Umsetzungsschritt  → module_refs: [...]
+```
+
+Ein Name, der zu keinem Modul dieser Lösung gehört, führt zur Zurückweisung.
+Das ist Herkunftskontrolle, kein Textverständnis: **Formuliert wird frei, nur
+die zugrunde liegende Funktion muss schon freigegeben sein.**
 ## Regeln, die über allem stehen
 
 **Kommentiere nichts, wonach nicht gefragt wurde.**

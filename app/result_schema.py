@@ -29,7 +29,7 @@ from __future__ import annotations
 import contextvars
 import logging
 import re
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from typing import Annotated, Any, Literal
 
@@ -116,6 +116,104 @@ _aussortierte_zitate: contextvars.ContextVar[list[str] | None] = contextvars.Con
     "result_rejected_quotes",
     default=None,
 )
+
+
+#: Die Modulnamen, auf die sich Aufruf 3 und 4 berufen dürfen — samt der
+#: gewählten Familien. Wie `_narrative` eine Kontextvariable, weil die
+#: OpenAI-Schnittstelle das Modell selbst baut und keinen
+#: Validierungskontext durchreicht.
+_freigegebene_module: contextvars.ContextVar[tuple[str, ...] | None] = (
+    contextvars.ContextVar("freigegebene_module", default=None)
+)
+_gewaehlte_familien: contextvars.ContextVar[tuple[str, ...] | None] = (
+    contextvars.ContextVar("gewaehlte_familien", default=None)
+)
+
+
+def _vergleichbarer_name(text: str) -> str:
+    """Zwei Modulnamen vergleichbar machen, ohne sie zu verändern."""
+
+    return " ".join(str(text).split()).casefold()
+
+
+@contextmanager
+def freigegebene_module(
+    namen: Sequence[str], familien: Sequence[str] = ()
+) -> Iterator[None]:
+    """Stellt für die Dauer eines Aufrufs, worauf er sich berufen darf.
+
+    Ohne diesen Rahmen prüft nichts: Aufruf 3 und 4 dürfen keine Ansicht,
+    kein System, keine Ebene und keinen Schritt erfinden, der zu keinem
+    freigegebenen Modul gehört.
+    """
+
+    marke = _freigegebene_module.set(tuple(namen))
+    marke_familien = _gewaehlte_familien.set(tuple(familien))
+    try:
+        yield
+    finally:
+        _freigegebene_module.reset(marke)
+        _gewaehlte_familien.reset(marke_familien)
+
+
+def _pruefe_modulbezug(bezuege: Sequence[str], wofuer: str) -> list[str]:
+    """Jeder Bezug muss auf ein freigegebenes Modul zeigen.
+
+    Kein Textverständnis, nur Herkunft: Der Name muss in der Liste der
+    bereits geprüften Module stehen. Ist kein Rahmen gesetzt — etwa beim
+    Lesen eines gespeicherten Ergebnisses —, wird nicht geprüft.
+    """
+
+    erlaubt = _freigegebene_module.get()
+    if erlaubt is None:
+        return list(bezuege)
+    bekannt = {_vergleichbarer_name(name): name for name in erlaubt}
+    getroffen: list[str] = []
+    fremd: list[str] = []
+    for bezug in bezuege:
+        treffer = bekannt.get(_vergleichbarer_name(bezug))
+        if treffer is None:
+            fremd.append(bezug)
+        elif treffer not in getroffen:
+            getroffen.append(treffer)
+    if fremd:
+        raise ValueError(
+            f"{wofuer} beruft sich auf {fremd}. Das ist kein Modul dieser "
+            f"Lösung. Erlaubt sind: {list(erlaubt)}."
+        )
+    if not getroffen:
+        raise ValueError(
+            f"{wofuer} nennt kein Modul. Jede Ansicht, jedes System, jede "
+            "Ebene und jeder Schritt gehört zu einem der Module."
+        )
+    return getroffen
+
+
+#: Was nach einer erfundenen Zahl aussieht. SF-25 beschreibt eine Lösung,
+#: die Beträge später **berechnet** — sie stehen nicht im Ergebnis.
+GELDBETRAG = re.compile(
+    r"(?:€|\bEUR\b|\bEuro\b)\s*-?\d|\d[\d.,]*\s*(?:€|\bEUR\b|\bEuro\b)",
+    re.IGNORECASE,
+)
+
+
+def _pruefe_keine_geldbetraege(werte: Any, wofuer: str) -> None:
+    """Bei gewählter SF-25: keine erfundenen Beträge im Kundentext.
+
+    Die Familie darf beschrieben werden — dass sie Deckungsbeitrag und
+    Liquidität aus strukturierten Daten ermittelt, ist ihre Aussage. Was
+    sie nicht darf: eine Zahl nennen, die niemand gerechnet hat.
+    """
+
+    if "SF-25" not in (_gewaehlte_familien.get() or ()):
+        return
+    for text in _plain_texts(werte):
+        if GELDBETRAG.search(text):
+            raise ValueError(
+                f"{wofuer} nennt einen Geldbetrag: {text!r}. Die Lösung "
+                "rechnet solche Werte später aus den Daten des Betriebs — "
+                "hier darf keine Zahl stehen, die niemand gerechnet hat."
+            )
 
 
 @contextmanager
@@ -465,6 +563,8 @@ class View(StrictResultModel):
     titel: NonEmptyText
     beschreibung: NonEmptyText
     daten: ViewData
+    #: Welches Modul diese Ansicht zeigt. Intern, nie auf der Seite.
+    module_refs: list[str] = []
 
     @model_validator(mode="after")
     def data_must_fit_the_type(self) -> View:
@@ -475,6 +575,12 @@ class View(StrictResultModel):
                 raise ValueError(
                     f"Die Ansicht „{self.typ}“ braucht Werte in „{feld}“."
                 )
+        self.module_refs = _pruefe_modulbezug(
+            self.module_refs, f"Die Ansicht „{self.titel}“"
+        )
+        _pruefe_keine_geldbetraege(
+            self.daten.model_dump(), f"Die Ansicht „{self.titel}“"
+        )
         return self
 
 
@@ -546,11 +652,54 @@ class Value(StrictResultModel):
         return self
 
 
+class ImplementationStep(StrictResultModel):
+    """Ein Schritt der Umsetzung (`umsetzung`).
+
+    War bis zum 24.08. eine blosse Zeichenkette. Seit die späteren Aufrufe
+    nichts mehr hinzufügen dürfen, trägt jeder Schritt seine Herkunft.
+    """
+
+    text: NonEmptyText
+    module_refs: list[str] = []
+
+    @model_validator(mode="before")
+    @classmethod
+    def a_plain_sentence_is_a_step(cls, wert: object) -> object:
+        """Ein gespeichertes Ergebnis von vor dem 24.08. führt hier Text.
+
+        Der Beispiellauf vom 18.08. ist so abgelegt. Ihm nachträglich eine
+        Herkunft anzudichten hiesse, einen geprüften Durchlauf zu fälschen —
+        also bleibt er lesbar, mit leerer Herkunft.
+        """
+
+        return {"text": wert} if isinstance(wert, str) else wert
+
+    @model_validator(mode="after")
+    def the_step_belongs_to_a_module(self) -> ImplementationStep:
+        """Kein Schritt ohne Modul."""
+
+        self.module_refs = _pruefe_modulbezug(
+            self.module_refs, f"Der Umsetzungsschritt „{self.text[:40]}“"
+        )
+        return self
+
+
 class ConnectedSystem(StrictResultModel):
     """Ein System, das verbunden würde (`systeme`)."""
 
     name: NonEmptyText
     umgang: NonEmptyText
+    #: Zu welchem Modul dieses System gehört. Intern.
+    module_refs: list[str] = []
+
+    @model_validator(mode="after")
+    def the_system_belongs_to_a_module(self) -> ConnectedSystem:
+        """Kein System ohne Modul, das es anfasst."""
+
+        self.module_refs = _pruefe_modulbezug(
+            self.module_refs, f"Das System „{self.name}“"
+        )
+        return self
 
 
 class ArchitectureLayer(StrictResultModel):
@@ -558,6 +707,17 @@ class ArchitectureLayer(StrictResultModel):
 
     ebene: NonEmptyText
     beschreibung: NonEmptyText
+    #: Aus welchem Modul diese Ebene folgt. Intern, der Kunde sieht es nie.
+    module_refs: list[str] = []
+
+    @model_validator(mode="after")
+    def the_layer_belongs_to_a_module(self) -> ArchitectureLayer:
+        """Keine Ebene ohne Modul."""
+
+        self.module_refs = _pruefe_modulbezug(
+            self.module_refs, f"Die Architekturebene „{self.ebene}“"
+        )
+        return self
 
 
 class FollowUp(StrictResultModel):
@@ -766,7 +926,7 @@ class ResultPartTwoRest(StrictResultModel):
     # Betrieb mit Telefon und Zettel zwei zu erfinden.
     systeme: Annotated[list[ConnectedSystem], Field(max_length=7)]
     architektur: Annotated[list[ArchitectureLayer], Field(max_length=5)]
-    umsetzung: Annotated[list[NonEmptyText], Field(max_length=9)]
+    umsetzung: Annotated[list[ImplementationStep], Field(max_length=9)]
     # Keine Untergrenze, obwohl der Prompt zwei bis vier verlangt: Die
     # Prüfung unten sortiert aus, und eine leere Liste ist ein gültiges
     # Ergebnis. Ein erfundener Ratschlag ist schlimmer als kein Abschnitt.
@@ -774,6 +934,18 @@ class ResultPartTwoRest(StrictResultModel):
     # Beispiellauf vom 18.08. kennt dieses Feld nicht, und ihm Hebel
     # anzudichten hiesse, einen geprüften Durchlauf zu fälschen.
     hebel: Annotated[list[Lever], Field(max_length=4)] = []
+
+    @model_validator(mode="after")
+    def no_invented_money(self) -> ResultPartTwoRest:
+        """Bei gewählter SF-25 steht hier keine erfundene Zahl.
+
+        Die Familie sagt zu, Deckungsbeitrag und Liquidität später aus den
+        Daten des Betriebs zu **rechnen**. Ein Betrag im Ergebnistext wäre
+        keine Rechnung, sondern eine Behauptung.
+        """
+
+        _pruefe_keine_geldbetraege(self.model_dump(), "Der untere Teil")
+        return self
 
     @model_validator(mode="after")
     def levers_are_checked_one_by_one(

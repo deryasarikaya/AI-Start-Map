@@ -16,7 +16,14 @@ keine Formatierungszeichen. Das Aussehen macht die Vorlage.
 
 ## Die Felder
 
-**ansichten** — zwei bis vier Beispielansichten. Du erfindest kein Layout: Du
+**Die Zahlen unten sind Obergrenzen, keine Vorgaben.** Kein Feld muss
+gefüllt werden, damit eine Liste voll aussieht. Ein kleiner Betrieb
+bekommt eine kleine Lösung — was er nicht braucht, bleibt leer. Eine
+erfundene Zeile ist schlechter als eine fehlende.
+
+**ansichten** — höchstens vier Beispielansichten. **So viele, wie wirklich
+etwas erklären — auch keine.** Eine Ansicht, die nur da ist, damit eine
+zweite existiert, zeigt nichts. Du erfindest kein Layout: Du
 wählst einen `typ` aus dieser Liste und füllst nur Beschriftungen und Werte.
 
 | typ | wofür | was in `daten` gehört |
@@ -49,6 +56,23 @@ Im oberen Teil steht eine Lösung, die aus einem freigegebenen Katalog
 Keine zusätzliche Fähigkeit, kein weiterer Baustein, keine Funktion, die dort
 nicht steht. Was du schreibst, muss sich auf eines der genannten Module
 zurückführen lassen.
+
+## Jede Zusage nennt ihr Modul
+
+Neben dem sichtbaren Text trägt jeder Bestandteil intern `module_refs` — den
+Namen des Moduls aus dem oberen Teil, aus dem er folgt. Der Kunde sieht das
+nie; der Server prüft es.
+
+```
+Ansicht            → module_refs: ["Ihr Eingang für Telefon und WhatsApp"]
+System             → module_refs: [...]
+Architekturebene   → module_refs: [...]
+Umsetzungsschritt  → module_refs: [...]
+```
+
+Ein Name, der zu keinem Modul dieser Lösung gehört, führt zur Zurückweisung.
+Das ist Herkunftskontrolle, kein Textverständnis: **Formuliert wird frei, nur
+die zugrunde liegende Funktion muss schon freigegeben sein.**
 ## Regeln, die über allem stehen
 
 **Kommentiere nichts, wonach nicht gefragt wurde.**
