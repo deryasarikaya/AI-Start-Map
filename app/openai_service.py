@@ -786,7 +786,7 @@ def generate_diagnosis(
     payload: dict[str, object] = {
         "SO_ERZAEHLT_ES_DER_BETRIEB": {"erzaehlung": narrative_text},
         "VERBOTENE_WOERTER": list(FORBIDDEN_CUSTOMER_TERMS),
-        "NUR_INTERNES_VERGLEICHSWISSEN_NIE_AUSGEBEN": list(knowledge_chunks),
+        "VERGLEICHSWISSEN_DIAGNOSE_NIE_AUSGEBEN": list(knowledge_chunks),
     }
     with narrative(narrative_text):
         return parse_structured_output(

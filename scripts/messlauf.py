@@ -314,9 +314,9 @@ def _prompt_zeichen(erzaehlung: str, abruf: bool, prompt: str) -> int:
 def _abgerufenes_wissen(erzaehlung: str) -> list[str]:
     """Die Abschnitte, die der Abruf zu dieser Erzählung findet."""
 
-    from app.services.analysis_service import solution_architecture_context
+    from app.services.analysis_service import diagnose_context
 
-    return solution_architecture_context(erzaehlung)
+    return diagnose_context(erzaehlung)
 
 
 def _gespeichert(client) -> dict | None:

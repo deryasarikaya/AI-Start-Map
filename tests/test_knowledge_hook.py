@@ -361,7 +361,7 @@ def test_without_an_index_nothing_is_retrieved(ohne_index: None) -> None:
 def test_the_prompt_section_is_empty_without_knowledge(ohne_index: None) -> None:
     """Ohne Index bleibt der Abschnitt leer, und der Lauf geht trotzdem."""
 
-    assert analysis_service.solution_architecture_context(ERZAEHLT) == []
+    assert analysis_service.diagnose_context(ERZAEHLT) == []
 
 
 def test_a_failing_retrieval_does_not_take_the_run_down(
@@ -374,10 +374,10 @@ def test_a_failing_retrieval_does_not_take_the_run_down(
 
     monkeypatch.setattr(analysis_service, "retrieve_solution_context", scheitert)
 
-    assert analysis_service.solution_architecture_context(ERZAEHLT) == []
+    assert analysis_service.diagnose_context(ERZAEHLT) == []
 
 
-def test_retrieved_knowledge_reaches_the_first_call(
+def test_only_diagnostic_knowledge_reaches_the_first_call(
     mit_index: None, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Was abgerufen wurde, steht im Prompt — in der Reihenfolge des Wegs.
@@ -395,15 +395,17 @@ def test_retrieved_knowledge_reaches_the_first_call(
         rag_service.retrieve_solution_context,
     )
 
-    aufbereitet = analysis_service.solution_architecture_context(ERZAEHLT)
+    aufbereitet = analysis_service.diagnose_context(ERZAEHLT)
 
     zusammen = "\n".join(aufbereitet)
+    # Was die Diagnose einordnen hilft, kommt an.
     assert "Inhalt zu BP-G" in zusammen
     assert "Inhalt zu DP-01" in zusammen
-    assert "Inhalt zu SF-02" in zusammen
-    assert "Inhalt zu CAP-04" in zusammen
-    assert "Inhalt zu TA-01" in zusammen
-    assert "Inhalt zu SF-13" not in zusammen
+    # **Und kein Lösungswissen.** Wer die Lösung kennt, diagnostiziert auf
+    # sie hin — aus „der Kunde erwähnt Termine" würde „wir verkaufen
+    # Terminbuchung".
+    for loesung in ("SF-", "CAP-", "TA-"):
+        assert loesung not in zusammen, loesung
 
 
 def test_the_prompt_says_what_the_knowledge_is_and_is_not() -> None:

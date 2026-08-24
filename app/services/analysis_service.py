@@ -121,13 +121,21 @@ def vorgeschlagene_familien(diagnose: Diagnose) -> list[str]:
     return [familie.chunk_id for familie in gefunden.loesungsfamilien]
 
 
-def solution_architecture_context(narrative_text: str) -> list[str]:
-    """Das abgerufene Lösungswissen, fertig für den Prompt.
+def diagnose_context(narrative_text: str) -> list[str]:
+    """Vergleichswissen für die **Diagnose** — Betriebsarten und Muster.
 
-    Leer, solange kein Batch indexiert ist — der Prompt muss auch ohne dieses
-    Wissen vollständig funktionieren. Ein Abruf, der scheitert, darf den Lauf
-    nicht mitreissen: Hintergrundwissen ist Beiwerk, die Erzählung ist die
-    Grundlage.
+    **Ohne Lösungswissen.** Bis zum 24.08. reichte diese Stelle den ganzen
+    Abruf hinein: Familien, Fähigkeiten und Zielbild lagen dem
+    Diagnoseaufruf vor. Wer die Lösung kennt, diagnostiziert auf sie hin —
+    und aus „der Kunde erwähnt Termine" wird „wir verkaufen
+    Terminbuchung".
+
+    Ein Muster ist Vergleichsmaterial, nie ein Beleg über diesen Betrieb.
+    Was über ihn gesagt wird, steht in seiner Erzählung.
+
+    Leer, solange kein Batch indexiert ist — der Prompt muss auch ohne
+    dieses Wissen vollständig funktionieren. Ein Abruf, der scheitert,
+    darf den Lauf nicht mitreissen.
     """
 
     try:
@@ -135,7 +143,7 @@ def solution_architecture_context(narrative_text: str) -> list[str]:
     except (AIServiceError, RagConfigurationError):
         logger.warning("solution_architecture.retrieval_failed")
         return []
-    abschnitte = gefunden.all_chunks()
+    abschnitte = [*gefunden.betriebsarten, *gefunden.diagnosemuster]
     return format_chunks_for_prompt(abschnitte) if abschnitte else []
 
 
@@ -161,9 +169,9 @@ def run_first_call(session_id: int, database_session: Session) -> Diagnose:
     begonnen = perf_counter()
     diagnose = generate_diagnosis(
         narrative_text=erzaehlung,
-        # Diagnosemuster als Vergleichswissen — nie als Beleg über diesen
-        # Betrieb. Was über ihn gesagt wird, steht in seiner Erzählung.
-        knowledge_chunks=solution_architecture_context(erzaehlung),
+        # Nur Betriebsarten und Diagnosemuster. Lösungswissen kommt erst
+        # nach der Diagnose, und dann als Katalogauswahl.
+        knowledge_chunks=diagnose_context(erzaehlung),
     )
     repository.save_partial_result(
         database_session,

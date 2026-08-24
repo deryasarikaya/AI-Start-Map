@@ -20,6 +20,11 @@ Diese Trennung ist der Grund für den mehrstufigen Aufbau.
 | # | Aufruf | Prompt | Schema | was entsteht |
 |---|---|---|---|---|
 | 1 | Diagnose | `diagnose.md` | `Diagnose` | Engpass, Belege, Eckdaten, heutiger Ablauf, Rückfrage |
+
+**Aufruf 1 sieht kein Lösungswissen.** Er bekommt die Erzählung, dazu
+Betriebsarten und Diagnosemuster als Vergleichsmaterial — keine
+Lösungsfamilien, keine Fähigkeiten, kein Zielbild. Wer die Lösung kennt,
+diagnostiziert auf sie hin.
 | 2 | Zielarchitektur | `zielarchitektur.md` | `Zielarchitektur` | Katalogauswahl, Module, Name, Zielbild, künftiger Ablauf |
 | 3 | Ansichten | `ergebnis_teil2a.md` | `ResultPartTwoViews` | Beispieloberflächen |
 | 4 | Rest | `ergebnis_teil2b.md` | `ResultPartTwoRest` | Aufgabenteilung, Wert, Systeme, Umsetzung, Hebel |

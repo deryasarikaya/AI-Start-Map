@@ -552,10 +552,10 @@ def _prompt_quellen(erzaehlung: str) -> list[str]:
     und wird an anderer Stelle sogar erzwungen.
     """
 
-    from app.services.analysis_service import solution_architecture_context
+    from app.services.analysis_service import diagnose_context
 
     prompt = (WURZEL / "app/prompts/ergebnis_teil1.md").read_text(encoding="utf-8")
-    return [prompt, *solution_architecture_context(erzaehlung)]
+    return [prompt, *diagnose_context(erzaehlung)]
 
 
 def main() -> int:
