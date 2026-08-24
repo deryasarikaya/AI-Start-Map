@@ -1,0 +1,87 @@
+# AI Start Map V2 – sichtbare Nutzerreise
+
+**Status:** Active – implemented, tested and documented
+**Letzte Prüfung:** 2026-08-07
+**Hinweis:** Verbindliche Zielreise; Implementierungsstatus steht im Projektstand.
+**Verwandt mit:** `docs/specs/product-output/requirements.md`, `docs/specs/solution-pattern-recommendation/`, `docs/product/AI_Start_Map_Fachgrundlage_Painpoints_Solutions_2026-08-05.md`
+
+_Stand: 26.07.2026_
+
+## Zielreise
+
+```text
+Landingpage
+→ freie Erzählung per Sprache oder Text
+→ automatische Prozesserkennung
+→ einen von höchstens drei Abläufen auswählen
+→ nur entscheidungsrelevante Rückfrage(n)
+→ sichtbare Verarbeitung
+→ eine priorisierte Hauptlösung mit Ergebnisvorschau
+→ optional Umsetzung, weitere Möglichkeiten, Details, PDF, weiterer Ablauf oder Kontakt
+```
+
+Die Fortschrittsanzeige hat überall drei Zustände: `Erzählen → Verstehen → Ergebnis`. Rückfragen gehören zu „Verstehen“. Die interne numerische Session-ID erscheint weder in URLs der öffentlichen Reise noch im Seiteninhalt.
+
+## Minimal-Change-Plan
+
+Die vorhandenen FastAPI-Routen, fünf PostgreSQL-Tabellen, JSONB-Ergebnisfelder, Structured Outputs, RAG-Services und signierten Sitzungscookies bleiben erhalten. Es ist keine Migration erforderlich. Die sichtbaren Templates, zentrale Styles, Analysefelder und Agentenheuristiken wurden innerhalb dieser Architektur angepasst.
+
+## Landingpage
+
+Die Seite besteht aus vier kompakten Bereichen: Hero, vier typische Zeitfresser, drei Schritte und ein kurzer Vergleich mit einem allgemeinen KI-Tipp. Der Hero fragt „Wo könnte KI dir im Alltag wirklich Arbeit abnehmen?“ und führt direkt zur Ablaufbeschreibung. Einen Schluss-CTA und lange Marketingvergleiche gibt es nicht mehr.
+
+## Erzählen und Processing
+
+Browser-Spracherkennung (`SpeechRecognition`/`webkitSpeechRecognition`) nutzt Deutsch als Standardsprache. Das Transkript bleibt editierbar und ein großes Textfeld funktioniert immer als Fallback. Beim Absenden werden Schaltflächen sofort deaktiviert und der gemeinsame Processing-Layer angezeigt.
+
+Nach der Erzählung lädt eine automatische Verarbeitungsansicht die Prozesserkennung ohne weitere Schaltfläche. Bei der finalen Analyse fragt die Seite den echten Serverstatus ab und leitet nach Abschluss automatisch zum Ergebnis weiter. Es gibt keine künstlichen Prozentangaben. Fehler erhalten die Eingaben und bieten Retry beziehungsweise Rückkehr zur Korrektur.
+
+Ein späterer `MediaRecorder`- und Transkriptionsweg ist nicht umgesetzt und bleibt eine mögliche Erweiterung.
+
+## Prozesswahl
+
+Die App zeigt höchstens drei Prozesse und markiert die wahrscheinlich relevanteste Option. Jede Karte enthält standardmäßig nur Name, kurzen Problemsatz und die Hauptaktion. Start und Ende sind unter „Details anzeigen“ eingeklappt.
+
+Nach der Auswahl rekonstruiert die App den Ist-Ablauf mit höchstens fünf kurzen Schritten und schreibt daraus alle sieben Prozessantworten. Eine eigene Bestätigungsseite gibt es nicht mehr: Der Nutzer sah dort eine Zusammenfassung, die er nur bestätigen konnte, und der Schritt kostete ihn einen Klick ohne Erkenntnisgewinn. Der Ablauf führt jetzt direkt zur Rückfrage oder zur Verarbeitung weiter. Wer etwas ändern will, geht zur Prozesswahl zurück. Der rekonstruierte Ist-Ablauf erscheint als responsive vertikale HTML-/CSS-Prozessleiste auf der Ergebnisseite. Mermaid wird in der sichtbaren Nutzerreise und im Bericht nicht mehr verwendet; Lesbarkeit und sichere Zeilenumbrüche haben Vorrang.
+
+## Rückfragen und Agent
+
+Der Agent darf `ASK`, `CLARIFY`, `RETRIEVE`, `ANALYZE` oder `STOP` wählen. Eine Frage ist nur zulässig, wenn ihre Antwort Problemfamilie, Ursache, Vorgangsanker, Kanaleignung, Prozess-/Datenreife, Risiko, Human Check, zulässiges Solution Pattern oder primäre Empfehlung verändern kann.
+
+- Null Rückfragen sind ausdrücklich möglich.
+- Normal sind null bis zwei Fragen.
+- Drei Fragen sind komplexen Fällen vorbehalten.
+- Vier bleiben die technische sichtbare Obergrenze.
+- Beantwortete, bestätigte, korrigierte, aus der Erzählung bekannte und bewusst übersprungene Informationen werden nicht erneut gefragt.
+- „Das habe ich doch schon gesagt“ führt zur erneuten State-Prüfung, nicht zur Rechtfertigung oder Wiederholung.
+- „Weiß ich nicht“ bleibt als Unsicherheit erhalten.
+
+Die zentralen, später zu kalibrierenden Heuristiken liegen ausschließlich in `app/agent_config.py`. Agenten- und Tool-Runden bleiben begrenzt. Nutzerfakten, Extraktionen, Ableitungen, RAG-Evidenz, Widersprüche und Unsicherheiten bleiben technisch getrennt.
+
+## Kernoutput – neuer Vertrag
+
+Der Ergebnisbildschirm zeigt sieben sichtbare Blöcke: „Das ist der Engpass“, „So läuft es heute“, „Das schlage ich dir vor“, „So würde es künftig laufen“, die gekennzeichnete Vorher-/Nachher-Veranschaulichung, „Nichts geht ohne dich raus“ und „So klein fängst du an“. Wer was tut, steht in höchstens sechs Alltagsschritten; eine Rollentabelle wird nicht gezeigt. Der rekonstruierte Ist-Ablauf steht offen und ist auf fünf Schritte gekürzt. Weitere Möglichkeiten werden in der Hauptansicht nicht gezeigt.
+
+Es gibt keinen Wochentest und keine Pflicht zu drei Opportunities. Alle sichtbaren Ergebnistexte sprechen den Kunden direkt mit „du“ an. Diagnosekontext, Risiken und technische Varianten bleiben Details oder Druckbericht.
+
+Ist KI heute noch nicht sinnvoll, sagt das Ergebnis ausdrücklich, dass KI noch nicht der erste Schritt ist, und nennt die Voraussetzung für eine spätere konkrete Unterstützung. Tieferer Diagnosekontext, heutiger Ablauf, Unsicherheiten und spätere Möglichkeiten sind standardmäßig geschlossen.
+
+## Startplan, PDF und Kontakt
+
+„So klein fängst du an“ nennt eine einzige begrenzte Erprobung statt eines Projektplans. Preise, Zusagen an Kunden, Rechnungen, Personal und Qualität bleiben beim Menschen.
+
+Die Druckansicht umfasst höchstens zwei Seiten. Seite 1 zeigt Diagnosehinweis, Engpass als Fließtext, Hauptlösung, Zukunftsablauf und dieselbe gekennzeichnete Vorher-/Nachher-Veranschaulichung. Seite 2 zeigt menschliche Kontrolle, höchstens drei Voraussetzungen, höchstens drei wichtige widerspruchsfreie offene Fragen, kleinsten Einstieg, späteren Ausbau und Kontakt. CSS kann Browser-Kopf- und Fußzeilen nicht abschalten; die Oberfläche weist deshalb darauf hin, sie im Druckdialog abzuwählen.
+
+Die PDF wird über `window.print()` gespeichert. Der Mailto-Link behauptet nicht, die PDF automatisch anzuhängen.
+
+## Daten- und Wissensgrenzen
+
+Der Diagnoseindex mit 634 Chunks und der Agent-Pattern-Index mit 205 Patterns bleiben getrennt. Der Agent-Pattern-Index unterstützt Rückfragen kontrolliert; der strukturierte Solution-Katalog wird direkt ohne neuen Index geladen. Alle 79 Evaluationen bleiben außerhalb jedes Indexes. RAG-Evidenz ist nur Vergleichswissen und wird niemals als Nutzerfakt gespeichert oder sichtbar ausgegeben. In dieser Überarbeitung wurden weder Research-Batches noch Indizes neu gebaut.
+
+## Abnahme
+
+Automatisiert geprüft werden Kernoutput, Agentenlimits, Null-Rückfragen, No-Repeat, Hausmeister, Schuhmacher, Blumenladen, Massagesalon, menschliche Freigaben, Retrieval-Vertrag, Agent-Pattern-Aufruf, variable Opportunity-Anzahl, responsive CSS-Grundregeln, variable Berichtsseiten und das Fehlen interner IDs. Desktop, schmaler Mobile-Viewport und Bericht wurden zusätzlich in Chrome visuell geprüft; physische Geräte und Safari bleiben offen.
+
+## Aktuell bestätigte Darstellungsregeln
+
+Die aktiven Design-Tokens liegen in `app/static/styles.css`: Ink `#183B32`, Green `#2F6B57`, Green Soft `#DCEBE4`, Cream `#FFF9F1`, Sun `#F3C75F`, Coral `#E98B6D` und Sky `#DDECF2`. Mobile startet einspaltig, Touch-Ziele liegen ungefähr bei 48–56 Pixeln und sichtbare Prozessdarstellungen bleiben vertikal. Mermaid ist aus Bestätigung, Ergebnis und PDF entfernt; validierte `as_is_steps` werden als HTML/CSS-Prozesslinie gerendert. Diese Aussagen übernehmen die weiterhin relevanten Teile der archivierten `UI_REDESIGN_NOTES_2026-07-26.md`.
