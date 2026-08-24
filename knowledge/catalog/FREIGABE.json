@@ -1,0 +1,36 @@
+{
+  "_hinweis": "Die erlaubte Lösungsmenge von AI Start Map. Nur was hier steht, darf empfohlen werden. Eine Familie deaktivieren heißt: aus dieser Liste nehmen — kein Codeeingriff nötig.",
+  "_stand": "2026-08-24",
+  "_freigegeben_durch": "product_owner",
+  "erlaubt": [
+    "SF-01",
+    "SF-02",
+    "SF-03",
+    "SF-04",
+    "SF-05",
+    "SF-06",
+    "SF-07",
+    "SF-08",
+    "SF-09",
+    "SF-10",
+    "SF-11",
+    "SF-12",
+    "SF-13",
+    "SF-14",
+    "SF-15",
+    "SF-16",
+    "SF-17",
+    "SF-18",
+    "SF-19",
+    "SF-20",
+    "SF-21",
+    "SF-22",
+    "SF-23",
+    "SF-24",
+    "SF-25"
+  ],
+  "_nicht_freigegeben": {
+    "SF-26": "Personalgewinnung — als Bausteine in SF-21 aufgegangen, keine eigene Familie",
+    "SF-27": "Kundenstimmung — als Bausteine in SF-13 aufgegangen, keine eigene Familie"
+  }
+}

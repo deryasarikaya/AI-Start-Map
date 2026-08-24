@@ -1,0 +1,27 @@
+{
+  "fall_id": "07_fotograf",
+  "titel": "Fotograf, Projekt und Freigabe, klein",
+  "erzaehlung": "Ich bin selbstständiger Fotograf, hauptsächlich Hochzeiten und Familienshootings. Anfragen kommen über Instagram, über meine Website und per Mail. Vor einem Shooting sammle ich alles zusammen, was der Kunde geschrieben hat — Wünsche, Beispielbilder, Ort, Uhrzeit, wer alles dabei ist — und schreibe mir daraus ein Briefing. Das ist jedes Mal Puzzlearbeit, weil die Infos über Wochen und über drei Kanäle verteilt reinkommen. Nach dem Shooting lade ich die Auswahl in eine Galerie hoch, und dann kommen die Änderungswünsche: mal per WhatsApp, mal als Mail, mal als Kommentar in der Galerie. „Bild 14 bitte heller\", „das mit der Oma nochmal anders beschneiden\". Ich arbeite die ab, aber ich verliere den Überblick, welche Version gerade aktuell ist und was schon freigegeben wurde. Zweimal habe ich schon eine ältere Fassung ausgeliefert. Und dann die Rechnung — da muss ich nochmal nachschauen, was wir eigentlich vereinbart hatten.",
+  "quelle": "synthetischer Testfall, erfunden für die Evaluation",
+  "bewertung": {
+    "engpass_in_einem_satz": "Briefing und Änderungswünsche verteilen sich über Wochen und drei Kanäle.",
+    "startpunkt": "einzelne_automation",
+    "module_anzahl_von": 3,
+    "module_anzahl_bis": 5,
+    "muss_vorkommen": [
+      "Anfrage",
+      "Briefing",
+      "Änderung"
+    ],
+    "darf_nicht_vorkommen": [
+      "automatische Kundenkommunikation",
+      "Portal",
+      "Marketing"
+    ],
+    "darf_nirgends_vorkommen": [],
+    "betriebsart": [
+      "D"
+    ],
+    "notiz": ""
+  }
+}

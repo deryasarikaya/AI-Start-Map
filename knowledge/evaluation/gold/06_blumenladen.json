@@ -1,0 +1,26 @@
+{
+  "fall_id": "06_blumenladen",
+  "titel": "Blumenladen, drei Personen",
+  "erzaehlung": "Ich habe einen kleinen Blumenladen, wir sind zu dritt. Bestellungen kommen inzwischen über ganz verschiedene Wege rein. Manche Kunden schreiben über WhatsApp, andere über Instagram oder per E-Mail, und die Stammkunden rufen einfach an. Dazu kommen die Bestellungen aus unserem kleinen Onlineshop. Während des Tages schreibe ich mir vieles schnell auf einen Zettel oder merke es mir erst mal. Fotos von Sträußen, Lieferadressen und Sonderwünsche liegen überall verteilt — mal im Chat, mal in der Galerie, mal auf dem Block neben der Kasse. Wenn wir dann die Bestellungen vorbereiten oder ausliefern, muss ich oft nochmal in mehreren Chats nachsehen, was genau der Kunde eigentlich wollte. Bei den Anrufen ist es am schlimmsten, da steht hinterher manchmal gar nichts. Was ich mir wünsche: dass alle Bestellungen an einer Stelle zusammenkommen und vollständig vorbereitet sind, ohne dass ich ständig alles zusammensuchen muss.",
+  "quelle": "synthetischer Testfall, erfunden für die Evaluation",
+  "bewertung": {
+    "engpass_in_einem_satz": "Eine Bestellung ist nie an einer Stelle vollständig.",
+    "startpunkt": "einzelne_automation",
+    "module_anzahl_von": 3,
+    "module_anzahl_bis": 5,
+    "muss_vorkommen": [
+      "Bestellung",
+      "Termin"
+    ],
+    "darf_nicht_vorkommen": [
+      "Onlineshop-Ausbau",
+      "Portal",
+      "Marketing"
+    ],
+    "darf_nirgends_vorkommen": [],
+    "betriebsart": [
+      "E"
+    ],
+    "notiz": ""
+  }
+}
