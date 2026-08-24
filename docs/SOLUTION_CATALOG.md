@@ -138,16 +138,31 @@ In `Zielarchitektur.every_module_comes_from_the_catalogue`, also im Vertrag —
 | Modul nennt einen Baustein **seiner** Familien | „Autonomer KI-Einkaufsagent" mit `SF-01` daneben |
 | `catalog_fit: false` heißt leer | kein Katalogtreffer und trotzdem Module |
 | `catalog_fit: true` heißt gewählt | Treffer behauptet, nichts ausgewählt |
+| gewählte Familien heißt gebaute Module | Auswahl ohne ein einziges Modul |
+
+**Keine Mindestmenge an Modulen.** Ein Fall, dem ein Modul hilft, bekommt
+eines. Die Diagnose bestimmt die Größe der Lösung, nicht das Schema.
 
 Ein Verstoß löst den zweiten Versuch aus. Danach entsteht kein Ergebnis.
 
-### 4 · Erst dann die vollen Daten
+### 4 · Erst dann die vollen Daten — im echten Pfad
 
 ```python
-solution_catalog.vollstaendig(gueltige_kennungen)   # ganze Datensätze
-solution_catalog.faehigkeiten_zu(gueltige_kennungen)  # CAPs
-solution_catalog.zielbild_zu(gueltige_kennungen)      # passendes TA-Muster
+# app/services/analysis_service.py — geprueftes_loesungswissen()
+solution_catalog.vollstaendig(kennungen)      # ganze Datensätze
+solution_catalog.faehigkeiten_zu(kennungen)   # die gebrauchten CAPs
+solution_catalog.zielbild_zu(kennungen)       # passendes TA-Muster
 ```
+
+Diese drei laufen **nach** der Prüfung und **vor** der Formulierung. Das
+Ergebnis geht als Kontext in Aufruf 3 und 4 — und enthält nur, was
+gewählt wurde. Familien, die nicht gewählt wurden, sehen die späteren
+Aufrufe nicht mehr; sie können also auch nicht mehr auftauchen.
+
+**Das Zielbildmuster wird hier bestimmt, nicht vorher.** Bis zum 24.08.
+kam es aus dem Vorschlag des Abrufs — also aus einer Auswahl, die noch
+niemand getroffen hatte. Passt keines, bleibt es leer; erzwungen wird
+keines.
 
 ---
 

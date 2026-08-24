@@ -45,12 +45,14 @@ würde irgendwann eine Familie behaupten, die es nicht mehr gibt.
 
 ---
 
-## Was die 333 Tests prüfen
+## Was die 349 Tests prüfen
 
 | Bereich | Datei | worum es geht |
 |---|---|---|
 | **Der Vertrag** | `test_result_contract.py` | Zitate wörtlich, keine erfundenen Zahlen, keine Fachsprache, Grenzen nur selbstgesagt |
 | **Das Geländer** | `test_solution_catalog.py` | erfundene Kennungen, Module ohne Baustein, kein Katalogtreffer, vorhandene Software, zu viele Familien |
+| **Die Hydration** | `test_solution_hydration.py` | dass die gewählten Familien wirklich geladen werden — und die ungewählten nicht |
+| **Kleine Lösungen** | `test_small_and_no_tech_results.py` | ein Modul, keine Ansicht, kein System, keine neue Technik |
 | **Die Teilung** | `test_second_call_split.py` | beide Hälften laufen, keine halben Ergebnisse |
 | **Zuverlässigkeit** | `test_result_reliability.py` | Wiederholung nach schlechtem Zitat, Denkstufen, Zeitbudget |
 | **Der Ablauf** | `test_analysis_flow.py`, `test_understanding_step.py` | Routen, Zwischenstand, höchstens zwei Runden |
@@ -108,6 +110,24 @@ Gemessen wird unter anderem:
 | Durchkommensquote | Wie viele Läufe liefern überhaupt ein Ergebnis? |
 
 ---
+
+## Wie geprüft wird, dass nichts erfunden wird
+
+Drei Sorten Test greifen ineinander:
+
+**Der Vertrag** weist eine Antwort ab, die eine Kennung nennt, die es
+nicht gibt — oder ein Modul, dessen Bausteine nicht zu seinen Familien
+gehören. `test_solution_catalog.py` fährt genau diese Fälle.
+
+**Der Pfad** prüft, dass die Prüfung auch stattfindet.
+`test_solution_hydration.py` sieht nach, ob nach der Auswahl wirklich
+geladen wird und ob die späteren Aufrufe nur das Gewählte sehen. Eine
+Funktion, die es gibt und die niemand ruft, ist kein Geländer.
+
+**Die Grösse** prüft, dass das Schema nichts erzwingt.
+`test_small_and_no_tech_results.py` fährt den kleinen Fall: ein Modul,
+keine Ansicht, kein neues System — und den Fall, in dem gar keine neue
+Technik nötig ist.
 
 ## Offene Punkte, offen benannt
 

@@ -2,7 +2,11 @@
 
 ## Was der Abruf hier ist — und was nicht
 
-Er **rankt**, er **begrenzt nicht**. Welche Lösungen empfohlen werden dürfen,
+Er **rankt**, er **begrenzt nicht**. Und er liefert zwei verschiedene
+Dinge an zwei verschiedene Stellen: Betriebsarten und Engpassmuster gehen
+als Vergleichsmaterial in die **Diagnose**; die Rangfolge der
+Lösungsfamilien geht als Vorschlag in die **Auswahl**. Der Diagnoseaufruf
+sieht kein Lösungswissen. Welche Lösungen empfohlen werden dürfen,
 entscheidet die Freigabeliste (siehe [`SOLUTION_CATALOG.md`](SOLUTION_CATALOG.md)).
 Der Abruf sagt nur, welche davon zur Diagnose am ehesten passen.
 

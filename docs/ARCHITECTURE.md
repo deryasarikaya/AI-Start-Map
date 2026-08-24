@@ -39,6 +39,32 @@ Aufruf 1 ein zweites Mal — höchstens einmal.
 
 ---
 
+## Wissen ist nicht gleich Wissen
+
+Zwei Sorten, die nie vermischt werden:
+
+| | was | wer sieht es |
+|---|---|---|
+| **Diagnosewissen** | Betriebsarten, Engpassmuster | Aufruf 1 |
+| **Lösungswissen** | Familien, Fähigkeiten, Zielbilder | erst Aufruf 2, und danach nur das Gewählte |
+
+Ein abgerufener Abschnitt ist **nie** ein Beleg über den Kunden. Was über
+ihn gesagt wird, steht in seiner Erzählung; die Zitatprüfung erzwingt das.
+
+```
+Kundenfakt / bestätigter Ablauf   →  Diagnose      ✓
+abgerufener Abschnitt             →  Kundenfakt    ✗
+```
+
+Und die Rollenverteilung im Lösungsteil:
+
+```
+Abruf    = Rangfolge
+Katalog  = erlaubte Menge
+Modell   = Auswahl und Formulierung
+Server   = Prüfung
+```
+
 ## Der Weg durch den Code
 
 ```
@@ -51,7 +77,9 @@ POST /verstanden  process_service       weiter oder ergänzen
 POST /analyze     analysis_service      run_second_call
                     → rag_service       vorgeschlagene_familien       (Einbettung)
                     → openai_service    generate_target_architecture  Aufruf 2
-                    → solution_catalog  Kennungen und Bausteine prüfen
+                    → result_schema     Kennungen und Bausteine prüfen
+                    → solution_catalog  vollstaendig() · faehigkeiten_zu()
+                                        zielbild_zu()   ← erst jetzt
                     → openai_service    generate_result_part_two      Aufruf 3+4
                     → repository        Ergebnis speichern
 GET  /results     routes                Ergebnisseite
