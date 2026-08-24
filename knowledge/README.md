@@ -40,6 +40,12 @@ empfehlbar sein.
 | `01_business_patterns.jsonl` | 7 | Betriebsarten: Außeneinsatz, Werkstatt, Termin, Objekt … |
 | `02_diagnostic_patterns.jsonl` | 18 | Engpassmuster mit den Sätzen, an denen man sie erkennt |
 | `03_solution_families.jsonl` | 25 | **der Katalog** — was gebaut werden kann, mit Bausteinen |
+
+Der Katalog ist kuratiert: SF-25 (Wirtschaftlichkeits- und
+Liquiditätsvorschau) wurde aufgenommen, weil keine andere Familie die
+Frage nach dem Geld beantwortet. Personalgewinnung und das Auswerten von
+Rückmeldungen wurden **keine** eigenen Familien — sie sind Bausteine in
+SF-21 und SF-13 geworden.
 | `04_automation_capabilities.jsonl` | 12 | technische Fähigkeiten: Klassifikation, Extraktion, Routing … |
 | `05_target_architectures.jsonl` | 9 | Kompositionsmuster für mehrere Familien |
 | `SPEZIFIKATION.md` | | welche Felder ein Datensatz haben muss |
