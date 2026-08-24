@@ -108,7 +108,7 @@ def vorgeschlagene_familien(diagnose: Diagnose) -> list[str]:
     erstplatzierte Diagnosemuster, was überhaupt zur Wahl stand.
 
     Gesucht wird mit dem Engpass-Satz und dem Diagnoseabsatz, nicht mit
-    der ganzen Erzählung. Gemessen am 21.08.: Der Engpass-Satz spreizt die
+    der ganzen Erzählung. Gemessen: Der Engpass-Satz spreizt die
     Trefferliste mehr als doppelt so weit wie die rohe Erzählung, weil er
     in der Sprache der Muster geschrieben ist.
     """
@@ -125,9 +125,9 @@ def vorgeschlagene_familien(diagnose: Diagnose) -> list[str]:
 def diagnose_context(narrative_text: str) -> list[str]:
     """Vergleichswissen für die **Diagnose** — Betriebsarten und Muster.
 
-    **Ohne Lösungswissen.** Bis zum 24.08. reichte diese Stelle den ganzen
-    Abruf hinein: Familien, Fähigkeiten und Zielbild lagen dem
-    Diagnoseaufruf vor. Wer die Lösung kennt, diagnostiziert auf sie hin —
+    **Ohne Lösungswissen.** Familien, Fähigkeiten und Zielbild dürfen dem
+    Diagnoseaufruf nicht vorliegen: Wer die Lösung kennt, diagnostiziert
+    auf sie hin —
     und aus „der Kunde erwähnt Termine" wird „wir verkaufen
     Terminbuchung".
 
@@ -234,9 +234,9 @@ def geprueftes_loesungswissen(gewaehlt: Zielarchitektur) -> dict[str, object]:
 def zusammengesetzt(diagnose: Diagnose, gewaehlt: Zielarchitektur) -> ResultPartOne:
     """Fügt Diagnose und geprüfte Auswahl zu dem zusammen, was die Seite zeigt.
 
-    Der Vertrag nach aussen ist unverändert: `ResultPartOne` hat dieselben
-    Felder wie vorher, die Vorlagen und der Beispiellauf vom 18.08. merken
-    nichts davon. Geändert hat sich, **woher** die Lösungsseite kommt.
+    Der Vertrag nach aussen bleibt unberührt: `ResultPartOne` behält seine
+    Felder, Vorlagen und gespeicherte Läufe merken nichts davon. Anders ist
+    nur, **woher** die Lösungsseite kommt.
     """
 
     return ResultPartOne.model_validate(

@@ -1,7 +1,7 @@
 """Fährt vier Konfigurationen gegeneinander: Abruf an/aus, Prompt A/B.
 
 **Dieses Skript macht echte Modellaufrufe und kostet Geld.** Zwei Aufrufe je
-Lauf. Ein vollständiger Durchgang über alle drei Läufe des Messplans sind
+Lauf. Ein vollständiger Durchgang über alle drei Vergleichsläufe sind
 **zwölf Läufe, also 24 Modellaufrufe** — dazu die Einbettung der Erzählung bei
 jedem Lauf mit Abruf.
 
@@ -18,13 +18,13 @@ Anders als `zehn_laeufe.py`, das zehnmal dasselbe fährt, stellt dieses Skript
 - **Prompt A/B** — A ist `ergebnis_teil1.md`, B die schlanke Fassung
   `ergebnis_teil1_schlank.md`.
 
-Erhoben wird alles, was der Messplan unter „Was je Lauf berichtet wird"
-nennt, einschliesslich der Wortlautprüfung gegen das abgerufene Wissen und
-der Dauer des Abrufs.
+Erhoben wird je Lauf: Lösungsname, Module, Gruppen, Dauer, Modellaufrufe,
+Zeitabläufe und Vertragsfehler — dazu die Wortlautprüfung gegen das
+abgerufene Wissen und die Dauer des Abrufs.
 
 Geschrieben wird nach `messungen/messlauf_<datum>/` — je Lauf eine JSON-Datei
-mit dem vollständigen Ergebnis, dazu eine Übersicht als Markdown. Derya liest
-die Ergebnisse nebeneinander; die Kennzahlen ordnen nur vor.
+mit dem vollständigen Ergebnis, dazu eine Übersicht als Markdown. Die
+Ergebnisse werden nebeneinander gelesen; die Kennzahlen ordnen nur vor.
 """
 
 from __future__ import annotations
@@ -57,7 +57,7 @@ ERZAEHLUNGEN = WURZEL / "knowledge/evaluation/gold"
 MESSUNGEN = WURZEL / "messungen"
 
 #: Ab wie vielen gleichen Wörtern eine Übernahme keine sein kann.
-#: Der Messplan nennt „mehr als etwa acht Wörter".
+#: Mehr als etwa acht gleiche Wörter sind kein Zufall mehr.
 UEBERNAHME_FENSTER = 8
 
 FAELLE = {
@@ -65,7 +65,7 @@ FAELLE = {
     "hausverwaltung_gross": ERZAEHLUNGEN / "03_hausverwaltung_gross.json",
 }
 
-#: Die Läufe des Messplans. Je Lauf: Fall, Abruf, Promptfassung.
+#: Die drei Vergleichsläufe. Je Lauf: Fall, Abruf, Promptfassung.
 LAEUFE: dict[str, tuple[tuple[str, str, bool, str], ...]] = {
     "1": (
         ("1a", "malerbetrieb", False, "ergebnis_teil1"),
@@ -98,7 +98,7 @@ class Messung:
     ursache: str = ""
     sekunden: float = 0.0
     modellaufrufe: object = 0
-    # Was der Messplan je Lauf sehen will
+    # Was je Lauf berichtet wird
     loesungsname: str = ""
     modulnamen: list[str] = field(default_factory=list)
     modulanzahl: int = 0
@@ -114,7 +114,8 @@ class Messung:
     prompt_zeichen: int = 0
     zeitablaeufe: int = 0
     vertragsfehler: list[str] = field(default_factory=list)
-    #: Das ganze Ergebnis. Derya liest es, keine Kennzahl ersetzt das.
+    #: Das ganze Ergebnis. Es bleibt für die qualitative Durchsicht
+    #: erhalten; keine Kennzahl ersetzt sie.
     ergebnis: dict | None = None
 
 
@@ -161,9 +162,9 @@ class Mitschrift(logging.Handler):
 def konfiguriert(*, abruf: bool, prompt: str) -> Iterator[None]:
     """Stellt die beiden Schalter für die Dauer eines Laufs.
 
-    Der Abruf wird abgeschaltet, indem der Indexordner umbenannt wird — genau
-    so, wie der Messplan es beschreibt. Danach steht er wieder da, auch wenn
-    der Lauf scheitert.
+    Der Abruf wird abgeschaltet, indem der Indexordner für die Dauer des
+    Laufs umbenannt wird. Danach steht er wieder da, auch wenn der Lauf
+    scheitert.
     """
 
     from app import rag_service
@@ -205,7 +206,7 @@ def uebernommene_wendungen(
 ) -> list[str]:
     """Wortfolgen, die wörtlich aus dem abgerufenen Wissen stammen.
 
-    Die wichtigste Erhebung des Messplans. Besonders im Verdacht steht das
+    Die wichtigste Erhebung dieses Skripts. Besonders im Verdacht steht das
     Feld `kundennaher_name` der Lösungsfamilien — laut Spezifikation „eine
     Formulierungshilfe, keine Vorgabe".
     """
@@ -239,8 +240,8 @@ def einen_lauf(
     """Fährt einen Lauf in genau einer Konfiguration."""
 
     messung = Messung(kennung=kennung, fall=fall, abruf=abruf, prompt=prompt)
-    # Aus dem Goldfall kommt nur die Erzählung — die Bewertung daneben
-    # ist Deryas Antwort und hat im Suchtext nichts zu suchen.
+    # Aus dem Goldfall kommt nur die Erzählung — die hinterlegte Bewertung
+    # daneben ist die Referenzantwort und hat im Suchtext nichts zu suchen.
     erzaehlung = str(
         json.loads(FAELLE[fall].read_text(encoding="utf-8"))["erzaehlung"]
     ).strip()
@@ -338,7 +339,7 @@ def _gespeichert(client) -> dict | None:
 
 
 def berichte(messungen: list[Messung]) -> str:
-    """Die Übersicht. Die Entscheidung trifft Derya beim Lesen der Ergebnisse."""
+    """Die Übersicht. Die Entscheidung fällt beim Lesen der Ergebnisse."""
 
     zeilen = [
         "| # | Fall | Abruf | Prompt | s | Module | Gruppen | Jetzt | Übernommen |",

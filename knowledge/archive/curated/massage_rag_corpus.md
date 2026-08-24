@@ -21,7 +21,7 @@ content_origin: source_reported
 is_primary_evidence: true
 sensitivity: business_operations
 evidence_scope: source_reported_current_process
-source_url: original_massage_transcript.pdf
+source_url: massage_case_interview
 language: de
 ```
 
@@ -63,7 +63,7 @@ content_origin: source_reported
 is_primary_evidence: true
 sensitivity: business_operations
 evidence_scope: source_reported_current_process
-source_url: original_massage_transcript.pdf
+source_url: massage_case_interview
 language: de
 ```
 
@@ -121,7 +121,7 @@ content_origin: source_reported
 is_primary_evidence: true
 sensitivity: employee_and_financial_data
 evidence_scope: source_reported_current_process
-source_url: original_massage_transcript.pdf
+source_url: massage_case_interview
 language: de
 ```
 
@@ -168,7 +168,7 @@ content_origin: source_reported
 is_primary_evidence: true
 sensitivity: financial_data
 evidence_scope: source_reported_current_process
-source_url: original_massage_transcript.pdf
+source_url: massage_case_interview
 language: de
 ```
 
@@ -203,7 +203,7 @@ content_origin: source_reported
 is_primary_evidence: true
 sensitivity: business_operations
 evidence_scope: source_reported_current_process
-source_url: original_massage_transcript.pdf
+source_url: massage_case_interview
 language: de
 ```
 

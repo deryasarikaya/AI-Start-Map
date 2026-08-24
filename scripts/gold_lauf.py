@@ -129,9 +129,9 @@ STARTPUNKTE = {
 class Aufrufzaehler(logging.Handler):
     """Zählt jeden Modellaufruf mit, auch jede Wiederholung.
 
-    In der Nacht zum 21.08. war das Budget nicht einzuhalten, weil niemand
-    mitzählte: Der Läufer plante 22 Aufrufe und verbrauchte 30, weil jeder
-    gescheiterte Aufruf einmal wiederholt wird. Die Zahl stand erst
+    Wiederholungen zählen mit, weil sie die Kosten eines Laufs bestimmen:
+    Ein geplanter Lauf über 22 Aufrufe verbraucht 30, sobald einige davon
+    einmal wiederholt werden. Ohne Mitzählen steht diese Zahl erst
     hinterher im Protokoll.
 
     Gezählt wird die Zeile, die `openai_service` ohnehin vor jedem Versuch
@@ -164,7 +164,7 @@ def bewerte_fall(
 ) -> Fallergebnis:
     """Vergleicht ein Ergebnis mit den hinterlegten richtigen Antworten.
 
-    Ein Feld, das Derya nicht ausgefüllt hat, wird nicht bewertet — dann steht
+    Ein Feld ohne hinterlegte Referenzantwort wird nicht bewertet — dann steht
     dort `None` und die Kennzahl lässt den Fall aus. Eine erfundene Bewertung
     wäre schlimmer als eine fehlende.
     """
@@ -441,9 +441,8 @@ def fahre_lauf(
     #
     # Ohne eigenen Handler schreibt Python Warnungen über `lastResort`
     # nach stderr. Sobald irgendein Handler am Logger hängt, hört das auf
-    # — der Zähler allein hat im Lauf vom 21.08. jede Warnung und jeden
-    # Fehler verschluckt. Ein Instrument, das die Anzeige abschaltet, ist
-    # schlimmer als keins.
+    # — der Zähler allein verschluckt dann jede Warnung und jeden Fehler.
+    # Ein Instrument, das die Anzeige abschaltet, ist schlimmer als keins.
     logging.basicConfig(level=logging.WARNING, format="%(message)s")
     app_logger = logging.getLogger("app")
     app_logger.addHandler(zaehler)
@@ -598,10 +597,10 @@ def main() -> int:
         kennzahlen["einbettungen"] = verbrauch[-1].einbettungen
     text = berichte(ergebnisse, kennzahlen)
 
-    # Datum **und Uhrzeit**: Zwei Läufe am selben Tag sind der Regelfall,
-    # und der zweite hat den ersten am 20.08. überschrieben, bevor ihn
-    # jemand gelesen hatte. Ein bezahlter Lauf darf nicht an einem
-    # Ordnernamen sterben.
+    # Datum **und Uhrzeit**: Zwei Läufe am selben Tag sind der Regelfall.
+    # Ohne Uhrzeit überschreibt der zweite den ersten, bevor ihn jemand
+    # gelesen hat — ein Lauf, der API-Kosten verursacht hat, darf nicht
+    # an einem Ordnernamen sterben.
     ziel = MESSUNGEN / f"gold_{datetime.now():%Y%m%d_%H%M}"
     ziel.mkdir(parents=True, exist_ok=True)
     (ziel / "kennzahlen.json").write_text(

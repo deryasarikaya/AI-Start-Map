@@ -4,10 +4,10 @@ Das Modell liefert Daten, die Vorlage liefert Layout. Deshalb steht hier kein
 HTML, kein Klassenname und keine Farbe — nur Felder mit Text, Listen und
 Auswahlwerten aus festen Listen.
 
-Die Feldnamen sind deutsch. Das ist die in `AGENTS.md` festgehaltene Ausnahme:
-Sie sind Daten, in die das Modell deutschen Text schreibt, keine Bezeichner.
-Die Klassennamen sind englisch, wie die Sprachregelung es verlangt; in
-Klammern steht jeweils der Abschnitt aus `AUFTRAG_ZIELBILD_V4.md`, Punkt 4b.
+Die Feldnamen sind bewusst deutsch: Sie sind Daten, in die das Modell
+deutschen Text schreibt, keine Bezeichner. Die Klassennamen sind englisch
+wie im übrigen Code; in Klammern steht jeweils der Abschnitt der
+Ergebnisseite, den das Feld füllt.
 
 Vier Regeln werden hier scharf durchgesetzt:
 
@@ -422,10 +422,9 @@ class Module(StrictResultModel):
     stufe: Stage | None = None
     #: **Woher dieses Modul kommt.** Intern, der Kunde sieht es nie.
     #:
-    #: Leer mit Vorgabe, damit gespeicherte Ergebnisse von vor dem 24.08.
-    #: lesbar bleiben — der Beispiellauf vom 18.08. kennt diese Felder
-    #: nicht. Bei der Erzeugung verlangt `SelectedModule` beide, und der
-    #: Katalog prüft sie.
+    #: Leer mit Vorgabe, damit älter gespeicherte Ergebnisse lesbar bleiben
+    #: — der hinterlegte Beispiellauf kennt diese Felder nicht. Bei der
+    #: Erzeugung verlangt `SelectedModule` beide, und der Katalog prüft sie.
     solution_family_ids: list[str] = []
     baustein_refs: list[str] = []
 
@@ -655,8 +654,9 @@ class Value(StrictResultModel):
 class ImplementationStep(StrictResultModel):
     """Ein Schritt der Umsetzung (`umsetzung`).
 
-    War bis zum 24.08. eine blosse Zeichenkette. Seit die späteren Aufrufe
-    nichts mehr hinzufügen dürfen, trägt jeder Schritt seine Herkunft.
+    Kein blosser Text, sondern ein Objekt mit Herkunft: Weil die späteren
+    Aufrufe nichts hinzufügen dürfen, trägt jeder Schritt das Modul, aus
+    dem er folgt.
     """
 
     text: NonEmptyText
@@ -665,9 +665,9 @@ class ImplementationStep(StrictResultModel):
     @model_validator(mode="before")
     @classmethod
     def a_plain_sentence_is_a_step(cls, wert: object) -> object:
-        """Ein gespeichertes Ergebnis von vor dem 24.08. führt hier Text.
+        """Ein älter gespeichertes Ergebnis führt hier blossen Text.
 
-        Der Beispiellauf vom 18.08. ist so abgelegt. Ihm nachträglich eine
+        Der hinterlegte Beispiellauf ist so abgelegt. Ihm nachträglich eine
         Herkunft anzudichten hiesse, einen geprüften Durchlauf zu fälschen —
         also bleibt er lesbar, mit leerer Herkunft.
         """
@@ -742,10 +742,9 @@ class SelectedModule(Module):
 class Diagnose(StrictResultModel):
     """Was der Betrieb erzählt hat und woran es liegt — Aufruf 1.
 
-    **Ohne einen einzigen Lösungsbegriff.** Bis zum 24.08. schrieb dieser
-    Aufruf Lösungsname, Zielbild und Module gleich mit — also stand die
-    Lösung fest, bevor irgendein Katalog gefragt war. Wer die Lösung
-    kennt, diagnostiziert auf sie hin.
+    **Ohne einen einzigen Lösungsbegriff.** Stünden Lösungsname, Zielbild
+    und Module schon hier, wäre die Lösung fest, bevor irgendein Katalog
+    gefragt ist. Wer die Lösung kennt, diagnostiziert auf sie hin.
     """
 
     engpass_satz: NonEmptyText
@@ -903,9 +902,9 @@ class ResultPartTwoViews(StrictResultModel):
     """Die Beispielansichten — Aufruf 2a.
 
     Sie sind der verschachtelte Teil des unteren Bereichs: je Ansichtstyp
-    eigene Felder, Schachtelungstiefe acht. Bis zum 21.08. standen sie im
-    selben Schema wie alles Übrige; dieser Aufruf war doppelt so groß wie
-    Aufruf 1 und starb in fast der Hälfte der Läufe.
+    eigene Felder, Schachtelungstiefe acht. In einem Schema mit allem
+    Übrigen wird dieser Aufruf doppelt so groß wie Aufruf 1 und läuft in
+    fast der Hälfte der Fälle in die Zeitgrenze — deshalb steht er allein.
     """
 
     # Null bis vier: Eine Ansicht entsteht, wenn sie etwas erklärt. Zwei zu
@@ -931,7 +930,7 @@ class ResultPartTwoRest(StrictResultModel):
     # Prüfung unten sortiert aus, und eine leere Liste ist ein gültiges
     # Ergebnis. Ein erfundener Ratschlag ist schlimmer als kein Abschnitt.
     # Der Vorgabewert hält ältere gespeicherte Ergebnisse lesbar — der
-    # Beispiellauf vom 18.08. kennt dieses Feld nicht, und ihm Hebel
+    # hinterlegte Beispiellauf kennt dieses Feld nicht, und ihm Hebel
     # anzudichten hiesse, einen geprüften Durchlauf zu fälschen.
     hebel: Annotated[list[Lever], Field(max_length=4)] = []
 
@@ -984,7 +983,7 @@ class ResultPartTwoRest(StrictResultModel):
 class ResultPartTwo(ResultPartTwoViews, ResultPartTwoRest):
     """Beide Hälften zusammen — was gespeichert und angezeigt wird.
 
-    Die Seite, das PDF und der Beispiellauf vom 18.08. sehen unverändert
+    Die Seite, das PDF und der hinterlegte Beispiellauf sehen unverändert
     ein Ergebnis mit allen sieben Bereichen. Dass es aus zwei Aufrufen
     entsteht, ist eine Frage der Erzeugung und keine des Vertrags.
     """

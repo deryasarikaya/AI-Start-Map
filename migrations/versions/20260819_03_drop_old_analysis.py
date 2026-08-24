@@ -1,8 +1,7 @@
 """Die Tabellen des alten Ergebnisvertrags fallen.
 
-Seit Schritt 2 schreibt nichts mehr in `analyses`, und seit die Druckansicht
-aus `results` liest, liest auch nichts mehr daraus. Belegt in
-der Aufraeumrunde vom 19.08.
+Nichts schreibt mehr in `analyses`, und seit die Druckansicht aus `results`
+liest, liest auch nichts mehr daraus.
 
 Rückwärts werden die Tabellen wieder angelegt, aber nicht gefüllt: Die Daten
 sind mit dem Vertrag weg, nicht nur die Struktur.

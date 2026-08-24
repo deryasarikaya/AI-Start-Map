@@ -147,9 +147,9 @@ def test_a_timeout_gets_a_second_attempt_with_its_own_budget(
 ) -> None:
     """Ein Zeitablauf im ersten Versuch löst einen zweiten aus.
 
-    Der Defekt vom 14.08.: Das Zeitbudget galt für beide Versuche zusammen.
-    Lief der erste hinein, war für den zweiten nichts mehr übrig — er brach
-    ab, bevor er das Modell überhaupt gerufen hatte.
+    Gälte das Zeitbudget für beide Versuche zusammen, bliebe für den zweiten
+    nichts übrig, sobald der erste hineinläuft — er bräche ab, bevor er das
+    Modell überhaupt gerufen hat.
     """
 
     # Das Modell muss gesetzt sein, sonst bricht der Aufruf ab, bevor er die
@@ -204,10 +204,9 @@ def test_a_timeout_gets_a_second_attempt_with_its_own_budget(
 def test_the_counter_survives_a_thread_boundary() -> None:
     """Von aussen gelesen zeigt der Zähler, was drinnen passiert ist.
 
-    Genau das tat er bis zum 18.08. nicht: Die Route läuft im Threadpool, und
-    eine Zahl in einer Kontextvariablen wirkt nur in der Kopie. Von aussen
-    stand dort immer 0 — was aussah wie „keine Aufrufe" und hieß „hier wurde
-    nicht gezählt".
+    Die Route läuft im Threadpool, und eine Zahl in einer Kontextvariablen
+    wirkt nur in der Kopie. Von aussen stünde dort immer 0 — was aussieht
+    wie „keine Aufrufe" und heisst „hier wurde nicht gezählt".
     """
 
     openai_service.reset_openai_call_count()
@@ -244,9 +243,8 @@ def test_reading_without_a_reset_says_so_out_loud() -> None:
 def test_the_narrative_is_sent_only_once(monkeypatch: pytest.MonkeyPatch) -> None:
     """Die Erzählung steht genau einmal im Prompt, nicht zweimal.
 
-    Bis zum 18.08. ging sie zusätzlich als einzige „Antwort" mit. Das hat den
-    Prompt verdoppelt und dem Modell zwei Quellen vorgespiegelt, wo es nur
-    eine gibt.
+    Ginge sie zusätzlich als einzige „Antwort" mit, verdoppelte das den
+    Prompt und spiegelte dem Modell zwei Quellen vor, wo es nur eine gibt.
     """
 
     gesehen: list[dict[str, object]] = []
@@ -319,9 +317,9 @@ def test_the_result_parts_think_before_they_write(
 ) -> None:
     """Die Ergebnisteile laufen nicht auf der niedrigsten Denkstufe.
 
-    Bis zum 19.08. hing die Bedingung noch am alten Vertrag: Die wichtigste
-    Ausgabe der Anwendung lief mit `reasoning_effort: minimal`. Wörtlich
-    abschreiben ist genau die Aufgabe, bei der das schludert.
+    Zeigt die Bedingung am Vertrag vorbei, läuft die wichtigste Ausgabe der
+    Anwendung mit `reasoning_effort: minimal`. Wörtlich abschreiben ist
+    genau die Aufgabe, bei der das schludert.
     """
 
     assert _erster_aufruf(monkeypatch)["reasoning_effort"] == "medium"
@@ -332,10 +330,10 @@ def test_the_second_part_thinks_less_than_the_first(
 ) -> None:
     """Teil 2 diagnostiziert nicht, er füllt aus.
 
-    Am 20.08. sind drei von zwölf Goldfällen an `finish_reason=length`
-    gescheitert. Gemessen an einem der drei: Die Denk-Token zählen gegen
-    dieselbe Grenze wie die Ausgabe — auf `medium` 2.432 von 5.284 Token,
-    auf `low` noch 576 bei gleich langer, vollständiger Antwort.
+    Auf `medium` scheiterten drei von zwölf Evaluationsfällen an
+    `finish_reason=length`. Gemessen an einem der drei: Die Denk-Token
+    zählen gegen dieselbe Grenze wie die Ausgabe — auf `medium` 2.432 von
+    5.284 Token, auf `low` noch 576 bei gleich langer, vollständiger Antwort.
     """
 
     erster = _erster_aufruf(monkeypatch, ResultPartOne)

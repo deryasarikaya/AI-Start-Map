@@ -3,8 +3,8 @@
 Kein Modellaufruf. Geprüft wird die Stelle, an der eine erfundene Lösung
 scheitern muss — vor der Datenbank, vor der Seite, vor dem Kunden.
 
-Bis zum 24.08. gab es diese Stelle nicht. Das Modell schrieb Module als vier
-freie Texte, und keine Zeile im Projekt prüfte, ob es sie gibt.
+Ohne diese Stelle schreibt das Modell Module als freie Texte, und nichts im
+Projekt prüft, ob es sie gibt.
 """
 
 from __future__ import annotations
@@ -30,7 +30,7 @@ def test_only_released_families_are_offered() -> None:
 
     Drei Familien kamen aus einem Produktvergleich ins Repository, von
     niemandem freigegeben. Eine davon — die Wirtschaftlichkeitsvorschau —
-    hat Derya danach geprüft und aufgenommen; die beiden anderen sind als
+    wurde danach geprüft und freigegeben; die beiden anderen sind als
     Bausteine in SF-21 und SF-13 aufgegangen und bleiben keine eigenen
     Familien.
     """

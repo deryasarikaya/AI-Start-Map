@@ -1,13 +1,13 @@
 """Der Trockenlauf des Zehn-Läufe-Skripts.
 
-Kein Modellaufruf. Geprüft wird die eine Sache, an der es zehn bezahlte Läufe
-lang vorbeigemessen hat: dass **beide** Modellaufrufe stattfinden und beide
-gezählt werden.
+Kein Modellaufruf. Geprüft wird die Sache, an der ein Messläufer leicht
+vorbeimisst: dass **beide** Modellaufrufe stattfinden und beide gezählt
+werden.
 
-Seit Schritt 2 liegt die Verstandenseite zwischen den Aufrufen. Der Läufer rief
-`/analyze` einmal, bekam eine 200 zurück und meldete „durchgekommen" — gemessen
-war aber nur der halbe Durchlauf. Ein Instrument, das falsch misst, ist
-schlimmer als keins.
+Zwischen den Aufrufen liegt die Verstandenseite. Wer `/analyze` einmal ruft,
+bekommt eine 200 zurück und meldet „durchgekommen" — gemessen ist aber nur
+der halbe Durchlauf. Ein Instrument, das falsch misst, ist schlimmer als
+keins.
 """
 
 from __future__ import annotations

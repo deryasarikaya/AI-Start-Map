@@ -72,7 +72,7 @@ def test_the_loader_reads_every_jsonl_in_the_batch(
 def test_an_empty_batch_is_not_an_error(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Derya schreibt noch. Ein leerer Ordner darf nichts abbrechen."""
+    """Ein Batch im Entstehen ist leer — das darf nichts abbrechen."""
 
     leer = tmp_path / "batch_10"
     leer.mkdir()
@@ -424,7 +424,7 @@ def test_the_prompt_says_what_the_knowledge_is_and_is_not() -> None:
 def test_the_retrieval_logs_its_seconds_and_counts(
     mit_index: None, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """Ohne diese Zahl liesse sich die Zeitfrage des Messplans nur raten.
+    """Ohne diese Zahl liesse sich der Zeitanteil des Abrufs nur raten.
 
     Der Abruf kostet eine Einbettung plus die Suche. Bei zuletzt 43 Prozent
     Zeitabläufen ist das keine Nebensache — gemessen wird der ganze Abruf,
@@ -457,11 +457,11 @@ def test_every_pattern_contributes_a_family(
 ) -> None:
     """Reihum, nicht der Reihe nach — sonst zaehlt nur das erste Muster.
 
-    Bis zum 21.08. nahm die Schleife alles, was das erstplatzierte Muster
-    nannte, bis die Grenze voll war. DP-06 fuehrt fuenf Familien, die Grenze
-    lag bei vier — Muster zwei und drei wurden gesucht, gerankt, protokolliert
-    und trugen nichts bei. Malerbetrieb und 450-Einheiten-Verwaltung bekamen
-    dieselben vier Familien.
+    Der Reihe nach nimmt die Schleife alles, was das erstplatzierte Muster
+    nennt, bis die Grenze voll ist. DP-06 fuehrt fuenf Familien; liegt die
+    Grenze bei vier, werden Muster zwei und drei gesucht, gerankt und
+    protokolliert — und tragen nichts bei. Malerbetrieb und
+    450-Einheiten-Verwaltung bekaemen dieselben vier Familien.
     """
 
     bestand = [

@@ -1,8 +1,8 @@
 """Der Trockenlauf des Messskripts.
 
 Kein Modellaufruf. Geprüft wird, dass die beiden Schalter wirklich schalten
-und wieder aufräumen, und dass die Wortlautprüfung findet, wonach der
-Messplan sucht.
+und wieder aufräumen, und dass die Wortlautprüfung wörtliche Übernahmen
+findet.
 
 Ein Messskript, dessen Schalter nicht schalten, misst zweimal dasselbe und
 sagt es nicht.
@@ -29,7 +29,7 @@ from app import rag_service  # noqa: E402
 def test_the_retrieval_switch_hides_the_index(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Abruf aus heisst: den Index beiseite, so wie der Messplan es beschreibt."""
+    """Abruf aus heisst: den Index beiseite, für die Dauer des Laufs."""
 
     index = tmp_path / "solution_architecture_index"
     index.mkdir()
@@ -114,7 +114,7 @@ def test_both_prompt_versions_exist_and_differ() -> None:
 
 
 def test_a_copied_phrase_from_the_retrieved_knowledge_is_found() -> None:
-    """Die wichtigste Erhebung des Messplans."""
+    """Die wichtigste Erhebung des Messskripts."""
 
     ergebnis = {
         "kurzfassung": {
@@ -217,8 +217,8 @@ def test_a_whole_run_collects_what_the_plan_asks_for(
     assert messung.stufe_jetzt == ["Auftragsaufnahme"]
     assert messung.engpass_woerter == 4
     assert messung.prompt_zeichen == 12345
-    # Das ganze Ergebnis bleibt erhalten — Derya liest es, keine Kennzahl
-    # ersetzt das.
+    # Das ganze Ergebnis bleibt erhalten — für die qualitative Durchsicht,
+    # die keine Kennzahl ersetzt.
     assert messung.ergebnis == _ergebnis()
 
 
@@ -240,7 +240,7 @@ def test_a_run_skips_the_agent_step(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def test_the_log_is_read_for_seconds_and_counts() -> None:
-    """Die Zeitfrage des Messplans hängt an diesen Protokollzeilen."""
+    """Dauer und Aufrufzahl hängen an diesen Protokollzeilen."""
 
     mitschrift = messlauf.Mitschrift()
 

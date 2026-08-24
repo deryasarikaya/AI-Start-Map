@@ -266,7 +266,7 @@ def test_the_metrics_over_a_whole_run() -> None:
 
 
 def test_an_unfilled_field_is_left_out_instead_of_guessed() -> None:
-    """Was Derya nicht ausgefüllt hat, wird nicht bewertet.
+    """Ein Feld ohne hinterlegte Referenzantwort wird nicht bewertet.
 
     Eine erfundene Bewertung wäre schlimmer als eine fehlende.
     """
@@ -407,10 +407,10 @@ def test_every_gold_file_has_the_full_structure() -> None:
 def test_the_starting_point_only_holds_known_values() -> None:
     """`startpunkt` ist leer oder einer von drei Werten — nie ein Tippfehler.
 
-    Diese Pruefung ersetzt die fruehere, die verlangte, dass **alle**
-    Bewertungsfelder leer sind. Die war als einmalige Zusicherung gedacht und
-    haette Derya beim Ausfuellen im Weg gestanden. Dass niemand ausser ihr die
-    Antworten eintraegt, steht in der Git-Historie, nicht im Dateiinhalt.
+    Geprueft wird der Wertebereich, nicht die Leere: Eine fruehere Fassung
+    verlangte, dass **alle** Bewertungsfelder leer sind. Das war als
+    einmalige Zusicherung gedacht und stand dem Eintragen der
+    Referenzantworten im Weg.
     """
 
     for fall in gold_lauf.lade_faelle(GOLD):
@@ -424,8 +424,7 @@ def test_the_starting_point_only_holds_known_values() -> None:
 def test_every_case_has_a_narrative() -> None:
     """Die zwölf gelieferten Fälle sind messbar.
 
-    Fall 13 wartet auf seine Erzählung — sie stammt aus einer
-    Sprachnachricht und kommt von Derya. Er ist der einzige, der fehlen
+    Fall 13 wartet noch auf seine Erzählung. Er ist der einzige, der fehlen
     darf; jeder weitere leere Fall wäre ein Fehler und keine Wartezeit.
     """
 
@@ -538,9 +537,9 @@ def test_the_lecture_rate_is_reported() -> None:
 def test_the_runner_stops_at_its_budget(monkeypatch: pytest.MonkeyPatch) -> None:
     """Angehalten wird vor einem Fall, nicht mittendrin.
 
-    In der Nacht zum 21.08. war die Grenze nicht einzuhalten, weil niemand
-    mitzaehlte: geplant 22 Aufrufe, verbraucht 30. Ein abgebrochener Durchlauf
-    ist bezahlt und liefert nichts — deshalb wird vorher entschieden.
+    Ohne Mitzaehlen ist die Grenze nicht einzuhalten: geplant 22 Aufrufe,
+    verbraucht 30. Ein abgebrochener Durchlauf hat Kosten verursacht und
+    liefert nichts — deshalb wird vorher entschieden.
     """
 
     attrappe = _Attrappe()
@@ -564,9 +563,8 @@ def test_the_counter_does_not_silence_the_log(monkeypatch: pytest.MonkeyPatch) -
     """Der Zaehler haengt am `app`-Logger — und darf ihn nicht stummschalten.
 
     Sobald ein Handler am Logger haengt, greift Pythons `lastResort` nicht
-    mehr. Im Lauf vom 21.08. hat der Zaehler dadurch jede Warnung und jeden
-    Fehler verschluckt; das Protokoll war leer, obwohl Aufrufe wiederholt
-    wurden.
+    mehr. Der Zaehler allein verschluckt dadurch jede Warnung und jeden
+    Fehler; das Protokoll bleibt leer, obwohl Aufrufe wiederholt werden.
     """
 
     import logging

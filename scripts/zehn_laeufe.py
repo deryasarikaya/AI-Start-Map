@@ -71,8 +71,8 @@ class Mitschrift(logging.Handler):
     """Liest die Protokollzeilen mit, die für die Auswertung zählen.
 
     Kein Nachbauen der Zählung: Es werden genau die Zeilen gelesen, die die
-    Anwendung im Betrieb auch schreibt. Was hier nicht ankommt, wird auch bei
-    Derya nicht sichtbar sein.
+    Anwendung im Betrieb auch schreibt. Was hier nicht ankommt, ist auch im
+    Betrieb nicht sichtbar.
     """
 
     def __init__(self) -> None:
@@ -133,13 +133,12 @@ def einen_lauf(client: TestClient, erzaehlung: str, mitschrift: Mitschrift, numm
 
     # **Beide** Aufrufe, nicht nur der erste.
     #
-    # Seit Schritt 2 liegt die Verstandenseite zwischen ihnen, und
-    # `/analyze` macht je Anfrage genau einen Modellaufruf. Dieser Läufer
-    # rief `/analyze` einmal — und maß damit zehnmal den halben Durchlauf.
-    # Deshalb stand in der Spalte „Aufrufe" überall 1 statt 2, deshalb
-    # zeigte „Belege" überall 1: Gezählt wurde die Verstandenseite, die
-    # genau ein Zitat zeigt. Beide Zahlen waren nicht kaputt, sie maßen
-    # etwas anderes als das, was darüberstand.
+    # Zwischen den beiden Aufrufen liegt die Verstandenseite, und
+    # `/analyze` macht je Anfrage genau einen Modellaufruf. Wer `/analyze`
+    # nur einmal ruft, misst zehnmal den halben Durchlauf: In der Spalte
+    # „Aufrufe" stünde überall 1 statt 2, und „Belege" zeigte die
+    # Verstandenseite mit ihrem einen Zitat. Beide Zahlen wären nicht
+    # kaputt — sie mässen etwas anderes als das, was darübersteht.
     erster = client.post("/analyze")
     aufrufe = get_openai_call_count()
     if erster.status_code != 200:

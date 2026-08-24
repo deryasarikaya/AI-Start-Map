@@ -96,7 +96,7 @@ Das ist Rauschen. IDs und Verwaltungsangaben helfen beim Filtern, nicht beim
 Finden.
 
 **Das ist eine Änderung am Indexer, nicht an deinen Dateien.** Schreib die
-JSONL-Dateien genau wie hier beschrieben — Claude Code sorgt dafür, dass
+JSONL-Dateien genau wie hier beschrieben — der Indexer sorgt dafür, dass
 Verwaltungsfelder und Querverweise aus dem Einbettungstext herausfallen. Steht
 in der Beschreibung des Abrufwegs (`docs/RAG.md`).
 

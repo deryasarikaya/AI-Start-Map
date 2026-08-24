@@ -14,9 +14,9 @@ config = context.config
 if config.config_file_name is not None:
     # `disable_existing_loggers` steht sonst auf True und schaltet **jeden**
     # bereits angelegten Logger ab — auch alle aus `app.`. In der Testsuite
-    # läuft die Migration einmal vorweg; danach protokollierte die Anwendung
-    # bis zum 20.08. still gar nichts mehr, und ein Test, der eine Logzeile
-    # prüfen wollte, sah eine leere Liste.
+    # läuft die Migration einmal vorweg; ohne dieses Flag protokolliert die
+    # Anwendung danach still gar nichts mehr, und ein Test, der eine
+    # Logzeile prüfen will, sieht eine leere Liste.
     fileConfig(config.config_file_name, disable_existing_loggers=False)
 
 target_metadata = Base.metadata

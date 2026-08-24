@@ -110,7 +110,7 @@ def test_model_prompt_context_contains_no_internal_metadata() -> None:
         "Chunk",
         "pattern_id",
         "content_origin",
-        "original_massage_transcript.pdf",
+        "massage_case_interview",
         "massage_rag_corpus.md",
     )
     assert all(

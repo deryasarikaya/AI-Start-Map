@@ -139,7 +139,7 @@ def test_the_stored_example_still_matches_the_contract(
 ) -> None:
     """Das hinterlegte Beispiel geht durch dieselbe Prüfung wie ein echtes.
 
-    Ändert sich der Vertrag, wird dieser Test rot — und nicht erst Derya
+    Ändert sich der Vertrag, wird dieser Test rot — und nicht erst die Seite
     mitten in der Vorführung.
     """
 

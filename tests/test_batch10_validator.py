@@ -83,8 +83,8 @@ def batch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
 
     Der Bestand wird dabei leer gehalten. Der Testordner liegt ausserhalb von
     `knowledge/candidates/batch_10/`, also zählt der echte Batchordner selbst
-    als Bestand — und dort arbeitet Derya. Sobald sie eine Kennung einträgt,
-    die eine Vorlage hier auch benutzt, fällt ein halbes Dutzend Tests aus
+    als Bestand — und der wächst weiter. Sobald dort eine Kennung eingetragen
+    wird, die eine Vorlage hier auch benutzt, fällt ein halbes Dutzend Tests aus
     einem Grund um, der mit dem Geprüften nichts zu tun hat. Dass die
     Bestandsprüfung greift, sichert
     `test_an_id_already_taken_in_the_corpus_is_found` mit einem eigenen,
@@ -265,7 +265,7 @@ def test_a_short_list_is_a_warning_not_an_error(batch: Path) -> None:
 
 
 def test_missing_files_are_reported_not_failed(batch: Path) -> None:
-    """Derya schreibt nacheinander — ein halber Batch ist kein Fehler."""
+    """Ein Batch entsteht Datei für Datei — ein halber ist kein Fehler."""
 
     _schreibe(batch, "03_solution_families.jsonl", [_solution_family("SF-01")])
     _schreibe(batch, "04_automation_capabilities.jsonl", [_capability("CAP-01")])

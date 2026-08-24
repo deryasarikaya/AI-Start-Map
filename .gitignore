@@ -26,3 +26,16 @@ data/index_backups/
 
 # Kostenpflichtiges Evaluationsartefakt, gehoert nicht ins Repository.
 eval_llm_batch09.json
+
+# Interne Arbeitsunterlagen und Agentensteuerung.
+#
+# Sie liegen bewusst ausserhalb des oeffentlich getrackten Baums: Das
+# Repository zeigt die Anwendung, nicht den Arbeitsprozess an ihr.
+AGENTS.md
+.agents/
+.codex/
+docs/auftrag/
+
+# Ausgaben echter Modell- und Messlaeufe. Sie entstehen lokal und
+# gehoeren nicht ins Repository.
+messungen/

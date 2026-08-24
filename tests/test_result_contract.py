@@ -712,7 +712,7 @@ def test_no_lever_is_a_valid_result() -> None:
 
 
 def test_an_older_result_without_levers_stays_readable() -> None:
-    """Der Beispiellauf vom 18.08. kennt das Feld nicht.
+    """Der hinterlegte Beispiellauf kennt das Feld nicht.
 
     Ihm Hebel anzudichten hiesse, einen geprüften Durchlauf zu fälschen.
     """
@@ -760,9 +760,9 @@ def _module(anzahl: int) -> list[dict[str, str]]:
 def test_three_modules_are_enough_for_a_small_business() -> None:
     """Ein Dreipersonenbetrieb bekommt ein kleineres Zielbild als 450 Einheiten.
 
-    Vorher stand die Untergrenze bei sechs. Damit konnte der kleinste Betrieb
-    gar nicht weniger bekommen als der grösste, und im Goldlauf vom 20.08.
-    lagen vier von neun Fällen über ihrer Modulzahl — alle vier zu hoch.
+    Eine Untergrenze von sechs hiesse, dass der kleinste Betrieb gar nicht
+    weniger bekommen kann als der grösste. Gemessen lagen vier von neun
+    Fällen über ihrer angemessenen Modulzahl — alle vier zu hoch.
     """
 
     teil = ResultPartOne.model_validate(

@@ -38,7 +38,7 @@ def _result(**overrides: object) -> FinalAnalysisResult:
 
 
 def test_setup_steps_are_written_in_first_person() -> None:
-    """einrichtungsschritte sind Deryas Arbeit, nicht die des Kunden."""
+    """einrichtungsschritte sind Arbeit des Anbieters, nicht die des Kunden."""
 
     schritte = _result().umsetzung.einrichtungsschritte
     assert schritte

@@ -127,8 +127,9 @@ def test_the_order_is_also_in_the_report(client: TestClient) -> None:
 def test_the_page_holds_without_an_order(client: TestClient, monkeypatch) -> None:
     """Ein älteres Ergebnis ohne Reihenfolge zeigt die Seite trotzdem.
 
-    Der hinterlegte Beispiellauf ist genau so einer — er ist Deryas
-    Rückfallebene und darf an einem neuen Feld nicht zerbrechen.
+    Der hinterlegte Beispiellauf ist genau so einer — er ist die
+    Rückfallebene für die Vorführung und darf an einem neuen Feld nicht
+    zerbrechen.
     """
 
     antwort = client.get("/beispiel/hausverwaltung")

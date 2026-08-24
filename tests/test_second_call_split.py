@@ -159,7 +159,7 @@ def test_the_levers_are_still_checked_in_the_second_half() -> None:
 def test_the_second_half_is_the_flat_one() -> None:
     """Der Schnitt verläuft bei den Ansichten — sie sind das Verschachtelte.
 
-    Gemessen am 21.08.: das ungeteilte Schema 11.503 Zeichen und Tiefe acht,
+    Gemessen: das ungeteilte Schema 11.503 Zeichen und Tiefe acht,
     Aufruf 1 zum Vergleich 5.269. Danach sieht 2b noch 3.934 Zeichen bei Tiefe
     sechs — flacher und kleiner als Aufruf 1, der zehn von zehn schaffte. 2a
     bleibt gross, aber kein Aufruf sieht mehr das Ganze.

@@ -135,7 +135,7 @@ def test_an_architecture_layer_needs_a_module() -> None:
 def test_a_stored_result_stays_readable() -> None:
     """Ein gespeichertes Ergebnis wird gelesen, nicht neu verhandelt.
 
-    Der Beispiellauf vom 18.08. kennt keine Herkunft. Ihm nachträglich eine
+    Der hinterlegte Beispiellauf kennt keine Herkunft. Ihm nachträglich eine
     anzudichten hiesse, einen geprüften Durchlauf zu fälschen.
     """
 

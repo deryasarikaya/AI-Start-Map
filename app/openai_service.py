@@ -108,7 +108,7 @@ class CallCountUnavailable(RuntimeError):
 # Die Zähler stehen in einer *veränderlichen* Zelle, nicht als Zahl direkt in
 # der Kontextvariablen. Der Grund: Eine Route läuft im Threadpool, also in
 # einer Kopie des Kontexts. Eine Zahl darin zu ersetzen wirkt nur in der
-# Kopie — wer von aussen liest, sah bis zum 18.08. immer 0. Die Kopie zeigt
+# Kopie — wer von aussen liest, sähe immer 0. Die Kopie zeigt
 # aber auf dieselbe Liste, und was hineingeschrieben wird, sehen beide.
 _openai_calls: contextvars.ContextVar[list[int] | None] = contextvars.ContextVar(
     "openai_call_count",
@@ -372,7 +372,7 @@ def _api_key() -> str:
     return api_key
 
 
-# Die vier Stellschrauben aus SCHRITT_3B. Sie stehen hier, damit eine Messung
+# Die vier Stellschrauben des Modellaufrufs. Sie stehen hier, damit eine Messung
 # genau eine Sache ändern kann, ohne dass jemand Code anfasst — und weil ein
 # Wert, den man umstellen kann, ehrlicher ist als eine Zahl mitten im Aufruf.
 # Ohne gesetzte Umgebungsvariable gilt jeweils das, was im Betrieb gelten soll.
@@ -380,13 +380,14 @@ def _reasoning_effort(*, gruendlich: bool, fuellt_nur: bool = False) -> str:
     """Wie viel das Modell nachdenken soll.
 
     Wörtlich abschreiben aus einem langen Text ist genau die Aufgabe, bei der
-    minimales Nachdenken schludert. Bis zum 19.08. fielen die Ergebnisteile in
-    den `else`-Zweig, weil die Bedingung noch auf den alten Vertrag zeigte —
-    die wichtigste Ausgabe der Anwendung lief also auf der niedrigsten Stufe.
+    minimales Nachdenken schludert. Die Ergebnisteile müssen deshalb
+    ausdrücklich in den gründlichen Zweig fallen: Zeigt die Bedingung am
+    Vertrag vorbei, läuft die wichtigste Ausgabe der Anwendung auf der
+    niedrigsten Stufe.
 
     **Teil 2 denkt weniger.** Er diagnostiziert nicht, er füllt Ansichten und
-    Listen aus einem Befund, der schon feststeht. Am 20.08. sind drei von
-    zwölf Goldfällen an `finish_reason=length` gescheitert. Gemessen an
+    Listen aus einem Befund, der schon feststeht. Auf `medium` scheiterten
+    drei von zwölf Evaluationsfällen an `finish_reason=length`. Gemessen an
     einem der drei: Die Denk-Token zählen gegen dieselbe Grenze wie die
     Ausgabe, und auf `medium` waren sie 2.432 von 5.284 Token — auf `low`
     noch 576, bei gleich langer und vollständiger Antwort. Wer 16.000
@@ -418,9 +419,9 @@ def _max_completion_tokens() -> int:
 def _result_prompt_name() -> str:
     """Welche Fassung des Prompts für Aufruf 1 gilt.
 
-    Lauf 3 des Messplans stellt die vollständige Fassung gegen die schlanke:
-    Trägt das Gerüst aus 75 Regeln, oder steht es im Weg? Umschaltbar über
-    `OPENAI_RESULT_PROMPT`, damit die Messung keinen Code anfassen muss.
+    Zwei Fassungen stehen gegeneinander: Trägt das Gerüst aus 75 Regeln,
+    oder steht es im Weg? Umschaltbar über `OPENAI_RESULT_PROMPT`, damit
+    ein Vergleichslauf keinen Code anfassen muss.
     """
 
     return os.getenv("OPENAI_RESULT_PROMPT", "").strip() or "ergebnis_teil1"
@@ -563,11 +564,11 @@ def parse_structured_output(
     Zwei Versuche: Fällt der erste durch die Schemaprüfung, bekommt der
     zweite den Hinweis, jedes Feld erneut zu prüfen.
 
-    **Jeder Versuch hat sein eigenes Zeitbudget.** Bis zum 18.08. galt ein
-    gemeinsames: Lief der erste Aufruf hinein, war für den zweiten nichts mehr
-    übrig — er brach ab, bevor er das Modell überhaupt gerufen hatte. Der
-    Schutz gegen Zeitüberschreitungen war damit genau in dem Fall wirkungslos,
-    für den er gebaut wurde.
+    **Jeder Versuch hat sein eigenes Zeitbudget.** Ein gemeinsames Budget
+    macht den zweiten Versuch wertlos: Läuft der erste in die Zeitgrenze,
+    bleibt für den zweiten nichts übrig — er bricht ab, bevor er das Modell
+    überhaupt gerufen hat. Der Schutz gegen Zeitüberschreitungen wäre damit
+    genau in dem Fall wirkungslos, für den er gebaut ist.
     """
 
     last_error: Exception | None = None
@@ -611,8 +612,8 @@ def parse_structured_output(
     }
     if model.casefold().startswith("gpt-5"):
         model_options |= {
-            # Die Ergebnisteile gehören dazu: Sie sind seit Schritt 2 die
-            # wichtigste Ausgabe der Anwendung.
+            # Die Ergebnisteile gehören dazu: Sie sind die wichtigste
+            # Ausgabe der Anwendung.
             "reasoning_effort": _reasoning_effort(
                 gruendlich=is_final_analysis or is_result_part,
                 fuellt_nur=result_type in zweiter_teil,
@@ -779,9 +780,10 @@ def generate_diagnosis(
 ) -> Diagnose:
     """Aufruf 1: Was ist hier los? **Ohne jede Lösung.**
 
-    Bis zum 24.08. schrieb dieser Aufruf Lösungsname, Module und Zielbild
-    gleich mit. Damit stand die Lösung fest, bevor irgendein Katalog
-    gefragt war — und niemand konnte prüfen, ob es sie überhaupt gibt.
+    Lösungsname, Module und Zielbild entstehen bewusst **nicht** hier.
+    Stünden sie schon in der Diagnose, wäre die Lösung fest, bevor
+    irgendein Katalog gefragt ist — und niemand könnte prüfen, ob es sie
+    überhaupt gibt.
     """
 
     payload: dict[str, object] = {
@@ -826,10 +828,10 @@ def generate_target_architecture(
             for eintrag in katalog
         ],
         "ABRUF_SCHLAEGT_VOR": list(vorgeschlagene_familien),
-        # **Kein Zielbildmuster.** Es hing bis zum 24.08. am Vorschlag des
-        # Abrufs — also an Familien, die noch niemand gewählt hatte. Das
-        # Muster wird jetzt nach der Prüfung aus den **ausgewählten**
-        # Familien bestimmt.
+        # **Kein Zielbildmuster.** Es hier aus dem Abrufvorschlag zu
+        # bestimmen hiesse, es an Familien zu hängen, die noch niemand
+        # gewählt hat. Das Muster folgt nach der Prüfung aus den
+        # **ausgewählten** Familien.
         "VERBOTENE_WOERTER": list(FORBIDDEN_CUSTOMER_TERMS),
     }
     with narrative(narrative_text):

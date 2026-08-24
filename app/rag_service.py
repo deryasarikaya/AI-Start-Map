@@ -82,7 +82,7 @@ CHUNKS_PER_SEARCHED_TYPE = {
 #:
 #: Sechs, nicht vier. Vier war eine Zahl ohne Begründung, und sie hat den
 #: ganzen Aufbau zunichte gemacht: DP-06 nennt fünf Familien, also war die
-#: Auswahl nach dem **ersten** Muster voll. Gemessen am 21.08. bekam jede
+#: Auswahl nach dem **ersten** Muster voll. Gemessen bekam jede
 #: Erzählung exakt die ersten vier Familien ihres erstplatzierten Musters —
 #: Malerbetrieb und 450-Einheiten-Verwaltung dieselben. Sechs ist das, was
 #: ein Ergebnis mit sechs bis neun Modulen tragen kann.
@@ -1273,8 +1273,8 @@ def _rank_solution_architecture(query: str) -> list[KnowledgeChunk]:
     **Gesucht wird absatzweise, nicht am Stück.** Dreitausend Wörter als ein
     Vektor sind ein Mittelwert über Personal, Kanäle, Software, Fristen und
     Rechnungen — und ein Mittelwert liegt ungefähr gleich weit von allem
-    entfernt. Gemessen am 21.08.: 0,8 Prozent zwischen der ersten und der
-    zweiten Betriebsart. Ein einzelner Absatz beschreibt dagegen eine Sache
+    entfernt. Gemessen: 0,8 Prozent zwischen der ersten und der zweiten
+    Betriebsart. Ein einzelner Absatz beschreibt dagegen eine Sache
     und trifft sie scharf.
 
     Alle Absätze gehen in **einem** Einbettungsaufruf hinaus; die Kosten
@@ -1327,9 +1327,8 @@ def retrieve_solution_context(query: str) -> RetrievedKnowledge:
     if not (SOLUTION_ARCHITECTURE_INDEX_DIRECTORY / INDEX_FILE_NAME).is_file():
         return RetrievedKnowledge()
     # Die Uhr läuft über den ganzen Abruf, die Einbettung eingeschlossen — sie
-    # ist der teure Teil. Der Messplan fragt, ob der Abruf die
-    # Zeitablaufquote verschlechtert; ohne diese Zahl liesse sich das nur
-    # raten.
+    # ist der teure Teil. Ohne diese Zahl liesse sich nicht beurteilen, ob
+    # der Abruf die Zeitablaufquote verschlechtert.
     begonnen = perf_counter()
     try:
         sortiert = _rank_solution_architecture(query)

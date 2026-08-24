@@ -159,10 +159,9 @@ Ergebnis geht als Kontext in Aufruf 3 und 4 — und enthält nur, was
 gewählt wurde. Familien, die nicht gewählt wurden, sehen die späteren
 Aufrufe nicht mehr; sie können also auch nicht mehr auftauchen.
 
-**Das Zielbildmuster wird hier bestimmt, nicht vorher.** Bis zum 24.08.
-kam es aus dem Vorschlag des Abrufs — also aus einer Auswahl, die noch
-niemand getroffen hatte. Passt keines, bleibt es leer; erzwungen wird
-keines.
+**Das Zielbildmuster wird hier bestimmt, nicht vorher.** Käme es aus dem
+Vorschlag des Abrufs, hinge es an einer Auswahl, die noch niemand
+getroffen hat. Passt keines, bleibt es leer; erzwungen wird keines.
 
 ---
 
