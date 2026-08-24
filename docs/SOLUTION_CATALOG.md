@@ -18,7 +18,7 @@ der Server sie prüft.
 
 | | Datei | was es ist |
 |---|---|---|
-| **SF** Solution Family | `03_solution_families.jsonl` | was wir dem Betrieb bauen — 24 Familien |
+| **SF** Solution Family | `03_solution_families.jsonl` | was wir dem Betrieb bauen — 25 Familien |
 | **CAP** Capability | `04_automation_capabilities.jsonl` | welche technische Fähigkeit es dafür braucht — 12 |
 | **TA** Target Architecture | `05_target_architectures.jsonl` | wie mehrere Familien zu einem Ganzen werden — 9 |
 
@@ -54,7 +54,7 @@ besteht:
 
 ```json
 {
-  "erlaubt": ["SF-01", "SF-02", "…", "SF-24"]
+  "erlaubt": ["SF-01", "SF-02", "…", "SF-25"]
 }
 ```
 
@@ -68,6 +68,26 @@ statt still durchzuwinken.
 
 ---
 
+## Der Katalog ist kuratiert, nicht gesammelt
+
+Die Liste entsteht nicht dadurch, dass jemand Dateien in einen Ordner legt.
+Jede Familie ist eine Entscheidung darüber, was AI Start Map umsetzen oder
+integrieren kann — das schließt ein: ein vorhandenes System konfigurieren,
+Systeme verbinden, eine digitale Aussenschicht bauen, Abläufe automatisieren
+oder eine eigene Komponente entwickeln.
+
+Zwei Beispiele, wie kuratiert wird:
+
+- **SF-25 Wirtschaftlichkeits- und Liquiditätsvorschau** wurde aufgenommen,
+  weil keine der übrigen Familien beantwortet, ob ein Zeitraum trägt. Sie
+  zeigt Zahlen aus vorhandenen Daten — Preise, Löhne und Zahlungen
+  entscheidet ein Mensch, und die Rechnungen kommen aus strukturierten
+  Daten statt aus einer Schätzung des Modells.
+- **Personalgewinnung und Rückmeldungsauswertung** wurden **nicht** eigene
+  Familien. Sie sind Bausteine geworden: Recruiting in SF-21, das Auswerten
+  von Rückmeldungen in SF-13. Wo etwas fachlich zu einer bestehenden Familie
+  gehört, wächst diese Familie, statt dass der Katalog länger wird.
+
 ## Der Ablauf
 
 ### 1 · Das Modell sieht den ganzen erlaubten Katalog
@@ -76,7 +96,7 @@ statt still durchzuwinken.
 solution_catalog.zur_auswahl(vorgeschlagen)
 ```
 
-Alle 24 Familien mit `id`, `name`, `worum_es_geht`, `geeignet_wenn`,
+Alle 25 Familien mit `id`, `name`, `worum_es_geht`, `geeignet_wenn`,
 `nicht_geeignet_wenn` und ihren Bausteinen — dazu die Markierung, welche der
 Abruf für passend hält.
 

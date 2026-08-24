@@ -28,16 +28,19 @@ def _gewaehlt(**overrides: object) -> Zielarchitektur:
 def test_only_released_families_are_offered() -> None:
     """Die Freigabeliste entscheidet, nicht der Ordnerinhalt.
 
-    Drei Familien sind am 21.08. aus einem Produktvergleich ins Repository
-    gekommen — von einem Agenten geschrieben, von niemandem freigegeben. Sie
-    lagen im Index und wären empfehlbar gewesen.
+    Drei Familien kamen aus einem Produktvergleich ins Repository, von
+    niemandem freigegeben. Eine davon — die Wirtschaftlichkeitsvorschau —
+    hat Derya danach geprüft und aufgenommen; die beiden anderen sind als
+    Bausteine in SF-21 und SF-13 aufgegangen und bleiben keine eigenen
+    Familien.
     """
 
     erlaubt = solution_catalog.katalog()
 
-    assert len(erlaubt) == 24
-    for erfunden in ("SF-25", "SF-26", "SF-27"):
-        assert erfunden not in erlaubt
+    assert len(erlaubt) == 25
+    assert "SF-25" in erlaubt
+    for aufgegangen in ("SF-26", "SF-27"):
+        assert aufgegangen not in erlaubt
 
 
 def test_the_whole_catalogue_is_offered_for_selection() -> None:
@@ -49,7 +52,7 @@ def test_the_whole_catalogue_is_offered_for_selection() -> None:
 
     liste = solution_catalog.zur_auswahl(["SF-06"])
 
-    assert len(liste) == 24
+    assert len(liste) == 25
     # Der Vorschlag steht oben, ist aber nur ein Vorschlag.
     assert liste[0]["id"] == "SF-06"
     assert liste[0]["vom_abruf_vorgeschlagen"] is True
@@ -63,11 +66,11 @@ def test_an_invented_identifier_is_rejected() -> None:
     """`pruefe_auswahl` trennt Katalog von Erfindung."""
 
     gueltig, ungueltig = solution_catalog.pruefe_auswahl(
-        ["SF-01", "SF-99", "SF-25", "Autonomer Einkaufsagent"]
+        ["SF-01", "SF-99", "SF-26", "Autonomer Einkaufsagent"]
     )
 
     assert gueltig == ["SF-01"]
-    assert ungueltig == ["SF-99", "SF-25", "Autonomer Einkaufsagent"]
+    assert ungueltig == ["SF-99", "SF-26", "Autonomer Einkaufsagent"]
 
 
 def test_a_baustein_belongs_to_its_family_or_to_none() -> None:
@@ -127,10 +130,14 @@ def test_an_invented_family_never_reaches_the_customer() -> None:
 
 
 def test_a_family_that_is_not_released_is_rejected() -> None:
-    """SF-25 existiert im Repository, aber nicht in der Freigabe."""
+    """SF-26 ist in SF-21 aufgegangen und keine eigene Familie mehr.
+
+    Wer die alte Kennung nennt, bekommt sie nicht — auch nicht, weil es
+    sie einmal gab.
+    """
 
     with pytest.raises(ValidationError, match="freigegebenen Katalog"):
-        _gewaehlt(selected_solution_family_ids=["SF-25"])
+        _gewaehlt(selected_solution_family_ids=["SF-26"])
 
 
 def test_a_module_must_name_a_selected_family() -> None:
@@ -249,7 +256,7 @@ def test_a_target_picture_needs_at_least_three_modules() -> None:
 def test_the_full_records_come_only_after_the_check() -> None:
     """Erst prüfen, dann laden — und nur das Geprüfte."""
 
-    voll = solution_catalog.vollstaendig(["SF-01", "SF-25"])
+    voll = solution_catalog.vollstaendig(["SF-01", "SF-26"])
 
     assert [datensatz["chunk_id"] for datensatz in voll] == ["SF-01"]
 
@@ -271,3 +278,105 @@ def test_the_target_pattern_covers_the_selection() -> None:
     assert getroffen is not None
     assert getroffen["chunk_id"].startswith("TA-")
     assert solution_catalog.zielbild_zu([]) is None
+
+# --- Was der kuratierte Katalog enthaelt ----------------------------------
+
+
+def test_the_new_family_carries_its_limits() -> None:
+    """SF-25 zeigt Zahlen — entscheiden darf sie nichts.
+
+    Preise, Loehne und Zahlungen bleiben beim Menschen, und die Zahlen
+    kommen aus strukturierten Daten statt aus einer Schaetzung des
+    Modells. Beides steht im Datensatz, nicht nur im Prompt.
+    """
+
+    familie = solution_catalog.katalog()["SF-25"]
+
+    assert familie.name == "Wirtschaftlichkeits- und Liquiditätsvorschau"
+    for baustein in (
+        "Deckungsbeitrag je Leistung oder Auftrag",
+        "Auslastungsvorschau",
+        "kurzfristige Liquiditätsvorschau",
+        "Warnung bei festgelegten Schwellen",
+    ):
+        assert baustein in familie.bausteine, baustein
+    beim_menschen = " ".join(familie.bleibt_beim_menschen).casefold()
+    for entscheidung in ("preise", "löhne", "zahlungen"):
+        assert entscheidung in beim_menschen, entscheidung
+    ausgeschlossen = " ".join(familie.nicht_geeignet_wenn).casefold()
+    assert "steuer" in ausgeschlossen
+
+
+def test_recruiting_lives_in_the_onboarding_family() -> None:
+    """SF-26 ist keine eigene Familie — ihre Bausteine stecken in SF-21."""
+
+    familie = solution_catalog.katalog()["SF-21"]
+
+    assert "Personalgewinnung" in familie.name
+    for baustein in (
+        "Entwurf der Stellenanzeige",
+        "Bewerbungen bündeln",
+        "Gesprächsplanung",
+        "Übergabe ins Onboarding",
+    ):
+        assert baustein in familie.bausteine, baustein
+    # Die alten Onboarding-Bausteine bleiben.
+    assert "Onboarding-Checkliste" in familie.bausteine
+    # Und wer eingestellt wird, entscheidet ein Mensch.
+    assert any(
+        "auswähl" in eintrag.casefold() or "einstell" in eintrag.casefold()
+        for eintrag in familie.bleibt_beim_menschen
+    )
+
+
+def test_feedback_evaluation_lives_in_the_marketing_family() -> None:
+    """SF-27 ist keine eigene Familie — SF-13 wertet jetzt selbst aus."""
+
+    familie = solution_catalog.katalog()["SF-13"]
+
+    for baustein in (
+        "Rückmeldungen bündeln",
+        "Themen erkennen",
+        "Häufigkeiten und Trends erkennen",
+        "Übergabe an den zuständigen betrieblichen Prozess",
+    ):
+        assert baustein in familie.bausteine, baustein
+    assert "Bewertungsanfrage" in familie.bausteine
+    # Keine Bewertung einzelner Personen.
+    ausgeschlossen = " ".join(familie.nicht_geeignet_wenn).casefold()
+    assert "mitarbeitende" in ausgeschlossen or "personen" in ausgeschlossen
+
+
+def test_every_cross_reference_points_at_something() -> None:
+    """DP zu SF, SF zu CAP, TA zu SF — kein Verweis darf ins Leere gehen.
+
+    Beim Zusammenlegen von SF-26 und SF-27 blieb ein Verweis stehen, der
+    auf eine Familie zeigte, die es nicht mehr gibt. Ein Abruf haette ihn
+    stillschweigend uebergangen.
+    """
+
+    import json
+
+    ordner = solution_catalog.KATALOG_DATEI.parent
+
+    def lies(name: str) -> list[dict]:
+        return [
+            json.loads(zeile)
+            for zeile in (ordner / name).read_text(encoding="utf-8").splitlines()
+            if zeile.strip()
+        ]
+
+    familien = {x["chunk_id"] for x in lies("03_solution_families.jsonl")}
+    faehigkeiten = {x["chunk_id"] for x in lies("04_automation_capabilities.jsonl")}
+
+    for muster in lies("02_diagnostic_patterns.jsonl"):
+        for kennung in muster["passende_loesungsfamilien"]:
+            assert kennung in familien, f"{muster['chunk_id']} -> {kennung}"
+    for familie in lies("03_solution_families.jsonl"):
+        for kennung in familie["braucht_capabilities"]:
+            assert kennung in faehigkeiten, f"{familie['chunk_id']} -> {kennung}"
+        for kennung in familie.get("typische_kombination") or []:
+            assert kennung in familien, f"{familie['chunk_id']} -> {kennung}"
+    for zielbild in lies("05_target_architectures.jsonl"):
+        for kennung in zielbild.get("enthaltene_familien") or []:
+            assert kennung in familien, f"{zielbild['chunk_id']} -> {kennung}"

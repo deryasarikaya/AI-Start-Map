@@ -26,11 +26,11 @@
     "SF-21",
     "SF-22",
     "SF-23",
-    "SF-24"
+    "SF-24",
+    "SF-25"
   ],
   "_nicht_freigegeben": {
-    "SF-25": "Liquidität und Kalkulation — aus dem Produktvergleich ergänzt, nicht freigegeben",
-    "SF-26": "Personalgewinnung — aus dem Produktvergleich ergänzt, nicht freigegeben",
-    "SF-27": "Kundenstimmung als Auswertung — aus dem Produktvergleich ergänzt, nicht freigegeben"
+    "SF-26": "Personalgewinnung — als Bausteine in SF-21 aufgegangen, keine eigene Familie",
+    "SF-27": "Kundenstimmung — als Bausteine in SF-13 aufgegangen, keine eigene Familie"
   }
 }

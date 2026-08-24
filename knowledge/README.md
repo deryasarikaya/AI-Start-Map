@@ -21,7 +21,7 @@ knowledge/
 Nur was hier steht, darf empfohlen werden.
 
 ```json
-{ "erlaubt": ["SF-01", "SF-02", "…", "SF-24"] }
+{ "erlaubt": ["SF-01", "SF-02", "…", "SF-25"] }
 ```
 
 Eine Familie deaktivieren heißt: Zeile entfernen. Kein Codeeingriff, kein
@@ -39,7 +39,7 @@ empfehlbar sein.
 |---|---:|---|
 | `01_business_patterns.jsonl` | 7 | Betriebsarten: Außeneinsatz, Werkstatt, Termin, Objekt … |
 | `02_diagnostic_patterns.jsonl` | 18 | Engpassmuster mit den Sätzen, an denen man sie erkennt |
-| `03_solution_families.jsonl` | 24 | **der Katalog** — was gebaut werden kann, mit Bausteinen |
+| `03_solution_families.jsonl` | 25 | **der Katalog** — was gebaut werden kann, mit Bausteinen |
 | `04_automation_capabilities.jsonl` | 12 | technische Fähigkeiten: Klassifikation, Extraktion, Routing … |
 | `05_target_architectures.jsonl` | 9 | Kompositionsmuster für mehrere Familien |
 | `SPEZIFIKATION.md` | | welche Felder ein Datensatz haben muss |
