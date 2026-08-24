@@ -54,7 +54,12 @@
 
 {# ============ 2 · SO KÖNNTE IHR ALLTAG AUSSEHEN ============ #}
 {# Der größte Abschnitt der Seite. Hier wird gezeigt statt erklärt, deshalb
-   darf er mehr Platz bekommen als alles andere zusammen. #}
+   darf er mehr Platz bekommen als alles andere zusammen.
+
+   Ohne Ansichten entfällt er ganz. Seit die Mindestmenge weg ist, kann ein
+   einfacher Fall ohne sie auskommen — eine Überschrift über nichts wäre
+   die Ankündigung von etwas, das nicht kommt. #}
+{% if e.ansichten %}
 <section>
 <div class="wrap">
   <p class="eyebrow">So sieht das für Sie aus</p>
@@ -78,6 +83,7 @@
   nach der technischen Prüfung festgelegt.</p>
 </div>
 </section>
+{% endif %}
 
 {# ============ 2b · WAS NICHTS KOSTET ============ #}
 {# Vor den Modulen, weil er nichts kostet. Wer zuerst etwas gibt, das
@@ -120,6 +126,9 @@
 {% endif %}
 
 {# ============ 3 · WAS DAZUGEHÖRT ============ #}
+{# Ohne Module entfällt auch dieser Abschnitt. Das ist der Fall, in dem
+   keine neue Technik nötig ist — dann steht die Diagnose für sich. #}
+{% if e.module %}
 <section>
 <div class="wrap">
   <p class="eyebrow">Was dazugehört</p>
@@ -159,6 +168,7 @@
   {% endif %}
 </div>
 </section>
+{% endif %}
 
 {# ============ 4 · UND JETZT ============ #}
 <section>
