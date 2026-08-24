@@ -825,10 +825,10 @@ def generate_target_architecture(
             for eintrag in katalog
         ],
         "ABRUF_SCHLAEGT_VOR": list(vorgeschlagene_familien),
-        "ZIELBILDMUSTER": solution_catalog.zielbild_zu(
-            list(vorgeschlagene_familien)
-        )
-        or {},
+        # **Kein Zielbildmuster.** Es hing bis zum 24.08. am Vorschlag des
+        # Abrufs — also an Familien, die noch niemand gewählt hatte. Das
+        # Muster wird jetzt nach der Prüfung aus den **ausgewählten**
+        # Familien bestimmt.
         "VERBOTENE_WOERTER": list(FORBIDDEN_CUSTOMER_TERMS),
     }
     with narrative(narrative_text):
@@ -953,10 +953,18 @@ def _part_two_payload(
     part_one: ResultPartOne,
     knowledge_chunks: Sequence[str],
     recommendation_context: dict[str, object] | None,
+    loesungswissen: dict[str, object] | None = None,
 ) -> dict[str, object]:
-    """Was beide Hälften des unteren Teils mitbekommen — dasselbe."""
+    """Was beide Hälften des unteren Teils mitbekommen — dasselbe.
+
+    Darin steckt das Geländer bis zur Seite: die geprüften Module aus
+    dem oberen Teil und **nur** die ausgewählten Familien samt ihrer
+    Fähigkeiten. Was nicht gewählt wurde, steht hier nicht — es kann
+    also auch nicht in die Formulierung geraten.
+    """
 
     return {
+        **(loesungswissen or {}),
         "SO_ERZAEHLT_ES_DER_BETRIEB": {"erzaehlung": narrative_text},
         "BEREITS_GESCHRIEBENER_OBERER_TEIL": part_one.model_dump(),
         "GEWAEHLTES_MUSTER": _selected_pattern_briefing(recommendation_context),
@@ -971,6 +979,7 @@ def generate_result_part_two(
     part_one: ResultPartOne,
     knowledge_chunks: Sequence[str],
     recommendation_context: dict[str, object] | None = None,
+    loesungswissen: dict[str, object] | None = None,
 ) -> ResultPartTwo:
     """Erzeugt den unteren Teil der Ergebnisseite — in zwei Aufrufen.
 
@@ -986,7 +995,11 @@ def generate_result_part_two(
     """
 
     payload = _part_two_payload(
-        narrative_text, part_one, knowledge_chunks, recommendation_context
+        narrative_text,
+        part_one,
+        knowledge_chunks,
+        recommendation_context,
+        loesungswissen,
     )
     with narrative(narrative_text):
         ansichten = parse_structured_output(

@@ -23,6 +23,7 @@ from app.rag_service import (
 )
 from pydantic import ValidationError
 
+from app import solution_catalog
 from app.result_schema import (
     Diagnose,
     Result,
@@ -192,6 +193,44 @@ def run_first_call(session_id: int, database_session: Session) -> Diagnose:
     return diagnose
 
 
+def geprueftes_loesungswissen(gewaehlt: Zielarchitektur) -> dict[str, object]:
+    """Lädt die vollständigen Datensätze der **ausgewählten** Familien.
+
+    Erst prüfen, dann laden: Was hier herauskommt, geht in die
+    Formulierung, und was in die Formulierung geht, darf beim Kunden
+    landen. Familien, die nicht gewählt wurden, kommen hier nicht mehr
+    vor — auch nicht als Hintergrundwissen.
+
+    Das Zielbildmuster wird **hier** bestimmt, nach der Prüfung. Vorher
+    hing es am Vorschlag des Abrufs, also an einer Auswahl, die noch
+    niemand getroffen hatte. Passt keines, bleibt es leer — ein Muster
+    wird nicht erzwungen.
+    """
+
+    kennungen = list(gewaehlt.selected_solution_family_ids)
+    if not kennungen:
+        # Kein Katalogtreffer oder keine neue Technik nötig: Dann gibt es
+        # nichts zu hydratisieren, und die Formulierung bekommt nichts.
+        return {
+            "GEWAEHLTE_LOESUNGSFAMILIEN": [],
+            "GEBRAUCHTE_FAEHIGKEITEN": [],
+            "ZIELBILDMUSTER": {},
+        }
+    zielbild = solution_catalog.zielbild_zu(kennungen)
+    kontext: dict[str, object] = {
+        "GEWAEHLTE_LOESUNGSFAMILIEN": solution_catalog.vollstaendig(kennungen),
+        "GEBRAUCHTE_FAEHIGKEITEN": solution_catalog.faehigkeiten_zu(kennungen),
+        "ZIELBILDMUSTER": zielbild or {},
+    }
+    logger.info(
+        "solution.hydrated familien=%d faehigkeiten=%d zielbild=%s",
+        len(kontext["GEWAEHLTE_LOESUNGSFAMILIEN"]),
+        len(kontext["GEBRAUCHTE_FAEHIGKEITEN"]),
+        (zielbild or {}).get("chunk_id", "keines"),
+    )
+    return kontext
+
+
 def zusammengesetzt(diagnose: Diagnose, gewaehlt: Zielarchitektur) -> ResultPartOne:
     """Fügt Diagnose und geprüfte Auswahl zu dem zusammen, was die Seite zeigt.
 
@@ -251,10 +290,13 @@ def run_second_call(session_id: int, database_session: Session) -> Result:
     # ohne den Text lässt sich das nicht prüfen.
     with narrative(erzaehlung):
         part_one = zusammengesetzt(diagnose, gewaehlt)
+    # Erst jetzt, nach der Prüfung: die vollen Datensätze, die
+    # gebrauchten Fähigkeiten und das passende Zielbildmuster.
     part_two = generate_result_part_two(
         narrative_text=erzaehlung,
         part_one=part_one,
         knowledge_chunks=[],
+        loesungswissen=geprueftes_loesungswissen(gewaehlt),
     )
     with narrative(erzaehlung):
         ergebnis = Result.model_validate(
