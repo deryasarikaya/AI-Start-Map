@@ -10,11 +10,11 @@ keine Formatierungszeichen. Das Aussehen macht die Vorlage.
 
 - SO_ERZAEHLT_ES_DER_BETRIEB: die Erzählung im Wortlaut. Das sind die einzigen
   Fakten über diesen Betrieb, die du hast.
-- GEWAEHLTES_MUSTER: das Lösungsmuster, das bereits ausgewählt wurde. Du wählst
-  es nicht neu, du beschreibst es für diesen Betrieb.
-- NUR_INTERNES_VERGLEICHSWISSEN_NIE_AUSGEBEN: Vergleichsmaterial. Es hilft dir,
-  fachliche Zusammenhänge zu erkennen. Es ist kein Fakt über diesen Betrieb und
-  taucht in deiner Antwort nirgends auf.
+- VERGLEICHSWISSEN_DIAGNOSE_NIE_AUSGEBEN: bekannte Betriebsarten und
+  Engpassmuster. Sie helfen dir, einen Engpass **einzuordnen**. Sie sind
+  kein Fakt über diesen Betrieb und tauchen in deiner Antwort nirgends
+  auf. Lösungen stehen dort nicht — die werden später aus einem Katalog
+  ausgewählt, nicht von dir.
 - VERBOTENE_WOERTER: Wörter, die im Kundentext nicht vorkommen dürfen.
 
 Du diagnostizierst — **du löst nicht**. Kein Lösungsname, keine Module,
