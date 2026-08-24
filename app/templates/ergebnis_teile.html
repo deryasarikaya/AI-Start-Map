@@ -1,0 +1,323 @@
+{# Die Bausteine, die nicht mehr auf der Ergebnisseite stehen.
+
+   Die Seite zeigt vier Abschnitte. Alles, was erklärt statt zeigt, ist hier
+   abgelegt — nicht gelöscht. Das PDF ruft diese Makros später auf und stellt
+   damit wieder alle elf Abschnitte her.
+
+   Das Markup ist wörtlich das der bisherigen Seite. Wer hier etwas ändert,
+   ändert es fürs PDF; die Seite selbst benutzt nur `ansichten.html`. #}
+{% import "ansichten.html" as ansichten %}
+
+{% macro warum_diese_loesung(e) %}
+<section>
+<div class="wrap">
+  <p class="eyebrow">2 · Warum diese Lösung</p>
+  <h2>Warum diese Lösung zu Ihnen passt</h2>
+  <p>{{ e.warum_diese_loesung }}</p>
+</div>
+</section>
+{% endmacro %}
+
+
+{% macro ablaufdiagramm(e) %}
+{# Das Zielbild mit dem Ablauf „So arbeitet das System zusammen". Der Name und
+   die Beschreibung des Zielbilds stehen weiterhin auf der Seite; hier ist nur
+   das Diagramm. #}
+<section class="dark">
+<div class="wrap">
+  <p class="eyebrow">3 · Ihr Zielbild</p>
+  <h2>{{ e.zielbild.name }}</h2>
+  <p class="sub">{{ e.zielbild.beschreibung }}</p>
+  <h3 style="font-size:17px;margin:32px 0 4px">So arbeitet das System zusammen</h3>
+  <div class="flow" style="margin-top:14px">
+    {% for ebene in e.zielbild.ablauf %}
+      <p class="flabel {% if ebene.art == 'nebenast' %}side{% endif %}">{{ ebene.label }}</p>
+      <div class="frow">
+        {% for knoten in ebene.knoten %}
+        <div class="node {% if ebene.art == 'schluessel' %}key{% elif ebene.art == 'ausgang' %}out{% endif %}">
+          <em>{{ knoten.kategorie }}</em>{{ knoten.text }}
+        </div>
+        {% endfor %}
+      </div>
+      {% if not loop.last %}
+      <div class="arrow {% if ebene.art == 'eingang' or ebene.art == 'schluessel' %}main{% endif %}">↓</div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>
+</section>
+{% endmacro %}
+
+
+{% macro heute_kuenftig(e) %}
+<section>
+<div class="wrap">
+  <p class="eyebrow">5 · Der Unterschied</p>
+  <h2>Derselbe Vorgang, heute und künftig</h2>
+  <p class="sub">Derselbe Ablauf, den Sie beschrieben haben — einmal so, wie er
+  heute läuft, einmal so, wie er laufen könnte.</p>
+  <div class="two">
+    <div class="col now">
+      <h3>Heute</h3>
+      <ul>{% for zeile in e.vergleich.heute %}<li>{{ zeile }}</li>{% endfor %}</ul>
+    </div>
+    <div class="col next">
+      <h3>Künftig</h3>
+      <ul>{% for zeile in e.vergleich.kuenftig %}<li>{{ zeile }}</li>{% endfor %}</ul>
+    </div>
+  </div>
+</div>
+</section>
+{% endmacro %}
+
+
+{% macro hebel(e) %}
+{# Was ohne Technik geht. Im PDF stehen **alle** Hebel; die Seite zeigt
+   höchstens zwei, damit sie nicht zu lang wird. Auch die, die Technik
+   brauchen, stehen hier — im PDF ist Platz, und der Unterschied wird
+   benannt statt verschwiegen. #}
+{% if e.hebel %}
+<section>
+<div class="wrap">
+  <p class="eyebrow">Ohne Technik</p>
+  <h2>Was Sie ändern könnten, ohne etwas zu kaufen</h2>
+  <p class="sub">Jeder dieser Punkte folgt aus einem Satz, den Sie selbst
+  gesagt haben. Er steht jeweils darunter.</p>
+  <div class="cards">
+    {% for h in e.hebel %}
+    <div class="card">
+      <em>{% if h.ohne_technik %}Ohne Technik{% else %}Braucht Technik{% endif %}</em>
+      <h3>{{ h.idee }}</h3>
+      <p>{{ h.warum }}</p>
+      <p><i>Sie haben gesagt: „{{ h.woraus }}“</i></p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+</section>
+{% endif %}
+{% endmacro %}
+
+
+{% macro modulkarten(e) %}
+{# Die Module mit ihren Beschreibungstexten. Auf der Seite stehen nur noch die
+   Namen, nach Gruppen sortiert. #}
+<section>
+<div class="wrap">
+  <p class="eyebrow">6 · Die Module</p>
+  <h2>Aus diesen Modulen besteht Ihre Lösung</h2>
+  <p class="sub">Diese Module gehören zu einer gemeinsamen Lösung. Es sind
+  keine Einzelprodukte, die Sie nacheinander kaufen müssen. Die Gruppen zeigen
+  den Zusammenhang, nicht eine Reihenfolge.</p>
+  <div class="cards">
+    {% for modul in e.module %}
+    <div class="card">
+      <em>{{ modul.gruppe }}</em>
+      <h3>{{ modul.name }}</h3>
+      <p>{{ modul.beschreibung }}</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+</section>
+{% endmacro %}
+
+
+{% macro aufgabenteilung(e) %}
+{# Zweispalter samt der selbst genannten Grenzen. Die Grenzen erscheinen nur,
+   wenn der Kunde wirklich etwas ausgeschlossen hat. #}
+<section>
+<div class="wrap">
+  <p class="eyebrow">7 · Aufgabenteilung</p>
+  <h2>Was das System übernimmt — und was bei Ihnen bleibt</h2>
+  <p class="sub">Die Trennlinie liegt dort, wo Urteilsvermögen anfängt. Alles
+  davor ist Vorbereitung, alles danach bleibt Ihre Entscheidung.</p>
+  <div class="two">
+    <div class="col auto">
+      <h3>Das System</h3>
+      <ul>{% for zeile in e.aufgabenteilung.system %}<li>{{ zeile }}</li>{% endfor %}</ul>
+    </div>
+    <div class="col human">
+      <h3>Sie</h3>
+      <ul>{% for zeile in e.aufgabenteilung.mensch %}<li>{{ zeile }}</li>{% endfor %}</ul>
+    </div>
+  </div>
+  {% if e.aufgabenteilung.grenzen %}
+  <h3 style="margin:28px 0 10px">Was Sie ausgeschlossen haben</h3>
+  <div class="limits">
+    {% for grenze in e.aufgabenteilung.grenzen %}
+    <div class="limit"><b>{{ grenze.titel }}</b><span>{{ grenze.erlaeuterung }}</span></div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+</section>
+{% endmacro %}
+
+
+{% macro wert(e) %}
+<section>
+<div class="wrap">
+  <p class="eyebrow">8 · Was sich ändert</p>
+  <h2>Was dadurch wegfällt und wofür Zeit entsteht</h2>
+  <p class="sub">Ohne Zahlen — was tatsächlich herauskommt, hängt an Ihren
+  Fällen.</p>
+  <div class="two">
+    <div class="col now">
+      <h3>Fällt weg</h3>
+      <ul>{% for zeile in e.wert.faellt_weg %}<li>{{ zeile }}</li>{% endfor %}</ul>
+    </div>
+    <div class="col next">
+      <h3>Zeit für</h3>
+      <ul>{% for zeile in e.wert.zeit_fuer %}<li>{{ zeile }}</li>{% endfor %}</ul>
+    </div>
+  </div>
+</div>
+</section>
+{% endmacro %}
+
+
+{% macro systeme(e) %}
+<section>
+<div class="wrap">
+  <p class="eyebrow">9 · Anbindung</p>
+  <h2>Welche Ihrer Systeme verbunden würden</h2>
+  <p class="sub">Nichts davon wird ersetzt. Wir lesen, wo wir lesen dürfen, und
+  schreiben nur dorthin, wo es eindeutig ist.</p>
+  <div class="syslist">
+    {% for system in e.systeme %}
+    <div class="sys"><b>{{ system.name }}</b><span>{{ system.umgang }}</span></div>
+    {% endfor %}
+  </div>
+  <p class="sysnote">Welche Anbindungen technisch tragen, steht erst nach der
+  Schnittstellenprüfung fest.</p>
+</div>
+</section>
+{% endmacro %}
+
+
+{% macro architektur(e) %}
+<section>
+<div class="wrap">
+  <p class="eyebrow">10 · Aufbau</p>
+  <details class="arch">
+  <summary><b>So wäre die Technik dahinter ungefähr aufgebaut</b> — für alle, die es genau wissen wollen</summary>
+  <p class="sub">Ihre bestehenden Systeme bleiben unten unverändert liegen —
+  alles Neue kommt darüber.</p>
+  <div class="layers">
+    {% for schicht in e.architektur %}
+    <div class="layer {% if loop.index == 2 %}core{% elif loop.last %}base{% endif %}">
+      <b>{{ schicht.ebene }}</b><span>{{ schicht.beschreibung }}</span>
+    </div>
+    {% if not loop.last %}<div class="larrow">↓</div>{% endif %}
+    {% endfor %}
+  </div>
+  </details>
+</div>
+</section>
+{% endmacro %}
+
+
+{% macro umsetzungsschritte(e) %}
+<section>
+<div class="wrap">
+  <p class="eyebrow">11 · Umsetzung</p>
+  <h2>Was daraus gebaut werden kann</h2>
+  <p class="sub">Auf Basis dieser Auswertung lässt sich die passende technische
+  Lösung planen und bauen — von einzelnen Automationen bis zum verbundenen
+  System.</p>
+  <div class="doing">
+    <b>Die Schritte dorthin</b>
+    <ul>{% for schritt in e.umsetzung %}<li>{{ schritt }}</li>{% endfor %}</ul>
+  </div>
+</div>
+</section>
+{% endmacro %}
+
+
+{% macro reihenfolge(e) %}
+{# Die drei Stufen, im Ausdruck mit den Modulnamen. Auf der Seite steht
+   dasselbe; im PDF hat es seinen eigenen Abschnitt, weil man beim Blättern
+   die Modulkarten nicht mehr vor Augen hat.
+
+   Gefiltert wird nach `modul.stufe` — eine leere Stufe bekommt keine Zeile. #}
+{%- set stufen = [('jetzt', 'Jetzt'), ('danach', 'Darauf baut auf'),
+                  ('spaeter', 'Wo das hinführt')] -%}
+{%- set belegt = stufen | selectattr('0', 'in', e.module | map(attribute='stufe') | list) | list -%}
+{% if belegt %}
+<section>
+<div class="wrap">
+  <p class="eyebrow">4 · Die Reihenfolge</p>
+  <h2>Womit wir anfangen</h2>
+  <p class="sub">Das Zielbild ist vollständig. Was sich von Betrieb zu Betrieb
+  unterscheidet, ist nicht der Umfang, sondern der erste Schritt.</p>
+  <div class="folge">
+    {% for schluessel, beschriftung in belegt %}
+    <p class="stufe">
+      <em>{{ beschriftung }}</em>{{
+        e.module | selectattr('stufe', 'equalto', schluessel)
+                 | map(attribute='name') | join(' · ') }}</p>
+    {% endfor %}
+  </div>
+</div>
+</section>
+{% endif %}
+{% endmacro %}
+
+
+{% macro kurzfassung(e) %}
+{# Der Kurzfassungskasten. Er stand ueber dem Befund und wiederholte den
+   Engpass-Satz aus der Ueberschrift wortwoertlich - deshalb ist er von der
+   Seite verschwunden. Im PDF, wo man blaettert statt scrollt, hat er wieder
+   seinen Zweck. #}
+<section class="summary">
+<div class="wrap">
+  <p class="eyebrow">Kurzfassung</p>
+  <div class="sumgrid">
+    <div class="sumbox">
+      <h3>Ihr Engpass</h3>
+      <p>{{ e.kurzfassung.engpass_satz }}</p>
+    </div>
+    <div class="sumbox">
+      <h3>Unsere Empfehlung</h3>
+      <p><b>{{ e.kurzfassung.loesungsname }}</b></p>
+    </div>
+    <div class="sumbox">
+      <h3>Für Sie relevant</h3>
+      <p>{{ e.kurzfassung.relevante_module | join(' · ') }}</p>
+    </div>
+  </div>
+</div>
+</section>
+{% endmacro %}
+
+
+{% macro drittes_zitat(e) %}
+{# Auf der Seite stehen zwei Belege. Falls das Modell drei geliefert hat, ist
+   der dritte hier. #}
+{% if e.verstanden.belege | length > 2 %}
+<div class="quotes">
+  {% for beleg in e.verstanden.belege[2:] %}
+  <div class="q"><em>„{{ beleg.zitat }}“</em><span>{{ beleg.bedeutung }}</span></div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endmacro %}
+
+
+{% macro alle_teile(e) %}
+{# Alles, was von der Seite gewandert ist, in der Reihenfolge des Entwurfs.
+   Schritt 4 kann diesen einen Aufruf benutzen, statt neun einzelne. #}
+{{ kurzfassung(e) }}
+{{ reihenfolge(e) }}
+{{ warum_diese_loesung(e) }}
+{{ ablaufdiagramm(e) }}
+{{ heute_kuenftig(e) }}
+{{ hebel(e) }}
+{{ modulkarten(e) }}
+{{ aufgabenteilung(e) }}
+{{ wert(e) }}
+{{ systeme(e) }}
+{{ architektur(e) }}
+{{ umsetzungsschritte(e) }}
+{% endmacro %}

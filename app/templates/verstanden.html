@@ -1,0 +1,81 @@
+{# „Das habe ich verstanden" — zwischen Erzählung und Ergebnis.
+
+   Absichtlich kurz. Der alte Bestätigungsschritt flog raus, weil er dem
+   Kunden unsere Arbeit aufhalste: Er sollte prüfen, ob wir richtig verstanden
+   hatten. Diese Seite lässt nichts prüfen. Sie zeigt, dass zugehört wurde,
+   und stellt höchstens eine Frage.
+
+   Die Seite erweitert bewusst nicht `base.html`: Sie gehört sichtbar zur
+   Ergebnisseite und bringt deren Farbsystem unter `.ergebnis` mit. #}
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Das habe ich verstanden · AI Start Map</title>
+<link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
+</head>
+<body class="ergebnis">
+
+<div class="wrap top">
+  <p class="eyebrow">AI Start Map · Das habe ich verstanden</p>
+  {# Die Verstandenseite zeigt eine **Diagnose**, keine Lösung. Seit dem
+     24.08. steht der Engpass-Satz deshalb direkt darin und nicht mehr in
+     einer Kurzfassung, die auch den Lösungsnamen trägt. #}
+  <h1>{{ e.engpass_satz }}</h1>
+  <div class="chipline">
+    {% for eckdatum in e.verstanden.eckdaten %}
+    <span class="chip">{{ eckdatum }}</span>
+    {% endfor %}
+  </div>
+  {# Ein Zitat, nicht zwei. Es geht darum zu zeigen, dass zugehört wurde,
+     nicht darum, die Erzählung zurückzuspielen. #}
+  {% if e.verstanden.belege %}
+  <div class="quotes">
+    {% set beleg = e.verstanden.belege[0] %}
+    <div class="q"><em>„{{ beleg.zitat }}“</em><span>{{ beleg.bedeutung }}</span></div>
+  </div>
+  {% endif %}
+</div>
+
+<section>
+<div class="wrap">
+  <div class="cta">
+    <form method="post" action="{{ url_for('save_understanding_public') }}">
+    {% if rueckfrage %}
+      <h2>Eine Sache weiß ich noch nicht</h2>
+      <p class="big">{{ rueckfrage.frage }}</p>
+      <p class="sub"><em>{{ rueckfrage.warum }}</em></p>
+      <textarea name="antwort" rows="3" placeholder="Ihre Antwort in einem Satz"></textarea>
+      <div class="ctabuttons">
+        <button class="btn" type="submit" name="weiter" value="nein">Antworten</button>
+        <button class="btn ghost" type="submit" name="weiter" value="ja">Weiß ich gerade nicht</button>
+      </div>
+    {% elif letzte_runde %}
+      {# Nach der zweiten Runde gibt es keine dritte. Deshalb steht hier kein
+         Textfeld: Ein Feld, dessen Inhalt niemand mehr liest, wäre eine
+         Einladung ins Leere. #}
+      <h2>Ich habe alles, was ich brauche</h2>
+      <p class="sub">Danke für die Ergänzung. Jetzt stelle ich Ihre Auswertung
+      zusammen.</p>
+      <div class="ctabuttons">
+        <button class="btn" type="submit" name="weiter" value="ja">Weiter zur Auswertung</button>
+      </div>
+    {% else %}
+      <h2>Ich habe alles verstanden, was ich brauche</h2>
+      <p class="sub">Möchten Sie noch etwas ergänzen?</p>
+      <textarea name="antwort" rows="3" placeholder="Wenn Ihnen noch etwas einfällt"></textarea>
+      <div class="ctabuttons">
+        <button class="btn" type="submit" name="weiter" value="nein">Ja, das noch</button>
+        <button class="btn ghost" type="submit" name="weiter" value="ja">Nein, weiter</button>
+      </div>
+    {% endif %}
+    </form>
+  </div>
+</div>
+</section>
+
+<div class="wrap foot">AI Start Map · Auswertung auf Grundlage Ihrer eigenen Beschreibung</div>
+
+</body>
+</html>

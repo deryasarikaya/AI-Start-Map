@@ -1,0 +1,193 @@
+{# Die Ansichtsbibliothek: ein Makro je Typ aus ANSICHTSBIBLIOTHEK.md.
+
+   Das Modell waehlt einen Typ und liefert Werte. Das Layout steht hier. Ein
+   unbekannter Typ wird uebersprungen, nicht notduerftig gerendert - deshalb
+   kann aus einer Modellantwort keine kaputte Seite entstehen.
+
+   `status` kommt aus einer festen Liste (rot, gelb, gruen, grau); die Farbe
+   waehlt nicht das Modell, sondern `statusklasse` unten. #}
+
+{% macro statusklasse(status) -%}
+{{ {'rot': 'red', 'gelb': 'amber', 'gruen': 'green', 'grau': 'grey'}.get(status, 'grey') }}
+{%- endmacro %}
+
+{% macro rahmen(titel, beschreibung, name) %}
+{# Der gemeinsame Fensterrahmen um jede Ansicht. #}
+<div class="mock">
+  <h3>{{ titel }}</h3>
+  <p class="mdesc">{{ beschreibung }}</p>
+  <div class="screen">
+    <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="name">{{ name }}</span></div>
+    <div class="body">{{ caller() }}</div>
+  </div>
+</div>
+{% endmacro %}
+
+
+{% macro uebersicht(v) %}
+{% call rahmen(v.titel, v.beschreibung, 'Übersicht') %}
+  {% if v.daten.haupttext or v.daten.untertext %}
+  <div class="dhead">
+    <strong>{{ v.daten.haupttext or '' }}</strong>
+    <span>{{ v.daten.untertext or '' }}</span>
+  </div>
+  {% endif %}
+  {% if v.daten.kennzahlen %}
+  <div class="stats">
+    {% for k in v.daten.kennzahlen %}
+    <div class="stat"><b>{{ k.wert }}</b><small>{{ k.label }}</small></div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  <div class="rows">
+    {% for zeile in v.daten.zeilen %}
+    <div class="row">
+      <span class="sdot {{ statusklasse(zeile.status) }}"></span>
+      <div class="main"><b>{{ zeile.text }}</b></div>
+    </div>
+    {% endfor %}
+  </div>
+  {% if v.daten.hinweis %}<p class="sysnote">{{ v.daten.hinweis }}</p>{% endif %}
+{% endcall %}
+{% endmacro %}
+
+
+{% macro vorgangsakte(v) %}
+{% call rahmen(v.titel, v.beschreibung, 'Vorgang') %}
+  {% if v.daten.abzeichen %}
+  <div class="akte-head">
+    <div><b>{{ v.titel }}</b></div>
+    <span class="badge">{{ v.daten.abzeichen.text }}</span>
+  </div>
+  {% endif %}
+  <div class="kv">
+    {% for f in v.daten.felder %}
+    <div><span>{{ f.label }}</span><b>{{ f.wert }}</b></div>
+    {% endfor %}
+  </div>
+  {% if v.daten.verlauf %}
+  <ul class="tl">
+    {% for e in v.daten.verlauf %}
+    <li><div class="tlrow"><span class="tdot {% if loop.last %}now{% else %}on{% endif %}"></span><div class="t"><b>{{ e.text }}</b><span>{{ e.zeit }}</span></div></div></li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  {% if v.daten.dateien %}
+  <div class="files">
+    {% for name in v.daten.dateien %}
+    <div class="file"><span class="ic">DOC</span><span class="fn">{{ name }}</span></div>
+    {% endfor %}
+  </div>
+  {% endif %}
+{% endcall %}
+{% endmacro %}
+
+
+{% macro eingangspruefung(v) %}
+{% call rahmen(v.titel, v.beschreibung, 'Eingang') %}
+  {% for n in v.daten.nachrichten %}
+  <div class="mailrow">
+    <div class="from">{{ n.absender }} · {{ n.zeit }}</div>
+    <div class="txt">{{ n.text }}</div>
+    <div class="pills">
+      {% for marke in n.marken %}
+      <span class="pill {% if loop.index0 == 1 %}q{% elif loop.index0 > 1 %}n{% endif %}">{{ marke }}</span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+{% endcall %}
+{% endmacro %}
+
+
+{% macro nachrichtenverlauf(v) %}
+{% call rahmen(v.titel, v.beschreibung, 'Nachrichten') %}
+  {% for b in v.daten.blasen %}
+  <div class="mailrow">
+    <div class="from">{{ 'Kunde' if b.seite == 'kunde' else 'Ihr Betrieb' }} · {{ b.zeit }}</div>
+    <div class="txt">{{ b.text }}</div>
+  </div>
+  {% endfor %}
+{% endcall %}
+{% endmacro %}
+
+
+{% macro kundenakte(v) %}
+{% call rahmen(v.titel, v.beschreibung, 'Kunde') %}
+  <div class="akte-head">
+    <div><b>{{ v.daten.name or v.titel }}</b>{% if v.daten.notiz %}<span class="sm">{{ v.daten.notiz }}</span>{% endif %}</div>
+    {% if v.daten.abzeichen %}<span class="badge">{{ v.daten.abzeichen.text }}</span>{% endif %}
+  </div>
+  <div class="kv">
+    {% for f in v.daten.felder %}
+    <div><span>{{ f.label }}</span><b>{{ f.wert }}</b></div>
+    {% endfor %}
+  </div>
+  {% if v.daten.vorgaenge %}
+  <div class="files">
+    {% for eintrag in v.daten.vorgaenge %}
+    <div class="file"><span class="ic">VOR</span><span class="fn">{{ eintrag }}</span></div>
+    {% endfor %}
+  </div>
+  {% endif %}
+{% endcall %}
+{% endmacro %}
+
+
+{% macro terminuebersicht(v) %}
+{% call rahmen(v.titel, v.beschreibung, 'Termine') %}
+  {% if v.daten.tag %}<div class="dhead"><strong>{{ v.daten.tag }}</strong></div>{% endif %}
+  <div class="rows">
+    {% for e in v.daten.eintraege_termine %}
+    <div class="row">
+      <span class="sdot {{ statusklasse(e.status) }}"></span>
+      <div class="main"><b>{{ e.leistung }}</b><span>{{ e.person }}</span></div>
+      <div class="meta">{{ e.zeit }}</div>
+    </div>
+    {% endfor %}
+  </div>
+{% endcall %}
+{% endmacro %}
+
+
+{% macro aussenansicht(v) %}
+{% call rahmen(v.titel, v.beschreibung, 'Kundensicht') %}
+  <ul class="tl">
+    {% for s in v.daten.schritte %}
+    <li><div class="tlrow"><span class="tdot {% if s.erreicht %}on{% endif %}"></span><div class="t"><b>{{ s.text }}</b></div></div></li>
+    {% endfor %}
+  </ul>
+  {% if v.daten.statussatz %}<p class="sysnote">{{ v.daten.statussatz }}</p>{% endif %}
+{% endcall %}
+{% endmacro %}
+
+
+{% macro dokumentenablage(v) %}
+{% call rahmen(v.titel, v.beschreibung, 'Ablage') %}
+  <div class="files">
+    {% for e in v.daten.eintraege_dokumente %}
+    <div class="file">
+      <span class="ic">{{ e.typ[:3]|upper }}</span>
+      <span class="fn">{{ e.name }}</span>
+      <span class="fx">{{ e.zuordnung }} · {{ e.datum }}</span>
+    </div>
+    {% endfor %}
+  </div>
+{% endcall %}
+{% endmacro %}
+
+
+{% macro ansicht(v) %}
+{# Waehlt das Makro zum Typ. Kennt die Bibliothek den Typ nicht, wird die
+   Ansicht uebersprungen - das Schema laesst einen unbekannten Typ ohnehin
+   nicht durch, aber die Vorlage verlaesst sich nicht darauf. #}
+{% if v.typ == 'uebersicht' %}{{ uebersicht(v) }}
+{% elif v.typ == 'vorgangsakte' %}{{ vorgangsakte(v) }}
+{% elif v.typ == 'eingangspruefung' %}{{ eingangspruefung(v) }}
+{% elif v.typ == 'nachrichtenverlauf' %}{{ nachrichtenverlauf(v) }}
+{% elif v.typ == 'kundenakte' %}{{ kundenakte(v) }}
+{% elif v.typ == 'terminuebersicht' %}{{ terminuebersicht(v) }}
+{% elif v.typ == 'aussenansicht' %}{{ aussenansicht(v) }}
+{% elif v.typ == 'dokumentenablage' %}{{ dokumentenablage(v) }}
+{% endif %}
+{% endmacro %}

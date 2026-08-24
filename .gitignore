@@ -1,0 +1,28 @@
+.env
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+.idea/
+.claude/
+.postgresql/
+.postgres-data/
+*.log
+data/vector_index/
+data/vector_index_test/
+data/vector_index_backup_pre_batch04/
+# Der Index aus Batch 10. Er entsteht aus den Dateien unter
+# knowledge/candidates/batch_10 und kostet Einbettungen — die Datei selbst
+# gehoert nicht ins Repository.
+data/solution_architecture_index/
+data/solution_architecture_index_test/
+data/agent_pattern_index/
+data/agent_pattern_index_test/
+data/solution_workflow_index/
+data/solution_workflow_index_test/
+data/index_backups/
+
+# Kostenpflichtiges Evaluationsartefakt, gehoert nicht ins Repository.
+eval_llm_batch09.json
