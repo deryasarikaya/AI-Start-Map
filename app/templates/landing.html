@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}AI Start Map · Dein passender KI-Schritt{% endblock %}
+
+{% block content %}
+<section class="landing-section landing-hero">
+    <div class="hero-copy">
+        <p class="eyebrow">FÜR SELBSTSTÄNDIGE UND KLEINE BETRIEBE</p>
+        <h1>Wo könnte KI dir im Alltag wirklich Arbeit abnehmen?</h1>
+        <p class="lead">Erzähl kurz, welche Aufgaben dich Zeit kosten, wo Informationen verstreut sind oder was du immer wieder manuell nacharbeiten musst. AI Start Map schaut sich deinen Ablauf an und zeigt dir einen konkreten, realistischen KI-Schritt.</p>
+        <p class="micro-copy">Per Sprache oder Text · dauert wenige Minuten</p>
+        <form action="{{ url_for('begin_journey') }}" method="post" data-disable-on-submit data-submitting-label="Einen Moment …">
+            <button class="primary-button hero-button" type="submit">Meinen Ablauf beschreiben <span aria-hidden="true">→</span></button>
+        </form>
+    </div>
+</section>
+
+<section class="landing-section recognition-section" id="wiedererkennen" aria-labelledby="recognition-title">
+    <p class="section-kicker">KOMMT DIR DAS BEKANNT VOR?</p>
+    <h2 id="recognition-title" class="section-title">Vier typische Zeitfresser im Alltag</h2>
+    <ul class="recognition-list">
+        <li>Informationen kommen über mehrere digitale Kanäle.</li>
+        <li>Du musst Dinge immer wieder zusammensuchen.</li>
+        <li>Status oder nächste Schritte sind nicht überall sichtbar.</li>
+        <li>Vieles wird manuell übertragen oder nachbearbeitet.</li>
+    </ul>
+</section>
+
+<section class="landing-section compact-steps" aria-labelledby="steps-title">
+    <p class="section-kicker">SO FUNKTIONIERT ES</p>
+    <h2 id="steps-title" class="section-title">Drei einfache Schritte</h2>
+    <div class="simple-steps">
+        <article><span>1</span><div><h3>Du erzählst</h3><p>Sprich oder schreib kurz, was dich im Alltag aufhält.</p></div></article>
+        <article><span>2</span><div><h3>Ich frage gezielt nach</h3><p>Nur wenn eine Antwort den passenden nächsten Schritt verändert.</p></div></article>
+        <article><span>3</span><div><h3>Du bekommst eine klare Empfehlung</h3><p>Mit einem verständlichen Ablauf und einem kleinen ersten Schritt.</p></div></article>
+    </div>
+</section>
+
+<section class="landing-section comparison-section" aria-label="Vergleich">
+    <div class="comparison-grid">
+        <article class="comparison-card muted-card"><p class="card-kicker">Allgemeiner KI-Tipp</p><blockquote>„Nutze neue Programme und automatisiere möglichst viel.“</blockquote></article>
+        <article class="comparison-card"><p class="card-kicker">AI Start Map</p><blockquote>„Schick Sprache, Fotos und Bon nach dem Einsatz. Die KI schreibt daraus eine Notiz, die du nur noch prüfst.“</blockquote></article>
+    </div>
+</section>
+{% endblock %}

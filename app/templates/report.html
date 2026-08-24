@@ -1,0 +1,79 @@
+{# Die Druckansicht: alle elf Abschnitte, in der Reihenfolge des Entwurfs.
+
+   Die Ergebnisseite zeigt vier davon. Die anderen sieben sind in Schritt 1
+   nach `ergebnis_teile.html` gewandert — nicht gelöscht, sondern für genau
+   diese Seite aufgehoben. `alle_teile(e)` ruft sie in der Reihenfolge des
+   Entwurfs für die Druckansicht auf.
+
+   Gedruckt wird im Browser über Strg+P. Die Kopf- und Fusszeilen, die der
+   Browser dabei selbst setzt — Datum, Adresse —, lassen sich von hier aus
+   nicht abschalten. Das ist bekannt und kein Fehler dieser Vorlage. #}
+{% import "ergebnis_teile.html" as teile %}
+{% import "ansichten.html" as ansichten %}<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ihre vollständige Auswertung · AI Start Map</title>
+<link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
+<style>
+/* Nur fürs Drucken. Die Bildschirmdarstellung erbt alles aus `.ergebnis`. */
+@media print {
+  /* Jeder Abschnitt beginnt auf einer neuen Seite, wenn er sonst
+     auseinandergerissen würde. `break-inside` hält Ansichten und Kacheln
+     zusammen — eine halbe Ansicht über zwei Seiten wäre unlesbar. */
+  section { break-before: page; }
+  section:first-of-type { break-before: auto; }
+  .mock, .card, .layer, .limit, .q, .sys, .modgroup, .doing { break-inside: avoid; }
+  .two, .flow, .frow { break-inside: avoid; }
+  h1, h2, h3 { break-after: avoid; }
+  .noprint { display: none; }
+  body { background: #fff; }
+}
+.reportkopf { border-bottom: 1px solid rgba(0,0,0,.12); }
+</style>
+</head>
+<body class="ergebnis">
+
+<div class="wrap top reportkopf">
+  <p class="eyebrow">AI Start Map · Vollständige Auswertung</p>
+  <h1>{{ e.kurzfassung.engpass_satz }}</h1>
+  <div class="chipline">
+    {% for eckdatum in e.verstanden.eckdaten %}
+    <span class="chip">{{ eckdatum }}</span>
+    {% endfor %}
+  </div>
+  <div class="finding">
+    <p class="big">{{ e.verstanden.engpass_absatz }}</p>
+  </div>
+  {# Hier alle Belege, nicht nur zwei: Auf der Seite ist Platz knapp, im
+     Ausdruck nicht. #}
+  <div class="quotes">
+    {% for beleg in e.verstanden.belege %}
+    <div class="q"><em>„{{ beleg.zitat }}“</em><span>{{ beleg.bedeutung }}</span></div>
+    {% endfor %}
+  </div>
+  <p class="sub noprint">Zum Speichern als PDF: Strg+P und „Als PDF sichern“.</p>
+</div>
+
+{# Die Ansichten stehen im Ausdruck an derselben Stelle wie auf der Seite —
+   sie sind der Teil, den der Kunde jemandem zeigt. #}
+<section>
+<div class="wrap">
+  <p class="eyebrow">4 · So könnte das bei Ihnen aussehen</p>
+  <h2>So könnte Ihr Alltag aussehen</h2>
+  <p class="sub">Beispielhafte Darstellung mit erfundenen Objekten und Namen.
+  Der Aufbau ist gemeint, nicht die Inhalte.</p>
+  {% for v in e.ansichten %}
+  {{ ansichten.ansicht(v) }}
+  {% endfor %}
+</div>
+</section>
+
+{{ teile.alle_teile(e) }}
+
+<div class="wrap foot">AI Start Map · Auswertung vom {{ auswertungsdatum }} auf
+Grundlage Ihrer eigenen Beschreibung</div>
+
+</body>
+</html>

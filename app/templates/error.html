@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Das hat gerade nicht geklappt · AI Start Map{% endblock %}
+{% block content %}
+<section class="error-page">
+    <div class="gentle-error-mark" aria-hidden="true">↻</div>
+    <h1 class="page-title">{{ error_title|default('Das hat gerade nicht geklappt') }}</h1>
+    {% if error_message %}<p class="page-description">{{ error_message }}</p>{% else %}<p class="page-description">Diese Auswertung wurde nicht gefunden.</p>{% endif %}
+    {% if retry_path %}<p>Deine bisherigen Angaben bleiben gespeichert.</p>{% endif %}
+    <a class="primary-button button-link" href="{{ retry_path or url_for('landing') }}">{{ 'Noch einmal versuchen' if retry_path else 'Zur Startseite' }} <span aria-hidden="true">→</span></a>
+</section>
+{% endblock %}

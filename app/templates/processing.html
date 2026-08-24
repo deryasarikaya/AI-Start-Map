@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Dein Ergebnis wird vorbereitet · AI Start Map{% endblock %}
+{% block content %}
+{# Zwei Zwischenschritte, weil es zwei Modellaufrufe sind. Sie stehen fest auf
+   der Seite: Der Warteschirm erfährt nicht, welcher Aufruf gerade läuft, und
+   ein Fortschritt, der nur so tut, wäre schlechter als keiner. #}
+<nav class="journey-progress" aria-label="Fortschritt"><span class="done">Erzählen ✓</span><span class="current">Auswerten ●</span></nav>
+<section class="processing-card" data-analyze-url="{{ url_for('analyze_session_public') }}" data-status-url="{{ url_for('analysis_status_public') }}" data-edit-url="{{ url_for('show_interview_public') }}">
+    <div class="processing-indicator" aria-hidden="true"><span></span><span></span><span></span></div>
+    <h1 class="page-title">Ich lese, was du erzählt hast.</h1>
+    <p class="page-description">Das dauert etwa eine Minute. Du musst nichts weiter tun.</p>
+    <p class="processing-delay" data-processing-delay hidden>Das dauert diesmal etwas länger.</p>
+    <a class="processing-cancel" data-processing-cancel href="{{ url_for('show_interview_public') }}" hidden>Abbrechen und zurück zu meiner Erzählung</a>
+    <ol class="processing-steps" aria-live="polite"><li class="complete">✓ Deine Erzählung wurde übernommen</li><li class="active">• Dein Engpass wird herausgearbeitet</li><li>○ Deine Lösung wird zusammengestellt</li></ol>
+    <section class="processing-error" role="alert" hidden><h2>Das hat gerade nicht geklappt. Versuch es bitte noch einmal.</h2><p>Deine Erzählung ist gespeichert. Du musst nichts noch einmal erzählen.</p><div class="form-actions"><button class="primary-button" type="button" data-retry-analysis>Wiederholen</button><a class="secondary-button button-link" data-edit-answers href="#">Erzählung bearbeiten</a></div></section>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+(() => {
+    const card = document.querySelector(".processing-card");
+    const errorBox = card.querySelector(".processing-error");
+    const retry = card.querySelector("[data-retry-analysis]");
+    const edit = card.querySelector("[data-edit-answers]");
+    const delayMessage = card.querySelector("[data-processing-delay]");
+    const cancel = card.querySelector("[data-processing-cancel]");
+    let running = false;
+    let delayTimer;
+    let cancelTimer;
+    edit.href = card.dataset.editUrl;
+
+    const checkStatus = async () => {
+        const response = await fetch(card.dataset.statusUrl, {headers: {"Accept": "application/json"}});
+        if (!response.ok) throw new Error();
+        return response.json();
+    };
+    const waitForCompletion = async () => {
+        for (let attempt = 0; attempt < 90; attempt += 1) {
+            const result = await checkStatus();
+            if (result.state === "complete") { window.location.assign(result.redirect_url); return true; }
+            await new Promise((resolve) => window.setTimeout(resolve, 1000));
+        }
+        return false;
+    };
+    const startAnalysis = async () => {
+        if (running) return;
+        running = true;
+        errorBox.hidden = true;
+        delayMessage.hidden = true;
+        cancel.hidden = true;
+        window.clearTimeout(delayTimer);
+        window.clearTimeout(cancelTimer);
+        delayTimer = window.setTimeout(() => { delayMessage.hidden = false; }, 20000);
+        cancelTimer = window.setTimeout(() => { cancel.hidden = false; }, 60000);
+        retry.disabled = true;
+        try {
+            const current = await checkStatus();
+            if (current.state === "complete") return window.location.assign(current.redirect_url);
+            const response = await fetch(card.dataset.analyzeUrl, {method: "POST", headers: {"Accept": "application/json"}});
+            const result = await response.json();
+            if (result.state === "complete") return window.location.assign(result.redirect_url);
+            if (result.state === "processing" && await waitForCompletion()) return;
+            throw new Error();
+        } catch (_error) {
+            errorBox.hidden = false;
+        } finally {
+            window.clearTimeout(delayTimer);
+            window.clearTimeout(cancelTimer);
+            running = false;
+            retry.disabled = false;
+        }
+    };
+    retry.addEventListener("click", startAnalysis);
+    startAnalysis();
+})();
+</script>
+{% endblock %}
