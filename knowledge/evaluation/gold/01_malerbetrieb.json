@@ -1,0 +1,28 @@
+{
+  "fall_id": "01_malerbetrieb",
+  "titel": "Malerbetrieb, zwei Personen, überwiegend telefonisch",
+  "erzaehlung": "Wir sind ein kleiner Malerbetrieb, mein Bruder und ich. Die meisten Aufträge kommen übers Telefon rein oder die Leute sprechen mich direkt an, wenn ich irgendwo auf der Baustelle bin. Ich hab dann meistens keinen Zettel dabei und merk es mir einfach. Manchmal schreib ich es abends auf, manchmal nicht. Eine richtige Auftragsnummer haben wir nicht, wir sagen einfach „die Frau Schneider in der Bahnhofstraße\". Wenn dann drei Wochen später jemand anruft und fragt, wann wir kommen, muss ich erstmal überlegen, wer das war und was genau ausgemacht war. Bei den Preisen ist es das Gleiche — ich hab was gesagt, aber es steht nirgends. Und wenn mein Bruder anfängt und ich war beim Kunden, dann erzähl ich ihm das eben schnell im Auto. Es geht meistens gut, aber manchmal machen wir was doppelt oder es fehlt Material, weil keiner mehr weiß, was vereinbart war.",
+  "quelle": "synthetischer Testfall, erfunden für die Evaluation",
+  "bewertung": {
+    "engpass_in_einem_satz": "Es gibt keinen Ort, an dem ein Auftrag überhaupt entsteht.",
+    "startpunkt": "aufbau",
+    "module_anzahl_von": 5,
+    "module_anzahl_bis": 8,
+    "muss_vorkommen": [
+      "Auftrag",
+      "Absprache"
+    ],
+    "darf_nicht_vorkommen": [
+      "Posteingang",
+      "Portal",
+      "Dashboard",
+      "Assistent",
+      "Marketing"
+    ],
+    "darf_nirgends_vorkommen": [],
+    "betriebsart": [
+      "A"
+    ],
+    "notiz": ""
+  }
+}

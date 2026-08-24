@@ -1,0 +1,223 @@
+business_pattern: A_field_service
+business_example: Hausmeisterservice
+
+diagnostic_focus: >
+  Sind Fotos, Notizen und Belege nach dem Einsatz zuverlässig mit dem Auftrag
+  verbunden? Die Informationen entstehen fast immer bereits während des
+  Einsatzes. Das Problem ist selten, dass etwas fehlt — sondern dass es
+  danach nicht mehr zusammenfindet. Die Kette lautet:
+  Auftrag → Einsatz → Fotos, Notizen, Belege → Rechnung.
+
+typical_workflows:
+  - Anfrage oder Auftrag erhalten
+  - Objekt und Kunde zuordnen
+  - Einsatz planen
+  - zum Objekt fahren
+  - Arbeit vor Ort durchführen
+  - zusätzliche Arbeiten oder Schäden feststellen
+  - Fotos aufnehmen
+  - Material verwenden oder einkaufen
+  - Belege sammeln
+  - ausgeführte Arbeiten festhalten
+  - offene Punkte und Folgeeinsätze notieren
+  - Einsatz abschließen
+  - Angaben für die Rechnung zusammenstellen
+  - Rechnung erstellen
+  - Kunde oder Verwaltung informieren
+
+channels:
+  - Telefon
+  - WhatsApp
+  - E-Mail
+  - SMS
+  - persönlich
+  - Sprachnachrichten
+  - Fotos vom Smartphone
+  - Papierzettel
+  - Kalender
+  - Rechnungssoftware, falls vorhanden
+
+domain_vocabulary:
+  - Auftrag
+  - Einsatz
+  - Objekt
+  - Adresse
+  - Hausverwaltung
+  - Eigentümer
+  - Mieter
+  - Ansprechpartner
+  - Reparatur
+  - Kontrolle
+  - Schaden
+  - Mangel
+  - Zusatzarbeit
+  - Material
+  - Ersatzteil
+  - Einkauf
+  - Bon
+  - Beleg
+  - Vorher-Foto
+  - Nachher-Foto
+  - Arbeitszeit
+  - Anfahrt
+  - Schlüssel
+  - Zugang
+  - Termin
+  - Folgeeinsatz
+  - Leistungsnachweis
+
+important_entities:
+  - Kunde oder Auftraggeber
+  - Objekt
+  - Adresse
+  - Auftrag
+  - Einsatz
+  - Ansprechpartner vor Ort
+  - Mitarbeiter
+  - Tätigkeit
+  - Foto
+  - Material
+  - Beleg
+  - Arbeitszeit
+  - Zusatzarbeit
+  - Schaden oder Mangel
+  - Folgeaufgabe
+  - Rechnungsposition
+  - Status
+
+required_information:
+  - Auftraggeber
+  - Objekt und Adresse
+  - Ansprechpartner
+  - gewünschte Tätigkeit
+  - Termin oder Einsatzdatum
+  - zuständiger Mitarbeiter
+  - tatsächlich ausgeführte Arbeiten
+  - Arbeitsdauer, wo relevant
+  - verwendetes Material
+  - gekaufte Materialien und Belege
+  - Fotos, wo erforderlich
+  - Zusatzarbeiten
+  - neu entdeckte Schäden
+  - offene Punkte
+  - notwendiger Folgeeinsatz
+  - abrechenbare Leistungen
+  - Besonderheiten beim Zugang
+
+typical_handoffs:
+  - Kunde oder Hausverwaltung an Büro
+  - Büro an Mitarbeiter im Einsatz
+  - Mitarbeiter an Einsatzdokumentation
+  - Einsatz zurück ans Büro
+  - Fotos, Notizen und Belege an die Rechnung
+  - Mangel an Kunde oder Hausverwaltung
+  - offener Punkt an Folgeeinsatz
+
+typical_statuses:
+  - Anfrage eingegangen
+  - Auftrag angenommen
+  - Termin geplant
+  - wartet auf Zugang oder Schlüssel
+  - Mitarbeiter unterwegs
+  - in Arbeit
+  - wartet auf Material
+  - Rückfrage erforderlich
+  - Zusatzarbeit entdeckt
+  - wartet auf Freigabe
+  - teilweise erledigt
+  - erledigt
+  - Folgeeinsatz nötig
+  - Dokumentation vollständig
+  - bereit zur Abrechnung
+  - abgerechnet
+
+typical_bottlenecks:
+  - Aufträge kommen über Telefon, Chat und E-Mail
+  - Angaben werden vor dem Einsatz nicht zusammengeführt
+  - der Mitarbeiter bekommt nur einen Teil der Informationen
+  - Adresse, Ansprechpartner oder genaue Aufgabe fehlen
+  - Fotos bleiben in der allgemeinen Galerie des Handys
+  - Sprachnotizen sind keinem Einsatz eindeutig zugeordnet
+  - Papierbons liegen getrennt von Auftrag und Fotos
+  - Materialverbrauch wird später aus dem Gedächtnis rekonstruiert
+  - Zusatzarbeiten werden ausgeführt, aber nicht sauber festgehalten
+  - beim Rechnungsschreiben muss alles zusammengesucht werden
+  - Arbeitszeit wird nachträglich geschätzt
+  - offene Punkte gehen zwischen Einsatz und Büro verloren
+  - niemand sieht zuverlässig, ob ein Einsatz wirklich abgeschlossen ist
+  - derselbe Kunde hat mehrere Objekte, Angaben werden verwechselt
+  - Hausverwaltung, Mieter und Eigentümer liefern unterschiedliche Angaben
+
+typical_exceptions:
+  - Kunde oder Mieter nicht erreichbar
+  - Zugang zum Objekt nicht möglich
+  - Schlüssel fehlt
+  - das Problem ist größer als beschrieben
+  - zusätzlicher Schaden wird entdeckt
+  - zusätzliche Arbeit wird notwendig
+  - Freigabe für Mehrarbeit fehlt
+  - Material fehlt
+  - Material muss spontan gekauft werden
+  - Beleg geht verloren
+  - Ersatzteil nicht verfügbar
+  - Einsatz kann nicht abgeschlossen werden
+  - Folgeeinsatz erforderlich
+  - mehrere Probleme am selben Objekt
+  - Kunde bittet vor Ort um zusätzliche Leistung
+  - Mitarbeiterwechsel während eines Auftrags
+  - Fotos werden vergessen
+  - Auftrag erledigt, Dokumentation unvollständig
+
+realistic_customer_language:
+  - "Kannst du morgen mal in der Wohnung in der Müllerstraße schauen? Der Wasserhahn tropft und die Tür im Bad geht wohl auch nicht richtig zu."
+  - "Bei Müller 3. OG ist wieder was mit der Lampe im Treppenhaus. Kannst du das diese Woche machen?"
+  - "Wenn du sowieso dort bist, schau bitte auch im Keller nach der Tür."
+  - "Der Mieter sagt, die Heizung geht nicht richtig. Ruf ihn am besten kurz an."
+  - "Kannst du das Material bitte gleich mitbringen? Weiß aber nicht genau was man braucht."
+
+realistic_worker_language:
+  - "War heute bei Müllerstraße. Wasserhahn gemacht, Dichtung neu. Tür eingestellt. Im Keller ist noch das Schloss kaputt, müsste nochmal hin."
+  - "Hab zwei Teile im Baumarkt gekauft, Bon schick ich gleich."
+  - "Hier noch die Fotos von vorher und nachher."
+  - "Bei dem Auftrag kam noch was dazu. Hab eine Steckdose festgemacht."
+  - "Konnte nicht fertig machen, Mieter war nicht da."
+
+diagnostically_relevant_questions:
+  - Wo laufen diese Informationen heute am Ende zusammen?
+  - Wie kommt ein neuer Auftrag heute bei dir an?
+  - Wo wird der Auftrag danach festgehalten?
+  - Woran erkennst du später, welche Fotos zu welchem Einsatz gehören?
+  - Wie ordnest du einen Beleg dem richtigen Auftrag zu?
+  - Wie hältst du fest, was du tatsächlich vor Ort gemacht hast?
+  - Wie dokumentierst du Zusatzarbeiten?
+  - Was passiert, wenn du vor Ort ein weiteres Problem entdeckst?
+  - Brauchst du für Mehrarbeit eine Freigabe?
+  - Wo hältst du fest, welches Material verwendet wurde?
+  - Woran erkennst du nach einem Einsatz, ob alles für die Rechnung da ist?
+  - Was musst du beim Rechnungsschreiben zusammensuchen?
+  - Welche Angaben fehlen dabei besonders häufig?
+  - Wie werden offene Punkte und Folgeeinsätze festgehalten?
+  - Hast du mehrere Aufträge für denselben Kunden oder dasselbe Objekt gleichzeitig?
+  - Wer außer dir muss die Angaben später verstehen?
+
+diagnostic_signals:
+  - Informationen entstehen unterwegs
+  - Fotos, Sprache und Belege fallen getrennt an
+  - Angaben verteilt über mehrere Anwendungen und Papier
+  - der Einsatz wird später aus dem Gedächtnis rekonstruiert
+  - die Rechnung hängt an der Erinnerung einer Person
+  - Zusatzarbeiten werden nicht zuverlässig weitergegeben
+  - Bruch zwischen Smartphone, Papier und Rechnungssoftware
+  - keine eindeutige Zuordnung zwischen Einsatz und Auftrag
+  - der Inhaber ist die zentrale Informationsstelle
+
+do_not_assume:
+  - dass mehrere Mitarbeiter vorhanden sind
+  - dass eine Hausverwaltung der Auftraggeber ist
+  - dass Arbeitszeit minutengenau erfasst werden muss
+  - dass Material weiterberechnet wird
+  - dass Fotos vorgeschrieben sind
+  - dass Chatnachrichten genutzt werden
+  - dass eine Rechnungssoftware vorhanden ist
+  - dass Zusatzarbeiten ohne Freigabe ausgeführt werden
+  - dass KI die erste sinnvolle Lösung ist

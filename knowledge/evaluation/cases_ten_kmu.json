@@ -1,0 +1,561 @@
+{
+  "schema_version": "1.0",
+  "purpose": "Evaluation der Prozessrekonstruktion und Diagnose; diese Datei darf nicht in den RAG-Index aufgenommen werden.",
+  "cases": [
+    {
+      "evaluation_id": "EVAL-C-01",
+      "case_id": "C-01",
+      "expected_core_process": "Begehung bis Angebot und Crew-Unterlage",
+      "expected_core_bottleneck": "Informationen liegen über Geräte und Formate verteilt und werden manuell übertragen.",
+      "expected_pattern_ids": [
+        "P-01",
+        "P-02"
+      ],
+      "required_questions": [
+        "Pflichtfelder der Vor-Ort-Aufnahme",
+        "führender Auftragsdatensatz",
+        "Angebotsfreigabe"
+      ],
+      "forbidden_recommendations": [
+        "Angebot ohne Preisprüfung versenden",
+        "Material automatisch bestellen"
+      ],
+      "human_approval_gates": [
+        "Vollständigkeitsprüfung",
+        "Preisfreigabe",
+        "Bestellfreigabe"
+      ]
+    },
+    {
+      "evaluation_id": "EVAL-C-02",
+      "case_id": "C-02",
+      "expected_core_process": "Etsy-Auftrag bis Produktion und Versand",
+      "expected_core_bottleneck": "Varianten, Teile und Produktionsstufen sind schwer vollständig nachzuverfolgen.",
+      "expected_pattern_ids": [
+        "P-02"
+      ],
+      "required_questions": [
+        "Stücklistenlogik",
+        "Produktionskapazität",
+        "Qualitätskriterien"
+      ],
+      "forbidden_recommendations": [
+        "Versandbereitschaft autonom bestätigen"
+      ],
+      "human_approval_gates": [
+        "Prioritätsfreigabe",
+        "Qualitätsfreigabe"
+      ]
+    },
+    {
+      "evaluation_id": "EVAL-C-03",
+      "case_id": "C-03",
+      "expected_core_process": "Kundenauftrag bis Wochen- und Ersatzplanung",
+      "expected_core_bottleneck": "Viele Constraints, Fahrtzeiten und Änderungen werden manuell koordiniert.",
+      "expected_pattern_ids": [
+        "P-03"
+      ],
+      "required_questions": [
+        "Verfügbarkeit",
+        "Qualifikationen",
+        "Fahrzeiten",
+        "Änderungsregeln"
+      ],
+      "forbidden_recommendations": [
+        "Termine ohne Bestätigung umplanen"
+      ],
+      "human_approval_gates": [
+        "Planfreigabe",
+        "Kundenbestätigung"
+      ]
+    },
+    {
+      "evaluation_id": "EVAL-C-04",
+      "case_id": "C-04",
+      "expected_core_process": "Leistung bis Versicherungs- und Patientenzahlung",
+      "expected_core_bottleneck": "Offene Forderungen hängen von Versicherungsstatus, Eigenanteil und Ausnahmen ab.",
+      "expected_pattern_ids": [
+        "P-04"
+      ],
+      "required_questions": [
+        "führende Abrechnungsquelle",
+        "Fristen",
+        "Ausnahmefälle",
+        "Datenschutz"
+      ],
+      "forbidden_recommendations": [
+        "medizinisch oder rechtlich entscheiden",
+        "autonom mahnen"
+      ],
+      "human_approval_gates": [
+        "fachliche Prüfung",
+        "Patientenkommunikation",
+        "Eskalationsfreigabe"
+      ]
+    },
+    {
+      "evaluation_id": "EVAL-C-05",
+      "case_id": "C-05",
+      "expected_core_process": "Kontakt bis individuelles Angebot und Projekt",
+      "expected_core_bottleneck": "Kontakte, Kalkulationen und Konsignationsstatus sind unvollständig nachverfolgt.",
+      "expected_pattern_ids": [
+        "P-01",
+        "P-02"
+      ],
+      "required_questions": [
+        "Preisuntergrenze",
+        "Projektpflichtfelder",
+        "Verlustgründe"
+      ],
+      "forbidden_recommendations": [
+        "Preis autonom festlegen",
+        "Projekt autonom annehmen"
+      ],
+      "human_approval_gates": [
+        "Kalkulationsfreigabe",
+        "Projektannahme"
+      ]
+    },
+    {
+      "evaluation_id": "EVAL-C-06",
+      "case_id": "C-06",
+      "expected_core_process": "Bücheröffnung bis ausgewählter Tattoo-Termin",
+      "expected_core_bottleneck": "Einreichungsspitzen und subjektive Auswahl treffen auf mehrere Kanäle.",
+      "expected_pattern_ids": [
+        "P-01",
+        "P-03"
+      ],
+      "required_questions": [
+        "Pflichtfelder",
+        "Auswahlkriterien",
+        "Kapazität",
+        "Anzahlungsstatus"
+      ],
+      "forbidden_recommendations": [
+        "kreative Auswahl automatisieren",
+        "Ablehnung autonom senden"
+      ],
+      "human_approval_gates": [
+        "kreative Auswahl",
+        "Kundenzusage"
+      ]
+    },
+    {
+      "evaluation_id": "EVAL-C-07",
+      "case_id": "C-07",
+      "expected_core_process": "Reparaturmeldung bis Abschluss und Anlagenplanung",
+      "expected_core_bottleneck": "Notfalltriage, Dokumentation und Anlagenhistorie hängen an einer Person.",
+      "expected_pattern_ids": [
+        "P-01",
+        "P-05"
+      ],
+      "required_questions": [
+        "Notfallregeln",
+        "Objektzuordnung",
+        "Abschlussnachweis"
+      ],
+      "forbidden_recommendations": [
+        "Sicherheitslage autonom beurteilen"
+      ],
+      "human_approval_gates": [
+        "Notfalleskalation",
+        "Berichtsfreigabe",
+        "Investitionsentscheidung"
+      ]
+    },
+    {
+      "evaluation_id": "EVAL-C-08",
+      "case_id": "C-08",
+      "expected_core_process": "Erstkontakt bis rechtlicher Intake und Statusantwort",
+      "expected_core_bottleneck": "Telefonunterbrechungen, Konfliktprüfung und Vertraulichkeit begrenzen Automation.",
+      "expected_pattern_ids": [
+        "P-01",
+        "P-05"
+      ],
+      "required_questions": [
+        "Konfliktprüfung",
+        "Fristen",
+        "Berechtigungen",
+        "Statusquelle"
+      ],
+      "forbidden_recommendations": [
+        "Rechtsberatung geben",
+        "Mandat autonom annehmen"
+      ],
+      "human_approval_gates": [
+        "anwaltliche Prüfung",
+        "Mandatsannahme",
+        "Antwortfreigabe"
+      ]
+    },
+    {
+      "evaluation_id": "EVAL-C-09",
+      "case_id": "C-09",
+      "expected_core_process": "Fahrzeugannahme bis Kostenvoranschlag, Reparatur und Rechnung",
+      "expected_core_bottleneck": "Daten werden zwischen Annahme, Teilequellen, Diagnose und Rechnung mehrfach übertragen.",
+      "expected_pattern_ids": [
+        "P-01",
+        "P-02"
+      ],
+      "required_questions": [
+        "VIN-Quelle",
+        "Teile-/Arbeitsfreigabe",
+        "Zusatzarbeiten"
+      ],
+      "forbidden_recommendations": [
+        "Diagnose oder Sicherheitsfreigabe automatisieren"
+      ],
+      "human_approval_gates": [
+        "Diagnoseprüfung",
+        "Kundenfreigabe",
+        "Rechnungsprüfung"
+      ]
+    },
+    {
+      "evaluation_id": "EVAL-C-10",
+      "case_id": "C-10",
+      "expected_core_process": "Teppichannahme bis Bearbeitung und Rückgabe",
+      "expected_core_bottleneck": "Status, Objektidentität und Änderungsnachweis sind nicht ausreichend geschützt.",
+      "expected_pattern_ids": [
+        "P-02",
+        "P-05"
+      ],
+      "required_questions": [
+        "eindeutige Objekt-ID",
+        "Rollenrechte",
+        "Übergabenachweis"
+      ],
+      "forbidden_recommendations": [
+        "Datensätze löschen",
+        "Ausgabe autonom bestätigen"
+      ],
+      "human_approval_gates": [
+        "Statusfreigabe",
+        "Ausgangskontrolle",
+        "Übergabe"
+      ]
+    },
+    {
+      "evaluation_id": "EVAL-M-01",
+      "case_id": "M-01",
+      "expected_core_process": "Anfrage bis kapazitätsgeprüfter Termin und Salonbetrieb",
+      "expected_core_bottleneck": "Mehrere Kanäle, schwankendes Personal und manuelle Bestätigung führen zu Fehlern und Doppelbuchungen.",
+      "expected_pattern_ids": [
+        "P-01",
+        "P-03",
+        "P-05"
+      ],
+      "required_questions": [
+        "führender Kalender",
+        "Personalverfügbarkeit",
+        "Vergütungsregeln",
+        "widersprüchliches Werbebudget"
+      ],
+      "forbidden_recommendations": [
+        "Sofortbuchung ohne Kapazität",
+        "Lohn oder Steuer autonom entscheiden"
+      ],
+      "human_approval_gates": [
+        "Terminbestätigung",
+        "Personalplanung",
+        "Abrechnungsprüfung"
+      ]
+    },
+    {
+      "evaluation_id": "EVAL-K-01",
+      "case_id": "K-01",
+      "expected_core_process": "Kunden-E-Mail bis bearbeitbarer Vorgang",
+      "expected_core_bottleneck": "Wichtige E-Mails werden manuell kopiert, damit sie nicht verloren gehen.",
+      "expected_pattern_ids": [
+        "P-01"
+      ],
+      "required_questions": [
+        "E-Mail-Typen",
+        "Pflichtfelder",
+        "Erledigt-Definition"
+      ],
+      "forbidden_recommendations": [
+        "Angebot oder Zusage autonom senden"
+      ],
+      "human_approval_gates": [
+        "Inhalts- und Versandfreigabe"
+      ]
+    },
+    {
+      "evaluation_id": "EVAL-K-02",
+      "case_id": "K-02",
+      "expected_core_process": "Beschaffungsbedarf bis Lieferantenbestellung",
+      "expected_core_bottleneck": "Artikelnummern und Preise werden aus einer großen Tabelle in E-Mails kopiert.",
+      "expected_pattern_ids": [
+        "P-07"
+      ],
+      "required_questions": [
+        "Bestellberechtigung",
+        "Mindestbestand",
+        "Lieferantenstamm"
+      ],
+      "forbidden_recommendations": [
+        "Bestellung ohne Freigabe auslösen"
+      ],
+      "human_approval_gates": [
+        "Mengen- und Bestellfreigabe"
+      ]
+    },
+    {
+      "evaluation_id": "EVAL-K-03",
+      "case_id": "K-03",
+      "expected_core_process": "Bäckereibestellung bis Produktionsliste",
+      "expected_core_bottleneck": "Bestellungen werden mehrfach manuell abgeschrieben und aggregiert.",
+      "expected_pattern_ids": [
+        "P-02"
+      ],
+      "required_questions": [
+        "Varianten",
+        "Allergene",
+        "Kapazität",
+        "Änderungen"
+      ],
+      "forbidden_recommendations": [
+        "Sonderauftrag ohne Prüfung zusagen"
+      ],
+      "human_approval_gates": [
+        "Kapazitäts- und Produktionsfreigabe"
+      ]
+    },
+    {
+      "evaluation_id": "EVAL-K-04",
+      "case_id": "K-04",
+      "expected_core_process": "Instagram-Bestellung bis Zahlung und Lieferung",
+      "expected_core_bottleneck": "Auftrag, Adresse, Zahlung und Status liegen in getrennten Apps.",
+      "expected_pattern_ids": [
+        "P-01",
+        "P-02",
+        "P-04"
+      ],
+      "required_questions": [
+        "Produktart",
+        "Zahlungsnachweis",
+        "Lieferung",
+        "Allergene"
+      ],
+      "forbidden_recommendations": [
+        "Auftrag ohne Kapazität annehmen"
+      ],
+      "human_approval_gates": [
+        "Auftrags- und Zahlungsfreigabe"
+      ]
+    },
+    {
+      "evaluation_id": "EVAL-K-05",
+      "case_id": "K-05",
+      "expected_core_process": "DM-Anfrage bis Auftrag und Follow-up",
+      "expected_core_bottleneck": "DMs, Notizen und Tabellen bilden keinen gemeinsamen Auftragsstatus.",
+      "expected_pattern_ids": [
+        "P-01",
+        "P-02"
+      ],
+      "required_questions": [
+        "Anfrage-vs-Auftrag",
+        "Pflichtdaten",
+        "zugänglicher Kanal"
+      ],
+      "forbidden_recommendations": [
+        "Lieferzusage autonom senden"
+      ],
+      "human_approval_gates": [
+        "Auftragsannahme",
+        "Kundenkommunikation"
+      ]
+    },
+    {
+      "evaluation_id": "EVAL-K-06",
+      "case_id": "K-06",
+      "expected_core_process": "Vor-Ort-Anfrage bis Termin mit Fahrtzeit",
+      "expected_core_bottleneck": "Normale Kalenderpuffer bilden standortabhängige Fahrzeiten nicht ab.",
+      "expected_pattern_ids": [
+        "P-03"
+      ],
+      "required_questions": [
+        "Servicegebiet",
+        "Dauer",
+        "Skill",
+        "Fahrzeit"
+      ],
+      "forbidden_recommendations": [
+        "Route oder Termin bei unvollständigen Daten bestätigen"
+      ],
+      "human_approval_gates": [
+        "Plan- und Terminfreigabe"
+      ]
+    },
+    {
+      "evaluation_id": "EVAL-K-07",
+      "case_id": "K-07",
+      "expected_core_process": "Reinigung bis Rechnung und Zahlungserinnerung",
+      "expected_core_bottleneck": "Wiederkehrende Kunden müssen monatlich manuell erinnert werden.",
+      "expected_pattern_ids": [
+        "P-04"
+      ],
+      "required_questions": [
+        "Zahlungsabgleich",
+        "Teilzahlung",
+        "Streitfall",
+        "Kanal"
+      ],
+      "forbidden_recommendations": [
+        "rechtliche Schritte automatisch starten"
+      ],
+      "human_approval_gates": [
+        "Erinnerungs- und Eskalationsfreigabe"
+      ]
+    },
+    {
+      "evaluation_id": "EVAL-K-08",
+      "case_id": "K-08",
+      "expected_core_process": "Offene Rechnung bis gestuftes Follow-up",
+      "expected_core_bottleneck": "15–20 offene Rechnungen verursachen manuelle, vergessene Nachverfolgung.",
+      "expected_pattern_ids": [
+        "P-04"
+      ],
+      "required_questions": [
+        "führende Datenquelle",
+        "Zahlungszuordnung",
+        "Erinnerungsstufen"
+      ],
+      "forbidden_recommendations": [
+        "Bankabgleich oder Mahnung ungeprüft ausführen"
+      ],
+      "human_approval_gates": [
+        "Zahlungsabgleich",
+        "Versandfreigabe"
+      ]
+    },
+    {
+      "evaluation_id": "EVAL-K-09",
+      "case_id": "K-09",
+      "expected_core_process": "Buchung bis No-show-Auswertung",
+      "expected_core_bottleneck": "CRM-Zählung pro Konto unterschätzt blockierte Slots bei Mehrpersonenbuchungen.",
+      "expected_pattern_ids": [
+        "P-03"
+      ],
+      "required_questions": [
+        "Zähleinheit",
+        "Ressourcenbindung",
+        "No-show-Policy"
+      ],
+      "forbidden_recommendations": [
+        "überbuchen",
+        "Gebühr ohne Regel erheben"
+      ],
+      "human_approval_gates": [
+        "Policy- und Ausnahmefreigabe"
+      ]
+    },
+    {
+      "evaluation_id": "EVAL-K-10",
+      "case_id": "K-10",
+      "expected_core_process": "Arbeitszeit bis Lohnexport",
+      "expected_core_bottleneck": "Zeiten sollen manuell erfasst, freigegeben und gegen Änderungen geschützt werden.",
+      "expected_pattern_ids": [
+        "P-05"
+      ],
+      "required_questions": [
+        "Einsatzort",
+        "Korrekturregel",
+        "Rechtsrahmen",
+        "Lohnexport"
+      ],
+      "forbidden_recommendations": [
+        "Lohnkorrektur autonom durchführen"
+      ],
+      "human_approval_gates": [
+        "Zeitkorrektur",
+        "Periodenfreigabe"
+      ]
+    },
+    {
+      "evaluation_id": "EVAL-K-11",
+      "case_id": "K-11",
+      "expected_core_process": "Mobiler Auftrag bis Mitarbeiterzeit und Bezahlung",
+      "expected_core_bottleneck": "Mit dem ersten Mitarbeiter entsteht ein vollständig manueller Zeitprozess.",
+      "expected_pattern_ids": [
+        "P-05"
+      ],
+      "required_questions": [
+        "Auftragszeit",
+        "Fahrzeit",
+        "Mehrarbeit",
+        "Material"
+      ],
+      "forbidden_recommendations": [
+        "Payroll autonom auslösen"
+      ],
+      "human_approval_gates": [
+        "Zeit- und Lohnfreigabe"
+      ]
+    },
+    {
+      "evaluation_id": "EVAL-K-12",
+      "case_id": "K-12",
+      "expected_core_process": "Belegfoto bis Buchhaltungsvorbereitung",
+      "expected_core_bottleneck": "Foto, E-Mail, Cloud-Ablage und Tabelle erzeugen mehrere Übergaben.",
+      "expected_pattern_ids": [
+        "P-06"
+      ],
+      "required_questions": [
+        "Pflichtfelder",
+        "Belegarten",
+        "Export",
+        "Aufbewahrung"
+      ],
+      "forbidden_recommendations": [
+        "steuerliche Kategorie autonom festlegen"
+      ],
+      "human_approval_gates": [
+        "Extraktions- und Buchungsprüfung"
+      ]
+    },
+    {
+      "evaluation_id": "EVAL-K-13",
+      "case_id": "K-13",
+      "expected_core_process": "Beratungsleistung bis Zeiterfassung und Rechnung",
+      "expected_core_bottleneck": "Zeiten werden verspätet erfasst und müssen aus Erinnerung rekonstruiert werden.",
+      "expected_pattern_ids": [
+        "P-05"
+      ],
+      "required_questions": [
+        "Projektcodes",
+        "Abrechenbarkeit",
+        "Kundendetail"
+      ],
+      "forbidden_recommendations": [
+        "Abrechenbarkeit aus Kalenderdaten ableiten"
+      ],
+      "human_approval_gates": [
+        "Zeit- und Rechnungsfreigabe"
+      ]
+    },
+    {
+      "evaluation_id": "EVAL-K-14",
+      "case_id": "K-14",
+      "expected_core_process": "Formularbestellung bis Fulfillment",
+      "expected_core_bottleneck": "Google Forms erfasst Daten, bildet aber Kundenweg und Status nicht vollständig ab.",
+      "expected_pattern_ids": [
+        "P-02"
+      ],
+      "required_questions": [
+        "Varianten",
+        "Zahlung",
+        "Versand",
+        "Änderungen"
+      ],
+      "forbidden_recommendations": [
+        "Verfügbarkeit oder Liefertermin autonom versprechen"
+      ],
+      "human_approval_gates": [
+        "Auftragsannahme",
+        "Fulfillment-Freigabe"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "fall_id": "13_massagesalon",
+  "titel": "Massagesalon, zwei Standorte, spontane Kundschaft",
+  "erzaehlung": "",
+  "quelle": "Sprachnachricht, wird von Derya eingetragen",
+  "bewertung": {
+    "engpass_in_einem_satz": "",
+    "startpunkt": null,
+    "module_anzahl_von": 0,
+    "module_anzahl_bis": 0,
+    "muss_vorkommen": [],
+    "darf_nicht_vorkommen": [
+      "Kartenzahlung",
+      "Steuern",
+      "Beschäftigungsform",
+      "Bargeld",
+      "Buchhaltung",
+      "Abrechnung"
+    ],
+    "darf_nirgends_vorkommen": [
+      "Kartenzahlung",
+      "Steuern",
+      "Beschäftigungsform",
+      "Bargeld",
+      "Buchhaltung",
+      "Abrechnung"
+    ],
+    "betriebsart": [
+      "C"
+    ],
+    "notiz": ""
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "fall_id": "02_hausverwaltung_klein",
+  "titel": "Hausverwaltung, drei Personen, vierzig Einheiten",
+  "erzaehlung": "Ich führe eine kleine Hausverwaltung mit drei Leuten. Wir betreuen etwa vierzig Einheiten. Mieter melden Schäden per Telefon, per E-Mail und manchmal über WhatsApp. Ich notiere das auf einem Zettel oder lege eine Mail in einen Outlook-Ordner. Dann rufe ich einen Handwerker an und vereinbare einen Termin. Wenn der Mieter nach zwei Wochen nachfragt, muss ich erst suchen, wo die Meldung liegt und ob der Handwerker schon da war. Manchmal geht eine Meldung ganz unter, und ich erfahre es erst, wenn sich der Eigentümer beschwert. Die Nebenkostenabrechnung machen wir mit einer Software, die will ich nicht ersetzen. Am Monatsende sammle ich die Rechnungen der Handwerker ein und ordne sie den Objekten zu.",
+  "quelle": "synthetischer Testfall, erfunden für die Evaluation",
+  "bewertung": {
+    "engpass_in_einem_satz": "Meldungen liegen an verschiedenen Orten, der Stand muss jedes Mal gesucht werden.",
+    "startpunkt": "einzelne_automation",
+    "module_anzahl_von": 3,
+    "module_anzahl_bis": 5,
+    "muss_vorkommen": [
+      "Meldung",
+      "Zuordnung",
+      "Status"
+    ],
+    "darf_nicht_vorkommen": [
+      "Portal",
+      "Marketing",
+      "Assistent"
+    ],
+    "darf_nirgends_vorkommen": [],
+    "betriebsart": [
+      "G",
+      "A"
+    ],
+    "notiz": ""
+  }
+}
