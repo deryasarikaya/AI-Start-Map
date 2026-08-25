@@ -926,6 +926,15 @@ def _part_two_payload(
     return {
         **(loesungswissen or {}),
         "SO_ERZAEHLT_ES_DER_BETRIEB": {"erzaehlung": narrative_text},
+        # **Module bekommen Nummern.** Lange deutsche Modulnamen über
+        # eine Aufrufgrenze abschreiben zu lassen, geht schief: Das
+        # Modell kürzt sie oder benennt sie um, und die Herkunfts-
+        # prüfung findet dann kein Modul. Eine Nummer lässt sich nicht
+        # umformulieren.
+        "MODULE_DIESER_LOESUNG": [
+            {"nr": nummer, "name": modul.name}
+            for nummer, modul in enumerate(part_one.module, start=1)
+        ],
         "BEREITS_GESCHRIEBENER_OBERER_TEIL": part_one.model_dump(),
         "GEWAEHLTES_MUSTER": _selected_pattern_briefing(recommendation_context),
         "VERBOTENE_WOERTER": list(FORBIDDEN_CUSTOMER_TERMS),

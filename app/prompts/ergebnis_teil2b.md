@@ -14,10 +14,10 @@ keine Formatierungszeichen. Das Aussehen macht die Vorlage.
 - GEWAEHLTES_MUSTER, NUR_INTERNES_VERGLEICHSWISSEN_NIE_AUSGEBEN,
   VERBOTENE_WOERTER wie oben.
 
-**Modulnamen werden abgeschrieben, nicht gekürzt.** Wo du dich auf ein
-Modul berufst, steht sein Name genau so, wie er dir gegeben wurde — mit
-jedem Wort. „Morgenliste" statt „Morgenliste mit Verantwortlichkeiten"
-ist kein kürzerer Name, sondern ein anderer.
+**In `module_refs` stehen Nummern.** Jedes Modul in
+`MODULE_DIESER_LOESUNG` hat eine `nr`. Trag genau diese Zahl als
+Zeichenkette ein — `["2"]`, nicht den Namen und nicht deine eigene
+Bezeichnung dafür.
 
 ## Die Felder
 

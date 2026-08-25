@@ -14,6 +14,7 @@ import pytest
 from pydantic import ValidationError
 
 from app.result_schema import (
+    ResultPartOne,
     ResultPartTwoRest,
     ResultPartTwoViews,
     freigegebene_module,
@@ -285,3 +286,74 @@ def test_an_ambiguous_short_name_is_rejected() -> None:
             ("Liste der Termine", "Liste der Aufgaben")
         ):
             ResultPartTwoViews.model_validate(daten)
+
+
+# --- Die Nummer statt des Namens ------------------------------------------
+#
+# Aus dem dritten echten Lauf: Das Modell schrieb die langen Modulnamen nicht
+# ab, es benannte sie um -- "Faelligkeitslogik" fuer "Regel fuer faellige
+# Kurskontakte". Kein Zeichenvergleich rettet das. Deshalb tragen die
+# Bezuege jetzt Nummern, so wie die Katalogauswahl Kennungen traegt.
+
+
+def test_a_module_number_points_at_that_module() -> None:
+    """Die Nummer aus MODULE_DIESER_LOESUNG bezeichnet das Modul."""
+
+    daten = _ansichten()
+    for ansicht in daten["ansichten"]:
+        ansicht["module_refs"] = ["1"]
+    daten["ansichten"][0]["module_refs"] = ["2"]
+
+    with narrative(ERZAEHLUNG), freigegebene_module(MODULE):
+        ansichten = ResultPartTwoViews.model_validate(daten)
+
+    # Gespeichert wird der Name, nicht die Nummer.
+    assert ansichten.ansichten[0].module_refs == ["Vorgangsakte"]
+    assert ansichten.ansichten[1].module_refs == ["Sammelstelle"]
+
+
+def test_a_number_outside_the_list_is_rejected() -> None:
+    """Eine Nummer, die es nicht gibt, ist ein erfundenes Modul."""
+
+    daten = _ansichten()
+    daten["ansichten"][0]["module_refs"] = ["9"]
+
+    with pytest.raises(ValidationError, match="kein Modul dieser"):
+        with narrative(ERZAEHLUNG), freigegebene_module(MODULE):
+            ResultPartTwoViews.model_validate(daten)
+
+
+def test_zero_is_not_a_module() -> None:
+    """Gezaehlt wird ab eins. Null ist keine Stelle in der Liste."""
+
+    daten = _ansichten()
+    daten["ansichten"][0]["module_refs"] = ["0"]
+
+    with pytest.raises(ValidationError, match="kein Modul dieser"):
+        with narrative(ERZAEHLUNG), freigegebene_module(MODULE):
+            ResultPartTwoViews.model_validate(daten)
+
+
+def test_the_payload_of_the_later_calls_numbers_the_modules() -> None:
+    """Die Nummern stehen im Aufruf, nicht nur im Vertrag.
+
+    Ohne diese Liste haette das Modell nichts, worauf es sich beziehen kann.
+    """
+
+    from app import openai_service
+    from tests.test_result_contract import _part_one
+
+    with narrative(ERZAEHLUNG):
+        oben = ResultPartOne.model_validate(_part_one())
+
+    payload = openai_service._part_two_payload(
+        ERZAEHLUNG, oben, [], None, None
+    )
+
+    module = payload["MODULE_DIESER_LOESUNG"]
+    assert [eintrag["nr"] for eintrag in module] == list(
+        range(1, len(oben.module) + 1)
+    )
+    assert [eintrag["name"] for eintrag in module] == [
+        modul.name for modul in oben.module
+    ]

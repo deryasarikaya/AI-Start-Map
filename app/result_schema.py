@@ -171,6 +171,10 @@ def _eindeutiges_modul(bezug: str, erlaubt: Sequence[str]) -> str | None:
     """
 
     gesucht = _vergleichbarer_name(bezug)
+    # Der Regelfall: die Nummer aus `MODULE_DIESER_LOESUNG`.
+    if gesucht.isdigit():
+        stelle = int(gesucht)
+        return erlaubt[stelle - 1] if 1 <= stelle <= len(erlaubt) else None
     for name in erlaubt:
         if _vergleichbarer_name(name) == gesucht:
             return name

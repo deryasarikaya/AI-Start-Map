@@ -14,10 +14,10 @@ keine Formatierungszeichen. Das Aussehen macht die Vorlage.
 - GEWAEHLTES_MUSTER, NUR_INTERNES_VERGLEICHSWISSEN_NIE_AUSGEBEN,
   VERBOTENE_WOERTER wie oben.
 
-**Modulnamen werden abgeschrieben, nicht gekürzt.** Wo du dich auf ein
-Modul berufst, steht sein Name genau so, wie er dir gegeben wurde — mit
-jedem Wort. „Morgenliste" statt „Morgenliste mit Verantwortlichkeiten"
-ist kein kürzerer Name, sondern ein anderer.
+**In `module_refs` stehen Nummern.** Jedes Modul in
+`MODULE_DIESER_LOESUNG` hat eine `nr`. Trag genau diese Zahl als
+Zeichenkette ein — `["2"]`, nicht den Namen und nicht deine eigene
+Bezeichnung dafür.
 
 ## Die Felder
 
@@ -62,22 +62,26 @@ Keine zusätzliche Fähigkeit, kein weiterer Baustein, keine Funktion, die dort
 nicht steht. Was du schreibst, muss sich auf eines der genannten Module
 zurückführen lassen.
 
-## Jede Zusage nennt ihr Modul
+## Jede Zusage nennt ihr Modul — als Nummer
 
-Neben dem sichtbaren Text trägt jeder Bestandteil intern `module_refs` — den
-Namen des Moduls aus dem oberen Teil, aus dem er folgt. Der Kunde sieht das
-nie; der Server prüft es.
+Neben dem sichtbaren Text trägt jeder Bestandteil intern `module_refs`. Dort
+steht die **Nummer** des Moduls aus `MODULE_DIESER_LOESUNG`, aus dem er folgt.
+Als Zeichenkette, nichts sonst — kein Name, keine Umschreibung, keine
+Erklärung. Der Kunde sieht das nie; der Server prüft es.
 
 ```
-Ansicht            → module_refs: ["Ihr Eingang für Telefon und WhatsApp"]
-System             → module_refs: [...]
-Architekturebene   → module_refs: [...]
-Umsetzungsschritt  → module_refs: [...]
+MODULE_DIESER_LOESUNG: [{"nr": 1, "name": "Ihr Eingang für Telefon und WhatsApp"}, ...]
+
+Ansicht            → module_refs: ["1"]
+System             → module_refs: ["1", "3"]
+Architekturebene   → module_refs: ["2"]
+Umsetzungsschritt  → module_refs: ["1"]
 ```
 
-Ein Name, der zu keinem Modul dieser Lösung gehört, führt zur Zurückweisung.
-Das ist Herkunftskontrolle, kein Textverständnis: **Formuliert wird frei, nur
-die zugrunde liegende Funktion muss schon freigegeben sein.**
+Eine Nummer, die es dort nicht gibt, führt zur Zurückweisung. Das ist
+Herkunftskontrolle, kein Textverständnis: **Formuliert wird frei — der
+sichtbare Titel darf klingen wie der Betrieb. Nur die zugrunde liegende
+Funktion muss schon freigegeben sein.**
 ## Regeln, die über allem stehen
 
 **Kommentiere nichts, wonach nicht gefragt wurde.**
