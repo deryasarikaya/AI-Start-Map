@@ -670,17 +670,36 @@ class Value(StrictResultModel):
 
     @model_validator(mode="after")
     def no_numbers_or_durations(self) -> Value:
-        """Weist Zahlen, Prozentangaben und Zeitangaben zurück."""
+        """Sortiert jede Zeile mit Zahl, Prozent- oder Zeitangabe aus.
 
-        for zeile in [*self.faellt_weg, *self.zeit_fuer]:
-            if NUMBER_PATTERN.search(zeile) is not None:
-                raise ValueError(
-                    f"Keine Zahlen im Abschnitt „Wert“: {zeile!r}"
-                )
-            if TIME_UNIT_PATTERN.search(zeile) is not None:
-                raise ValueError(
-                    f"Keine Zeitangaben im Abschnitt „Wert“: {zeile!r}"
-                )
+        **Zeile für Zeile, nicht der ganze Abschnitt.** Genau wie bei den
+        Zitaten: Eine Zeile, die eine Ersparnis behauptet, fällt — die
+        übrigen bleiben. Vorher riss eine einzige solche Zeile drei Minuten
+        Arbeit mit, obwohl alles andere in Ordnung war.
+
+        Die Zusage ändert sich dadurch nicht, sie wird härter: Eine Zahl
+        über den Betrieb des Kunden kommt hier **nie** heraus, auch nicht
+        über einen zweiten Versuch, in dem sie zufällig durchrutscht.
+        """
+
+        def sauber(zeilen: list[str]) -> list[str]:
+            behalten: list[str] = []
+            for zeile in zeilen:
+                if NUMBER_PATTERN.search(zeile) is not None:
+                    logger.warning(
+                        "result.value_line_dropped grund=zahl zeile=%r", zeile
+                    )
+                    continue
+                if TIME_UNIT_PATTERN.search(zeile) is not None:
+                    logger.warning(
+                        "result.value_line_dropped grund=zeitangabe zeile=%r", zeile
+                    )
+                    continue
+                behalten.append(zeile)
+            return behalten
+
+        self.faellt_weg = sauber(list(self.faellt_weg))
+        self.zeit_fuer = sauber(list(self.zeit_fuer))
         return self
 
 

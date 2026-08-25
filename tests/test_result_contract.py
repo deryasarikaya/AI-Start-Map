@@ -521,11 +521,32 @@ def test_value_without_numbers_is_accepted() -> None:
         "Weniger Aufwand pro Tag",
     ],
 )
-def test_value_with_a_number_or_duration_is_rejected(zeile: str) -> None:
-    """Zahlen, Prozentangaben und Zeitangaben fallen durch."""
+def test_value_with_a_number_or_duration_is_dropped(zeile: str) -> None:
+    """Zahlen, Prozentangaben und Zeitangaben fallen aus dem Abschnitt.
 
-    with pytest.raises(ValidationError, match="Zahlen|Zeitangaben"):
-        Value.model_validate(_value(faellt_weg=[zeile, *_value()["faellt_weg"][1:]]))
+    Zeile für Zeile, wie bei den Zitaten: Die behauptende Zeile fällt, die
+    übrigen bleiben. Der Kunde sieht die Behauptung nie — und ein einziger
+    schlechter Satz kostet nicht das ganze Ergebnis.
+    """
+
+    uebrige = _value()["faellt_weg"][1:]
+    geprueft = Value.model_validate(_value(faellt_weg=[zeile, *uebrige]))
+
+    assert zeile not in geprueft.faellt_weg
+    assert geprueft.faellt_weg == uebrige
+
+
+def test_a_value_section_may_end_up_empty() -> None:
+    """Behauptet jede Zeile etwas, bleibt nichts übrig — und das ist gültig.
+
+    Ein leerer Abschnitt ist ehrlicher als eine erfundene Ersparnis.
+    """
+
+    geprueft = Value.model_validate(
+        _value(faellt_weg=["Spart 3 Stunden pro Woche", "Bis zu 40 % weniger"])
+    )
+
+    assert geprueft.faellt_weg == []
 
 
 def test_value_keeps_the_word_time_itself() -> None:
