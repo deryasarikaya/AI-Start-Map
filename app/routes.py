@@ -20,7 +20,6 @@ import json
 import logging
 import re
 from datetime import date
-from html import unescape
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
@@ -31,11 +30,6 @@ from app.database import get_db_session
 from app.models import AnalysisSession, InterviewQuestion
 from app.questions import INTRO_KEYS, INTRO_QUESTIONS
 from app.rag_service import RagConfigurationError
-from app.schemas import (
-    contains_forbidden_customer_term,
-    contains_internal_reference,
-    contains_prohibited_customer_language,
-)
 from app.services import analysis_service, example_service
 from app.services.example_service import ExampleNotFound
 from app.services.demo_service import (

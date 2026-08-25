@@ -8,11 +8,9 @@ from __future__ import annotations
 
 import logging
 
-from sqlalchemy.orm import Session
 
 from app import repository
-from app.agent_service import ProcessState, extract_process_state
-from app.models import InterviewQuestion, ProcessOption
+from app.models import InterviewQuestion
 
 logger = logging.getLogger(__name__)
 

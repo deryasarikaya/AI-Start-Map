@@ -30,7 +30,7 @@ from time import perf_counter
 from typing import TypeVar
 
 from dotenv import load_dotenv
-from openai import APITimeoutError, OpenAI, OpenAIError
+from openai import OpenAI, OpenAIError
 from pydantic import BaseModel, ValidationError
 
 from app.result_schema import (
@@ -52,9 +52,7 @@ from app.schemas import (
     FinalAnalysisResult,
     FollowUpQuestion,
     FollowUpResult,
-    CUSTOMER_TEXT_FIELDS,
     FORBIDDEN_CUSTOMER_TERMS,
-    contains_forbidden_customer_term,
 )
 
 

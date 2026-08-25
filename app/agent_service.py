@@ -118,16 +118,6 @@ class ProcessState(AgentModel):
     tool_call_history: list[str] = Field(default_factory=list)
 
 
-class NextActionDecision(AgentModel):
-    next_action: AgentAction
-    reasoning: str
-    information_gap: str = ""
-    possible_next_question: str = ""
-    remaining_uncertainties: list[str] = Field(default_factory=list)
-    analysis_allowed: bool
-    stop_reason: str = ""
-
-
 UNKNOWN_MARKERS = (
     "weiß ich nicht",
     "weiss ich nicht",

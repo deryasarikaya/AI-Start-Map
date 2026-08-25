@@ -336,31 +336,6 @@ class ProcessSuggestion(StrictResultModel):
         return self
 
 
-class ProcessSuggestionResult(StrictResultModel):
-    suggestions: list[ProcessSuggestion] = Field(min_length=1, max_length=3)
-
-
-class ProcessUnderstandingResult(StrictResultModel):
-    process_name: NonEmptyText
-    start_event: NonEmptyText
-    end_event: NonEmptyText
-    as_is_steps: list[NonEmptyText] = Field(min_length=2, max_length=5)
-    confirmed_facts: list[NonEmptyText] = Field(max_length=6)
-    difficult_points: list[NonEmptyText] = Field(max_length=4)
-    problem_step_indexes: list[int] = Field(default_factory=list, max_length=4)
-    open_points: list[NonEmptyText] = Field(max_length=4)
-
-    @model_validator(mode="after")
-    def validate_problem_step_indexes(self) -> ProcessUnderstandingResult:
-        """Prüft, dass die Problemschritte auf vorhandene Schritte zeigen."""
-
-        if len(set(self.problem_step_indexes)) != len(self.problem_step_indexes):
-            raise ValueError("Problemstellen dürfen nicht doppelt markiert werden.")
-        if any(index < 0 or index >= len(self.as_is_steps) for index in self.problem_step_indexes):
-            raise ValueError("Eine markierte Problemstelle liegt außerhalb des Ablaufs.")
-        return self
-
-
 class FollowUpQuestion(StrictResultModel):
     question: NonEmptyText
     issue_type: Literal[
@@ -396,44 +371,6 @@ class FollowUpResult(StrictResultModel):
         if len(normalized) != len(self.questions):
             raise ValueError("Rückfragen dürfen nicht doppelt vorkommen.")
         return self
-
-
-class AutomationOpportunityResult(StrictResultModel):
-    rank: int = Field(ge=1, le=3)
-    title: NonEmptyText
-    problem: NonEmptyText
-    recommendation: NonEmptyText
-    benefit: NonEmptyText
-    human_approval: NonEmptyText
-    first_step: NonEmptyText
-    category: Literal[
-        "Ordnung und Standardisierung",
-        "einfache Digitalisierung",
-        "regelbasierte Automatisierung",
-        "KI-Unterstützung",
-    ] = "einfache Digitalisierung"
-    prerequisite: str = ""
-    mini_test: list[NonEmptyText] = Field(default_factory=list, max_length=5)
-    effort: Literal["niedrig", "mittel", "hoch"] = "mittel"
-    acceptance_risk: str = ""
-
-
-class AutomationBlueprint(StrictResultModel):
-    objective: NonEmptyText
-    trigger: NonEmptyText
-    required_inputs: list[NonEmptyText]
-    workflow_steps: list[NonEmptyText] = Field(min_length=3, max_length=5)
-    human_review_point: NonEmptyText
-    output: NonEmptyText
-    exceptions: list[NonEmptyText]
-
-
-class OptionalAnalysisDetails(StrictResultModel):
-    current_difficulties: list[NonEmptyText] = Field(default_factory=list, max_length=4)
-    additional_prerequisites: list[NonEmptyText] = Field(
-        default_factory=list, max_length=4
-    )
-    later_possibilities: list[NonEmptyText] = Field(default_factory=list, max_length=3)
 
 
 GENERATED_HEADING_MAX_WORDS = 8

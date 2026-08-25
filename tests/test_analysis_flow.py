@@ -13,17 +13,12 @@ from app.openai_service import AIServiceError
 from app.models import (
     AnalysisSession,
     InterviewQuestion,
-    ProcessOption,
 )
 from app.questions import PROCESS_QUESTIONS
 from app.rag_service import format_chunks_for_prompt, load_curated_chunks
 from app.schemas import (
     FinalAnalysisResult,
-    FollowUpQuestion,
-    FollowUpResult,
     ProcessSuggestion,
-    ProcessSuggestionResult,
-    ProcessUnderstandingResult,
 )
 from app import repository
 from tests.conftest import spec_payload
