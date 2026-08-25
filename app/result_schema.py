@@ -156,22 +156,55 @@ def freigegebene_module(
         _gewaehlte_familien.reset(marke_familien)
 
 
+def _eindeutiges_modul(bezug: str, erlaubt: Sequence[str]) -> str | None:
+    """Findet das gemeinte Modul — auch wenn der Name gekürzt wurde.
+
+    Heisst ein Modul „Morgenliste mit Verantwortlichkeiten" und die Ansicht
+    beruft sich auf „Morgenliste", dann meint sie dieses Modul. Ein exakter
+    Zeichenvergleich würde das zurückweisen und den ganzen Lauf mitreissen —
+    an einer Schreibweise, nicht an einer erfundenen Funktion.
+
+    Geprüft wird trotzdem Herkunft, nicht Ähnlichkeit: Der Bezug muss in
+    genau **einem** freigegebenen Namen enthalten sein oder ihn enthalten.
+    Passt keiner, ist es ein fremdes Modul. Passen mehrere, ist unklar
+    welches gemeint war — und Unklarheit gilt hier als Fehler.
+    """
+
+    gesucht = _vergleichbarer_name(bezug)
+    for name in erlaubt:
+        if _vergleichbarer_name(name) == gesucht:
+            return name
+    kandidaten = [
+        name
+        for name in erlaubt
+        if gesucht and (
+            gesucht in _vergleichbarer_name(name)
+            or _vergleichbarer_name(name) in gesucht
+        )
+    ]
+    if len(kandidaten) == 1:
+        logger.info(
+            "result.module_ref_shortened bezug=%r modul=%r", bezug, kandidaten[0]
+        )
+        return kandidaten[0]
+    return None
+
+
 def _pruefe_modulbezug(bezuege: Sequence[str], wofuer: str) -> list[str]:
     """Jeder Bezug muss auf ein freigegebenes Modul zeigen.
 
-    Kein Textverständnis, nur Herkunft: Der Name muss in der Liste der
-    bereits geprüften Module stehen. Ist kein Rahmen gesetzt — etwa beim
-    Lesen eines gespeicherten Ergebnisses —, wird nicht geprüft.
+    Kein Textverständnis, nur Herkunft: Der Bezug muss eines der bereits
+    geprüften Module eindeutig bezeichnen. Ist kein Rahmen gesetzt — etwa
+    beim Lesen eines gespeicherten Ergebnisses —, wird nicht geprüft.
     """
 
     erlaubt = _freigegebene_module.get()
     if erlaubt is None:
         return list(bezuege)
-    bekannt = {_vergleichbarer_name(name): name for name in erlaubt}
     getroffen: list[str] = []
     fremd: list[str] = []
     for bezug in bezuege:
-        treffer = bekannt.get(_vergleichbarer_name(bezug))
+        treffer = _eindeutiges_modul(bezug, erlaubt)
         if treffer is None:
             fremd.append(bezug)
         elif treffer not in getroffen:

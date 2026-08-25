@@ -212,3 +212,76 @@ def test_without_the_forecast_family_amounts_are_not_this_check() -> None:
         rest = ResultPartTwoRest.model_validate(daten)
 
     assert rest.systeme[0].umgang
+
+
+# --- Der gekuerzte Modulname ----------------------------------------------
+#
+# Aus einem echten Lauf: Das Modul heisst "Morgenliste mit
+# Verantwortlichkeiten", die Ansicht berief sich auf "Morgenliste". Der
+# exakte Zeichenvergleich hat daran den ganzen Durchlauf zerrissen -- an
+# einer Schreibweise, nicht an einer erfundenen Funktion.
+
+LANGE_MODULE = ("Morgenliste mit Verantwortlichkeiten", "Terminsync")
+
+
+def test_a_shortened_module_name_still_points_at_its_module() -> None:
+    """Ein gekuerzter Name bezeichnet dasselbe Modul."""
+
+    daten = _ansichten()
+    for ansicht in daten["ansichten"]:
+        ansicht["module_refs"] = ["Terminsync"]
+    daten["ansichten"][0]["module_refs"] = ["Morgenliste"]
+
+    with narrative(ERZAEHLUNG), freigegebene_module(LANGE_MODULE):
+        ansichten = ResultPartTwoViews.model_validate(daten)
+
+    # Gespeichert wird der volle Name, nicht die Abkuerzung.
+    assert ansichten.ansichten[0].module_refs == [
+        "Morgenliste mit Verantwortlichkeiten"
+    ]
+
+
+def test_a_longer_wording_of_the_same_module_is_accepted() -> None:
+    """Auch andersherum: Der Bezug darf den Modulnamen enthalten."""
+
+    daten = _ansichten()
+    for ansicht in daten["ansichten"]:
+        ansicht["module_refs"] = ["Terminsync"]
+    daten["ansichten"][0]["module_refs"] = ["Terminsync fuer Termine"]
+
+    with narrative(ERZAEHLUNG), freigegebene_module(LANGE_MODULE):
+        ansichten = ResultPartTwoViews.model_validate(daten)
+
+    assert ansichten.ansichten[0].module_refs == ["Terminsync"]
+
+
+def test_an_invented_module_is_still_rejected_under_the_looser_match() -> None:
+    """**Die Lockerung darf kein Schlupfloch sein.**
+
+    Ein erfundenes Modul enthaelt keinen freigegebenen Namen und ist in
+    keinem enthalten -- es faellt weiterhin durch.
+    """
+
+    daten = _ansichten()
+    daten["ansichten"][0]["module_refs"] = ["Autonomer Einkaufsagent"]
+
+    with pytest.raises(ValidationError, match="kein Modul dieser"):
+        with narrative(ERZAEHLUNG), freigegebene_module(LANGE_MODULE):
+            ResultPartTwoViews.model_validate(daten)
+
+
+def test_an_ambiguous_short_name_is_rejected() -> None:
+    """Passt der Bezug auf zwei Module, war er keine Abkuerzung, sondern unklar.
+
+    Unklarheit gilt hier als Fehler: Ein Ergebnis, das nicht sagt, welches
+    Modul es meint, laesst sich nicht pruefen.
+    """
+
+    daten = _ansichten()
+    daten["ansichten"][0]["module_refs"] = ["Liste"]
+
+    with pytest.raises(ValidationError, match="kein Modul dieser"):
+        with narrative(ERZAEHLUNG), freigegebene_module(
+            ("Liste der Termine", "Liste der Aufgaben")
+        ):
+            ResultPartTwoViews.model_validate(daten)

@@ -14,6 +14,11 @@ keine Formatierungszeichen. Das Aussehen macht die Vorlage.
 - GEWAEHLTES_MUSTER, NUR_INTERNES_VERGLEICHSWISSEN_NIE_AUSGEBEN,
   VERBOTENE_WOERTER wie oben.
 
+**Modulnamen werden abgeschrieben, nicht gekürzt.** Wo du dich auf ein
+Modul berufst, steht sein Name genau so, wie er dir gegeben wurde — mit
+jedem Wort. „Morgenliste" statt „Morgenliste mit Verantwortlichkeiten"
+ist kein kürzerer Name, sondern ein anderer.
+
 ## Die Felder
 
 **Die Zahlen unten sind Obergrenzen, keine Vorgaben.** Kein Feld muss
