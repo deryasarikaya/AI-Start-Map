@@ -163,6 +163,40 @@ Aufrufe nicht mehr; sie können also auch nicht mehr auftauchen.
 Vorschlag des Abrufs, hinge es an einer Auswahl, die noch niemand
 getroffen hat. Passt keines, bleibt es leer; erzwungen wird keines.
 
+### Wann ein Zielbild überhaupt gilt
+
+Ein Zielbild sagt, wie mehrere Familien zusammenspielen. Es qualifiziert
+sich nur, wenn beides gilt:
+
+1. **mindestens zwei** der ausgewählten Familien liegen darin — bei einer
+   einzigen gibt es kein Zusammenspiel, nur eine Lösung;
+2. **mindestens die Hälfte** der Auswahl liegt darin — trifft ein Zielbild
+   zwei von sechs gewählten Familien, beschreibt es nicht diese Lösung,
+   sondern eine andere, an der sie zufällig streift.
+
+| ausgewählt | Zielbild ab |
+|---|---|
+| 1 | keines |
+| 2 | 2 Treffern |
+| 3 | 2 Treffern |
+| 4 | 2 Treffern |
+| 5 | 3 Treffern |
+| 6 | 3 Treffern |
+
+Eine einzelne Familie ist eine vollkommen gültige Lösung. Sie bekommt nur
+kein Mehrfamilien-Zielbild. Haben zwei Zielbilder dieselbe Überdeckung,
+gewinnt das erste in der Reihenfolge der Katalogdatei — dieselbe Auswahl
+führt immer zum selben Zielbild.
+
+### Ein Zielbild strukturiert, es erweitert nicht
+
+Was die Formulierung vom Zielbild sieht, ist auf die Auswahl gekürzt:
+Kennung, Titel und nur die Ebenen, in denen mindestens eine **ausgewählte**
+Familie liegt — und dort auch nur die ausgewählten Kennungen. Eine Ebene,
+von der danach nichts übrig ist, fällt weg. Die kleinste und die grösste
+Ausbaustufe reisen gar nicht erst mit: Sie führen weitere Familien ein, und
+was der Kunde bekommt, entscheidet die geprüfte Auswahl, nicht ein Muster.
+
 ---
 
 ## Die Sprache bleibt frei

@@ -271,11 +271,75 @@ def faehigkeiten_zu(kennungen: list[str]) -> list[dict]:
     return [nach_kennung[cap] for cap in gebraucht if cap in nach_kennung]
 
 
+def _qualifiziert(treffer: int, ausgewaehlt: int) -> bool:
+    """Ob eine Überdeckung gross genug ist, um ein Zielbild zu tragen.
+
+    Zwei Bedingungen, beide müssen gelten:
+
+    1. **Mindestens zwei** ausgewählte Familien liegen im Zielbild. Ein
+       Zielbild sagt, wie Familien zusammenspielen — bei einer einzigen gibt
+       es kein Zusammenspiel, nur eine Lösung.
+    2. **Mindestens die Hälfte** der Auswahl liegt darin. Trifft ein Zielbild
+       zwei von sechs gewählten Familien, beschreibt es nicht diese Lösung,
+       sondern eine andere, an der die Lösung zufällig streift.
+
+    Eine einzelne Familie bleibt eine vollkommen gültige Lösung. Sie bekommt
+    nur kein Mehrfamilien-Zielbild.
+    """
+
+    return treffer >= 2 and treffer * 2 >= ausgewaehlt
+
+
+def _auf_die_auswahl_gekuerzt(datensatz: dict, ausgewaehlt: set[str]) -> dict:
+    """Macht aus dem Zielbild einen reinen Kompositionshinweis.
+
+    **Ein Zielbild darf strukturieren, nicht erweitern.** Der volle Datensatz
+    nennt Familien, die dieser Betrieb nicht bekommt, dazu eine kleinste und
+    eine grösste Ausbaustufe. Ginge das so in die Formulierung, stünde am Ende
+    beim Kunden eine Lösung, die niemand ausgewählt und niemand geprüft hat.
+
+    Übrig bleiben deshalb nur: Kennung, Titel und die Ebenen, in denen
+    mindestens eine **ausgewählte** Familie liegt — und in diesen Ebenen auch
+    nur die ausgewählten Kennungen. Eine Ebene, von der danach nichts übrig
+    ist, fällt ganz weg.
+    """
+
+    ebenen: list[dict] = []
+    for ebene in datensatz.get("ebenen") or []:
+        beteiligt = [
+            str(kennung)
+            for kennung in ebene.get("beteiligte_familien") or []
+            if str(kennung) in ausgewaehlt
+        ]
+        if not beteiligt:
+            continue
+        ebenen.append(
+            {
+                "ebene": ebene.get("ebene", ""),
+                "was_dort_passiert": ebene.get("was_dort_passiert", ""),
+                "beteiligte_familien": beteiligt,
+            }
+        )
+    return {
+        "chunk_id": datensatz.get("chunk_id", ""),
+        "title": datensatz.get("title", ""),
+        "ebenen": ebenen,
+    }
+
+
 def zielbild_zu(kennungen: list[str]) -> dict | None:
-    """Das Kompositionsmuster mit der grössten Überdeckung.
+    """Das Kompositionsmuster zur Auswahl — gekürzt auf die Auswahl.
 
     Zielbilder sagen, wie mehrere Familien zu einem grösseren Ganzen
-    zusammengehen — damit nicht fünf kleine Einzelautomationen herauskommen.
+    zusammengehen, damit nicht fünf kleine Einzelautomationen herauskommen.
+    Sie sind ein **interner** Hinweis für die Formulierung und stehen nie so
+    beim Kunden.
+
+    Gewählt wird das Zielbild mit der grössten Überdeckung, das
+    `_qualifiziert` besteht; passt keines, gibt es keines. Bei Gleichstand
+    gewinnt das erste in der Reihenfolge der Katalogdatei — dieselbe Auswahl
+    führt so immer zum selben Zielbild.
+
     Enthält ein Zielbild eine nicht freigegebene Familie, zählt sie nicht mit.
     """
 
@@ -288,6 +352,11 @@ def zielbild_zu(kennungen: list[str]) -> dict | None:
             if str(kennung) in katalog()
         }
         ueberdeckung = len(enthalten & ausgewaehlt)
-        if ueberdeckung and (bestes is None or ueberdeckung > bestes[0]):
+        if not _qualifiziert(ueberdeckung, len(ausgewaehlt)):
+            continue
+        # Echt groesser: Bei Gleichstand bleibt das frueher gelesene stehen.
+        if bestes is None or ueberdeckung > bestes[0]:
             bestes = (ueberdeckung, datensatz)
-    return None if bestes is None else bestes[1]
+    if bestes is None:
+        return None
+    return _auf_die_auswahl_gekuerzt(bestes[1], ausgewaehlt)

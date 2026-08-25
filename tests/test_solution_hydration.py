@@ -72,9 +72,12 @@ def test_families_that_were_not_chosen_stay_out() -> None:
 def test_the_target_pattern_comes_after_the_selection() -> None:
     """Das Muster passt zu den **ausgewählten** Familien.
 
-    Vorher wurde es aus dem Abrufvorschlag bestimmt — also bevor eine Auswahl
-    existierte. Ein Muster, das zu einer anderen Lösung gehört, hätte das
-    Zielbild in eine Richtung gezogen, die niemand gewählt hat.
+    Käme es aus dem Abrufvorschlag, stünde es fest, bevor eine Auswahl
+    existiert. Ein Muster, das zu einer anderen Lösung gehört, zöge das
+    Zielbild in eine Richtung, die niemand gewählt hat.
+
+    Geprüft wird am gekürzten Muster: Es nennt nur noch die Familien, die
+    tatsächlich ausgewählt wurden.
     """
 
     gewaehlt = _gewaehlt()
@@ -82,8 +85,13 @@ def test_the_target_pattern_comes_after_the_selection() -> None:
     zielbild = analysis_service.geprueftes_loesungswissen(gewaehlt)["ZIELBILDMUSTER"]
 
     if zielbild:
-        enthalten = set(zielbild.get("enthaltene_familien") or [])
-        assert enthalten & set(gewaehlt.selected_solution_family_ids)
+        genannt = {
+            kennung
+            for ebene in zielbild["ebenen"]
+            for kennung in ebene["beteiligte_familien"]
+        }
+        assert genannt
+        assert genannt <= set(gewaehlt.selected_solution_family_ids)
 
 
 def test_without_a_selection_nothing_is_loaded() -> None:
@@ -160,3 +168,34 @@ def test_the_payload_of_the_later_calls_carries_the_hydrated_context() -> None:
     # Und die geprüften Module stehen weiterhin drin.
     oberer = payload["BEREITS_GESCHRIEBENER_OBERER_TEIL"]
     assert all(modul["solution_family_ids"] for modul in oberer["module"])
+
+
+def test_the_target_pattern_smuggles_no_extra_family_into_the_context() -> None:
+    """**Der Leckschutz am Produktionspfad.**
+
+    Das Zielbild ist ein interner Kompositionshinweis. Was hier
+    herauskommt, geht wortlautnah in die Formulierung — steht dort eine
+    Familie, die niemand gewaehlt hat, steht sie am Ende beim Kunden.
+    """
+
+    import json
+
+    gewaehlt = _gewaehlt()
+    ausgewaehlt = set(gewaehlt.selected_solution_family_ids)
+
+    kontext = analysis_service.geprueftes_loesungswissen(gewaehlt)
+    muster = kontext["ZIELBILDMUSTER"]
+
+    if not muster:
+        pytest.skip("Diese Auswahl qualifiziert kein Zielbild.")
+    als_text = json.dumps(muster, ensure_ascii=False)
+    fremde = [
+        kennung
+        for kennung in solution_catalog.katalog()
+        if kennung not in ausgewaehlt and kennung in als_text
+    ]
+    assert fremde == [], fremde
+    # Und keine Ebene ohne gewaehlte Familie.
+    for ebene in muster["ebenen"]:
+        assert ebene["beteiligte_familien"]
+        assert set(ebene["beteiligte_familien"]) <= ausgewaehlt

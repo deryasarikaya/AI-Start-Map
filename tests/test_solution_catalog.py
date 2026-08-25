@@ -9,6 +9,8 @@ Projekt prüft, ob es sie gibt.
 
 from __future__ import annotations
 
+import json
+
 import pytest
 from pydantic import ValidationError
 
@@ -399,3 +401,226 @@ def test_every_cross_reference_points_at_something() -> None:
     for zielbild in lies("05_target_architectures.jsonl"):
         for kennung in zielbild.get("enthaltene_familien") or []:
             assert kennung in familien, f"{zielbild['chunk_id']} -> {kennung}"
+
+
+# --- Das Zielbildmuster: Regel B ------------------------------------------
+#
+# Ein Zielbild sagt, wie mehrere Familien zusammenspielen. Es darf die
+# Reihenfolge und das Zusammenspiel der **ausgewählten** Familien
+# strukturieren — und den Lösungsumfang niemals erweitern.
+
+
+def _kuenstliche_zielbilder(
+    monkeypatch: pytest.MonkeyPatch, *datensaetze: dict
+) -> None:
+    """Setzt einen kleinen, vollständig bekannten Zielbildbestand.
+
+    Der echte Bestand wächst und ändert sich; diese Regeln sollen an Zahlen
+    hängen, nicht am Tagesstand des Katalogs.
+    """
+
+    monkeypatch.setattr(
+        solution_catalog,
+        "_zeilen",
+        lambda pfad: list(datensaetze),
+    )
+
+
+def _zielbild(kennung: str, familien: list[str], ebenen: list[list[str]]) -> dict:
+    return {
+        "chunk_id": kennung,
+        "title": f"Zielbild {kennung}",
+        "enthaltene_familien": familien,
+        "kleinste_fassung": "Die kleine Ausbaustufe.",
+        "groesste_fassung": "Die grosse Ausbaustufe mit weiteren Familien.",
+        "ebenen": [
+            {
+                "ebene": f"Ebene {nummer}",
+                "was_dort_passiert": "Beschreibung.",
+                "beteiligte_familien": beteiligte,
+            }
+            for nummer, beteiligte in enumerate(ebenen, start=1)
+        ],
+    }
+
+
+@pytest.mark.parametrize(
+    ("treffer", "ausgewaehlt", "erwartet"),
+    [
+        (1, 1, False),  # eine Familie ist kein Zusammenspiel
+        (1, 2, False),
+        (2, 2, True),
+        (2, 3, True),
+        (2, 4, True),
+        (2, 5, False),  # unter der Hälfte
+        (3, 5, True),
+        (2, 6, False),
+        (3, 6, True),
+    ],
+)
+def test_the_coverage_rule_in_numbers(
+    treffer: int, ausgewaehlt: int, erwartet: bool
+) -> None:
+    """Mindestens zwei Treffer **und** mindestens die Hälfte der Auswahl."""
+
+    assert solution_catalog._qualifiziert(treffer, ausgewaehlt) is erwartet
+
+
+def test_a_single_family_gets_no_target_pattern(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Eine Familie ist eine gültige Lösung — nur eben ohne Zielbild."""
+
+    _kuenstliche_zielbilder(
+        monkeypatch, _zielbild("TA-X", ["SF-01", "SF-02"], [["SF-01", "SF-02"]])
+    )
+
+    assert solution_catalog.zielbild_zu(["SF-01"]) is None
+
+
+def test_no_selection_gets_no_target_pattern(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Kein Katalogtreffer, keine neue Technik: dann auch kein Zielbild."""
+
+    _kuenstliche_zielbilder(
+        monkeypatch, _zielbild("TA-X", ["SF-01", "SF-02"], [["SF-01", "SF-02"]])
+    )
+
+    assert solution_catalog.zielbild_zu([]) is None
+
+
+def test_two_families_fully_covered_qualify(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Zwei gewählte Familien, beide im Zielbild: das ist ein Zusammenspiel."""
+
+    _kuenstliche_zielbilder(
+        monkeypatch, _zielbild("TA-X", ["SF-01", "SF-02"], [["SF-01", "SF-02"]])
+    )
+
+    getroffen = solution_catalog.zielbild_zu(["SF-01", "SF-02"])
+
+    assert getroffen is not None
+    assert getroffen["chunk_id"] == "TA-X"
+
+
+def test_two_of_six_is_not_this_solution(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Zwei von sechs: Das Zielbild streift die Lösung, es beschreibt sie nicht."""
+
+    _kuenstliche_zielbilder(
+        monkeypatch, _zielbild("TA-X", ["SF-01", "SF-02"], [["SF-01", "SF-02"]])
+    )
+
+    auswahl = ["SF-01", "SF-02", "SF-03", "SF-04", "SF-05", "SF-06"]
+
+    assert solution_catalog.zielbild_zu(auswahl) is None
+
+
+def test_three_of_six_qualifies(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Die Hälfte reicht."""
+
+    _kuenstliche_zielbilder(
+        monkeypatch,
+        _zielbild("TA-X", ["SF-01", "SF-02", "SF-03"], [["SF-01", "SF-02", "SF-03"]]),
+    )
+
+    auswahl = ["SF-01", "SF-02", "SF-03", "SF-04", "SF-05", "SF-06"]
+    getroffen = solution_catalog.zielbild_zu(auswahl)
+
+    assert getroffen is not None
+    assert getroffen["chunk_id"] == "TA-X"
+
+
+def test_two_of_three_qualifies(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Zwei von drei ist mehr als die Hälfte."""
+
+    _kuenstliche_zielbilder(
+        monkeypatch, _zielbild("TA-X", ["SF-01", "SF-02"], [["SF-01", "SF-02"]])
+    )
+
+    getroffen = solution_catalog.zielbild_zu(["SF-01", "SF-02", "SF-03"])
+
+    assert getroffen is not None
+
+
+# --- Was vom Zielbild uebrig bleibt ---------------------------------------
+
+
+def test_an_unselected_family_never_leaves_the_pattern(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """**Der Leckschutz.**
+
+    Der volle Datensatz nennt acht Familien. Der Betrieb bekommt zwei. Was
+    die Formulierung sieht, darf die anderen sechs nicht enthalten — sonst
+    stünde beim Kunden eine Lösung, die niemand ausgewählt und niemand
+    geprüft hat.
+    """
+
+    _kuenstliche_zielbilder(
+        monkeypatch,
+        _zielbild(
+            "TA-X",
+            ["SF-01", "SF-02", "SF-03", "SF-04"],
+            [["SF-01", "SF-03"], ["SF-02", "SF-04"]],
+        ),
+    )
+
+    getroffen = solution_catalog.zielbild_zu(["SF-01", "SF-02"])
+
+    assert getroffen is not None
+    genannt = {
+        kennung
+        for ebene in getroffen["ebenen"]
+        for kennung in ebene["beteiligte_familien"]
+    }
+    assert genannt == {"SF-01", "SF-02"}
+    assert "SF-03" not in json.dumps(getroffen, ensure_ascii=False)
+    assert "SF-04" not in json.dumps(getroffen, ensure_ascii=False)
+
+
+def test_the_bigger_variants_do_not_travel(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Die grösste Ausbaustufe ist eine Einladung, mehr zu verkaufen."""
+
+    _kuenstliche_zielbilder(
+        monkeypatch, _zielbild("TA-X", ["SF-01", "SF-02"], [["SF-01", "SF-02"]])
+    )
+
+    getroffen = solution_catalog.zielbild_zu(["SF-01", "SF-02"])
+
+    assert getroffen is not None
+    assert set(getroffen) == {"chunk_id", "title", "ebenen"}
+    assert "groesste_fassung" not in getroffen
+    assert "kleinste_fassung" not in getroffen
+
+
+def test_a_layer_without_a_selected_family_is_dropped(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Eine Ebene, in der nichts Gewähltes liegt, beschreibt fremde Arbeit."""
+
+    _kuenstliche_zielbilder(
+        monkeypatch,
+        _zielbild(
+            "TA-X",
+            ["SF-01", "SF-02", "SF-03"],
+            [["SF-01", "SF-02"], ["SF-03"]],
+        ),
+    )
+
+    getroffen = solution_catalog.zielbild_zu(["SF-01", "SF-02"])
+
+    assert getroffen is not None
+    assert [ebene["ebene"] for ebene in getroffen["ebenen"]] == ["Ebene 1"]
+
+
+def test_a_tie_is_decided_by_file_order(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Gleiche Überdeckung: Das erste in der Datei gewinnt, jedes Mal."""
+
+    erstes = _zielbild("TA-ERST", ["SF-01", "SF-02"], [["SF-01", "SF-02"]])
+    zweites = _zielbild("TA-ZWEIT", ["SF-01", "SF-02"], [["SF-01", "SF-02"]])
+    _kuenstliche_zielbilder(monkeypatch, erstes, zweites)
+
+    for _ in range(5):
+        getroffen = solution_catalog.zielbild_zu(["SF-01", "SF-02"])
+        assert getroffen is not None
+        assert getroffen["chunk_id"] == "TA-ERST"
