@@ -17,6 +17,17 @@ import pytest
 
 from app.openai_service import _prompt
 
+def _fliesstext(name: str) -> str:
+    """Der Prompt als eine Zeile.
+
+    Eine Regel steht im Prompt umbrochen. Ein Test, der am Umbruch
+    haengt, wird rot, sobald jemand einen Absatz neu formatiert -- und
+    sagt dann etwas ueber Zeilenlaengen statt ueber die Zusage.
+    """
+
+    return " ".join(_prompt(name).split())
+
+
 AUSWAHL = "zielarchitektur"
 ANSICHTEN = "ergebnis_teil2a"
 REST = "ergebnis_teil2b"
@@ -124,3 +135,30 @@ def test_the_two_explaining_fields_are_kept_apart() -> None:
 
     assert "Warum löst genau diese Zusammenstellung den diagnostizierten" in prompt
     assert "Was passiert künftig als zusammenhängendes System?" in prompt
+
+
+# --- Ein vorhandenes System, das passt, bleibt das System -----------------
+
+
+def test_an_existing_system_is_used_before_a_second_one_is_built() -> None:
+    """**Die zweite Gegenfrage.**
+
+    Ein Betrieb mit passender Fachsoftware, die uneinheitlich genutzt wird,
+    braucht keinen gemeinsamen Eingang davor — das waere ein zweites System
+    unter anderem Namen.
+    """
+
+    fliess = _fliesstext(AUSWAHL)
+
+    assert "Gibt es in der Erzählung ein System, das diese Aufgabe schon" in fliess
+    assert "Ist die Antwort ja, dann ist die Lösung, es zu benutzen" in fliess
+    assert "ist ein zweites System, auch wenn er anders heißt" in fliess
+
+
+def test_modules_describe_the_existing_system_not_a_new_place() -> None:
+    """Auch mit gewaehlten Familien bleibt das vorhandene System der Ort."""
+
+    fliess = _fliesstext(AUSWAHL)
+
+    assert "eingerichtet, vereinheitlicht oder angebunden" in fliess
+    assert "nicht, wie ein neuer zentraler Ort entsteht" in fliess

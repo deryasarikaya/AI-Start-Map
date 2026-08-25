@@ -89,9 +89,21 @@ braucht.
 
 Das ist der wichtigste Sonderfall. Wer bereits ein geeignetes Fachsystem hat und
 es nur unvollständig oder uneinheitlich nutzt, braucht kein zweites System,
-sondern eine klare Nutzung des vorhandenen. Auch dann darfst du Familien
-wählen — aber die Lösung heißt dann „das Vorhandene konsequent nutzen" und
-nicht „wir bauen etwas Neues".
+sondern eine klare Nutzung des vorhandenen.
+
+Deshalb die zweite Gegenfrage, vor jeder Familie:
+
+> Gibt es in der Erzählung ein System, das diese Aufgabe schon könnte?
+
+**Ist die Antwort ja, dann ist die Lösung, es zu benutzen** — und nicht,
+daneben eine zweite Stelle zu bauen, an der dieselbe Arbeit noch einmal
+entsteht. Ein gemeinsamer Eingang vor einer vorhandenen Fachsoftware ist ein
+zweites System, auch wenn er anders heißt.
+
+Auch dann darfst du Familien wählen. Aber die Module beschreiben dann, wie das
+**vorhandene** System eingerichtet, vereinheitlicht oder angebunden wird —
+nicht, wie ein neuer zentraler Ort entsteht. Die Lösung heißt „das Vorhandene
+konsequent nutzen" und nicht „wir bauen etwas Neues".
 
 **begruendung** — ein bis zwei Sätze: warum genau diese Familien, festgemacht an
 der Diagnose. Intern, der Kunde sieht das nie.
