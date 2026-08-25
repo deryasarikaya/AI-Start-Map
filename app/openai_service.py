@@ -781,11 +781,61 @@ def generate_diagnosis(
         "VERGLEICHSWISSEN_DIAGNOSE_NIE_AUSGEBEN": list(knowledge_chunks),
     }
     with narrative(narrative_text):
-        return parse_structured_output(
-            system_prompt=_prompt("diagnose"),
-            payload=payload,
-            result_type=Diagnose,
+        return _diagnosis_with_enough_evidence(payload)
+
+
+def _diagnosis_with_enough_evidence(payload: dict[str, object]) -> Diagnose:
+    """Holt die Diagnose und sorgt für genug wörtliche Belege.
+
+    Die Zitatprüfung im Vertrag sortiert einzeln aus, statt das ganze
+    Ergebnis an einem ungenauen Zitat scheitern zu lassen. Bleiben danach
+    zu wenige übrig, wird genau **einmal** nachgefragt — mit den
+    abgelehnten Zitaten im Prompt, damit das Modell weiß, woran es lag.
+    Ein blindes Neuwürfeln würde denselben Fehler noch einmal machen.
+
+    Bleibt es auch danach zu wenig, geht es **ohne** Belegabschnitt
+    weiter. Die Verstandenseite ist dann schwächer, aber sie existiert —
+    das ist besser, als einen Kunden wegen eines Wortes vor einen Fehler
+    zu setzen. Ein dritter Aufruf findet nicht statt.
+    """
+
+    erster = parse_structured_output(
+        system_prompt=_prompt("diagnose"),
+        payload=payload,
+        result_type=Diagnose,
+    )
+    if len(erster.verstanden.belege) >= MINIMUM_EVIDENCE:
+        return erster
+
+    abgelehnt = rejected_quotes()
+    logger.warning(
+        "diagnosis.evidence_too_thin belege=%d abgelehnt=%d wortlaut=%s "
+        "aktion=zweiter_versuch",
+        len(erster.verstanden.belege),
+        len(abgelehnt),
+        abgelehnt,
+    )
+    zweiter = parse_structured_output(
+        system_prompt=_prompt("diagnose") + _quote_retry_hint(abgelehnt),
+        payload=payload,
+        result_type=Diagnose,
+    )
+    if len(zweiter.verstanden.belege) >= MINIMUM_EVIDENCE:
+        logger.info(
+            "diagnosis.evidence_recovered belege=%d",
+            len(zweiter.verstanden.belege),
         )
+        return zweiter
+
+    logger.warning(
+        "diagnosis.evidence_dropped belege=%d aktion=ohne_belegabschnitt",
+        len(zweiter.verstanden.belege),
+    )
+    return zweiter.model_copy(
+        update={
+            "verstanden": zweiter.verstanden.model_copy(update={"belege": []})
+        }
+    )
 
 
 def generate_target_architecture(
@@ -837,86 +887,6 @@ def generate_target_architecture(
         gewaehlt.recommend_new_technology,
     )
     return gewaehlt
-
-
-def generate_result_part_one(
-    *,
-    narrative_text: str,
-    answers: dict[str, str],
-    selected_process: dict[str, str],
-    knowledge_chunks: Sequence[str],
-    recommendation_context: dict[str, object] | None = None,
-) -> ResultPartOne:
-    """Erzeugt den oberen Teil der Ergebnisseite.
-
-    Der erste von zwei Aufrufen. Was hier herauskommt, wird sofort angezeigt,
-    während der zweite Aufruf noch läuft. Die Erzählung wird für die Dauer des
-    Aufrufs bereitgestellt, weil die Zitatprüfung im Vertrag sie braucht — die
-    OpenAI-Schnittstelle baut das Modell selbst und reicht keinen
-    Validierungskontext durch.
-    """
-
-    payload: dict[str, object] = {
-        "SO_ERZAEHLT_ES_DER_BETRIEB": {
-            "erzaehlung": narrative_text,
-            "ausgewaehlter_ablauf": selected_process,
-            "antworten": answers,
-        },
-        "GEWAEHLTES_MUSTER": _selected_pattern_briefing(recommendation_context),
-        "VERBOTENE_WOERTER": list(FORBIDDEN_CUSTOMER_TERMS),
-        "NUR_INTERNES_VERGLEICHSWISSEN_NIE_AUSGEBEN": list(knowledge_chunks),
-    }
-    with narrative(narrative_text):
-        return _part_one_with_enough_evidence(payload)
-
-
-def _part_one_with_enough_evidence(payload: dict[str, object]) -> ResultPartOne:
-    """Holt den oberen Teil und sorgt für genug wörtliche Belege.
-
-    Die Zitatprüfung sortiert einzeln aus. Bleiben danach zu wenige übrig,
-    wird genau einmal nachgefragt — mit den abgelehnten Zitaten im Prompt,
-    damit das Modell weiß, woran es lag. Ein blindes Neuwürfeln würde
-    denselben Fehler noch einmal machen.
-
-    Bleibt es auch danach zu wenig, geht es **ohne** Belegabschnitt weiter.
-    Die Seite ist dann schwächer, aber sie existiert — das ist besser als
-    fünfzig Sekunden Arbeit für ein Wort wegzuwerfen.
-    """
-
-    erster = parse_structured_output(
-        system_prompt=_prompt("ergebnis_teil1"),
-        payload=payload,
-        result_type=ResultPartOne,
-    )
-    if len(erster.verstanden.belege) >= MINIMUM_EVIDENCE:
-        return erster
-
-    abgelehnt = rejected_quotes()
-    logger.warning(
-        "result.evidence_too_thin belege=%d abgelehnt=%d wortlaut=%s "
-        "aktion=zweiter_versuch",
-        len(erster.verstanden.belege),
-        len(abgelehnt),
-        abgelehnt,
-    )
-    zweiter = parse_structured_output(
-        system_prompt=_prompt("ergebnis_teil1") + _quote_retry_hint(abgelehnt),
-        payload=payload,
-        result_type=ResultPartOne,
-    )
-    if len(zweiter.verstanden.belege) >= MINIMUM_EVIDENCE:
-        logger.info(
-            "result.evidence_recovered belege=%d", len(zweiter.verstanden.belege)
-        )
-        return zweiter
-
-    logger.warning(
-        "result.evidence_dropped belege=%d aktion=ohne_belegabschnitt",
-        len(zweiter.verstanden.belege),
-    )
-    return zweiter.model_copy(
-        update={"verstanden": zweiter.verstanden.model_copy(update={"belege": []})}
-    )
 
 
 def _quote_retry_hint(abgelehnte_zitate: Sequence[str]) -> str:

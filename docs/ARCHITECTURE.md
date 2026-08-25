@@ -37,6 +37,13 @@ Zwischen Aufruf 1 und 2 liegt die Verstandenseite: Der Kunde sieht die
 Diagnose, bevor die Lösung entsteht, und kann etwas ergänzen. Dann läuft
 Aufruf 1 ein zweites Mal — höchstens einmal.
 
+**Aufruf 1 hat eine Belegwiederholung.** Die Zitatprüfung im Vertrag sortiert
+jedes Zitat einzeln aus, das nicht wörtlich in der Erzählung steht. Bleiben
+danach weniger als zwei übrig, fragt der Server genau einmal nach — mit den
+abgelehnten Zitaten im Prompt, damit das Modell weiß, woran es lag. Hilft auch
+das nicht, entfällt der Belegabschnitt und die Seite entsteht trotzdem. Einen
+dritten Aufruf gibt es nie.
+
 ---
 
 ## Wissen ist nicht gleich Wissen

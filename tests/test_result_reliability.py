@@ -18,11 +18,12 @@ from openai import APITimeoutError
 from app import openai_service
 from app.result_schema import (
     MINIMUM_EVIDENCE,
+    Diagnose,
     ResultPartOne,
     ResultPartTwo,
     narrative,
 )
-from tests.test_result_contract import ERZAEHLUNG, _part_one
+from tests.test_result_contract import ERZAEHLUNG, _diagnose, _part_one
 
 
 def _teil_eins(zitate: list[str]) -> ResultPartOne:
@@ -38,6 +39,24 @@ def _teil_eins(zitate: list[str]) -> ResultPartOne:
         {"zitat": zitat, "bedeutung": "Gemockte Bedeutung."} for zitat in zitate
     ]
     return ResultPartOne.model_validate(payload)
+
+
+def _diagnose_mit(zitate: list[str]) -> Diagnose:
+    """Eine gültige Diagnose mit genau diesen Zitaten.
+
+    Ohne eigenen `narrative()`-Block, aus demselben Grund wie oben: Die
+    Meldung über aussortierte Zitate soll den Aufrufer erreichen.
+    """
+
+    payload = _diagnose()
+    payload["verstanden"] = {
+        **payload["verstanden"],
+        "belege": [
+            {"zitat": zitat, "bedeutung": "Gemockte Bedeutung."}
+            for zitat in zitate
+        ],
+    }
+    return Diagnose.model_validate(payload)
 
 
 ECHT = "per Telefon, per Mail und manchmal über WhatsApp"
@@ -57,12 +76,12 @@ def test_two_good_quotes_need_no_second_call(
 
     def antworte(*, system_prompt: str, payload: object, result_type: object):
         aufrufe.append(system_prompt)
-        return _teil_eins([ECHT, ERFUNDEN, ECHT_ZWEI])
+        return _diagnose_mit([ECHT, ERFUNDEN, ECHT_ZWEI])
 
     monkeypatch.setattr(openai_service, "parse_structured_output", antworte)
 
     with narrative(ERZAEHLUNG):
-        ergebnis = openai_service._part_one_with_enough_evidence({})
+        ergebnis = openai_service._diagnosis_with_enough_evidence({})
 
     assert len(aufrufe) == 1
     assert len(ergebnis.verstanden.belege) == MINIMUM_EVIDENCE
@@ -79,12 +98,12 @@ def test_too_few_quotes_trigger_one_targeted_retry(
 
     def antworte(*, system_prompt: str, payload: object, result_type: object):
         aufrufe.append(system_prompt)
-        return _teil_eins(zitate[len(aufrufe) - 1])
+        return _diagnose_mit(zitate[len(aufrufe) - 1])
 
     monkeypatch.setattr(openai_service, "parse_structured_output", antworte)
 
     with narrative(ERZAEHLUNG):
-        ergebnis = openai_service._part_one_with_enough_evidence({})
+        ergebnis = openai_service._diagnosis_with_enough_evidence({})
 
     assert len(aufrufe) == 2
     # Der zweite Aufruf nennt das abgelehnte Zitat wörtlich. Ohne das wäre es
@@ -101,25 +120,53 @@ def test_a_hopeless_case_continues_without_the_evidence_section(
     """Hilft auch die Nachfrage nicht, entfällt der Abschnitt — nicht die Seite.
 
     Eine schwächere Seite ist besser als fünfzig Sekunden Arbeit, die im
-    Papierkorb landen.
+    Papierkorb landen. Der Kunde bekommt eine Verstandenseite ohne Zitate,
+    keinen Fehler — und es gibt keinen dritten Aufruf.
     """
 
     aufrufe: list[str] = []
 
     def antworte(*, system_prompt: str, payload: object, result_type: object):
         aufrufe.append(system_prompt)
-        return _teil_eins([ERFUNDEN, "Auch das steht nirgends"])
+        return _diagnose_mit([ERFUNDEN, "Auch das steht nirgends"])
 
     monkeypatch.setattr(openai_service, "parse_structured_output", antworte)
 
     with narrative(ERZAEHLUNG):
-        ergebnis = openai_service._part_one_with_enough_evidence({})
+        ergebnis = openai_service._diagnosis_with_enough_evidence({})
 
     assert len(aufrufe) == 2
     assert ergebnis.verstanden.belege == []
     # Alles andere steht unverändert: Es geht weiter, nicht kaputt.
-    assert ergebnis.kurzfassung.engpass_satz
-    assert ergebnis.zielbild.name
+    assert ergebnis.engpass_satz
+    assert ergebnis.vergleich_heute
+
+
+def test_a_rejected_quote_never_survives_the_retry(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Auch der zweite Versuch kommt nicht mit einem erfundenen Zitat durch.
+
+    Der Retry ist eine zweite Chance auf **wörtliche** Belege, keine Amnestie.
+    Sonst wäre die Nachfrage ein Weg, die Zitatprüfung zu umgehen.
+    """
+
+    aufrufe: list[str] = []
+    zitate = [[ERFUNDEN], [ECHT, ERFUNDEN, ECHT_ZWEI]]
+
+    def antworte(*, system_prompt: str, payload: object, result_type: object):
+        aufrufe.append(system_prompt)
+        return _diagnose_mit(zitate[len(aufrufe) - 1])
+
+    monkeypatch.setattr(openai_service, "parse_structured_output", antworte)
+
+    with narrative(ERZAEHLUNG):
+        ergebnis = openai_service._diagnosis_with_enough_evidence({})
+
+    assert len(aufrufe) == 2
+    behalten = [beleg.zitat for beleg in ergebnis.verstanden.belege]
+    assert ERFUNDEN not in behalten
+    assert behalten == [ECHT, ECHT_ZWEI]
 
 
 def test_no_third_call_is_ever_made(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -129,12 +176,12 @@ def test_no_third_call_is_ever_made(monkeypatch: pytest.MonkeyPatch) -> None:
 
     def antworte(*, system_prompt: str, payload: object, result_type: object):
         aufrufe.append(system_prompt)
-        return _teil_eins([ERFUNDEN])
+        return _diagnose_mit([ERFUNDEN])
 
     monkeypatch.setattr(openai_service, "parse_structured_output", antworte)
 
     with narrative(ERZAEHLUNG):
-        openai_service._part_one_with_enough_evidence({})
+        openai_service._diagnosis_with_enough_evidence({})
 
     assert len(aufrufe) == 2
 
@@ -251,17 +298,15 @@ def test_the_narrative_is_sent_only_once(monkeypatch: pytest.MonkeyPatch) -> Non
 
     def antworte(*, system_prompt: str, payload: dict[str, object], result_type: object):
         gesehen.append(payload)
-        return _teil_eins([ECHT, ECHT_ZWEI])
+        return _diagnose_mit([ECHT, ECHT_ZWEI])
 
     monkeypatch.setattr(openai_service, "parse_structured_output", antworte)
     monkeypatch.setattr(
         openai_service, "generate_result_part_two", lambda **_kwargs: None, raising=False
     )
 
-    openai_service.generate_result_part_one(
+    openai_service.generate_diagnosis(
         narrative_text=ERZAEHLUNG,
-        answers={},
-        selected_process={},
         knowledge_chunks=[],
     )
 
