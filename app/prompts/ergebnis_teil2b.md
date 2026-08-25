@@ -21,14 +21,23 @@ Bezeichnung dafür.
 
 ## Die Felder
 
+**Jeder Abschnitt hat genau eine Aufgabe.** Steht eine Aussage schon in
+einem anderen Feld, gehört sie hier nicht noch einmal hin — der Leser
+liest sie sonst dreimal und glaubt sie beim dritten Mal weniger.
+
+Schreib **kurze vollständige Sätze**. Keine Telegrammsprache, keine
+Managementsprache.
+
 **Die Zahlen unten sind Obergrenzen, keine Vorgaben.** Kein Feld muss
 gefüllt werden, damit eine Liste voll aussieht. Ein kleiner Betrieb
 bekommt eine kleine Lösung — was er nicht braucht, bleibt leer. Eine
 erfundene Zeile ist schlechter als eine fehlende.
 
-**aufgabenteilung.system** — höchstens acht Zeilen, was das System übernimmt.
+**aufgabenteilung.system** — höchstens acht Zeilen. Nur eine Frage: Was
+übernimmt das System? Keine Begründung, keine Architektur.
 
-**aufgabenteilung.mensch** — höchstens sechs Zeilen, was beim Menschen bleibt.
+**aufgabenteilung.mensch** — höchstens sechs Zeilen. Nur eine Frage: Was
+entscheidet der Mensch?
 Entscheidungen über Preis, Zusage, Qualität und Personal bleiben immer beim
 Menschen.
 
@@ -56,21 +65,27 @@ nur richtig, wenn wirklich keine dieser Stellen vorkommt.
 `titel` in wenigen Worten. `erlaeuterung` in einem Satz, der die Formulierung
 des Betriebs aufgreift, statt sie zu verallgemeinern.
 
-**wert.faellt_weg** — höchstens acht Zeilen, welche Arbeit wegfällt.
+**wert.faellt_weg** — höchstens acht Zeilen. Nur eine Frage: Welche
+konkrete unnötige Arbeit fällt weg? Keine Wiederholung der Lösung.
 
-**wert.zeit_fuer** — höchstens fünf Zeilen, wofür dadurch Raum entsteht.
+**wert.zeit_fuer** — höchstens fünf Zeilen. Nur eine Frage: Wofür entsteht
+dadurch Aufmerksamkeit?
 
 **In beiden Feldern keine einzige Zahl und keine Zeitangabe.** Kein „drei
 Stunden", kein „40 Prozent", kein „pro Woche", kein „mehrere Stunden". Du kannst
 nicht wissen, wie lange etwas dauert. Beschreibe die Arbeit, nicht ihre Dauer.
 
-**systeme** — höchstens sieben Systeme aus der Erzählung, je mit `name` und
+**systeme** — höchstens sieben Systeme aus der Erzählung. Nur eine Frage:
+Welche vorhandenen Systeme werden berührt und bleiben oder werden
+verbunden? Je mit `name` und
 `umgang`: was mit diesem System geschieht. Nur, was der Betrieb genannt hat.
 
 **architektur** — höchstens fünf Schichten mit `ebene` und `beschreibung`. Wie
 das System aufgebaut ist, nicht in welcher Reihenfolge man es baut.
 
-**umsetzung** — höchstens neun Schritte, jeder ein kurzer Satz. Der erste
+**umsetzung** — höchstens neun Schritte. Nur eine Frage: In welcher
+Reihenfolge wird die Lösung eingeführt? Jeder Schritt ein kurzer,
+vollständiger Satz. Der erste
 Schritt ist klein und in einer Woche machbar.
 
 **hebel** — was der Betrieb ändern könnte, ohne etwas zu kaufen.
@@ -78,13 +93,26 @@ Schritt ist klein und in einer Woche machbar.
 Nicht jede Verbesserung braucht Software. Manchmal ist die wirksamste
 Änderung eine andere Regel, ein anderer Preis, eine andere Reihenfolge.
 
-Höchstens vier. Jeder muss aus einem Satz folgen, den der Betrieb **selbst**
-gesagt hat — dieser Satz kommt wörtlich in `woraus`. Kopiere ihn Zeichen
-für Zeichen, so wie die Zitate in `verstanden.belege`.
+Höchstens vier, gern **keiner**. Jeder muss aus einem Satz folgen, den der
+Betrieb **selbst** gesagt hat — dieser Satz kommt wörtlich in `woraus`.
+Kopiere ihn Zeichen für Zeichen, so wie die Zitate in `verstanden.belege`.
 
-Findest du keinen, der wirklich aus der Erzählung folgt, gib eine leere
-Liste zurück. Ein erfundener Ratschlag beschädigt das Vertrauen mehr, als
-ein fehlender Abschnitt es kostet.
+**Ein Hebel darf nicht die Handarbeit verstärken, die wir gerade abschaffen.**
+Empfiehlst du eine Automation und daneben eine tägliche Kontrollrunde von
+Hand, hebst du deine eigene Empfehlung auf. Das sind keine Hebel:
+
+- „Machen Sie die heutige Handarbeit konsequenter"
+- „Führen Sie eine neue manuelle Prüfliste ein"
+- „Kontrollieren Sie jeden Morgen genauer"
+- überhaupt jede organisatorische Ersatzlösung für genau das, was die
+  empfohlene Lösung übernehmen soll
+
+Ein Hebel trägt, wenn er für sich allein wirkt: eine verbindliche Vorlage
+festlegen, Ausnahmen klar definieren, eine vorhandene Funktion endlich
+benutzen — aber nur, wenn es wirklich aus diesem Betrieb folgt.
+
+Findest du keinen, gib eine leere Liste zurück. Ein erfundener Ratschlag
+beschädigt das Vertrauen mehr, als ein fehlender Abschnitt es kostet.
 
 `idee` ist ein Satz. `warum` sagt in ein bis zwei Sätzen, was es bei ihm
 bewirkt. `ohne_technik` ist `true`, wenn es keine Software braucht.

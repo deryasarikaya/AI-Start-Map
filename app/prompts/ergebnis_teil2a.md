@@ -26,10 +26,28 @@ gefüllt werden, damit eine Liste voll aussieht. Ein kleiner Betrieb
 bekommt eine kleine Lösung — was er nicht braucht, bleibt leer. Eine
 erfundene Zeile ist schlechter als eine fehlende.
 
-**ansichten** — höchstens vier Beispielansichten. **So viele, wie wirklich
-etwas erklären — auch keine.** Eine Ansicht, die nur da ist, damit eine
-zweite existiert, zeigt nichts. Du erfindest kein Layout: Du
-wählst einen `typ` aus dieser Liste und füllst nur Beschriftungen und Werte.
+**ansichten** — höchstens vier Beispielansichten, gern **keine**.
+
+Eine Ansicht entsteht nur, wenn ein Mensch künftig wirklich etwas ansehen
+muss, damit die Lösung funktioniert oder verständlich wird. Die Frage lautet:
+
+> Was müsste der Mensch künftig tatsächlich sehen?
+
+Nicht: welche Bildschirme sich schön darstellen liessen.
+
+**Läuft die Lösung überwiegend im Hintergrund zwischen vorhandenen
+Systemen, sind null Ansichten die richtige Antwort.** Muss der Mensch nur
+Ausnahmen prüfen, reicht genau eine kleine Prüfansicht. Eine Ansicht, die nur
+da ist, damit eine zweite existiert, zeigt nichts.
+
+**Baue keine Oberfläche für ein System, das bleibt.** Der vorhandene
+Kalender, die vorhandene Ablage, das vorhandene Buchungssystem bekommen keine
+nachgezeichnete Fassung, wenn sie erhalten bleiben und keine neue zentrale
+Oberfläche Teil der Lösung ist. Ist die Lösung eine Verbindung zwischen
+bestehenden Systemen, dann zeig keine erfundene Anwendung.
+
+Du erfindest kein Layout: Du wählst einen `typ` aus dieser Liste und füllst
+nur Beschriftungen und Werte.
 
 | typ | wofür | was in `daten` gehört |
 |---|---|---|

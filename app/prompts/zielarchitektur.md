@@ -35,9 +35,47 @@ der Bausteine deiner gewählten Familien ist, wird die Antwort zurückgewiesen.
 
 ## Die Felder
 
-**selected_solution_family_ids** — die Kennungen, die du wählst. So viele, wie
-der Betrieb braucht, höchstens acht. Nimm keine Familie, deren
-`nicht_geeignet_wenn` auf diesen Betrieb zutrifft.
+**Jeder Abschnitt hat genau eine Aufgabe.** Steht eine Aussage schon in
+einem anderen Feld, gehört sie hier nicht noch einmal hin — der Leser
+liest sie sonst dreimal und glaubt sie beim dritten Mal weniger.
+
+Schreib **kurze vollständige Sätze**. Keine Telegrammsprache, keine
+Managementsprache.
+
+**selected_solution_family_ids** — die Kennungen, die du wählst.
+
+**Die kleinste Menge, die den diagnostizierten Engpass löst.** Nicht: Was
+könnte diesem Betrieb ausserdem helfen. Sondern: Was braucht er, damit genau
+dieser Engpass gelöst ist. Höchstens acht — aber acht ist eine Grenze, kein
+Ziel.
+
+Prüfe jede Familie einzeln gegen diese Frage:
+
+> Würde die Lösung ohne diese Familie weiterhin funktionieren und den
+> diagnostizierten Engpass lösen?
+
+**Ist die Antwort ja, wähle sie nicht.** Eine Familie kommt nur mit, wenn sie
+entweder einen Teil des Engpasses direkt löst oder fachlich Voraussetzung für
+eine andere gewählte Familie ist.
+
+Das reicht ausdrücklich **nicht**:
+
+- könnte später nützlich sein
+- passt grundsätzlich zu so einem Betrieb
+- gehört thematisch dazu
+- wäre eine schöne Erweiterung
+- der Kunde erwähnt E-Mails, Kunden, Termine oder Antworten
+
+**Eine Erwähnung ist keine Empfehlung.** „Wir verschicken E-Mails" begründet
+keine Marketingautomation. „Es kommen individuelle Fragen" begründet keinen
+Auskunftsassistenten — erst recht nicht, wenn der Betrieb sagt, dass genau
+diese Fragen bei einem Menschen bleiben sollen. Was der Betrieb ausdrücklich
+nicht automatisieren will, wird nicht zu einer Familie.
+
+Es gibt keine Mindestzahl. Null, eine, zwei oder acht Familien sind alle
+richtige Antworten — die Diagnose bestimmt die Grösse, nicht dieses Feld.
+
+Nimm keine Familie, deren `nicht_geeignet_wenn` auf diesen Betrieb zutrifft.
 
 **catalog_fit** — `true`, wenn der Katalog dieses Problem sinnvoll löst.
 
@@ -58,7 +96,13 @@ nicht „wir bauen etwas Neues".
 **begruendung** — ein bis zwei Sätze: warum genau diese Familien, festgemacht an
 der Diagnose. Intern, der Kunde sieht das nie.
 
-**module** — drei bis neun Bausteine der Ziellösung, kundennah formuliert.
+**module** — höchstens neun Bausteine der Ziellösung, kundennah
+formuliert. **Höchstens ist keine Vorgabe.** Löst eine einzige Familie
+den Engpass, hat diese Lösung ein Modul, und das ist eine vollständige
+Antwort. Ein Modul, das nur dazukommt, damit die Liste voller aussieht,
+ist eine Zusage, die jemand einlösen muss.
+
+Beschreib hier die **Bestandteile** — nicht noch einmal das Zielbild.
 
 Jedes Modul hat:
 
@@ -98,15 +142,19 @@ keine Marke. Er steht über allen Modulen: Wenn er auch nur eines davon
 beschreiben könnte, ist er zu klein. Wenn er auf einen Betrieb einer anderen
 Branche passen würde, ist er zu allgemein.
 
-**relevante_module** — drei bis fünf Kurznamen aus deinen Modulen, je ein bis
-drei Wörter.
+**relevante_module** — höchstens fünf Kurznamen aus deinen Modulen, je ein
+bis drei Wörter. Hat die Lösung zwei Module, stehen hier zwei.
 
-**warum_diese_loesung** — ein Absatz. Warum diese Zusammenstellung zu diesem
-Betrieb passt, an seinem Alltag festgemacht. Kein Werbeversprechen.
+**warum_diese_loesung** — ein Absatz, der **eine** Frage beantwortet:
+Warum löst genau diese Zusammenstellung den diagnostizierten Engpass?
+Festgemacht am Alltag dieses Betriebs, kein Werbeversprechen. Beschreib
+hier nicht, was künftig passiert — das steht im Zielbild.
 
 **zielbild.name** — derselbe Name wie oben.
 
-**zielbild.beschreibung** — ein bis zwei Sätze.
+**zielbild.beschreibung** — ein bis zwei Sätze, die **eine** Frage
+beantworten: Was passiert künftig als zusammenhängendes System? Nicht
+warum — das steht in `warum_diese_loesung`.
 
 **zielbild.ablauf** — zwei bis sechs Ebenen, die zeigen, wie die Arbeit
 durchläuft. Jede Ebene hat eine `art`:
@@ -120,9 +168,10 @@ durchläuft. Jede Ebene hat eine `art`:
 `label` ist die Überschrift der Ebene. `knoten` sind ein bis sechs Kästen mit
 `text` (zwei bis fünf Wörter) und `kategorie` (ein Wort).
 
-**vergleich_kuenftig** — fünf bis sieben Zeilen: derselbe Vorgang, wenn die
-Lösung steht. Zeile für Zeile vergleichbar mit dem heutigen Ablauf aus der
-Diagnose: Was heute Zeile drei ist, ist künftig Zeile drei.
+**vergleich_kuenftig** — höchstens sieben Zeilen: derselbe Vorgang, wenn
+die Lösung steht. Zeile für Zeile vergleichbar mit dem heutigen Ablauf aus
+der Diagnose: Was heute Zeile drei ist, ist künftig Zeile drei. Hier steht
+nur, **was sich ändert** — keine Begründung, keine Systembeschreibung.
 
 ## Ein Zielbild, keine Sammlung von Einzelteilen
 
