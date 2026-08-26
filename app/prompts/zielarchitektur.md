@@ -78,6 +78,22 @@ mit einem Handgriff bekommt eine Familie. Ein Betrieb, dessen Arbeit über
 sechs Stationen läuft und an jeder hängen bleibt, bekommt so viele, wie diese
 Kette braucht — und keine mehr.
 
+### Der Bestand zählt mit
+
+**Eine Station ist auch dann abgedeckt, wenn ein vorhandenes System sie schon
+kann.** Nennt die Diagnose ein solches System, wählst du dafür keine Familie —
+es sei denn, die Diagnose sagt, dass ihm genau diese Funktion fehlt. Nimm nur
+als vorhanden an, wofür die Diagnose Anhaltspunkte gibt; ein System, von dem
+nur der Name fällt, kann nichts.
+
+Vollständig sein müssen **Bestand und gewählte Familien zusammen**, nicht die
+Familien allein. Eine Familie wird erst nötig, wo danach eine echte
+funktionale Lücke bleibt — nie, um eine vorhandene Funktion daneben ein
+zweites Mal zu bauen.
+
+Gelöst wird `DIAGNOSE.engpass`. Alles Weitere in der Diagnose ist
+Zusammenhang und begründet für sich keine Familie.
+
 ### Was ausserdem nicht mitkommt
 
 Eine Familie kommt nur mit, wenn sie entweder einen Teil des Engpasses direkt
@@ -129,6 +145,10 @@ Auch dann darfst du Familien wählen. Aber die Module beschreiben dann, wie das
 **vorhandene** System eingerichtet, vereinheitlicht oder angebunden wird —
 nicht, wie ein neuer zentraler Ort entsteht. Die Lösung heißt „das Vorhandene
 konsequent nutzen" und nicht „wir bauen etwas Neues".
+
+**Dieses Feld bindet auch die Module.** Steht hier `false`, beschreibt kein
+Modul eine neue Systembasis neben der vorhandenen — nur Einrichtung,
+Vereinheitlichung und schlanke Verbindungen.
 
 **begruendung** — ein bis zwei Sätze: warum genau diese Familien, festgemacht an
 der Diagnose. Intern, der Kunde sieht das nie.

@@ -238,3 +238,44 @@ def test_the_selection_prompt_promises_only_what_the_call_delivers() -> None:
     # Und umgekehrt: Was der Aufruf mitschickt, steht auch im Prompt.
     for name in abschnitte:
         assert name in _prompt(AUSWAHL), name
+
+
+# --- Der Bestand zaehlt zur Vollstaendigkeit ------------------------------
+
+
+def test_an_existing_system_counts_towards_completeness() -> None:
+    """**Der Konflikt zwischen Vollstaendigkeit und Bestand.**
+
+    Die Vollstaendigkeitsregel verlangte fuer jede Station eine Familie. Ein
+    Betrieb mit passender Fachsoftware bekam deshalb die ganze Kette noch
+    einmal daneben gebaut.
+    """
+
+    fliess = _fliesstext(AUSWAHL)
+
+    assert "auch dann abgedeckt, wenn ein vorhandenes System sie schon" in fliess
+    assert "Bestand und gewählte Familien zusammen" in fliess
+    assert "ein System, von dem nur der Name fällt, kann nichts" in fliess
+
+
+def test_an_existing_function_is_not_built_a_second_time() -> None:
+    """Eine Familie schliesst Luecken, sie verdoppelt nichts."""
+
+    fliess = _fliesstext(AUSWAHL)
+
+    assert "erst nötig, wo danach eine echte funktionale Lücke bleibt" in fliess
+    assert "daneben ein zweites Mal zu bauen" in fliess
+    assert "Gelöst wird `DIAGNOSE.engpass`" in fliess
+
+
+def test_no_new_technology_binds_the_modules_too() -> None:
+    """`recommend_new_technology=false` ist keine Verzierung.
+
+    Ein `false` neben Modulen, die eine zweite Systembasis entwerfen, ist ein
+    Widerspruch -- und der Kunde merkt ihn.
+    """
+
+    fliess = _fliesstext(AUSWAHL)
+
+    assert "Dieses Feld bindet auch die Module" in fliess
+    assert "kein Modul eine neue Systembasis neben der vorhandenen" in fliess
