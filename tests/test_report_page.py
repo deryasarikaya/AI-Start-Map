@@ -78,7 +78,10 @@ def test_views_are_not_torn_across_pages(client: TestClient) -> None:
     bericht = client.get("/report").text
 
     assert "break-inside: avoid" in bericht
-    assert "section { break-before: page; }" in bericht
+    # **Aber kein Umbruch pro Abschnitt.** Der zwang elf Abschnitte auf elf
+    # Seiten, die meisten zu zwei Dritteln leer. Zusammenhalten ist die
+    # Regel, die gebraucht wird; eine neue Seite pro Überschrift nicht.
+    assert "section { break-before: page; }" not in bericht
 
 
 def test_without_a_result_there_is_no_report(client: TestClient) -> None:
@@ -155,7 +158,7 @@ def test_the_page_holds_without_an_order(client: TestClient, monkeypatch) -> Non
 
     assert antwort.status_code == 200
     assert "Womit wir anfangen" not in antwort.text
-    assert "So könnte das bei Ihnen aussehen" in antwort.text
+    assert "Das hätten Sie künftig vor sich" in antwort.text
 def test_the_pdf_button_opens_the_print_dialog(client: TestClient) -> None:
     """Der Knopf führt zu einer Seite, die von selbst zu drucken beginnt.
 

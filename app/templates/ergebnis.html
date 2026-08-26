@@ -82,7 +82,14 @@
 {# ═══════════════ 1 · DER KOPF ═══════════════
 
    Daneben steht sein eigener Satz. Der Moment, in dem er sich wiedererkennt,
-   entscheidet darüber, ob er den Rest überhaupt liest. #}
+   entscheidet darüber, ob er den Rest überhaupt liest.
+
+   **Ein Satz und ein Zitat, mehr nicht.** Hier stand zusätzlich der
+   Deutungsabsatz aus der Diagnose — fünf Zeilen Ursachenanalyse, bevor
+   irgendetwas gezeigt wurde. Wer wissen will, warum das so ist, findet es
+   im Ausdruck. Auf dieser Seite entscheidet er in wenigen Sekunden, ob er
+   weiterschaut, und dafür genügt: Wir haben es begriffen, hier ist Ihr
+   eigener Satz als Beweis. #}
 <header class="kopf">
   <div class="flaeche kopfraster">
     <div class="kopftext">
@@ -101,7 +108,6 @@
     <figure class="zitatkarte">
       <figcaption>Das haben wir verstanden</figcaption>
       <p class="befund">{{ e.kurzfassung.engpass_satz }}</p>
-      <p class="deutung">{{ e.verstanden.engpass_absatz }}</p>
       {% set beleg = e.verstanden.belege[0] if e.verstanden.belege else none %}
       {% if beleg %}
       <blockquote>„{{ beleg.zitat }}“</blockquote>
@@ -208,8 +214,17 @@
 {# ═══════════════ 3 · SO SIEHT DAS KONKRET AUS ═══════════════
 
    Die Beispielansichten, die das Modell für **diesen** Betrieb gewählt hat.
-   Höchstens zwei: Sie sollen zeigen, nicht erschlagen. Die Makros dafür
-   stehen seit jeher in `ansichten.html` — hier bekommen sie ihren Platz.
+   Die Makros dafür stehen seit jeher in `ansichten.html` — hier bekommen
+   sie ihren Platz.
+
+   **Das ist der Hauptteil der Seite, nicht einer von sieben Abschnitten.**
+   Der Kunde will sehen, was er bekommt: die Oberfläche, auf die er morgens
+   schaut, und die, die seine Kunden sehen. Alles andere auf dieser Seite
+   führt hierher oder folgt daraus.
+
+   Gezeigt wurden **zwei**, obwohl das Modell in jedem gemessenen Lauf drei
+   geliefert hat. Eine wurde jedes Mal weggeworfen — ausgerechnet die, die
+   den Beweis vollständig gemacht hätte.
 
    **Die Grösse folgt dem Ansichtstyp.** Ein Tagesüberblick ist eine breite
    Tabelle, eine Nachrichtenliste ist schmal. Beide in zwei gleiche Hälften
@@ -217,7 +232,7 @@
    gequetscht, neben der schmalen bleibt Luft. Welche breit ist, steht im
    Typ und muss nie geraten werden. Stellt sich eine Zuordnung als falsch
    heraus, ändert sich eine Zeile hier — nicht der Aufbau der Seite. #}
-{% set gezeigte = e.ansichten[:2] %}
+{% set gezeigte = e.ansichten[:3] %}
 {% set breite_typen = ['uebersicht', 'terminuebersicht',
                        'dokumentenablage', 'vorgangsakte'] %}
 {%- set formen = [] -%}
@@ -226,12 +241,15 @@
                             else 'schmal') -%}
 {%- endfor -%}
 {%- set form = formen | join('-') -%}
+{# Bei dreien führt die erste über die ganze Breite und die beiden
+   anderen stehen darunter nebeneinander. Drei gleich breite Spalten
+   wären dreimal zu schmal für eine Tabelle. #}
 {% if gezeigte %}
 <section class="konkret">
   <div class="flaeche">
-    <h2>So könnte das bei Ihnen aussehen</h2>
-    <p class="lauftext">Beispielbildschirme mit erfundenen Namen und Objekten.
-    Der Aufbau ist gemeint, nicht die Inhalte.</p>
+    <h2>Das hätten Sie künftig vor sich</h2>
+    <p class="lauftext">Die Oberflächen, auf die Sie und Ihr Team schauen
+    würden. Namen und Objekte darin sind erfunden — der Aufbau ist gemeint.</p>
     {# `breit-schmal` heisst: breite Ansicht links, schmale rechts. #}
     <div class="ansichtspaar ansichtspaar--{{ gezeigte | length }}{% if gezeigte | length == 2 %} ansichtspaar--{{ form }}{% endif %}">
       {% for v in gezeigte %}
@@ -261,7 +279,7 @@
 {% if e.module %}
 <section class="bausteine">
   <div class="flaeche">
-    <h2>Das würden wir für Sie ergänzen</h2>
+    <h2>Das würden wir für Sie umsetzen</h2>
     <div class="bausteinraster">
       {% for modul in e.module %}
       <article class="baustein">
@@ -299,12 +317,9 @@
 {% if e.aufgabenteilung.system or e.aufgabenteilung.mensch %}
 <section class="teilung">
   <div class="flaeche">
-    <h2>Was künftig automatisch liefe — und was bei Ihnen bliebe</h2>
-    {# Kein „nichts davon läuft schon": Das sagt ihm, was er nicht hat.
-       Dieselbe Zeitform, aber als Aussicht statt als Mangel. #}
-    <p class="lauftext">So wäre die Arbeit verteilt, wenn die Lösung steht:
-    Das Wiederkehrende übernimmt das System, die Entscheidungen bleiben
-    bei Ihnen.</p>
+    {# Der Satz gehört in die Überschrift, nicht in einen Absatz darunter.
+       Ein erklärender Vorspann klingt hier wie eine Rechtfertigung. #}
+    <h2>Das läuft künftig automatisch — das entscheiden Sie</h2>
     <div class="spalten">
       {% if e.aufgabenteilung.system %}
       <div class="spalte spalte--system">
@@ -366,11 +381,13 @@
 <section class="abschluss">
   <div class="flaeche">
     <h2>Möchten Sie so arbeiten?</h2>
-    <p class="bruecke">Wir können diese Lösung mit Ihnen konkret auf Ihren
-    Betrieb und Ihre vorhandenen Systeme übertragen.</p>
+    <p class="bruecke">Wir können genau diese Lösung für Ihren Betrieb
+    umsetzen.</p>
+    {# Nicht noch einmal daran erinnern, was er schon hat — an dieser
+       Stelle soll er wollen, nicht abwägen. #}
     <p class="versprechen">
       <svg aria-hidden="true"><use href="#i-schutz"/></svg>
-      <span>Ihre vorhandenen Systeme bleiben. Entscheidungen bleiben bei Ihnen.</span>
+      <span>Sie behalten die Kontrolle. Um die Umsetzung kümmern wir uns.</span>
     </p>
     <div class="knoepfe">
       <a class="knopf knopf--haupt" href="{{ gespraechs_adresse() }}">

@@ -19,11 +19,15 @@
 <style>
 /* Nur fürs Drucken. Die Bildschirmdarstellung erbt alles aus `.ergebnis`. */
 @media print {
-  /* Jeder Abschnitt beginnt auf einer neuen Seite, wenn er sonst
-     auseinandergerissen würde. `break-inside` hält Ansichten und Kacheln
-     zusammen — eine halbe Ansicht über zwei Seiten wäre unlesbar. */
-  section { break-before: page; }
-  section:first-of-type { break-before: auto; }
+  /* **Kein Umbruch pro Abschnitt.** `break-before: page` auf jedem
+     `section` zwang elf Abschnitte auf elf Seiten — die meisten davon zu
+     zwei Dritteln leer. Ein Abschnitt darf die Seite auffüllen, auf der er
+     anfängt.
+
+     `break-inside` hält zusammen, was zusammengehört: eine halbe Ansicht
+     über zwei Seiten wäre unlesbar. Das ist die Regel, die wirklich
+     gebraucht wird. */
+  section { break-inside: auto; }
   .mock, .card, .layer, .limit, .q, .sys, .modgroup, .doing { break-inside: avoid; }
   .two, .flow, .frow { break-inside: avoid; }
   h1, h2, h3 { break-after: avoid; }

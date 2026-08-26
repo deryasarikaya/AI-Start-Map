@@ -275,6 +275,11 @@
  * daneben ist um ein Vielfaches höher als zwei Zeilen Text. Keine
  * Einstellung an diesem Raster konnte das beheben, weil der Aufbau selbst
  * die Lücke erzeugt hat. */
+/* Der Hauptteil der Seite: mehr Luft, grössere Überschrift. Hier
+ * entscheidet sich, ob jemand sich in der Lösung wiedererkennt — alles
+ * andere auf der Seite führt hierher oder folgt daraus. */
+.tafel .konkret { padding: 56px 0 60px; }
+.tafel .konkret > .flaeche > h2 { font-size: clamp(1.8rem, 2.6vw, 2.3rem); }
 .tafel .ansichtspaar {
   display: grid; gap: 28px; align-items: start;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -291,6 +296,11 @@
 .tafel .ansichtspaar--schmal-breit {
   grid-template-columns: minmax(0, 38fr) minmax(0, 62fr);
 }
+/* Drei Ansichten: die erste über die volle Breite, die beiden anderen
+ * darunter nebeneinander. Drei gleich breite Spalten wären dreimal zu
+ * schmal für eine Tabelle. */
+.tafel .ansichtspaar--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.tafel .ansichtspaar--3 > :first-child { grid-column: 1 / -1; }
 /* Zwei gleichartige teilen sich die Fläche; das ist der Normalfall
    und steht bereits oben. Keine erzwungene gleiche Höhe: Die schmale
    Ansicht darf früher enden, statt mit Luft aufgefüllt zu werden. */
