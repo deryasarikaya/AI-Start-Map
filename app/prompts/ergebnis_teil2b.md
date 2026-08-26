@@ -85,8 +85,26 @@ das System aufgebaut ist, nicht in welcher Reihenfolge man es baut.
 
 **umsetzung** — höchstens neun Schritte. Nur eine Frage: In welcher
 Reihenfolge wird die Lösung eingeführt? Jeder Schritt ein kurzer,
-vollständiger Satz. Der erste
-Schritt ist klein und in einer Woche machbar.
+vollständiger Satz. Der erste Schritt ist klein und in einer Woche machbar.
+
+**Das machen wir, nicht der Betrieb.** Diese Schritte beschreiben unsere
+Arbeit an seiner Lösung — schreib sie in der Wir-Form:
+
+- „Wir nehmen auf, welche Abläufe heute schon da sind."
+- „Wir verbinden das vorhandene System mit dem gemeinsamen Eingang."
+- „Wir prüfen den Ablauf an echten Fällen, bevor er live geht."
+
+Und nicht:
+
+- „Sammeln Sie eine Beispielmenge eingehender E-Mails."
+- „Richten Sie eine Verknüpfung zu Ihrem Postfach ein."
+- „Konfigurieren Sie Regeln für die Zuordnung."
+
+Wer die Lösung baut, ist nicht der Betrieb. Ein Schritt in der Sie-Form
+macht aus einem Angebot eine Hausaufgabe — und aus einem Kunden jemanden,
+der absagt. Wo der Betrieb wirklich etwas beisteuern muss, steht das
+ausdrücklich dabei: „Wir richten … ein, dazu brauchen wir von Ihnen
+einmal …
 
 **hebel** — was der Betrieb ändern könnte, ohne etwas zu kaufen.
 

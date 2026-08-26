@@ -279,3 +279,32 @@ def test_no_new_technology_binds_the_modules_too() -> None:
 
     assert "Dieses Feld bindet auch die Module" in fliess
     assert "kein Modul eine neue Systembasis neben der vorhandenen" in fliess
+
+
+# --- Die Umsetzung ist unsere Arbeit -------------------------------------
+
+
+def test_the_rollout_steps_are_our_work_not_the_customers() -> None:
+    """**Wer baut, ist nicht der Betrieb.**
+
+    Aus dem Live-Lauf: „Sammeln Sie eine Beispielmenge eingehender E-Mails
+    und Fälle zum Test." Das macht aus einem Angebot eine Hausaufgabe — und
+    aus einem Kunden jemanden, der absagt.
+    """
+
+    fliess = _fliesstext(REST)
+
+    assert "Das machen wir, nicht der Betrieb" in fliess
+    assert "schreib sie in der Wir-Form" in fliess
+    assert "macht aus einem Angebot eine Hausaufgabe" in fliess
+
+
+def test_what_the_customer_must_contribute_is_named() -> None:
+    """Wo er wirklich etwas beisteuern muss, steht es ausdrücklich dabei.
+
+    Sonst wäre die Wir-Form eine Verschleierung statt einer Zusage.
+    """
+
+    fliess = _fliesstext(REST)
+
+    assert "dazu brauchen wir von Ihnen einmal" in fliess
