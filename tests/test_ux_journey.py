@@ -138,7 +138,13 @@ def test_the_two_ui_decisions_still_hold() -> None:
     # Erzählen statt tippen: Start und Stopp gehören zusammen.
     assert "data-voice-start" in interview
     assert "data-voice-stop" in interview
-    # Gedruckt wird über den Browser, nicht über eine eigene Schaltfläche —
-    # deshalb ein Druck-Stylesheet und kein `window.print()`.
-    assert "@media print" in report
-    assert "window.print()" not in report
+    # Gedruckt wird über den Browser, deshalb ein Druck-Stylesheet.
+    assert '@media print' in report
+    # Von selbst druckt die Seite nur auf dem Weg vom Knopf. Wer die
+    # Adresse ohne `?drucken=1` aufruft, will lesen und nicht drucken —
+    # `window.print()` steht deshalb hinter der Bedingung und nicht frei
+    # im Dokument.
+    assert 'window.print()' in report
+    assert '{% if sofort_drucken %}' in report
+    vor_der_bedingung = report.split('{% if sofort_drucken %}')[0]
+    assert 'window.print()' not in vor_der_bedingung

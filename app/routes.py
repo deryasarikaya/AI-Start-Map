@@ -385,6 +385,9 @@ def show_report(
     gedruckt wird im Browser. Dieselben Daten wie die Ergebnisseite, nur alle
     elf Abschnitte statt vier — es wird nichts nachgeladen und nichts neu
     gerechnet.
+
+    Mit `?drucken=1` öffnet die Seite den Druckdialog von selbst; das ist
+    der Weg vom Knopf. Ohne den Zusatz bleibt sie eine Seite zum Lesen.
     """
 
     repository.get_session_or_404(database_session, session_id)
@@ -397,6 +400,7 @@ def show_report(
         context={
             "e": ergebnis,
             "auswertungsdatum": date.today().strftime("%d.%m.%Y"),
+            "sofort_drucken": request.query_params.get("drucken") == "1",
         },
     )
 

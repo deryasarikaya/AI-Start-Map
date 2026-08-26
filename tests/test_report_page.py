@@ -142,3 +142,83 @@ def test_the_page_holds_without_an_order(client: TestClient, monkeypatch) -> Non
     assert antwort.status_code == 200
     assert "Womit wir anfangen" not in antwort.text
     assert "So könnte das bei Ihnen aussehen" in antwort.text
+def test_the_pdf_button_opens_the_print_dialog(client: TestClient) -> None:
+    """Der Knopf führt zu einer Seite, die von selbst zu drucken beginnt.
+
+    Vorher lag der Weg beim Kunden: Er musste die Druckansicht sehen und
+    von allein an Strg+P denken. Der Knopf verspricht ein PDF — also muss
+    der Dialog kommen, ohne dass jemand nachhilft.
+    """
+
+    walk_to_the_result(client, ERZAEHLT)
+
+    seite = client.get("/results").text
+    assert '/report?drucken=1' in seite
+
+    druckansicht = client.get("/report?drucken=1")
+
+    assert druckansicht.status_code == 200
+    assert "window.print()" in druckansicht.text
+
+
+def test_the_report_without_the_flag_stays_a_page_to_read(
+    client: TestClient,
+) -> None:
+    """Dieselbe Adresse ohne `?drucken=1` druckt nicht von selbst.
+
+    Wer den Link weitergibt oder ihn aus dem Verlauf wieder aufruft, will
+    lesen. Ein Druckdialog vor der Nase wäre dort ein Fehler.
+    """
+
+    walk_to_the_result(client, ERZAEHLT)
+
+    druckansicht = client.get("/report")
+
+    assert druckansicht.status_code == 200
+    assert "window.print()" not in druckansicht.text
+
+
+def test_the_conversation_button_carries_subject_and_text(
+    client: TestClient, monkeypatch
+) -> None:
+    """Der Gesprächsknopf öffnet eine vorbereitete Mail, kein leeres Fenster.
+
+    Empfänger, Betreff und ein vorgeschriebener Text stehen in der Adresse
+    und sind ordentlich kodiert — ein rohes Leerzeichen oder Umlaut darin
+    bricht den Link in manchen Mailprogrammen.
+    """
+
+    monkeypatch.setenv("KONTAKT_ADRESSE", "hallo@example.org")
+    walk_to_the_result(client, ERZAEHLT)
+
+    seite = client.get("/results").text
+
+    assert 'href="mailto:hallo@example.org?subject=' in seite
+    assert "AI%20Start%20Map" in seite
+    assert "Gespr%C3%A4ch%20zu%20meiner%20Auswertung" in seite
+    # Kaufmännisches Und als `&amp;`: So gehört es im HTML, der Browser
+    # macht daraus wieder ein einfaches Zeichen.
+    assert "&amp;body=" in seite
+    # Kein leerer Knopf mehr: `mailto:` allein war der alte Zustand.
+    assert 'href="mailto:"' not in seite
+
+
+def test_the_conversation_button_holds_without_a_configured_address(
+    client: TestClient, monkeypatch
+) -> None:
+    """Ohne hinterlegte Adresse bleibt der Knopf brauchbar.
+
+    Erfunden wird nichts — eine ausgedachte Adresse schickte die Anfragen
+    des Kunden ins Leere. Das Mailprogramm öffnet sich trotzdem, mit
+    Betreff und Text und leerem Empfängerfeld.
+    """
+
+    monkeypatch.delenv("KONTAKT_ADRESSE", raising=False)
+    walk_to_the_result(client, ERZAEHLT)
+
+    seite = client.get("/results").text
+
+    assert 'href="mailto:?subject=' in seite
+    # Kaufmännisches Und als `&amp;`: So gehört es im HTML, der Browser
+    # macht daraus wieder ein einfaches Zeichen.
+    assert "&amp;body=" in seite

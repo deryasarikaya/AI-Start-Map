@@ -75,5 +75,15 @@
 <div class="wrap foot">AI Start Map · Auswertung vom {{ auswertungsdatum }} auf
 Grundlage Ihrer eigenen Beschreibung</div>
 
+{% if sofort_drucken %}
+{# Nur wenn der Knopf „Vollständige Auswertung als PDF" hierher geführt
+   hat. Wer die Adresse ohne `?drucken=1` aufruft, bekommt eine Seite zum
+   Lesen und keinen Dialog vor die Nase. Nach `load`, damit im Ausdruck
+   nichts fehlt, was noch am Laden war. #}
+<script>
+  window.addEventListener('load', function () { window.print(); });
+</script>
+{% endif %}
+
 </body>
 </html>

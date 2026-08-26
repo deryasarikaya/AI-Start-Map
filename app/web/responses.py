@@ -6,7 +6,9 @@ aus `routes.py` hierher verschoben.
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
+from urllib.parse import quote
 
 from fastapi import Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -16,6 +18,44 @@ from app.schemas import customer_plain_text
 
 templates = Jinja2Templates(directory=Path(__file__).resolve().parents[1] / "templates")
 templates.env.filters["customer_text"] = customer_plain_text
+
+GESPRAECHS_BETREFF = 'AI Start Map – Gespräch zu meiner Auswertung'
+GESPRAECHS_TEXT = (
+    'Guten Tag,\n'
+    '\n'
+    'ich habe meine Auswertung gesehen und möchte über die Umsetzung\n'
+    'sprechen.\n'
+    '\n'
+    'Mein Betrieb:\n'
+    'Womit ich anfangen möchte:\n'
+    'So bin ich erreichbar:\n'
+    '\n'
+    'Freundliche Grüße\n'
+)
+
+
+def gespraechs_adresse() -> str:
+    """Der Knopf „Genau so möchte ich arbeiten" als fertige mailto-Adresse.
+
+    Betreff und ein vorgeschriebener Text hängen mit dran: Wer auf den
+    Knopf drückt, hat gerade seine eigene Auswertung gelesen und soll
+    nicht vor einem leeren Fenster sitzen.
+
+    Die Empfängeradresse steht in der Umgebungsvariable
+    `KONTAKT_ADRESSE` und **nicht** im Code — eine erfundene Adresse
+    würde die Anfragen ins Leere schicken. Fehlt sie, öffnet sich das
+    Mailprogramm trotzdem, nur mit leerem Empfängerfeld.
+    """
+
+    empfaenger = os.getenv('KONTAKT_ADRESSE', '').strip()
+    return (
+        f'mailto:{quote(empfaenger, safe="@")}'
+        f'?subject={quote(GESPRAECHS_BETREFF)}'
+        f'&body={quote(GESPRAECHS_TEXT)}'
+    )
+
+
+templates.env.globals['gespraechs_adresse'] = gespraechs_adresse
 
 PREVIEW_NOTICE = (
     "Beispielangaben zur Veranschaulichung \u2013 hier stehen sp\u00e4ter deine "

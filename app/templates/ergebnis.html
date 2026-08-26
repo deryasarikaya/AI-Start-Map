@@ -397,14 +397,16 @@
       <span>Ihre vorhandenen Systeme bleiben. Entscheidungen bleiben bei Ihnen.</span>
     </p>
     <div class="knoepfe">
-      <a class="knopf knopf--haupt" href="mailto:">
+      <a class="knopf knopf--haupt" href="{{ gespraechs_adresse() }}">
         <span>Genau so möchte ich arbeiten</span>
         <svg aria-hidden="true"><use href="#i-pfeil"/></svg>
       </a>
       {# Ohne Sitzungskennung in der Adresse: Der oeffentliche Weg
          kennt die Sitzung aus dem Cookie, und eine Kennung im
          ausgelieferten Text waere eine, die jemand weitergibt. #}
-      <a class="knopf knopf--neben" href="/report">
+      {# `?drucken=1` öffnet drüben gleich den Druckdialog. Ohne den
+         Zusatz bleibt dieselbe Adresse eine Seite zum Lesen. #}
+      <a class="knopf knopf--neben" href="/report?drucken=1">
         <svg aria-hidden="true"><use href="#i-pdf"/></svg>
         <span>Vollständige Auswertung als PDF</span>
       </a>
