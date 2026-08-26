@@ -34,8 +34,18 @@
   {% endif %}
   {% if v.daten.kennzahlen %}
   <div class="stats">
+    {# Ein Klammerzusatz wie „(Beispiel)" gehoert nicht in die grosse
+       Zahl. Er bleibt stehen, nur kleiner — sonst liest die Kachel
+       sich als „12 (Beispiel)" statt als „12". #}
     {% for k in v.daten.kennzahlen %}
-    <div class="stat"><b>{{ k.wert }}</b><small>{{ k.label }}</small></div>
+    {%- set teile = k.wert.split('(', 1) -%}
+    <div class="stat">
+      <b>{{ teile[0] | trim }}</b>
+      {% if teile | length > 1 %}
+      <span class="zusatz">({{ teile[1] }}</span>
+      {% endif %}
+      <small>{{ k.label }}</small>
+    </div>
     {% endfor %}
   </div>
   {% endif %}
@@ -57,7 +67,7 @@
   {% if v.daten.abzeichen %}
   <div class="akte-head">
     <div><b>{{ v.titel }}</b></div>
-    <span class="badge">{{ v.daten.abzeichen.text }}</span>
+    <span class="badge {{ statusklasse(v.daten.abzeichen.status) }}">{{ v.daten.abzeichen.text }}</span>
   </div>
   {% endif %}
   <div class="kv">

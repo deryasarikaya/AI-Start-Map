@@ -38,9 +38,20 @@
 /* Eine Flaeche, ein Mass. Alle Abschnitte teilen sich dieselbe Breite,
  * damit die Tafel als eine Flaeche gelesen wird und nicht als Stapel. */
 .tafel .flaeche { width: min(1240px, 100% - 48px); margin-inline: auto; }
-.tafel section { padding: 52px 0; }
-.tafel h2 { font-size: 1.55rem; letter-spacing: -.02em; margin: 0 0 6px; }
-.tafel h3 { font-size: 1rem; margin: 0; }
+/* Enger gesetzt: Die Tafel soll als eine Flaeche gelesen werden.
+ * Zu viel Luft macht daraus wieder einen Stapel Abschnitte. */
+.tafel section { padding: 40px 0; }
+/* `styles.css` setzt h1/h2/h3 global auf Georgia und dunkle Tinte.
+ * Auf der Tafel gilt eine Schrift fuer alles — und im dunklen Kopf
+ * waere die dunkle Tinte unlesbar. */
+.tafel h1, .tafel h2, .tafel h3 {
+  font-family: inherit; color: inherit; text-wrap: balance;
+}
+.tafel h2 {
+  font-size: 1.55rem; font-weight: 650; letter-spacing: -.02em;
+  margin: 0 0 6px; line-height: 1.25;
+}
+.tafel h3 { font-size: 1rem; font-weight: 620; margin: 0; }
 .tafel .lauftext { color: var(--tinte-leise); max-width: 62ch; margin: 0 0 26px; }
 
 .tafel .hinweisband {
@@ -65,7 +76,8 @@
 }
 .tafel .kopf h1 {
   margin: 0 0 14px; font-size: clamp(1.9rem, 3.4vw, 2.7rem);
-  line-height: 1.15; letter-spacing: -.025em;
+  font-weight: 680; line-height: 1.15; letter-spacing: -.025em;
+  color: #fff;
 }
 .tafel .unterzeile {
   margin: 0; font-size: 1.06rem; color: #cfe0fb; max-width: 56ch;
@@ -103,16 +115,25 @@
  * Breite genauso wie fuenf. */
 .tafel .band { padding-top: 40px; }
 .tafel .bandkopf { text-align: center; margin-bottom: 26px; }
+/* Eine durchgehende Linie hinter den Karten: Der Blick liest einen
+ * Weg statt fuenf Kaesten. Die Karten liegen darauf. */
 .tafel .stufen {
-  list-style: none; margin: 0; padding: 22px; display: flex;
-  align-items: stretch; gap: 6px; background: var(--flaeche);
-  border: 1px solid var(--linie); border-radius: 18px;
-  box-shadow: var(--schatten); overflow-x: auto;
+  list-style: none; margin: 0; padding: 34px 26px 26px; display: flex;
+  align-items: stretch; gap: 4px; background: var(--flaeche);
+  border: 1px solid var(--linie); border-radius: 20px;
+  box-shadow: var(--schatten); overflow-x: auto; position: relative;
+}
+.tafel .stufen::before {
+  content: ""; position: absolute; left: 56px; right: 56px; top: 98px;
+  height: 2px; background: linear-gradient(90deg,
+    #dbe6f8 0%, var(--marke) 22%, var(--marke) 78%, #cdeadd 100%);
+  opacity: .45;
 }
 .tafel .bandstufe {
-  flex: 1 1 0; min-width: 168px; position: relative;
+  flex: 1 1 0; min-width: 170px; position: relative; z-index: 1;
   background: var(--flaeche); border: 1px solid var(--linie);
-  border-radius: var(--rund); padding: 26px 16px 18px; text-align: center;
+  border-radius: var(--rund); padding: 26px 15px 18px; text-align: center;
+  box-shadow: 0 1px 2px rgb(15 23 42 / .05);
 }
 .tafel .bandnummer {
   position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
@@ -133,13 +154,64 @@
   background: var(--grund); border-radius: 8px; padding: 5px 9px;
 }
 /* Die Schluesselstelle traegt die Lösung — sie darf man sehen. */
+/* Hier passiert das Neue. Der Rest des Bandes ist Bestand oder
+ * Folge — diese eine Stelle traegt die Loesung, also sieht man sie. */
 .tafel .bandstufe--schluessel {
-  background: var(--marke-hell); border-color: #bfd3f7;
+  background: linear-gradient(165deg, #1d4ed8 0%, #123a86 100%);
+  border-color: #123a86; color: #fff;
+  box-shadow: 0 10px 26px -8px rgb(29 78 216 / .55);
+  transform: translateY(-6px); padding-bottom: 24px;
 }
+.tafel .bandstufe--schluessel .bandsymbol { color: #fff; }
+.tafel .bandstufe--schluessel .bandnummer {
+  background: #fff; color: var(--marke-tief);
+}
+.tafel .bandstufe--schluessel .knoten li {
+  background: rgb(255 255 255 / .16); color: #e8f0fe;
+}
+/* Was hinten herauskommt, ist das Ergebnis — gruen, nicht blau. */
+.tafel .bandstufe--ausgang { border-color: #a7f3d0; background: var(--gut-hell); }
+.tafel .bandstufe--ausgang .bandsymbol { color: var(--gut); }
+.tafel .bandstufe--ausgang .bandnummer { background: var(--gut); }
+.tafel .bandstufe--ausgang .knoten li { background: #fff; }
+/* Der Pfeil sitzt auf der Hoehe der Linie, nicht in der Mitte der
+ * Karte — sonst laufen zwei Wege nebeneinander. */
 .tafel .pfeil {
-  flex: 0 0 26px; display: grid; place-items: center; color: #94a3b8;
+  flex: 0 0 30px; display: flex; justify-content: center;
+  align-items: flex-start; padding-top: 62px; color: var(--marke);
 }
-.tafel .pfeil svg { width: 22px; height: 22px; }
+.tafel .pfeil svg { width: 20px; height: 20px; opacity: .6; }
+
+/* ── Heute und kuenftig ───────────────────────────────────────────────
+ * Ein Raster mit zwei Spalten, in dem jede Zeile ihr Gegenstueck
+ * neben sich hat. Der Blick liest quer, nicht zweimal laengs. */
+.tafel .vergleich { background: var(--flaeche); }
+.tafel .gegenueber {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 20px; margin-top: 22px; align-items: stretch;
+}
+.tafel .spaltenkopf {
+  font-size: .78rem; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; padding-bottom: 4px;
+}
+.tafel .spaltenkopf--heute { color: #b91c1c; }
+.tafel .spaltenkopf--kuenftig { color: var(--gut); }
+.tafel .vzeile {
+  display: grid; grid-template-columns: 20px 1fr; gap: 11px;
+  align-items: start; padding: 13px 16px; border-radius: var(--rund);
+  font-size: .92rem; line-height: 1.45;
+}
+.tafel .vzeile svg { width: 18px; height: 18px; margin-top: 2px; }
+.tafel .vzeile--heute {
+  background: #fef2f2; color: #7f1d1d; border: 1px solid #fecaca;
+}
+.tafel .vzeile--heute svg { color: #dc2626; }
+.tafel .vzeile--kuenftig {
+  background: var(--gut-hell); color: #064e3b; border: 1px solid #a7f3d0;
+}
+.tafel .vzeile--kuenftig svg { color: var(--gut); }
+/* Sind die Listen ungleich lang, haelt eine leere Zelle die Paarung. */
+.tafel .vzeile--leer { border: 1px dashed var(--linie); }
 
 /* ── Beispielansichten ────────────────────────────────────────────────
  * Eine Ansicht bekommt die volle Breite, zwei teilen sie sich. Mehr als
@@ -152,12 +224,31 @@
   overflow: hidden;
 }
 .tafel .ansichtsplatz > * { max-width: 100%; }
+.tafel .ansichtsplatz { background: var(--flaeche); color: var(--tinte); }
+.tafel .ansichtsplatz .bar { background: #eef2f7; }
+.tafel .ansichtsplatz .dot { background: #c3cedb; }
+.tafel .ansichtsplatz .screen { border-color: var(--linie); }
+/* Der Klammerzusatz an einer Kennzahl: da, aber leise. */
+.tafel .ansichtsplatz .stat .zusatz {
+  display: block; font-size: .68rem; color: var(--tinte-leise);
+  margin-top: 1px;
+}
+/* Das Abzeichen folgt seinem Status statt immer bernsteinfarben
+ * zu sein — ein offener Fall sieht sonst aus wie ein wartender. */
+.tafel .ansichtsplatz .badge.red { background: #dc2626; }
+.tafel .ansichtsplatz .badge.amber { background: #d97706; }
+.tafel .ansichtsplatz .badge.green { background: var(--gut); }
+.tafel .ansichtsplatz .badge.grey { background: #64748b; }
+.tafel .ansichtsplatz h3 { font-family: inherit; }
 
 /* ── Bausteine ────────────────────────────────────────────────────────*/
 .tafel .bausteine { background: var(--flaeche); }
+/* `auto-fill` statt `auto-fit`: Bei sechs Karten bleibt die letzte
+ * Reihe in derselben Spaltenbreite stehen, statt sich auf die halbe
+ * Seite zu dehnen. */
 .tafel .bausteinraster {
-  display: grid; gap: 18px; margin-bottom: 22px;
-  grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
+  display: grid; gap: 16px; margin-bottom: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
 }
 .tafel .baustein {
   border: 1px solid var(--linie); border-radius: var(--rund);
@@ -166,9 +257,17 @@
 .tafel .bausteinsymbol {
   width: 26px; height: 26px; color: var(--marke); margin-bottom: 12px;
 }
-.tafel .baustein h3 { margin-bottom: 7px; line-height: 1.35; }
+.tafel .baustein h3 {
+  margin-bottom: 7px; line-height: 1.3; font-size: 1.02rem;
+}
 .tafel .baustein p {
-  margin: 0; font-size: .9rem; color: var(--tinte-schwach); line-height: 1.55;
+  margin: 0; font-size: .875rem; color: var(--tinte-leise); line-height: 1.5;
+}
+/* Die Gruppe sagt, wozu der Baustein gehoert — als leise Zeile
+ * ueber dem Namen, nicht als weitere Ueberschrift. */
+.tafel .bausteingruppe {
+  display: block; font-size: .72rem; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--marke); margin-bottom: 6px;
 }
 .tafel .baustein--spaeter { background: #f8fafc; }
 .tafel .stufe {
@@ -217,12 +316,18 @@
 .tafel .spalte--system svg { color: var(--gut); }
 .tafel .spalte--mensch svg { color: var(--marke); }
 
-.tafel .grenzen, .tafel .versprechen {
-  display: flex; gap: 11px; align-items: center; justify-content: center;
-  margin: 22px 0 0; font-size: .92rem; color: var(--tinte-schwach);
+.tafel .grenzen {
+  display: grid; gap: 9px; margin: 22px 0 0;
+  justify-items: center;
 }
-.tafel .grenzen svg, .tafel .versprechen svg {
-  width: 19px; height: 19px; color: var(--gut); flex: none;
+.tafel .grenze, .tafel .versprechen {
+  display: flex; gap: 11px; align-items: flex-start;
+  justify-content: center; margin: 0; font-size: .92rem;
+  color: var(--tinte-schwach); text-align: left;
+}
+.tafel .grenze b { display: block; color: var(--tinte); }
+.tafel .grenze svg, .tafel .versprechen svg {
+  width: 19px; height: 19px; color: var(--gut); flex: none; margin-top: 2px;
 }
 
 /* ── So wuerden wir anfangen ──────────────────────────────────────────*/
@@ -274,6 +379,10 @@
   .tafel .kopfraster,
   .tafel .spalten,
   .tafel .ansichtspaar--2 { grid-template-columns: minmax(0, 1fr); }
+  /* Gepaart hat auf schmalen Schirmen keinen Sinn — nebeneinander
+     passt nichts mehr. Dann stehen die Zeilen abwechselnd. */
+  .tafel .gegenueber { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .tafel .spaltenkopf { margin-top: 10px; }
   .tafel .stufen { flex-direction: column; }
   .tafel .pfeil { flex: 0 0 24px; }
   .tafel .pfeil svg { transform: rotate(90deg); }

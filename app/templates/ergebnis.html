@@ -54,6 +54,9 @@
     <path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Zm0 18V12m8-4.5L12 12 4 7.5"/>
   </symbol>
   <symbol id="i-haken" viewBox="0 0 24 24"><path d="m4 12.5 5 5L20 6.5"/></symbol>
+  <symbol id="i-kreuz" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="9"/><path d="m9 9 6 6m0-6-6 6"/>
+  </symbol>
   <symbol id="i-person" viewBox="0 0 24 24">
     <circle cx="12" cy="8" r="3.5"/><path d="M5 20v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1"/>
   </symbol>
@@ -141,6 +144,44 @@
 {% endif %}
 
 
+{# ═══════════════ 2b · HEUTE UND KÜNFTIG ═══════════════
+
+   Direkt nach dem Band: Der Kunde hat gerade gesehen, wie es laufen könnte,
+   und liest jetzt Zeile für Zeile, was sich dadurch ändert.
+
+   **Gepaart, nicht als zwei Listen.** Der Prompt verlangt, dass Zeile drei
+   künftig dasselbe beschreibt wie Zeile drei heute — also stehen sie
+   nebeneinander, und der Blick liest quer statt zweimal längs. Sind die
+   Listen ungleich lang, wird nur so weit gepaart, wie beide reichen; der
+   Rest steht darunter. #}
+{% if e.vergleich.heute and e.vergleich.kuenftig %}
+<section class="vergleich">
+  <div class="flaeche">
+    <h2>Was sich dadurch ändert</h2>
+    <div class="gegenueber">
+      <div class="spaltenkopf spaltenkopf--heute">Heute</div>
+      <div class="spaltenkopf spaltenkopf--kuenftig">Mit AI Start Map</div>
+      {%- set links = e.vergleich.heute -%}
+      {%- set rechts = e.vergleich.kuenftig -%}
+      {%- set zeilen = [links | length, rechts | length] | max -%}
+      {% for i in range(zeilen) %}
+      {% if i < links | length %}
+      <div class="vzeile vzeile--heute">
+        <svg aria-hidden="true"><use href="#i-kreuz"/></svg><span>{{ links[i] }}</span>
+      </div>
+      {% else %}<div class="vzeile vzeile--leer"></div>{% endif %}
+      {% if i < rechts | length %}
+      <div class="vzeile vzeile--kuenftig">
+        <svg aria-hidden="true"><use href="#i-haken"/></svg><span>{{ rechts[i] }}</span>
+      </div>
+      {% else %}<div class="vzeile vzeile--leer"></div>{% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+
 {# ═══════════════ 3 · SO SIEHT DAS KONKRET AUS ═══════════════
 
    Die Beispielansichten, die das Modell für **diesen** Betrieb gewählt hat.
@@ -155,7 +196,11 @@
     Der Aufbau ist gemeint, nicht die Inhalte.</p>
     <div class="ansichtspaar ansichtspaar--{{ gezeigte | length }}">
       {% for v in gezeigte %}
-      <div class="ansichtsplatz">{{ ansichten.ansicht(v) }}</div>
+      {# `ergebnis` ist hier kein Zufall: Die Gestaltung der
+         Beispielansichten haengt seit jeher an dieser Klasse. Ohne
+         sie stuenden Kennzahlen, Zeilen und Abzeichen als nackter
+         Text da. #}
+      <div class="ansichtsplatz ergebnis">{{ ansichten.ansicht(v) }}</div>
       {% endfor %}
     </div>
   </div>
@@ -172,6 +217,9 @@
       {% for modul in e.module %}
       <article class="baustein{% if modul.stufe and modul.stufe != 'jetzt' %} baustein--spaeter{% endif %}">
         <svg class="bausteinsymbol" aria-hidden="true"><use href="#i-baustein"/></svg>
+        {% if modul.gruppe %}
+        <span class="bausteingruppe">{{ modul.gruppe }}</span>
+        {% endif %}
         <h3>{{ modul.name }}</h3>
         <p>{{ modul.beschreibung }}</p>
         {% set beschriftung = {'jetzt': 'Jetzt',
@@ -256,11 +304,18 @@
       {% endif %}
     </div>
 
+    {# Jede Grenze hat einen Titel und eine Erlaeuterung. `join` machte
+       daraus die Python-Darstellung des Objekts — der Kunde las seinen
+       eigenen Wunsch als Quelltext. #}
     {% if e.aufgabenteilung.grenzen %}
-    <p class="grenzen">
-      <svg aria-hidden="true"><use href="#i-schutz"/></svg>
-      <span>{{ e.aufgabenteilung.grenzen | join(' · ') }}</span>
-    </p>
+    <div class="grenzen">
+      {% for grenze in e.aufgabenteilung.grenzen %}
+      <p class="grenze">
+        <svg aria-hidden="true"><use href="#i-schutz"/></svg>
+        <span><b>{{ grenze.titel }}</b>{{ grenze.erlaeuterung }}</span>
+      </p>
+      {% endfor %}
+    </div>
     {% endif %}
   </div>
 </section>
