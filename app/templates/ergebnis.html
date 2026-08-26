@@ -1,15 +1,22 @@
-{# Die Ergebnisseite: vier Abschnitte.
+{# Die Ergebnisseite als **Tafel**, nicht als Bericht.
 
-   Der Kunde ist kein Leser. Er will sehen, wie sein Alltag aussehen würde.
-   Deshalb steht hier nur, was zeigt — was erklärt, liegt in
-   `ergebnis_teile.html` und kommt ins PDF.
+   Der Kunde ist kein Leser. Er hat zehn Minuten erzählt und will in zehn
+   Sekunden sehen, wie sein Betrieb künftig läuft. Deshalb steht hier eine
+   zusammenhängende Fläche: oben das Band, das seinen Ablauf zeigt, darunter
+   wie das konkret aussieht, was er bekommt, was bei ihm bleibt und wie man
+   anfängt.
 
-   Der Datenvertrag ist unverändert: Das Modell liefert weiterhin alle elf
-   Bereiche. Sie werden nur nicht mehr alle angezeigt.
+   Was erklärt statt zu zeigen — Vergleich, Wert, Systeme, Architektur,
+   Hebel — steht vollständig in `ergebnis_teile.html` und geht ins PDF. Der
+   Datenvertrag ist unverändert; die Tafel wählt aus, sie kürzt nichts weg.
+
+   **Die Tafel richtet sich nach den Daten, nicht nach einem Musterbetrieb.**
+   Drei Ablaufstufen werden zu drei Karten, fünf zu fünf. Wer keine
+   Beispielansicht hat, bekommt den Abschnitt nicht. Kein Betrieb bekommt ein
+   Kästchen, das bei ihm leer wäre.
 
    Die Seite erweitert bewusst nicht `base.html`: Sie bringt ihr eigenes
-   Farbsystem unter `.ergebnis` mit und soll vom bestehenden Rahmen nicht
-   überlagert werden. #}
+   Farbsystem mit und soll vom bestehenden Rahmen nicht überlagert werden. #}
 {% import "ansichten.html" as ansichten %}<!doctype html>
 <html lang="de">
 <head>
@@ -17,184 +24,300 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Ihre Auswertung · AI Start Map</title>
 <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', path='/tafel.css') }}">
 </head>
-<body class="ergebnis">
+<body class="tafel">
 
-{# Der Beispiellauf ist als solcher gekennzeichnet, und zwar oben und nicht
-   im Kleingedruckten. Wer diese Seite sieht, soll nicht glauben, sie sei
-   gerade für ihn entstanden. #}
+{# Alle Symbole einmal, danach nur noch referenziert. Strichzeichnungen statt
+   erzeugter Bilder: Sie bleiben in jeder Grösse scharf, kosten nichts und
+   zeigen bei jedem Kunden dasselbe. #}
+<svg class="sprite" aria-hidden="true" focusable="false" width="0" height="0">
+  <symbol id="i-eingang" viewBox="0 0 24 24">
+    <path d="M12 3v10m0 0 4-4m-4 4-4-4M4 15v3a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-3"/>
+  </symbol>
+  <symbol id="i-schluessel" viewBox="0 0 24 24">
+    <rect x="7" y="7" width="10" height="10" rx="2.5"/>
+    <path d="M10 3v4m4-4v4m-4 10v4m4-4v4M3 10h4m-4 4h4m10-4h4m-4 4h4"/>
+  </symbol>
+  <symbol id="i-verzweigung" viewBox="0 0 24 24">
+    <path d="M6 3v7a4 4 0 0 0 4 4h8m0 0-3-3m3 3-3 3M6 14v7"/>
+  </symbol>
+  <symbol id="i-nebenast" viewBox="0 0 24 24">
+    <path d="M5 4v16m0-8h9a4 4 0 0 0 4-4V5"/><path d="m15.5 7.5 2.5-2.5 2.5 2.5"/>
+  </symbol>
+  <symbol id="i-ausgang" viewBox="0 0 24 24">
+    <circle cx="9" cy="8" r="3"/>
+    <path d="M3.5 20v-1a4 4 0 0 1 4-4h3a4 4 0 0 1 4 4v1"/>
+    <path d="m16 10.5 2 2 4.5-4.5"/>
+  </symbol>
+  <symbol id="i-baustein" viewBox="0 0 24 24">
+    <path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Zm0 18V12m8-4.5L12 12 4 7.5"/>
+  </symbol>
+  <symbol id="i-haken" viewBox="0 0 24 24"><path d="m4 12.5 5 5L20 6.5"/></symbol>
+  <symbol id="i-person" viewBox="0 0 24 24">
+    <circle cx="12" cy="8" r="3.5"/><path d="M5 20v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1"/>
+  </symbol>
+  <symbol id="i-schutz" viewBox="0 0 24 24">
+    <path d="M12 3 5 6v5.5c0 4 3 7.5 7 9.5 4-2 7-5.5 7-9.5V6l-7-3Z"/>
+    <path d="m9 12 2 2 4-4"/>
+  </symbol>
+  <symbol id="i-pfeil" viewBox="0 0 24 24"><path d="M5 12h13m0 0-5-5m5 5-5 5"/></symbol>
+  <symbol id="i-pdf" viewBox="0 0 24 24">
+    <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Zm0 0v5h5"/>
+  </symbol>
+</svg>
+
 {% if beispiel %}
-<div class="wrap" style="padding-top:18px">
-  <p class="caveat"><b>Gespeicherter Beispiellauf.</b> Diese Auswertung ist am
-  18.08.2026 aus der Erzählung einer Hausverwaltung entstanden und hier fest
-  hinterlegt. Sie wird nicht neu berechnet und beschreibt nicht Ihren
-  Betrieb.</p>
+<div class="hinweisband">
+  <b>Gespeicherter Beispiellauf.</b> Diese Auswertung ist aus der Erzählung
+  einer Hausverwaltung entstanden und hier fest hinterlegt. Sie wird nicht neu
+  berechnet und beschreibt nicht Ihren Betrieb.
 </div>
 {% endif %}
 
-{# ============ 1 · DAS HABE ICH BEI IHNEN GESEHEN ============ #}
-<div class="wrap top">
-  <p class="eyebrow">AI Start Map · Auswertung</p>
-  <h1>{{ e.kurzfassung.engpass_satz }}</h1>
-  <div class="chipline">
-    {% for eckdatum in e.verstanden.eckdaten %}
-    <span class="chip">{{ eckdatum }}</span>
-    {% endfor %}
-  </div>
-  <div class="finding">
-    <p class="big">{{ e.verstanden.engpass_absatz }}</p>
-  </div>
-  {# Zwei Belege, nicht drei. Der dritte steht im PDF. #}
-  <div class="quotes">
-    {% for beleg in e.verstanden.belege[:2] %}
-    <div class="q"><em>„{{ beleg.zitat }}“</em><span>{{ beleg.bedeutung }}</span></div>
-    {% endfor %}
-  </div>
-</div>
 
-{# ============ 2 · SO KÖNNTE IHR ALLTAG AUSSEHEN ============ #}
-{# Der größte Abschnitt der Seite. Hier wird gezeigt statt erklärt, deshalb
-   darf er mehr Platz bekommen als alles andere zusammen.
+{# ═══════════════ 1 · DER KOPF ═══════════════
 
-   Ohne Ansichten entfällt er ganz. Seit die Mindestmenge weg ist, kann ein
-   einfacher Fall ohne sie auskommen — eine Überschrift über nichts wäre
-   die Ankündigung von etwas, das nicht kommt. #}
-{% if e.ansichten %}
-<section>
-<div class="wrap">
-  <p class="eyebrow">So sieht das für Sie aus</p>
-  <h2>So könnte das bei Ihnen aussehen</h2>
-  {# Die drei genannten Systeme kommen aus DIESER Erzählung. Fest eingetippt
-     wären es bei einem Blumenladen die falschen. Liefert das Modell weniger
-     als drei, entfällt die Aufzählung ganz - eine halbe wäre schlechter als
-     keine. #}
-  {%- set anzahl = {2: 'Zwei', 3: 'Drei', 4: 'Vier'}.get(e.ansichten | length, e.ansichten | length) -%}
-  {%- set genannte = e.systeme[:3] | map(attribute='name') | list -%}
-  <p class="sub">{{ anzahl }} Ansichten, in denen zusammenliegt, was heute
-  {% if genannte | length == 3 %}über {{ genannte[0] }}, {{ genannte[1] }} und
-  {{ genannte[2] }} {% endif %}verteilt ist.</p>
-  <p class="sub">Beispielhafte Darstellung mit erfundenen Objekten und Namen.
-  Der Aufbau ist gemeint, nicht die Inhalte.</p>
-  {% for v in e.ansichten %}
-  {{ ansichten.ansicht(v) }}
-  {% endfor %}
-  <p class="caveat">Diese Ansichten sind ein Vorschlag für Ihre zukünftige
-  Lösung. Welche Oberflächen und Funktionen tatsächlich umgesetzt werden, wird
-  nach der technischen Prüfung festgelegt.</p>
-</div>
+   Daneben steht sein eigener Satz. Der Moment, in dem er sich wiedererkennt,
+   entscheidet darüber, ob er den Rest überhaupt liest. #}
+<header class="kopf">
+  <div class="flaeche kopfraster">
+    <div class="kopftext">
+      <p class="marke">AI Start Map · Auswertung</p>
+      <h1>So könnte Ihr Betrieb künftig laufen</h1>
+      <p class="unterzeile">{{ e.zielbild.beschreibung }}</p>
+      {% if e.verstanden.eckdaten %}
+      <ul class="eckdaten">
+        {% for eckdatum in e.verstanden.eckdaten %}
+        <li>{{ eckdatum }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+
+    <figure class="zitatkarte">
+      <figcaption>Das haben wir verstanden</figcaption>
+      <p class="befund">{{ e.kurzfassung.engpass_satz }}</p>
+      <p class="deutung">{{ e.verstanden.engpass_absatz }}</p>
+      {% set beleg = e.verstanden.belege[0] if e.verstanden.belege else none %}
+      {% if beleg %}
+      <blockquote>„{{ beleg.zitat }}“</blockquote>
+      {% endif %}
+    </figure>
+  </div>
+</header>
+
+
+{# ═══════════════ 2 · DAS ABLAUFBAND ═══════════════
+
+   Das Herzstück. Es kommt vollständig aus `zielbild.ablauf` — so viele
+   Stufen, wie dieser Betrieb hat. Ein Blumenladen bekommt drei Karten, eine
+   Hausverwaltung fünf. Hier baut niemand ein Muster nach. #}
+{% if e.zielbild.ablauf %}
+<section class="band">
+  <div class="flaeche">
+    <h2 class="bandkopf">{{ e.zielbild.name }}</h2>
+    <ol class="stufen">
+      {% for stufe in e.zielbild.ablauf %}
+      <li class="bandstufe bandstufe--{{ stufe.art }}">
+        <span class="bandnummer">{{ loop.index }}</span>
+        <svg class="bandsymbol" aria-hidden="true"><use href="#i-{{ stufe.art }}"/></svg>
+        <h3>{{ stufe.label }}</h3>
+        {% if stufe.knoten %}
+        <ul class="knoten">
+          {% for knoten in stufe.knoten %}
+          <li>{{ knoten.text }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </li>
+      {% if not loop.last %}
+      <li class="pfeil" aria-hidden="true"><svg><use href="#i-pfeil"/></svg></li>
+      {% endif %}
+      {% endfor %}
+    </ol>
+  </div>
 </section>
 {% endif %}
 
-{# ============ 2b · WAS NICHTS KOSTET ============ #}
-{# Vor den Modulen, weil er nichts kostet. Wer zuerst etwas gibt, das
-   nichts kostet, dem glaubt man eher, dass der Rest auch für ihn gedacht
-   ist.
 
-   Gezeigt wird nur, was ohne Technik geht — die Überschrift verspricht
-   genau das. Ein Hebel mit `ohne_technik: false` gehört zu den Modulen
-   und nicht hierher.
+{# ═══════════════ 3 · SO SIEHT DAS KONKRET AUS ═══════════════
 
-   Bleibt nichts übrig, entfällt der Abschnitt ganz. Keine leere
-   Überschrift: Ein erfundener Ratschlag ist schlimmer als keiner, und
-   eine Überschrift ohne Inhalt ist die Ankündigung eines solchen. #}
+   Die Beispielansichten, die das Modell für **diesen** Betrieb gewählt hat.
+   Höchstens zwei: Sie sollen zeigen, nicht erschlagen. Die Makros dafür
+   stehen seit jeher in `ansichten.html` — hier bekommen sie ihren Platz. #}
+{% set gezeigte = e.ansichten[:2] %}
+{% if gezeigte %}
+<section class="konkret">
+  <div class="flaeche">
+    <h2>So könnte das bei Ihnen aussehen</h2>
+    <p class="lauftext">Beispielbildschirme mit erfundenen Namen und Objekten.
+    Der Aufbau ist gemeint, nicht die Inhalte.</p>
+    <div class="ansichtspaar ansichtspaar--{{ gezeigte | length }}">
+      {% for v in gezeigte %}
+      <div class="ansichtsplatz">{{ ansichten.ansicht(v) }}</div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+
+{# ═══════════════ 4 · DAS BEKOMMEN SIE KONKRET ═══════════════ #}
+{% if e.module %}
+<section class="bausteine">
+  <div class="flaeche">
+    <h2>Das bekommen Sie konkret</h2>
+    <div class="bausteinraster">
+      {% for modul in e.module %}
+      <article class="baustein{% if modul.stufe and modul.stufe != 'jetzt' %} baustein--spaeter{% endif %}">
+        <svg class="bausteinsymbol" aria-hidden="true"><use href="#i-baustein"/></svg>
+        <h3>{{ modul.name }}</h3>
+        <p>{{ modul.beschreibung }}</p>
+        {% set beschriftung = {'jetzt': 'Jetzt',
+                               'danach': 'Darauf baut auf',
+                               'spaeter': 'Wo das hinführt'}.get(modul.stufe) %}
+        {% if beschriftung %}
+        <span class="stufe">{{ beschriftung }}</span>
+        {% endif %}
+      </article>
+      {% endfor %}
+    </div>
+    <p class="lauftext">Diese Bausteine gehören zu einer gemeinsamen Lösung.
+    Es sind keine Produkte, die Sie einzeln kaufen müssen.</p>
+  </div>
+</section>
+{% endif %}
+
+
+{# ═══════════════ 4b · WAS NICHTS KOSTET ═══════════════
+
+   Vor den Bausteinen wäre es zu früh — er weiß dann noch nicht,
+   wovon die Rede ist. Danach ist es das Beste, was hier steht: ein
+   Vorschlag, der ihn nichts kostet, belegt mit seinem eigenen Satz.
+
+   Höchstens zwei. Zwei Karten sind eine Zeile; alle weiteren stehen
+   vollständig im PDF. #}
 {%- set ohne_technik = e.hebel | selectattr('ohne_technik') | list -%}
 {% if ohne_technik %}
-<section class="kostenlos">
-<div class="wrap">
-  {# Höchstens zwei auf der Seite. Der Abschnitt darf die Seite um 200
-     Pixel wachsen lassen, und zwei Karten nebeneinander sind eine
-     Zeile. Was darüber hinaus kommt, steht vollständig im PDF —
-     weggelassen wird nichts, nur nicht alles auf einmal gezeigt. #}
-  {%- set gezeigt = ohne_technik[:2] -%}
-  {%- set wieviele = {1: 'Eine Sache', 2: 'Zwei Dinge'}.get(
-                      gezeigt | length, 'Dinge') -%}
-  <h2>{{ wieviele }}, die Sie ohne Technik ändern könnten</h2>
-  <div class="hebelliste">
-    {% for h in gezeigt %}
-    <div class="hebel">
-      <b>{{ h.idee }}</b>
-      <p>{{ h.warum }}</p>
-      {# Der Satz, aus dem der Hebel folgt. Er steht wörtlich in seiner
-         Erzählung — geprüft wie ein Zitat. Ohne ihn wäre der Vorschlag
-         ein Ratschlag für irgendeinen Betrieb. #}
-      <em>Sie haben gesagt: „{{ h.woraus }}“</em>
+<section class="ohnetechnik">
+  <div class="flaeche">
+    {%- set gezeigt = ohne_technik[:2] -%}
+    {%- set wieviele = {1: 'Eine Sache', 2: 'Zwei Dinge'}.get(
+                        gezeigt | length, 'Dinge') -%}
+    <h2>{{ wieviele }}, die Sie ohne Technik ändern könnten</h2>
+    <p class="lauftext">Das kostet Sie nichts und wirkt sofort.</p>
+    <div class="hebelpaar">
+      {% for h in gezeigt %}
+      <article class="hebelkarte">
+        <h3>{{ h.idee }}</h3>
+        <p>{{ h.warum }}</p>
+        {# Der Satz, aus dem der Hebel folgt — wörtlich aus seiner
+           Erzählung, geprüft wie ein Zitat. Ohne ihn wäre es ein
+           Ratschlag für irgendeinen Betrieb. #}
+        <em>Sie haben gesagt: „{{ h.woraus }}“</em>
+      </article>
+      {% endfor %}
     </div>
-    {% endfor %}
   </div>
-</div>
 </section>
 {% endif %}
 
-{# ============ 3 · WAS DAZUGEHÖRT ============ #}
-{# Ohne Module entfällt auch dieser Abschnitt. Das ist der Fall, in dem
-   keine neue Technik nötig ist — dann steht die Diagnose für sich. #}
-{% if e.module %}
-<section>
-<div class="wrap">
-  <p class="eyebrow">Was dazugehört</p>
-  <h2>{{ e.zielbild.name }}</h2>
-  <p class="sub">{{ e.zielbild.beschreibung }}</p>
-  {# Nur die Namen, nach Gruppen sortiert - die Beschreibungstexte stehen im
-     PDF. Die Gruppe zeigt den Zusammenhang, nicht eine Reihenfolge. #}
-  <div class="modlist">
-    {% for gruppe, module in e.module | groupby('gruppe') %}
-    <div class="modgroup">
-      <em>{{ gruppe }}</em>
-      <p>{{ module | map(attribute='name') | join(' · ') }}</p>
+
+{# ═══════════════ 5 · AUTOMATISCH UND MENSCH ═══════════════
+
+   Die wichtigste Fläche für das Vertrauen eines kleinen Betriebs: Er gibt
+   nichts aus der Hand. #}
+{% if e.aufgabenteilung.system or e.aufgabenteilung.mensch %}
+<section class="teilung">
+  <div class="flaeche">
+    <h2>Was automatisch läuft — und was bei Ihnen bleibt</h2>
+    <div class="spalten">
+      {% if e.aufgabenteilung.system %}
+      <div class="spalte spalte--system">
+        <h3>Läuft automatisch</h3>
+        <ul>
+          {% for zeile in e.aufgabenteilung.system %}
+          <li><svg aria-hidden="true"><use href="#i-haken"/></svg><span>{{ zeile }}</span></li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      {% if e.aufgabenteilung.mensch %}
+      <div class="spalte spalte--mensch">
+        <h3>Sie entscheiden</h3>
+        <ul>
+          {% for zeile in e.aufgabenteilung.mensch %}
+          <li><svg aria-hidden="true"><use href="#i-person"/></svg><span>{{ zeile }}</span></li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
     </div>
-    {% endfor %}
-  </div>
-  <p class="sysnote">Diese Module gehören zu einer gemeinsamen Lösung. Es sind
-  keine Produkte, die Sie einzeln kaufen müssen.</p>
 
-  {# Die Reihenfolge, drei Zeilen. Kein eigener Abschnitt und keine Kacheln:
-     Die Module stehen direkt darüber, hier steht nur, was wann drankommt.
-     Kein Betrieb bekommt weniger gezeigt — nur einen anderen Anfang.
-
-     Gefiltert wird nach `modul.stufe`. Eine Stufe ohne Module bekommt keine
-     leere Zeile: Sie wäre eine Behauptung über nichts. #}
-  {%- set stufen = [('jetzt', 'Jetzt'), ('danach', 'Darauf baut auf'),
-                    ('spaeter', 'Wo das hinführt')] -%}
-  {%- set belegt = stufen | selectattr('0', 'in', e.module | map(attribute='stufe') | list) | list -%}
-  {% if belegt %}
-  <h3 class="folgekopf">Womit wir anfangen</h3>
-  <div class="folge">
-    {% for schluessel, beschriftung in belegt %}
-    <p class="stufe"><em>{{ beschriftung }}</em>{{
-      e.module | selectattr('stufe', 'equalto', schluessel)
-               | map(attribute='name') | join(' · ') }}</p>
-    {% endfor %}
+    {% if e.aufgabenteilung.grenzen %}
+    <p class="grenzen">
+      <svg aria-hidden="true"><use href="#i-schutz"/></svg>
+      <span>{{ e.aufgabenteilung.grenzen | join(' · ') }}</span>
+    </p>
+    {% endif %}
   </div>
-  {% endif %}
-</div>
 </section>
 {% endif %}
 
-{# ============ 4 · UND JETZT ============ #}
-<section>
-<div class="wrap">
-  <div class="cta">
-    <h2>Diese Lösung kann für Ihren Betrieb umgesetzt werden</h2>
-    <div class="ctalist">
-      <b>Im nächsten Gespräch klären wir:</b>
-      <ul>
-        <li>welche vorhandenen Systeme Schnittstellen bieten</li>
-        <li>welche Module bei Ihnen tatsächlich Nutzen bringen</li>
-        <li>welche Lösung realistisch umsetzbar ist</li>
-      </ul>
-    </div>
-    <div class="ctabuttons">
-      <a class="btn" href="mailto:">Gespräch vereinbaren</a>
-      {# Zeigt vorerst auf die vorhandene Druckansicht. Schritt 4 baut das PDF
-         aus `ergebnis_teile.html`; sichtbar muss die Schaltfläche schon jetzt
-         sein, weil sie die Begründung dafür ist, dass die Seite kurz ist. #}
-      <a class="btn ghost" href="{{ pdf_pfad or '/report' }}">Vollständige Auswertung als PDF</a>
-    </div>
-  </div>
-</div>
-</section>
 
-<div class="wrap foot">AI Start Map · Auswertung auf Grundlage Ihrer eigenen Beschreibung</div>
+{# ═══════════════ 6 · SO WÜRDEN WIR ANFANGEN ═══════════════
+
+   Der Anfang, nicht der ganze Plan. Neun Schritte liest niemand auf einer
+   Tafel; die ersten drei beantworten die Frage, die er hat. Vollständig
+   steht die Reihenfolge im PDF — weggelassen wird nichts. #}
+{% set anfang = e.umsetzung[:3] %}
+{% if anfang %}
+<section class="anfang">
+  <div class="flaeche">
+    <h2>So würden wir anfangen</h2>
+    <ol class="schritte">
+      {% for schritt in anfang %}
+      <li>
+        <span class="schrittnummer">{{ loop.index }}</span>
+        <p>{{ schritt.text if schritt.text is defined else schritt }}</p>
+      </li>
+      {% endfor %}
+    </ol>
+    {% if e.umsetzung | length > 3 %}
+    <p class="lauftext">Die vollständige Reihenfolge mit allen
+    {{ e.umsetzung | length }} Schritten steht in der Auswertung zum Mitnehmen.</p>
+    {% endif %}
+  </div>
+</section>
+{% endif %}
+
+
+{# ═══════════════ 7 · WIE ES WEITERGEHT ═══════════════ #}
+<section class="abschluss">
+  <div class="flaeche">
+    <p class="versprechen">
+      <svg aria-hidden="true"><use href="#i-schutz"/></svg>
+      <span>Ihre vorhandenen Systeme bleiben. Entscheidungen bleiben bei Ihnen.</span>
+    </p>
+    <div class="knoepfe">
+      <a class="knopf knopf--haupt" href="mailto:">
+        <span>Genau so möchte ich arbeiten</span>
+        <svg aria-hidden="true"><use href="#i-pfeil"/></svg>
+      </a>
+      {# Ohne Sitzungskennung in der Adresse: Der oeffentliche Weg
+         kennt die Sitzung aus dem Cookie, und eine Kennung im
+         ausgelieferten Text waere eine, die jemand weitergibt. #}
+      <a class="knopf knopf--neben" href="/report">
+        <svg aria-hidden="true"><use href="#i-pdf"/></svg>
+        <span>Vollständige Auswertung als PDF</span>
+      </a>
+    </div>
+    <p class="kleingedruckt">Auswertung auf Grundlage Ihrer eigenen
+    Beschreibung. Ihre Angaben bleiben bei uns.</p>
+  </div>
+</section>
 
 </body>
 </html>

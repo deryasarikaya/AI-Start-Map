@@ -104,8 +104,8 @@ def test_the_page_hides_what_is_empty(client) -> None:  # type: ignore[no-untype
     assert "So könnte das bei Ihnen aussehen" not in seite
     assert "Was dazugehört" not in seite
     # Die Diagnose steht weiterhin da: Engpass-Satz und Belege.
-    assert 'class="finding"' in seite
-    assert 'class="q"' in seite
+    assert 'class="befund"' in seite
+    assert "<blockquote>" in seite
 
 
 # --- Keine neue Technik ---------------------------------------------------

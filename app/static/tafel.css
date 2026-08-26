@@ -1,0 +1,297 @@
+/* Die Ergebnistafel.
+ *
+ * Eigene Datei statt eines weiteren Abschnitts in `styles.css`: Die Tafel
+ * bringt ihr eigenes Farb- und Rastersystem mit, und keine andere Seite soll
+ * davon etwas abbekommen. Alles hier haengt an `.tafel`.
+ *
+ * Desktop zuerst. Der Kunde sieht diese Seite am Bildschirm, wenn er sich
+ * Zeit genommen hat; auf dem Telefon stapeln sich dieselben Karten
+ * untereinander, ohne dass etwas verlorengeht.
+ */
+
+.tafel {
+  --tinte: #0f172a;
+  --tinte-schwach: #475569;
+  --tinte-leise: #64748b;
+  --linie: #e2e8f0;
+  --flaeche: #ffffff;
+  --grund: #f1f5f9;
+  --marke: #1d4ed8;
+  --marke-hell: #eff6ff;
+  --marke-tief: #0b2a63;
+  --gut: #059669;
+  --gut-hell: #ecfdf5;
+  --schatten: 0 1px 2px rgb(15 23 42 / .06), 0 8px 24px rgb(15 23 42 / .06);
+  --rund: 14px;
+
+  margin: 0;
+  background: var(--grund);
+  color: var(--tinte);
+  font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.tafel .sprite { position: absolute; }
+.tafel svg { fill: none; stroke: currentColor; stroke-width: 1.7;
+  stroke-linecap: round; stroke-linejoin: round; }
+
+/* Eine Flaeche, ein Mass. Alle Abschnitte teilen sich dieselbe Breite,
+ * damit die Tafel als eine Flaeche gelesen wird und nicht als Stapel. */
+.tafel .flaeche { width: min(1240px, 100% - 48px); margin-inline: auto; }
+.tafel section { padding: 52px 0; }
+.tafel h2 { font-size: 1.55rem; letter-spacing: -.02em; margin: 0 0 6px; }
+.tafel h3 { font-size: 1rem; margin: 0; }
+.tafel .lauftext { color: var(--tinte-leise); max-width: 62ch; margin: 0 0 26px; }
+
+.tafel .hinweisband {
+  background: #fef3c7; color: #78350f; text-align: center;
+  padding: 12px 24px; font-size: .92rem;
+}
+
+/* ── Kopf ─────────────────────────────────────────────────────────────
+ * Dunkel, damit die Tafel darunter hell wirkt. Der Kunde soll den
+ * Uebergang als "hier faengt meine Auswertung an" lesen. */
+.tafel .kopf {
+  background: linear-gradient(160deg, #0b2a63 0%, #123a86 55%, #0f2f6e 100%);
+  color: #fff; padding: 44px 0 56px;
+}
+.tafel .kopfraster {
+  display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  gap: 40px; align-items: start;
+}
+.tafel .marke {
+  margin: 0 0 14px; font-size: .78rem; letter-spacing: .13em;
+  text-transform: uppercase; color: #93b4f0;
+}
+.tafel .kopf h1 {
+  margin: 0 0 14px; font-size: clamp(1.9rem, 3.4vw, 2.7rem);
+  line-height: 1.15; letter-spacing: -.025em;
+}
+.tafel .unterzeile {
+  margin: 0; font-size: 1.06rem; color: #cfe0fb; max-width: 56ch;
+}
+.tafel .eckdaten {
+  list-style: none; display: flex; flex-wrap: wrap; gap: 8px;
+  margin: 22px 0 0; padding: 0;
+}
+.tafel .eckdaten li {
+  background: rgb(255 255 255 / .11); border: 1px solid rgb(255 255 255 / .16);
+  border-radius: 999px; padding: 5px 13px; font-size: .85rem; color: #e4edfd;
+}
+
+.tafel .zitatkarte {
+  margin: 0; background: rgb(255 255 255 / .1);
+  border: 1px solid rgb(255 255 255 / .18);
+  border-radius: var(--rund); padding: 22px 24px;
+}
+.tafel .zitatkarte figcaption {
+  font-size: .78rem; letter-spacing: .1em; text-transform: uppercase;
+  color: #93b4f0; margin-bottom: 12px;
+}
+.tafel .befund {
+  margin: 0 0 10px; font-size: 1.06rem; font-weight: 600; line-height: 1.4;
+}
+.tafel .zitatkarte blockquote {
+  margin: 14px 0 0; padding-top: 14px; font-size: .98rem; line-height: 1.5;
+  font-style: italic; border-top: 1px solid rgb(255 255 255 / .18);
+}
+.tafel .deutung { margin: 12px 0 0; font-size: .9rem; color: #bcd2f7; }
+
+/* ── Das Ablaufband ───────────────────────────────────────────────────
+ * Die Stufen kommen aus den Daten, also darf ihre Anzahl nicht im
+ * Stylesheet stehen. `flex` mit gleichen Anteilen: drei Stufen fuellen die
+ * Breite genauso wie fuenf. */
+.tafel .band { padding-top: 40px; }
+.tafel .bandkopf { text-align: center; margin-bottom: 26px; }
+.tafel .stufen {
+  list-style: none; margin: 0; padding: 22px; display: flex;
+  align-items: stretch; gap: 6px; background: var(--flaeche);
+  border: 1px solid var(--linie); border-radius: 18px;
+  box-shadow: var(--schatten); overflow-x: auto;
+}
+.tafel .bandstufe {
+  flex: 1 1 0; min-width: 168px; position: relative;
+  background: var(--flaeche); border: 1px solid var(--linie);
+  border-radius: var(--rund); padding: 26px 16px 18px; text-align: center;
+}
+.tafel .bandnummer {
+  position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+  width: 26px; height: 26px; border-radius: 50%; background: var(--marke-tief);
+  color: #fff; font-size: .8rem; font-weight: 600;
+  display: grid; place-items: center;
+}
+.tafel .bandsymbol {
+  width: 30px; height: 30px; color: var(--marke); margin-bottom: 10px;
+}
+.tafel .bandstufe h3 { font-size: .96rem; line-height: 1.3; }
+.tafel .knoten {
+  list-style: none; margin: 10px 0 0; padding: 0;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.tafel .knoten li {
+  font-size: .82rem; color: var(--tinte-schwach);
+  background: var(--grund); border-radius: 8px; padding: 5px 9px;
+}
+/* Die Schluesselstelle traegt die Lösung — sie darf man sehen. */
+.tafel .bandstufe--schluessel {
+  background: var(--marke-hell); border-color: #bfd3f7;
+}
+.tafel .pfeil {
+  flex: 0 0 26px; display: grid; place-items: center; color: #94a3b8;
+}
+.tafel .pfeil svg { width: 22px; height: 22px; }
+
+/* ── Beispielansichten ────────────────────────────────────────────────
+ * Eine Ansicht bekommt die volle Breite, zwei teilen sie sich. Mehr als
+ * zwei zeigt die Tafel nicht. */
+.tafel .ansichtspaar { display: grid; gap: 22px; }
+.tafel .ansichtspaar--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.tafel .ansichtsplatz {
+  background: var(--flaeche); border: 1px solid var(--linie);
+  border-radius: 18px; padding: 20px; box-shadow: var(--schatten);
+  overflow: hidden;
+}
+.tafel .ansichtsplatz > * { max-width: 100%; }
+
+/* ── Bausteine ────────────────────────────────────────────────────────*/
+.tafel .bausteine { background: var(--flaeche); }
+.tafel .bausteinraster {
+  display: grid; gap: 18px; margin-bottom: 22px;
+  grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
+}
+.tafel .baustein {
+  border: 1px solid var(--linie); border-radius: var(--rund);
+  padding: 20px; background: var(--flaeche); position: relative;
+}
+.tafel .bausteinsymbol {
+  width: 26px; height: 26px; color: var(--marke); margin-bottom: 12px;
+}
+.tafel .baustein h3 { margin-bottom: 7px; line-height: 1.35; }
+.tafel .baustein p {
+  margin: 0; font-size: .9rem; color: var(--tinte-schwach); line-height: 1.55;
+}
+.tafel .baustein--spaeter { background: #f8fafc; }
+.tafel .stufe {
+  display: inline-block; margin-top: 13px; font-size: .74rem;
+  letter-spacing: .06em; text-transform: uppercase;
+  color: var(--tinte-leise);
+}
+
+/* ── Was nichts kostet ────────────────────────────────────────────────*/
+.tafel .hebelpaar {
+  display: grid; gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+.tafel .hebelkarte {
+  border: 1px solid #fde68a; background: #fffbeb;
+  border-radius: var(--rund); padding: 22px;
+}
+.tafel .hebelkarte h3 { margin-bottom: 8px; line-height: 1.35; }
+.tafel .hebelkarte p {
+  margin: 0 0 12px; font-size: .9rem; line-height: 1.55;
+  color: var(--tinte-schwach);
+}
+.tafel .hebelkarte em {
+  display: block; font-size: .86rem; color: #92400e;
+}
+
+/* ── Automatisch und Mensch ───────────────────────────────────────────*/
+.tafel .spalten {
+  display: grid; gap: 22px; grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 22px;
+}
+.tafel .spalte {
+  border: 1px solid var(--linie); border-radius: var(--rund);
+  padding: 24px; background: var(--flaeche);
+}
+.tafel .spalte--system { background: var(--gut-hell); border-color: #a7f3d0; }
+.tafel .spalte--mensch { background: var(--marke-hell); border-color: #bfd3f7; }
+.tafel .spalte h3 { margin-bottom: 14px; font-size: 1.05rem; }
+.tafel .spalte ul { list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 11px; }
+.tafel .spalte li {
+  display: grid; grid-template-columns: 20px 1fr; gap: 11px;
+  align-items: start; font-size: .92rem; line-height: 1.5;
+}
+.tafel .spalte svg { width: 17px; height: 17px; margin-top: 3px; }
+.tafel .spalte--system svg { color: var(--gut); }
+.tafel .spalte--mensch svg { color: var(--marke); }
+
+.tafel .grenzen, .tafel .versprechen {
+  display: flex; gap: 11px; align-items: center; justify-content: center;
+  margin: 22px 0 0; font-size: .92rem; color: var(--tinte-schwach);
+}
+.tafel .grenzen svg, .tafel .versprechen svg {
+  width: 19px; height: 19px; color: var(--gut); flex: none;
+}
+
+/* ── So wuerden wir anfangen ──────────────────────────────────────────*/
+.tafel .anfang { background: var(--flaeche); }
+.tafel .schritte {
+  list-style: none; margin: 24px 0 22px; padding: 0; display: grid; gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
+}
+.tafel .schritte li {
+  border: 1px solid var(--linie); border-radius: var(--rund);
+  padding: 22px 20px; background: var(--flaeche);
+}
+.tafel .schrittnummer {
+  display: grid; place-items: center; width: 32px; height: 32px;
+  border-radius: 50%; background: var(--marke-hell); color: var(--marke);
+  font-weight: 600; margin-bottom: 13px;
+}
+.tafel .schritte p { margin: 0; font-size: .92rem; line-height: 1.55;
+  color: var(--tinte-schwach); }
+
+/* ── Abschluss ────────────────────────────────────────────────────────*/
+.tafel .abschluss { text-align: center; padding-bottom: 68px; }
+.tafel .knoepfe {
+  display: flex; flex-wrap: wrap; gap: 14px; justify-content: center;
+  margin: 24px 0 16px;
+}
+.tafel .knopf {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 15px 26px; border-radius: 11px; font-weight: 600;
+  text-decoration: none; font-size: .98rem; border: 1px solid transparent;
+}
+.tafel .knopf svg { width: 19px; height: 19px; }
+.tafel .knopf--haupt { background: var(--marke); color: #fff; }
+.tafel .knopf--haupt:hover { background: #1a44c2; }
+.tafel .knopf--neben {
+  background: var(--flaeche); color: var(--tinte);
+  border-color: var(--linie); box-shadow: var(--schatten);
+}
+.tafel .knopf--neben:hover { border-color: #cbd5e1; }
+.tafel .kleingedruckt {
+  margin: 0; font-size: .84rem; color: var(--tinte-leise);
+}
+
+/* ── Schmale Bildschirme ──────────────────────────────────────────────
+ * Nichts entfaellt, alles stapelt sich. Das Band wird senkrecht, die
+ * Pfeile drehen sich mit. */
+@media (max-width: 900px) {
+  .tafel .flaeche { width: min(100% - 32px, 100%); }
+  .tafel .kopfraster,
+  .tafel .spalten,
+  .tafel .ansichtspaar--2 { grid-template-columns: minmax(0, 1fr); }
+  .tafel .stufen { flex-direction: column; }
+  .tafel .pfeil { flex: 0 0 24px; }
+  .tafel .pfeil svg { transform: rotate(90deg); }
+}
+
+/* ── Druck ────────────────────────────────────────────────────────────
+ * Der Kopf wird hell, damit niemand eine halbe Patrone dunkelblau
+ * verbraucht. Sonst bleibt die Tafel, wie sie ist. */
+@media print {
+  .tafel { background: #fff; }
+  .tafel .kopf { background: #fff; color: var(--tinte); }
+  .tafel .kopf h1, .tafel .unterzeile, .tafel .deutung { color: var(--tinte); }
+  .tafel .marke, .tafel .zitatkarte figcaption { color: var(--tinte-leise); }
+  .tafel .eckdaten li, .tafel .zitatkarte {
+    background: var(--grund); border-color: var(--linie); color: var(--tinte);
+  }
+  .tafel .knoepfe, .tafel .hinweisband { display: none; }
+  .tafel section { padding: 22px 0; break-inside: avoid; }
+  .tafel .stufen, .tafel .ansichtsplatz, .tafel .baustein,
+  .tafel .spalte, .tafel .schritte li { box-shadow: none; }
+}

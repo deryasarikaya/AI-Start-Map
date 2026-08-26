@@ -99,8 +99,8 @@ def test_complete_public_journey(
     for text in (
         "AI Start Map · Auswertung",
         "So könnte das bei Ihnen aussehen",
-        "Was dazugehört",
-        "Diese Lösung kann für Ihren Betrieb umgesetzt werden",
+        "Das bekommen Sie konkret",
+        "Genau so möchte ich arbeiten",
     ):
         assert text in ergebnis.text
     assert "/sessions/" not in ergebnis.text

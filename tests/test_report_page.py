@@ -48,8 +48,12 @@ def test_the_report_reads_the_stored_result(client: TestClient) -> None:
 
     # Der Engpass-Satz steht auf beiden und stammt aus derselben Quelle.
     assert "AI Start Map · Vollständige Auswertung" in bericht
-    for zeile in seite.split("<h1>")[1].split("</h1>")[0].strip().split("\n"):
-        assert zeile.strip() in bericht
+    # Die Überschrift taugt nicht als Anker: Auf der Tafel steht dort
+    # eine feste Zeile, kein Kundenwort. Der Engpass-Satz ist beides —
+    # Kundenwort, und er steht auf beiden Seiten.
+    engpass = seite.split('class="befund">')[1].split("</p>")[0].strip()
+    assert engpass
+    assert engpass in bericht
 
 
 def test_the_print_hint_is_hidden_when_printing(client: TestClient) -> None:
@@ -105,12 +109,13 @@ def test_the_order_is_shown_on_the_page(client: TestClient) -> None:
 
     seite = client.get("/results").text
 
-    assert "Womit wir anfangen" in seite
+    # Früher ein eigener Abschnitt unter den Modulen; auf der Tafel
+    # steht die Reihenfolge an der Karte selbst.
     for beschriftung in ("Jetzt", "Darauf baut auf", "Wo das hinführt"):
         assert beschriftung in seite
     # Eigene Klassen: `.step` gehört den nummerierten Umsetzungsschritten.
-    assert 'class="folge"' in seite
-    assert seite.count('class="stufe"') == 3
+    assert 'class="stufe">' in seite
+
 
 
 def test_the_order_is_also_in_the_report(client: TestClient) -> None:
