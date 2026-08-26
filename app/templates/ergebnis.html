@@ -124,7 +124,9 @@
       {% for stufe in e.zielbild.ablauf %}
       <li class="bandstufe bandstufe--{{ stufe.art }}">
         <span class="bandnummer">{{ loop.index }}</span>
-        <svg class="bandsymbol" aria-hidden="true"><use href="#i-{{ stufe.art }}"/></svg>
+        <span class="bandsymbol">
+          <svg aria-hidden="true"><use href="#i-{{ stufe.art }}"/></svg>
+        </span>
         <h3>{{ stufe.label }}</h3>
         {% if stufe.knoten %}
         <ul class="knoten">
@@ -153,7 +155,12 @@
    künftig dasselbe beschreibt wie Zeile drei heute — also stehen sie
    nebeneinander, und der Blick liest quer statt zweimal längs. Sind die
    Listen ungleich lang, wird nur so weit gepaart, wie beide reichen; der
-   Rest steht darunter. #}
+   Rest steht darunter.
+
+   **Höchstens vier Paare.** Sieben machen aus einer Tafel wieder einen
+   Bericht — und niemand liest vierzehn Zeilen, um den Unterschied zu
+   verstehen. Der vollständige Vergleich steht im Ausdruck; hier steht
+   das, was verkauft. #}
 {% if e.vergleich.heute and e.vergleich.kuenftig %}
 <section class="vergleich">
   <div class="flaeche">
@@ -161,8 +168,8 @@
     <div class="gegenueber">
       <div class="spaltenkopf spaltenkopf--heute">Heute</div>
       <div class="spaltenkopf spaltenkopf--kuenftig">Mit Ihrer neuen Lösung</div>
-      {%- set links = e.vergleich.heute -%}
-      {%- set rechts = e.vergleich.kuenftig -%}
+      {%- set links = e.vergleich.heute[:4] -%}
+      {%- set rechts = e.vergleich.kuenftig[:4] -%}
       {%- set zeilen = [links | length, rechts | length] | max -%}
       {% for i in range(zeilen) %}
       {% if i < links | length %}
@@ -252,7 +259,9 @@
     <div class="bausteinraster">
       {% for modul in e.module %}
       <article class="baustein{% if modul.stufe and modul.stufe != 'jetzt' %} baustein--spaeter{% endif %}">
-        <svg class="bausteinsymbol" aria-hidden="true"><use href="#i-baustein"/></svg>
+        <span class="bausteinsymbol">
+          <svg aria-hidden="true"><use href="#i-baustein"/></svg>
+        </span>
         {% if modul.gruppe %}
         <span class="bausteingruppe">{{ modul.gruppe }}</span>
         {% endif %}
@@ -355,7 +364,13 @@
       {% for grenze in e.aufgabenteilung.grenzen %}
       <p class="grenze">
         <svg aria-hidden="true"><use href="#i-schutz"/></svg>
-        <span><b>{{ grenze.titel }}</b>{{ grenze.erlaeuterung }}</span>
+        <span>
+          <b>{{ grenze.titel }}</b>
+          {# Als Zitat gesetzt: Der Satz ist seiner, nicht unserer.
+             Ohne Kennzeichnung liest er sich wie eine Zusage von uns —
+             mit Kennzeichnung liest er sich als „die haben zugehört". #}
+          <q>{{ grenze.erlaeuterung }}</q>
+        </span>
       </p>
       {% endfor %}
     </div>
@@ -414,8 +429,8 @@
         <span>Vollständige Auswertung als PDF</span>
       </a>
     </div>
-    <p class="kleingedruckt">Auswertung auf Grundlage Ihrer eigenen
-    Beschreibung. Ihre Angaben bleiben bei uns.</p>
+    <p class="kleingedruckt">Diese Auswertung basiert auf Ihrer eigenen
+    Beschreibung.</p>
   </div>
 </section>
 
