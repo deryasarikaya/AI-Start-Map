@@ -29,8 +29,6 @@ der Bausteine deiner gewählten Familien ist, wird die Antwort zurückgewiesen.
   ehesten passend hält. **Ein Vorschlag, keine Vorgabe.** Du darfst jede Familie
   aus dem Katalog wählen, auch eine, die hier nicht steht — und du darfst einen
   Vorschlag übergehen, wenn er nicht passt.
-- ZIELBILDMUSTER: wie mehrere Familien zu einem größeren Ganzen
-  zusammengehören, falls eines passt.
 - VERBOTENE_WOERTER: Wörter, die im Kundentext nicht vorkommen dürfen.
 
 ## Die Felder
@@ -49,14 +47,41 @@ könnte diesem Betrieb ausserdem helfen. Sondern: Was braucht er, damit genau
 dieser Engpass gelöst ist. Höchstens acht — aber acht ist eine Grenze, kein
 Ziel.
 
-Prüfe jede Familie einzeln gegen diese Frage:
+### Erst vollständig, dann klein
 
-> Würde die Lösung ohne diese Familie weiterhin funktionieren und den
-> diagnostizierten Engpass lösen?
+**Vollständigkeit kommt vor Minimalität.** Wähle zuerst alle Familien, die
+nötig sind, damit der Kernengpass **Ende zu Ende** gelöst ist. Erst danach
+reduzierst du diese Menge auf das Notwendige.
 
-**Ist die Antwort ja, wähle sie nicht.** Eine Familie kommt nur mit, wenn sie
-entweder einen Teil des Engpasses direkt löst oder fachlich Voraussetzung für
-eine andere gewählte Familie ist.
+Die Reihenfolge ist wichtig. Kürzt du zuerst, prüfst du jede Familie für sich
+— und für sich allein wirkt fast jede verzichtbar. Nach fünf solchen
+Entscheidungen fehlt mitten im Ablauf eine Station, und die Lösung hört
+irgendwo auf.
+
+Prüfe deshalb beim Weglassen nicht die einzelne Familie, sondern **den Rest**:
+
+> Löst die verbleibende Gesamtlösung ohne diese Familie weiterhin den
+> vollständigen Kernengpass, mit allen Stationen, die dafür nötig sind?
+
+**Bleibt eine dafür notwendige Station ungelöst, bleibt die Familie.** Sonst
+fällt sie weg.
+
+Eine Station zählt nur, wenn sie zum diagnostizierten Kernengpass gehört, für
+den Zielablauf nötig ist oder Voraussetzung für einen bereits notwendigen
+Baustein. **Nicht** jede Tätigkeit, die der Betrieb erwähnt, ist eine Station:
+angrenzende Möglichkeiten, spätere Optimierungen, Randprozesse und blosse
+Erwähnungen sind keine — und was der Betrieb ausdrücklich nicht automatisieren
+will, erst recht nicht.
+
+**So klein wie möglich, aber so vollständig wie nötig.** Ein kleiner Betrieb
+mit einem Handgriff bekommt eine Familie. Ein Betrieb, dessen Arbeit über
+sechs Stationen läuft und an jeder hängen bleibt, bekommt so viele, wie diese
+Kette braucht — und keine mehr.
+
+### Was ausserdem nicht mitkommt
+
+Eine Familie kommt nur mit, wenn sie entweder einen Teil des Engpasses direkt
+löst oder fachlich Voraussetzung für eine andere gewählte Familie ist.
 
 Das reicht ausdrücklich **nicht**:
 
@@ -192,7 +217,9 @@ Werkzeuge. Zeig, wie sie ineinandergreifen: Wo kommt Arbeit herein, wo läuft si
 zusammen, was passiert mit Dokumenten, wie wird der Stand sichtbar, was bleibt
 beim vorhandenen Fachsystem.
 
-Steht in ZIELBILDMUSTER etwas Passendes, nimm es als Gerüst.
+Das Gerüst dafür entsteht **nach** dir: Sobald deine Auswahl geprüft ist,
+sucht der Server das passende Kompositionsmuster zu genau diesen Familien.
+Du bekommst keines — dein Zielbild folgt aus dem, was du gewählt hast.
 
 ## Regeln, die über allem stehen
 

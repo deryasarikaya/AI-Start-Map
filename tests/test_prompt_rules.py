@@ -13,6 +13,8 @@ Fehler im Code — alles stand so im Prompt.
 
 from __future__ import annotations
 
+import re
+
 import pytest
 
 from app.openai_service import _prompt
@@ -25,7 +27,8 @@ def _fliesstext(name: str) -> str:
     sagt dann etwas ueber Zeilenlaengen statt ueber die Zusage.
     """
 
-    return " ".join(_prompt(name).split())
+    ohne_zitatzeichen = re.sub(r"^\s*>\s?", "", _prompt(name), flags=re.M)
+    return " ".join(ohne_zitatzeichen.split())
 
 
 AUSWAHL = "zielarchitektur"
@@ -39,11 +42,11 @@ REST = "ergebnis_teil2b"
 def test_the_selection_asks_for_the_smallest_sufficient_set() -> None:
     """Die Auswahlregel steht da, und sie steht als Frage."""
 
-    prompt = _prompt(AUSWAHL)
+    fliess = _fliesstext(AUSWAHL)
 
-    assert "kleinste Menge" in prompt
-    assert "Würde die Lösung ohne diese Familie weiterhin funktionieren" in prompt
-    assert "Ist die Antwort ja, wähle sie nicht" in prompt
+    assert "kleinste Menge" in fliess
+    assert "Löst die verbleibende Gesamtlösung ohne diese Familie" in fliess
+    assert "Bleibt eine dafür notwendige Station ungelöst" in fliess
 
 
 def test_a_mention_is_not_a_recommendation() -> None:
@@ -162,3 +165,76 @@ def test_modules_describe_the_existing_system_not_a_new_place() -> None:
 
     assert "eingerichtet, vereinheitlicht oder angebunden" in fliess
     assert "nicht, wie ein neuer zentraler Ort entsteht" in fliess
+
+
+# --- Vollstaendigkeit vor Minimalitaet ------------------------------------
+
+
+def test_completeness_comes_before_minimality() -> None:
+    """**Der Salami-Effekt.**
+
+    Fuer sich allein wirkt fast jede Familie verzichtbar. Fuenf solche
+    Entscheidungen spaeter fehlt mitten im Ablauf eine Station. Deshalb
+    erst vollstaendig waehlen, dann kuerzen -- in dieser Reihenfolge.
+    """
+
+    fliess = _fliesstext(AUSWAHL)
+
+    assert "Vollständigkeit kommt vor Minimalität" in fliess
+    assert "Ende zu Ende" in fliess
+    assert "Erst danach reduzierst du diese Menge" in fliess
+
+
+def test_the_cut_is_checked_against_the_rest_not_the_single_family() -> None:
+    """Geprueft wird die verbleibende Gesamtloesung, nicht die Familie."""
+
+    fliess = _fliesstext(AUSWAHL)
+
+    assert (
+        "Löst die verbleibende Gesamtlösung ohne diese Familie weiterhin den "
+        "vollständigen Kernengpass"
+    ) in fliess
+    assert "Bleibt eine dafür notwendige Station ungelöst, bleibt die Familie" in fliess
+
+
+def test_small_stays_possible_and_large_stays_possible() -> None:
+    """Minimal heisst nicht klein, sondern nicht mehr als noetig."""
+
+    fliess = _fliesstext(AUSWAHL)
+
+    assert "So klein wie möglich, aber so vollständig wie nötig" in fliess
+
+
+def test_a_mention_is_not_a_station() -> None:
+    """Eine erwaehnte Taetigkeit ist keine Station des Kernengpasses."""
+
+    fliess = _fliesstext(AUSWAHL)
+
+    assert "Nicht** jede Tätigkeit, die der Betrieb erwähnt, ist eine Station" in fliess
+    assert "blosse Erwähnungen sind keine" in fliess
+
+
+# --- Der Prompt behauptet nichts, was der Aufruf nicht mitschickt ---------
+
+
+def test_the_selection_prompt_promises_only_what_the_call_delivers() -> None:
+    """**Ein Prompt, der einen Abschnitt nennt, den es nicht gibt, luegt.**
+
+    Das Zielbildmuster entsteht erst nach der Auswahl -- der Server sucht es
+    zu den geprueften Familien. Der Auswahlaufruf bekommt keines. Stand es
+    trotzdem im Prompt, suchte das Modell nach einem leeren Abschnitt.
+    """
+
+    import inspect
+
+    from app import openai_service
+
+    quelle = inspect.getsource(openai_service.generate_target_architecture)
+    abschnitte = re.findall(r'"([A-Z][A-Z_]+)":', quelle)
+
+    assert "ZIELBILDMUSTER" not in abschnitte
+    assert "ZIELBILDMUSTER" not in _prompt(AUSWAHL)
+
+    # Und umgekehrt: Was der Aufruf mitschickt, steht auch im Prompt.
+    for name in abschnitte:
+        assert name in _prompt(AUSWAHL), name
