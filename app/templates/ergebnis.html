@@ -193,15 +193,31 @@
 
    Die Beispielansichten, die das Modell für **diesen** Betrieb gewählt hat.
    Höchstens zwei: Sie sollen zeigen, nicht erschlagen. Die Makros dafür
-   stehen seit jeher in `ansichten.html` — hier bekommen sie ihren Platz. #}
+   stehen seit jeher in `ansichten.html` — hier bekommen sie ihren Platz.
+
+   **Die Grösse folgt dem Ansichtstyp.** Ein Tagesüberblick ist eine breite
+   Tabelle, eine Nachrichtenliste ist schmal. Beide in zwei gleiche Hälften
+   zu pressen macht aus einer Komposition ein Tabellenblatt: Die breite wird
+   gequetscht, neben der schmalen bleibt Luft. Welche breit ist, steht im
+   Typ und muss nie geraten werden. Stellt sich eine Zuordnung als falsch
+   heraus, ändert sich eine Zeile hier — nicht der Aufbau der Seite. #}
 {% set gezeigte = e.ansichten[:2] %}
+{% set breite_typen = ['uebersicht', 'terminuebersicht',
+                       'dokumentenablage', 'vorgangsakte'] %}
+{%- set formen = [] -%}
+{%- for ansicht in gezeigte -%}
+  {%- set _ = formen.append('breit' if ansicht.typ in breite_typen
+                            else 'schmal') -%}
+{%- endfor -%}
+{%- set form = formen | join('-') -%}
 {% if gezeigte %}
 <section class="konkret">
   <div class="flaeche">
     <h2>So könnte das bei Ihnen aussehen</h2>
     <p class="lauftext">Beispielbildschirme mit erfundenen Namen und Objekten.
     Der Aufbau ist gemeint, nicht die Inhalte.</p>
-    <div class="ansichtspaar ansichtspaar--{{ gezeigte | length }}">
+    {# `breit-schmal` heisst: breite Ansicht links, schmale rechts. #}
+    <div class="ansichtspaar ansichtspaar--{{ gezeigte | length }}{% if gezeigte | length == 2 %} ansichtspaar--{{ form }}{% endif %}">
       {% for v in gezeigte %}
       {# `ergebnis` ist hier kein Zufall: Die Gestaltung der
          Beispielansichten haengt seit jeher an dieser Klasse. Ohne
@@ -215,110 +231,42 @@
 {% endif %}
 
 
-{# ═══════════════ 3b · WAS SIE BEREITS HABEN ═══════════════
+{# ═══════════════ 4 · DAS WÜRDEN WIR FÜR SIE ERGÄNZEN ═════════════
 
-   Der stärkste Satz für einen kleinen Betrieb steht nicht in der Liste
-   dessen, was er bekommt, sondern in der Liste dessen, was bleibt. Wer
-   fürchtet, alles wegwerfen zu müssen, liest hier, dass er es nicht muss.
+   Ein Branchenkatalog zeigt jedem dieselben zwölf Kacheln. Diese Liste
+   folgt aus dem, was dieser Betrieb erzählt hat — mal zwei Bausteine,
+   mal sechs.
 
-   Die Systeme stehen seit jeher im Ergebnis — sie kommen aus **seiner**
-   Erzählung, nicht aus einem Branchenkatalog. #}
-{% if e.systeme %}
-<section class="bestand">
-  <div class="flaeche">
-    <h2>Darauf bauen wir auf</h2>
-    <p class="lauftext">Diese Systeme arbeiten heute in Ihrem Betrieb. Was
-    sich anbinden lässt, verbinden wir; was bleiben soll, bleibt. Hier steht
-    für jedes, was damit passiert.</p>
-    <ul class="systemliste">
-      {% for system in e.systeme %}
-      <li>
-        <svg aria-hidden="true"><use href="#i-haken"/></svg>
-        <div>
-          <b>{{ system.name }}</b>
-          <span>{{ system.umgang }}</span>
-        </div>
-      </li>
-      {% endfor %}
-    </ul>
-  </div>
-</section>
-{% endif %}
-
-
-{# ═══════════════ 4 · DAS IST FÜR IHREN BETRIEB SINNVOLL ═════════
-
-   Nicht „das bekommen Sie", sondern „das ist für Sie sinnvoll". Der
-   Unterschied ist der ganze Punkt: Ein Branchenkatalog zeigt jedem
-   dieselben zwölf Kacheln. Diese Liste folgt aus dem, was dieser
-   Betrieb erzählt hat — mal zwei Bausteine, mal sechs. #}
+   **Der Nutzen steht oben, der Name darunter.** Vorher führte jede Karte
+   mit ihrem technischen Namen und trug den Nutzen klein in einer Pille am
+   Fuss. So las sich die Reihe als Softwarekatalog. Andersherum liest sie
+   sich als das, was er davon hat — und das ist es, was verkauft. Fehlt
+   der Nutzen, führt der Name; erfunden wird nichts. #}
 {% if e.module %}
 <section class="bausteine">
   <div class="flaeche">
     <h2>Das würden wir für Sie ergänzen</h2>
     <div class="bausteinraster">
       {% for modul in e.module %}
-      <article class="baustein{% if modul.stufe and modul.stufe != 'jetzt' %} baustein--spaeter{% endif %}">
+      <article class="baustein">
         <span class="bausteinsymbol">
           <svg aria-hidden="true"><use href="#i-baustein"/></svg>
         </span>
-        {% if modul.gruppe %}
-        <span class="bausteingruppe">{{ modul.gruppe }}</span>
-        {% endif %}
-        <h3>{{ modul.name }}</h3>
-        <p>{{ modul.beschreibung }}</p>
         {% if modul.nutzen %}
-        <span class="nutzen">{{ modul.nutzen }}</span>
+        <h3>{{ modul.nutzen }}</h3>
+        <span class="bausteinname">{{ modul.name }}</span>
+        {% else %}
+        <h3>{{ modul.name }}</h3>
         {% endif %}
-        {% set beschriftung = {'jetzt': 'Jetzt',
-                               'danach': 'Darauf baut auf',
-                               'spaeter': 'Wo das hinführt'}.get(modul.stufe) %}
-        {% if beschriftung %}
-        <span class="stufe">{{ beschriftung }}</span>
-        {% endif %}
+        <p>{{ modul.beschreibung }}</p>
       </article>
       {% endfor %}
     </div>
     <p class="lauftext">Diese Bausteine gehören zu einer gemeinsamen Lösung.
     Es sind keine Produkte, die Sie einzeln kaufen müssen — und es ist keine
     Liste, die jeder Betrieb bekommt.</p>
-  </div>
-</section>
-{% endif %}
-
-
-{# ═══════════════ 4b · WAS NICHTS KOSTET ═══════════════
-
-   Vor den Bausteinen wäre es zu früh — er weiß dann noch nicht,
-   wovon die Rede ist. Danach ist es das Beste, was hier steht: ein
-   Vorschlag, der ihn nichts kostet, belegt mit seinem eigenen Satz.
-
-   Nur der erste. Der zweite war fast immer der schwächere und schnitt
-   sich mit dem, was die Lösung ohnehin übernimmt — ein Vorschlag, der
-   Einrichtung braucht, ist kein Vorschlag „ohne Technik" mehr. Alle
-   Hebel stehen weiterhin vollständig im PDF. #}
-{%- set ohne_technik = e.hebel | selectattr('ohne_technik') | list -%}
-{% if ohne_technik %}
-<section class="ohnetechnik">
-  <div class="flaeche">
-    {%- set gezeigt = ohne_technik[:1] -%}
-    <h2>Eine Sache, die Sie ohne Technik ändern könnten</h2>
-    {# Kein „kostet nichts, wirkt sofort": Was es kostet und wann es
-       wirkt, wissen wir von hier aus nicht. #}
-    <p class="lauftext">Dafür braucht es keine neue Technik, sondern eine
-    Entscheidung.</p>
-    <div class="hebelpaar">
-      {% for h in gezeigt %}
-      <article class="hebelkarte">
-        <h3>{{ h.idee }}</h3>
-        <p>{{ h.warum }}</p>
-        {# Der Satz, aus dem der Hebel folgt — wörtlich aus seiner
-           Erzählung, geprüft wie ein Zitat. Ohne ihn wäre es ein
-           Ratschlag für irgendeinen Betrieb. #}
-        <em>Sie haben gesagt: „{{ h.woraus }}“</em>
-      </article>
-      {% endfor %}
-    </div>
+    {# Die Reihenfolge, in der wir das aufbauen würden, steht im Ausdruck.
+       Auf dieser Seite entscheidet er, ob er das überhaupt will. #}
   </div>
 </section>
 {% endif %}
@@ -327,15 +275,21 @@
 {# ═══════════════ 5 · AUTOMATISCH UND MENSCH ═══════════════
 
    Die wichtigste Fläche für das Vertrauen eines kleinen Betriebs: Er gibt
-   nichts aus der Hand. #}
+   nichts aus der Hand.
+
+   **Zukunft, nicht Gegenwart.** „Was automatisch läuft" liest sich, als
+   liefe es schon — und dann ist unklar, ob wir seinen Betrieb beschreiben
+   oder unser Angebot. Es läuft noch nicht; es würde laufen. #}
 {% if e.aufgabenteilung.system or e.aufgabenteilung.mensch %}
 <section class="teilung">
   <div class="flaeche">
-    <h2>Was automatisch läuft — und was bei Ihnen bleibt</h2>
+    <h2>Was künftig automatisch liefe — und was bei Ihnen bliebe</h2>
+    <p class="lauftext">Nichts davon läuft heute schon. So wäre die
+    Aufteilung, wenn wir die Lösung für Sie gebaut haben.</p>
     <div class="spalten">
       {% if e.aufgabenteilung.system %}
       <div class="spalte spalte--system">
-        <h3>Läuft automatisch</h3>
+        <h3>Das übernimmt das System</h3>
         <ul>
           {% for zeile in e.aufgabenteilung.system %}
           <li><svg aria-hidden="true"><use href="#i-haken"/></svg><span>{{ zeile }}</span></li>
@@ -346,7 +300,7 @@
 
       {% if e.aufgabenteilung.mensch %}
       <div class="spalte spalte--mensch">
-        <h3>Sie entscheiden</h3>
+        <h3>Das entscheiden weiterhin Sie</h3>
         <ul>
           {% for zeile in e.aufgabenteilung.mensch %}
           <li><svg aria-hidden="true"><use href="#i-person"/></svg><span>{{ zeile }}</span></li>
@@ -358,9 +312,14 @@
 
     {# Jede Grenze hat einen Titel und eine Erlaeuterung. `join` machte
        daraus die Python-Darstellung des Objekts — der Kunde las seinen
-       eigenen Wunsch als Quelltext. #}
+       eigenen Wunsch als Quelltext.
+
+       Ohne Überschrift stand hier eine Liste von Zusagen, die aus dem
+       Nichts kam. Sie kommt nicht aus dem Nichts: Das sind seine Sätze,
+       und wir halten uns daran. Genau das muss dabeistehen. #}
     {% if e.aufgabenteilung.grenzen %}
     <div class="grenzen">
+      <p class="grenzenkopf">Das haben Sie gesagt — daran halten wir uns</p>
       {% for grenze in e.aufgabenteilung.grenzen %}
       <p class="grenze">
         <svg aria-hidden="true"><use href="#i-schutz"/></svg>
@@ -380,36 +339,16 @@
 {% endif %}
 
 
-{# ═══════════════ 6 · SO WÜRDEN WIR ANFANGEN ═══════════════
+{# ═══════════════ 7 · WIE ES WEITERGEHT ═══════════════
 
-   Der Anfang, nicht der ganze Plan. Neun Schritte liest niemand auf einer
-   Tafel; die ersten drei beantworten die Frage, die er hat. Vollständig
-   steht die Reihenfolge im PDF — weggelassen wird nichts. #}
-{% set anfang = e.umsetzung[:3] %}
-{% if anfang %}
-<section class="anfang">
-  <div class="flaeche">
-    <h2>So würden wir anfangen</h2>
-    <ol class="schritte">
-      {% for schritt in anfang %}
-      <li>
-        <span class="schrittnummer">{{ loop.index }}</span>
-        <p>{{ schritt.text if schritt.text is defined else schritt }}</p>
-      </li>
-      {% endfor %}
-    </ol>
-    {% if e.umsetzung | length > 3 %}
-    <p class="lauftext">Die vollständige Reihenfolge mit allen
-    {{ e.umsetzung | length }} Schritten steht in der Auswertung zum Mitnehmen.</p>
-    {% endif %}
-  </div>
-</section>
-{% endif %}
-
-
-{# ═══════════════ 7 · WIE ES WEITERGEHT ═══════════════ #}
+   Eine Frage, keine Ansage. Der Startplan stand früher hier und hat
+   erklärt, wie wir vorgehen — das interessiert an dieser Stelle noch
+   niemanden. Erst muss er denken „das will ich". #}
 <section class="abschluss">
   <div class="flaeche">
+    <h2>Möchten Sie so arbeiten?</h2>
+    <p class="bruecke">Wir können diese Lösung mit Ihnen konkret auf Ihren
+    Betrieb und Ihre vorhandenen Systeme übertragen.</p>
     <p class="versprechen">
       <svg aria-hidden="true"><use href="#i-schutz"/></svg>
       <span>Ihre vorhandenen Systeme bleiben. Entscheidungen bleiben bei Ihnen.</span>

@@ -189,36 +189,34 @@ def _hebel(**overrides: object) -> object:
     return Lever(**daten)  # type: ignore[arg-type]
 
 
-def test_the_section_shows_what_costs_nothing(
+def test_the_board_carries_no_free_advice(
     client: TestClient, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Idee, Begründung und der Satz, aus dem sie folgt — alle drei sichtbar.
+    """Auf der Verkaufsseite steht nicht, was er umsonst selbst ändern kann.
 
-    Ohne den Satz wäre der Vorschlag ein Ratschlag für irgendeinen Betrieb;
-    er ist der Beleg und gehört deshalb auf die Seite, nicht nur ins PDF.
+    Die Seite zeigt, was wir für ihn bauen würden. Daneben zu erklären, was
+    er ohne uns hinbekommt, ist eine Ausfahrt aus genau dem Gespräch, das
+    die Seite eröffnen soll. Die Hebel sind deshalb nicht gestrichen — sie
+    stehen vollständig im Ausdruck, wo die Beratung stattfindet.
     """
 
-    seite = _mit_hebeln(client, monkeypatch, _hebel())
+    seite = _mit_hebeln(
+        client,
+        monkeypatch,
+        _hebel(idee="Erster Hebel."),
+        _hebel(idee="Zweiter Hebel."),
+    )
 
-    assert "ohne Technik ändern könnten" in seite
-    assert "Halten Sie jede Zusage noch im Gespräch fest." in seite
-    assert "Dann muss sie später niemand zusammensuchen." in seite
-    assert "Jeder arbeitet ein bisschen anders." in seite
+    assert "ohne Technik" not in seite
+    assert "Erster Hebel." not in seite
+    assert "Zweiter Hebel." not in seite
+    # Und der Ausdruck trägt sie weiterhin alle: Die Druckvorlage läuft über
+    # `e.hebel` und schneidet nichts ab.
+    druckvorlage = (
+        Path(__file__).resolve().parents[1] / "app/templates/ergebnis_teile.html"
+    ).read_text(encoding="utf-8")
+    assert "{% for h in e.hebel %}" in druckvorlage
 
-
-def test_without_levers_there_is_no_empty_heading(
-    client: TestClient, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    """Ohne Hebel entfällt der Abschnitt ganz.
-
-    Die Hebel werden hier ausdrücklich geleert, statt sich darauf zu
-    verlassen, dass der hinterlegte Beispiellauf gerade keine hat. Er wird
-    ersetzt, sobald ein besserer entsteht — die Zusage bleibt.
-    """
-
-    seite = _mit_hebeln(client, monkeypatch)
-
-    assert "ohne Technik ändern könnten" not in seite
 
 
 def test_the_stored_example_carries_a_full_result(client: TestClient) -> None:
@@ -234,12 +232,18 @@ def test_the_stored_example_carries_a_full_result(client: TestClient) -> None:
         "Das haben wir verstanden",
         "Was sich dadurch ändert",
         "So könnte das bei Ihnen aussehen",
-        "Darauf bauen wir auf",
         "Das würden wir für Sie ergänzen",
-        "Was automatisch läuft",
-        "So würden wir anfangen",
+        "Was künftig automatisch liefe",
+        "Möchten Sie so arbeiten?",
     ):
         assert abschnitt in seite, abschnitt
+
+    # **Und was nicht mehr daraufgehört.** Die Bestandsliste zeigt ihm, wie
+    # viel er schon hat — auf der Seite, auf der er entscheidet, ob er weiter
+    # schaut. Der Startplan erklärt unser Vorgehen, bevor er überhaupt will.
+    # Beides ist nicht gestrichen, sondern in den Ausdruck gewandert.
+    for verschoben in ("Darauf bauen wir auf", "So würden wir anfangen"):
+        assert verschoben not in seite, verschoben
 
 
 def test_a_lever_that_needs_technology_is_not_promised_as_free(
@@ -255,53 +259,3 @@ def test_a_lever_that_needs_technology_is_not_promised_as_free(
 
     assert "ohne Technik ändern könnten" not in seite
     assert "Führen Sie eine Sammelstelle ein." not in seite
-
-
-def test_the_page_shows_exactly_one_lever(
-    client: TestClient, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    """Die Seite zeigt den ersten Hebel, nicht mehr.
-
-    Vorher standen zwei da. Der zweite war fast immer der schwächere und
-    schnitt sich mit dem, was die Lösung ohnehin übernimmt — ein Vorschlag,
-    der Einrichtung braucht, ist kein Vorschlag „ohne Technik" mehr. Ein
-    starker Hebel überzeugt; ein starker und ein fadenscheiniger nicht.
-    """
-
-    seite = _mit_hebeln(
-        client,
-        monkeypatch,
-        _hebel(idee="Erster Hebel."),
-        _hebel(idee="Zweiter Hebel."),
-        _hebel(idee="Dritter Hebel."),
-    )
-
-    assert "Erster Hebel." in seite
-    assert "Zweiter Hebel." not in seite
-    assert "Dritter Hebel." not in seite
-    assert "Eine Sache, die Sie ohne Technik ändern könnten" in seite
-    # Was hier wegfällt, ist nicht verloren. Die Beispielseite hat keine
-    # Sitzung und damit keinen Ausdruck — geprüft wird deshalb an der
-    # Druckvorlage selbst, dass sie über alle Hebel läuft und keinen
-    # abschneidet.
-    druckvorlage = (
-        Path(__file__).resolve().parents[1]
-        / "app/templates/ergebnis_teile.html"
-    ).read_text(encoding="utf-8")
-    assert '{% for h in e.hebel %}' in druckvorlage
-
-
-def test_the_page_promises_nothing_about_cost_or_speed(
-    client: TestClient, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    """Kein „kostet Sie nichts und wirkt sofort".
-
-    Was eine Umstellung im Betrieb des Kunden kostet und wann sie wirkt,
-    lässt sich von hier aus nicht wissen. Der Satz stand als feste
-    Behauptung in der Vorlage und galt damit für jeden Betrieb.
-    """
-
-    seite = _mit_hebeln(client, monkeypatch, _hebel(idee="Erster Hebel."))
-
-    assert "kostet Sie nichts" not in seite
-    assert "wirkt sofort" not in seite

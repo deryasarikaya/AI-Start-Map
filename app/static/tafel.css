@@ -70,9 +70,12 @@
  * `62ch` brachen sie mitten in der Zeile um und sahen abgehackt aus. */
 /* Wenig Fliesstext. Diese Zeile ordnet ein, sie erklärt nicht. */
 .tafel .lauftext {
-  color: var(--tinte-leise); margin: 0 0 24px; max-width: 92ch;
+  color: var(--tinte-leise); margin: 0 0 24px; max-width: none;
   font-size: .93rem;
 }
+/* Auch die kurzen Unterzeilen aus `styles.css` tragen dort ein
+   `max-width: 64ch` mit sich herum. Auf der Tafel bremst das nur. */
+.tafel .sub { max-width: none; }
 /* Die Farbkachel hinter einem Symbol. Nackte Icons verschwinden im
  * Text; in einer getönten Kachel sind sie Ankerpunkte, von denen das
  * Auge zum nächsten springt. */
@@ -268,6 +271,19 @@
 }
 /* Eine einzelne Ansicht teilt sich nichts. */
 .tafel .ansichtspaar--1 { grid-template-columns: minmax(0, 1fr); }
+/* **Grösse nach Inhalt, nicht nach Raster.** Ein Tagesüberblick ist eine
+ * breite Tabelle, eine Nachrichtenliste ist schmal. Zwei gleiche Hälften
+ * quetschen die eine und lassen neben der anderen Luft. Welche breit ist,
+ * sagt der Ansichtstyp — die Vorlage hängt es als Klasse an. */
+.tafel .ansichtspaar--breit-schmal {
+  grid-template-columns: minmax(0, 62fr) minmax(0, 38fr);
+}
+.tafel .ansichtspaar--schmal-breit {
+  grid-template-columns: minmax(0, 38fr) minmax(0, 62fr);
+}
+/* Zwei gleichartige teilen sich die Fläche; das ist der Normalfall
+   und steht bereits oben. Keine erzwungene gleiche Höhe: Die schmale
+   Ansicht darf früher enden, statt mit Luft aufgefüllt zu werden. */
 .tafel .ansichtsplatz { background: none; border: 0; padding: 0; }
 /* Titel, eine kurze Zeile, dann das Fenster — untereinander, in dieser
  * Reihenfolge. Keine seitliche Textspalte, keine Spiegelung. */
@@ -275,15 +291,24 @@
 .tafel .ansichtsplatz .mock > h3 {
   font-size: 1.15rem; letter-spacing: -.015em; margin: 0 0 4px;
 }
+/* `styles.css` gibt dieser Zeile `max-width: 62ch` — eine Lesebreite für
+ * Absätze. Hier ist es eine einzige Zeile, und sie brach mitten im Satz
+ * um, während rechts daneben Platz blieb. */
 .tafel .ansichtsplatz .mock > .mdesc {
   font-size: .92rem; margin: 0 0 14px; color: var(--tinte-leise);
+  max-width: none;
 }
 /* Der Produktbeweis liegt am höchsten von allem auf der Tafel. */
 .tafel .ansichtsplatz .mock > .screen {
   box-shadow: var(--heben-3); border: 0;
 }
 .tafel .ansichtsplatz > * { max-width: 100%; }
-.tafel .ansichtsplatz { background: var(--flaeche); color: var(--tinte); }
+/* **Keine zweite Hintergrundregel.** Hier stand noch einmal
+ * `background: var(--flaeche)` und hat das `none` dreissig Zeilen weiter
+ * oben überschrieben. Das Ergebnis war ein weisser Block hinter Titel,
+ * Unterzeile und Fensterrand — mitten auf dem getönten Grund. Die Farbe
+ * bringt das Fenster selbst mit; sein Platz braucht keine. */
+.tafel .ansichtsplatz { color: var(--tinte); }
 .tafel .ansichtsplatz .bar { background: #eef2f7; }
 .tafel .ansichtsplatz .dot { background: #c3cedb; }
 .tafel .ansichtsplatz .screen { border: 0; }
@@ -342,32 +367,24 @@
 }
 .tafel .bausteinsymbol svg { width: 20px; height: 20px; }
 .tafel .baustein h3 {
-  margin-bottom: 7px; line-height: 1.3; font-size: 1.02rem;
+  margin-bottom: 0; line-height: 1.28; font-size: 1.14rem;
+  font-weight: 680; letter-spacing: -.015em;
 }
 .tafel .baustein p {
   margin: 0; font-size: .875rem; color: var(--tinte-leise); line-height: 1.5;
 }
-/* Die Gruppe sagt, wozu der Baustein gehoert — als leise Zeile
- * ueber dem Namen, nicht als weitere Ueberschrift. */
-.tafel .bausteingruppe {
-  display: block; font-size: .72rem; letter-spacing: .09em;
-  text-transform: uppercase; color: var(--marke); margin-bottom: 6px;
-}
-/* Was er davon hat — die Zeile, die den Baustein verkauft. */
-.tafel .nutzen {
-  display: inline-block; margin-top: 12px; padding: 5px 12px;
-  border-radius: 999px; background: var(--marke-hell);
-  color: var(--marke); font-size: .8rem; font-weight: 600;
+/* Der technische Name, jetzt als Unterzeile. Vorher stand er als
+ * Überschrift oben und der Nutzen klein am Fuss — so las sich die Reihe
+ * als Softwarekatalog. Andersherum liest sie sich als das, was er davon
+ * hat, und das ist es, was verkauft. */
+.tafel .bausteinname {
+  display: block; margin: 5px 0 10px; font-size: .82rem;
+  letter-spacing: .04em; color: var(--tinte-leise);
 }
 /* **Keine graue Ausnahme.** Die spätere Stufe war grau eingefärbt,
  * während die erste weiss blieb — nebeneinander sah das aus wie ein
  * Fehler und nicht wie eine Aussage. Die Stufe steht als Wort da; die
  * Karten sehen alle gleich aus. */
-.tafel .stufe {
-  display: inline-block; margin-top: 13px; font-size: .74rem;
-  letter-spacing: .06em; text-transform: uppercase;
-  color: var(--tinte-leise);
-}
 
 /* ── Was nichts kostet ────────────────────────────────────────────────*/
 .tafel .hebelpaar {
@@ -413,8 +430,15 @@
  * jede an einer anderen Stelle an — der ganze Block sah verrutscht aus.
  * Der Block als Ganzes steht mittig, die Zeilen darin untereinander. */
 .tafel .grenzen {
-  display: grid; gap: 12px; margin: 24px auto 0;
+  display: grid; gap: 12px; margin: 30px auto 0;
   width: fit-content; max-width: 100%;
+}
+/* Ohne diese Zeile stand hier eine Liste von Zusagen, die aus dem
+   Nichts kam. Sie kommt aus seinen eigenen Sätzen. */
+.tafel .grenzenkopf {
+  margin: 0 0 4px; font-size: .78rem; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--tinte-leise);
 }
 .tafel .grenze, .tafel .versprechen {
   display: grid; grid-template-columns: 22px 1fr; gap: 12px;
@@ -459,6 +483,14 @@
   color: var(--tinte-schwach); }
 
 /* ── Abschluss ────────────────────────────────────────────────────────*/
+/* Eine Frage, gross gesetzt, und ein Satz darunter. Hier stand früher
+ * der Startplan; der erklärt unser Vorgehen, und danach fragt an dieser
+ * Stelle noch niemand. */
+.tafel .abschluss h2 { text-align: center; }
+.tafel .bruecke {
+  margin: 0 auto 26px; max-width: 58ch; text-align: center;
+  color: var(--tinte-schwach); font-size: 1.02rem;
+}
 .tafel .abschluss { text-align: center; padding-bottom: 68px; }
 .tafel .knoepfe {
   display: flex; flex-wrap: wrap; gap: 14px; justify-content: center;

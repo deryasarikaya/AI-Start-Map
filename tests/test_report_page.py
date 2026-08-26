@@ -7,6 +7,8 @@ Kürzung der Seite ein Verlust statt einer Verlagerung.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from fastapi.testclient import TestClient
 
 from tests.conftest import walk_to_the_result
@@ -102,19 +104,31 @@ def test_the_result_page_links_to_the_report(client: TestClient) -> None:
     assert "/report" in seite
 
 
-def test_the_order_is_shown_on_the_page(client: TestClient) -> None:
-    """Drei Zeilen unter den Modulen: womit angefangen wird und wie es weitergeht."""
+def test_the_module_card_leads_with_the_benefit(client: TestClient) -> None:
+    """Oben steht, was er davon hat — der technische Name darunter.
+
+    Andersherum las sich die Reihe als Softwarekatalog: erst ein Name, den
+    er nicht kennt, und ganz unten klein, warum ihn das interessieren
+    sollte. Die Reihenfolge der Bauphasen ist von der Karte verschwunden;
+    womit angefangen wird, gehört ins Gespräch und in den Ausdruck, nicht
+    auf die Seite, auf der er noch entscheidet, ob er überhaupt will.
+    """
 
     walk_to_the_result(client, ERZAEHLT)
 
     seite = client.get("/results").text
 
-    # Früher ein eigener Abschnitt unter den Modulen; auf der Tafel
-    # steht die Reihenfolge an der Karte selbst.
-    for beschriftung in ("Jetzt", "Darauf baut auf", "Wo das hinführt"):
-        assert beschriftung in seite
-    # Eigene Klassen: `.step` gehört den nummerierten Umsetzungsschritten.
-    assert 'class="stufe">' in seite
+    for bauphase in ("Darauf baut auf", "Wo das hinführt"):
+        assert bauphase not in seite, bauphase
+
+    # Trägt ein Modul einen Nutzen, führt er die Karte und der Name rückt
+    # darunter; fehlt er, führt der Name. Erfunden wird nichts — deshalb
+    # steht die Reihenfolge in der Vorlage und wird dort geprüft.
+    vorlage = (
+        Path(__file__).resolve().parents[1] / "app/templates/ergebnis.html"
+    ).read_text(encoding="utf-8")
+    nutzen_zuerst = vorlage.index("<h3>{{ modul.nutzen }}</h3>")
+    assert nutzen_zuerst < vorlage.index('<span class="bausteinname">')
 
 
 
