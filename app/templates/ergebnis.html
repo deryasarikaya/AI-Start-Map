@@ -115,11 +115,27 @@
 
    Das Herzstück. Es kommt vollständig aus `zielbild.ablauf` — so viele
    Stufen, wie dieser Betrieb hat. Ein Blumenladen bekommt drei Karten, eine
-   Hausverwaltung fünf. Hier baut niemand ein Muster nach. #}
+   Hausverwaltung fünf. Hier baut niemand ein Muster nach.
+
+   **Es muss dranstehen, dass das die Zukunft ist.** Über dem Band stand nur
+   `zielbild.name` — ein technischer Name, den das Modell vergeben hat. Wer
+   darauf schaut, kann nicht wissen, ob wir seinen heutigen Betrieb
+   beschreiben oder unser Angebot. Genau diese Frage hat der Kunde gestellt.
+
+   Der Name des Zielbilds führt deshalb nicht mehr; er steht als leise Zeile
+   darüber. Er ist eine Einordnung für uns, kein Verkaufsargument — „Zentraler
+   Aufnahme- und Zuordnungsworkflow" ist kein Satz, für den jemand zahlt. #}
 {% if e.zielbild.ablauf %}
 <section class="band">
   <div class="flaeche">
-    <h2 class="bandkopf">{{ e.zielbild.name }}</h2>
+    <div class="bandkopf">
+      {% if e.zielbild.name %}
+      <p class="zielbildname">{{ e.zielbild.name }}</p>
+      {% endif %}
+      <h2>So liefe Ihr Alltag künftig</h2>
+      <p class="lauftext">Heute läuft es anders. Das hier ist der Weg, den
+      eine Anfrage nähme, wenn die Lösung steht.</p>
+    </div>
     <ol class="stufen">
       {% for stufe in e.zielbild.ablauf %}
       <li class="bandstufe bandstufe--{{ stufe.art }}">

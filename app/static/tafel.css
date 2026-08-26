@@ -147,6 +147,13 @@
  * Breite genauso wie fuenf. */
 .tafel .band { padding-top: 40px; }
 .tafel .bandkopf { text-align: center; margin-bottom: 26px; }
+/* Der Name, den das Modell dem Zielbild gegeben hat: eine Einordnung,
+ * kein Verkaufsargument. Leise über der Überschrift statt als sie. */
+.tafel .zielbildname {
+  margin: 0 0 6px; font-size: .76rem; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--marke);
+}
+.tafel .bandkopf .lauftext { margin: 8px auto 0; max-width: 62ch; }
 /* Eine durchgehende Linie hinter den Karten: Der Blick liest einen
  * Weg statt fuenf Kaesten. Die Karten liegen darauf. */
 .tafel .stufen {
