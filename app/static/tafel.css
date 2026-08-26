@@ -216,13 +216,38 @@
 /* ── Beispielansichten ────────────────────────────────────────────────
  * Eine Ansicht bekommt die volle Breite, zwei teilen sie sich. Mehr als
  * zwei zeigt die Tafel nicht. */
-.tafel .ansichtspaar { display: grid; gap: 22px; }
-.tafel .ansichtspaar--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.tafel .ansichtsplatz {
-  background: var(--flaeche); border: 1px solid var(--linie);
-  border-radius: 18px; padding: 20px; box-shadow: var(--schatten);
-  overflow: hidden;
+/* Nicht zwei gleich grosse Karten nebeneinander — die ersticken sich.
+ * Jede Ansicht bekommt die volle Breite: links, was sie zeigt, rechts die
+ * Oberflaeche selbst. Die naechste spiegelt sich, damit der Blick nicht
+ * einschlaeft.
+ *
+ * Ohne neues Markup: Der Rahmen `.mock` liefert Titel, Beschreibung und
+ * Fenster als drei Kinder — hier werden sie nur anders gestellt. */
+.tafel .ansichtspaar { display: grid; gap: 40px; }
+.tafel .ansichtsplatz { background: none; border: 0; padding: 0; }
+.tafel .ansichtsplatz .mock {
+  display: grid; gap: 12px 44px; align-items: center;
+  grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
 }
+.tafel .ansichtsplatz .mock > h3 {
+  grid-column: 1; grid-row: 1; align-self: end;
+  font-size: 1.3rem; letter-spacing: -.015em;
+}
+.tafel .ansichtsplatz .mock > .mdesc {
+  grid-column: 1; grid-row: 2; align-self: start;
+  font-size: .95rem; margin: 0;
+}
+.tafel .ansichtsplatz .mock > .screen {
+  grid-column: 2; grid-row: 1 / span 2;
+  box-shadow: 0 2px 4px rgb(15 23 42 / .05), 0 18px 44px -14px rgb(15 23 42 / .22);
+}
+/* Die zweite Ansicht spiegelt sich. */
+.tafel .ansichtspaar > :nth-child(even) .mock {
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr);
+}
+.tafel .ansichtspaar > :nth-child(even) .mock > h3,
+.tafel .ansichtspaar > :nth-child(even) .mock > .mdesc { grid-column: 2; }
+.tafel .ansichtspaar > :nth-child(even) .mock > .screen { grid-column: 1; }
 .tafel .ansichtsplatz > * { max-width: 100%; }
 .tafel .ansichtsplatz { background: var(--flaeche); color: var(--tinte); }
 .tafel .ansichtsplatz .bar { background: #eef2f7; }
@@ -397,7 +422,18 @@
   .tafel .flaeche { width: min(100% - 32px, 100%); }
   .tafel .kopfraster,
   .tafel .spalten,
-  .tafel .ansichtspaar--2 { grid-template-columns: minmax(0, 1fr); }
+  .tafel .ansichtsplatz .mock,
+  .tafel .ansichtspaar > :nth-child(even) .mock {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .tafel .ansichtsplatz .mock > h3,
+  .tafel .ansichtsplatz .mock > .mdesc,
+  .tafel .ansichtsplatz .mock > .screen,
+  .tafel .ansichtspaar > :nth-child(even) .mock > h3,
+  .tafel .ansichtspaar > :nth-child(even) .mock > .mdesc,
+  .tafel .ansichtspaar > :nth-child(even) .mock > .screen {
+    grid-column: 1; grid-row: auto;
+  }
   /* Gepaart hat auf schmalen Schirmen keinen Sinn — nebeneinander
      passt nichts mehr. Dann stehen die Zeilen abwechselnd. */
   .tafel .gegenueber { grid-template-columns: minmax(0, 1fr); gap: 8px; }
