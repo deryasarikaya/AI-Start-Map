@@ -12,7 +12,10 @@
 .tafel {
   --tinte: #0f172a;
   --tinte-schwach: #475569;
-  --tinte-leise: #64748b;
+  /* Dunkler als es aussieht: Dieser Ton war für weissen Grund gewählt.
+   * Auf dem getönten Grund steht er als Grau auf Grau — und er trägt
+   * jede Unterzeile der Seite. */
+  --tinte-leise: #4c5a70;
   --linie: #e2e8f0;
   --flaeche: #ffffff;
   /* Der Grund ist **nie** weiss. Auf weissem Grund braucht eine weisse
