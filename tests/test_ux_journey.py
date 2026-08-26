@@ -99,7 +99,7 @@ def test_complete_public_journey(
     for text in (
         "AI Start Map · Auswertung",
         "So könnte das bei Ihnen aussehen",
-        "Das bekommen Sie konkret",
+        "Das ist für Ihren Betrieb sinnvoll",
         "Genau so möchte ich arbeiten",
     ):
         assert text in ergebnis.text

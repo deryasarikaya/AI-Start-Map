@@ -241,6 +241,25 @@
 .tafel .ansichtsplatz .badge.grey { background: #64748b; }
 .tafel .ansichtsplatz h3 { font-family: inherit; }
 
+/* ── Was schon da ist ─────────────────────────────────────────────────
+ * Bewusst ruhig gesetzt: Diese Liste beruhigt, sie verkauft nicht. */
+.tafel .systemliste {
+  list-style: none; margin: 0; padding: 0; display: grid; gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+}
+.tafel .systemliste li {
+  display: grid; grid-template-columns: 20px 1fr; gap: 12px;
+  align-items: start; padding: 15px 17px; border-radius: var(--rund);
+  background: var(--gut-hell); border: 1px solid #a7f3d0;
+}
+.tafel .systemliste svg {
+  width: 17px; height: 17px; color: var(--gut); margin-top: 3px;
+}
+.tafel .systemliste b { display: block; margin-bottom: 3px; }
+.tafel .systemliste span {
+  font-size: .875rem; color: var(--tinte-schwach); line-height: 1.5;
+}
+
 /* ── Bausteine ────────────────────────────────────────────────────────*/
 .tafel .bausteine { background: var(--flaeche); }
 /* `auto-fill` statt `auto-fit`: Bei sechs Karten bleibt die letzte

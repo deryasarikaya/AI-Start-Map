@@ -208,11 +208,46 @@
 {% endif %}
 
 
-{# ═══════════════ 4 · DAS BEKOMMEN SIE KONKRET ═══════════════ #}
+{# ═══════════════ 3b · WAS SIE BEREITS HABEN ═══════════════
+
+   Der stärkste Satz für einen kleinen Betrieb steht nicht in der Liste
+   dessen, was er bekommt, sondern in der Liste dessen, was bleibt. Wer
+   fürchtet, alles wegwerfen zu müssen, liest hier, dass er es nicht muss.
+
+   Die Systeme stehen seit jeher im Ergebnis — sie kommen aus **seiner**
+   Erzählung, nicht aus einem Branchenkatalog. #}
+{% if e.systeme %}
+<section class="bestand">
+  <div class="flaeche">
+    <h2>Das haben Sie bereits — und es bleibt</h2>
+    <p class="lauftext">Diese Systeme arbeiten in Ihrem Betrieb. Nichts davon
+    wird ersetzt; sie werden verbunden.</p>
+    <ul class="systemliste">
+      {% for system in e.systeme %}
+      <li>
+        <svg aria-hidden="true"><use href="#i-haken"/></svg>
+        <div>
+          <b>{{ system.name }}</b>
+          <span>{{ system.umgang }}</span>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endif %}
+
+
+{# ═══════════════ 4 · DAS IST FÜR IHREN BETRIEB SINNVOLL ═════════
+
+   Nicht „das bekommen Sie", sondern „das ist für Sie sinnvoll". Der
+   Unterschied ist der ganze Punkt: Ein Branchenkatalog zeigt jedem
+   dieselben zwölf Kacheln. Diese Liste folgt aus dem, was dieser
+   Betrieb erzählt hat — mal zwei Bausteine, mal sechs. #}
 {% if e.module %}
 <section class="bausteine">
   <div class="flaeche">
-    <h2>Das bekommen Sie konkret</h2>
+    <h2>Das ist für Ihren Betrieb sinnvoll</h2>
     <div class="bausteinraster">
       {% for modul in e.module %}
       <article class="baustein{% if modul.stufe and modul.stufe != 'jetzt' %} baustein--spaeter{% endif %}">
@@ -232,7 +267,8 @@
       {% endfor %}
     </div>
     <p class="lauftext">Diese Bausteine gehören zu einer gemeinsamen Lösung.
-    Es sind keine Produkte, die Sie einzeln kaufen müssen.</p>
+    Es sind keine Produkte, die Sie einzeln kaufen müssen — und es ist
+    keine Liste, die jeder Betrieb bekommt.</p>
   </div>
 </section>
 {% endif %}
