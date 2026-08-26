@@ -164,6 +164,17 @@ Beschreib hier die **Bestandteile** — nicht noch einmal das Zielbild.
 Jedes Modul hat:
 
 - `name` — der kundennahe Name. Deine Formulierung.
+
+  **Kein Name, der nach einem zweiten Programm klingt.** Auf derselben
+  Seite steht, dass das vorhandene Fachsystem bleibt und nichts Grosses
+  danebengestellt wird. Ein Modul namens „Auftragssystem",
+  „…-Plattform", „…-Tool" oder „…-Software" widerspricht dem im selben
+  Atemzug, und der Leser glaubt dann keinem von beiden.
+
+  Benenne, was der Mensch dort **tut oder sieht**, nicht das Programm:
+  „Gemeinsame Vorgangsakte mit Status und Zuständigkeit",
+  „Zentrale Vorgangsansicht", „Ihr gemeinsamer Anfrageeingang". Es ist
+  eine verbindende Arbeitsansicht über dem, was schon da ist.
 - `beschreibung` — was es für **diesen** Betrieb tut, an seinem Alltag
   festgemacht.
 - `nutzen` — zwei bis fünf Wörter, was er davon hat. Nicht was der
@@ -231,10 +242,40 @@ durchläuft. Jede Ebene hat eine `art`:
 `label` ist die Überschrift der Ebene. `knoten` sind ein bis sechs Kästen mit
 `text` (zwei bis fünf Wörter) und `kategorie` (ein Wort).
 
+**Beschrifte in der Sprache dieses Betriebs.** Die Wörter kommen aus
+seiner Erzählung, nicht aus einem anderen Gewerbe. „Behandlung
+entscheiden" steht in einer Praxis; in einer Hausverwaltung heißt
+dieselbe Stelle „Vorgang einordnen". Lies deine Beschriftungen einmal
+so, als stünden sie an der Wand seines Büros.
+
+Der `ausgang` benennt, **was hinten herauskommt** — nicht, wer es
+bekommt. Der Betrieb selbst ist nie der Empfänger: „Infos an die
+Hausverwaltung" sagt der Hausverwaltung, dass sie sich selbst etwas
+schickt. Richtig wäre „Stand und Ablage" mit den Kästen, die dabei
+entstehen.
+
 **vergleich_kuenftig** — höchstens sieben Zeilen: derselbe Vorgang, wenn
 die Lösung steht. Zeile für Zeile vergleichbar mit dem heutigen Ablauf aus
 der Diagnose: Was heute Zeile drei ist, ist künftig Zeile drei. Hier steht
 nur, **was sich ändert** — keine Begründung, keine Systembeschreibung.
+
+**Jede Zeile muss dieselbe Sache meinen wie ihre Gegenzeile.** Nicht eine
+andere Sache, die auch wahr wäre. Beides nebeneinander liest jemand, der
+seinen eigenen Betrieb kennt: Passt es nicht zusammen, fällt es sofort auf
+und alles andere wird unglaubwürdig.
+
+Was heute geschehen **muss**, geschieht auch künftig — die Zeile sagt dann,
+wie es geschieht, und nicht, dass es entfällt.
+
+> Heute: „Der zuständige Handwerker wird per E-Mail informiert."
+> Künftig, falsch: „Die zuständige Person erscheint in der Akte." Der
+> Handwerker steht dann irgendwo, weiß aber nichts. Der Vorgang ist nicht
+> besser, nur die Beschreibung.
+> Künftig, richtig: „Die Nachricht an den Handwerker wird aus dem Vorgang
+> vorbereitet und bleibt dort nachvollziehbar."
+
+Prüf jede Zeile einmal gegen ihre Gegenzeile: Ist es dieselbe Handlung?
+Wenn nein, gehört die Zeile umgeschrieben oder gestrichen.
 
 ## Ein Zielbild, keine Sammlung von Einzelteilen
 

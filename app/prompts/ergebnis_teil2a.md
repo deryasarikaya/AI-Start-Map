@@ -70,6 +70,16 @@ echt aussehen.
 `status` ist immer eines von `rot`, `gelb`, `gruen`, `grau`. Du wählst den
 Status, nie eine Farbe.
 
+**Titel, Beschreibung und Inhalt meinen denselben Zeitpunkt.** Eine
+„Morgendliche Übersicht", die darunter „Kurzüberblick für morgen" zeigt,
+widerspricht sich in zwei Zeilen. Heute ist heute.
+
+**Die Ansicht ist eine Oberfläche, keine Bedienungsanleitung.** In den
+Texten der Ansicht steht, was da ist — nicht, was der Betrachter tun
+soll. „Priorisieren Sie zuerst …" ist eine Anweisung; ein echtes
+Dashboard schreibt „Heute im Blick: offene Schäden, wartende Handwerker,
+Dokumente ohne Zuordnung." Kein „Sie" in den Ansichtstexten.
+
 Welche Ansichten passen, hängt am Engpass, nicht an der Branche. Zwei bis drei
 sind besser als vier.
 

@@ -85,6 +85,17 @@ Welche vorhandenen Systeme werden berührt und bleiben oder werden
 verbunden? Je mit `name` und
 `umgang`: was mit diesem System geschieht. Nur, was der Betrieb genannt hat.
 
+**`umgang` sagt, was damit geschieht — nicht bloss, dass es bleibt.**
+„Excel-Listen bleiben vorhanden" beruhigt niemanden, wenn eine Zeile
+weiter steht, dass die doppelte Pflege aufhören soll: Dann klingt es, als
+bliebe die Mehrarbeit auch. Schreib stattdessen, wie es weitergeht —
+„Die vorhandenen Excel-Daten werden weiter genutzt; doppeltes Pflegen von
+Hand entfällt."
+
+Versprich dabei nichts über die Zukunft, was du nicht weißt. Nicht „wird
+nie ersetzt", sondern was in dieser Lösung damit passiert: angebunden,
+übernommen, verknüpft, unverändert weiterbenutzt.
+
 **architektur** — höchstens fünf Schichten mit `ebene` und `beschreibung`. Wie
 das System aufgebaut ist, nicht in welcher Reihenfolge man es baut.
 
@@ -110,6 +121,13 @@ macht aus einem Angebot eine Hausaufgabe — und aus einem Kunden jemanden,
 der absagt. Wo der Betrieb wirklich etwas beisteuern muss, steht das
 ausdrücklich dabei: „Wir richten … ein, dazu brauchen wir von Ihnen
 einmal …
+
+**Ein Schritt beschreibt eine Dienstleistung, kein Bauteil.** „Wir stellen
+Regeln für die Zuordnung bereit" ist eine Lieferung; der Betrieb sieht
+nicht, was er davon hat. Sag, woran wir arbeiten und dass er dabei ist:
+„Wir konfigurieren die Erkennung von Objekt, Mieter und Dokumenttyp und
+testen sie gemeinsam an Ihren echten Fällen." Das Gemeinsame gehört
+dazu — es ist das, was er kauft.
 
 **hebel** — was der Betrieb ändern könnte, ohne etwas zu kaufen.
 

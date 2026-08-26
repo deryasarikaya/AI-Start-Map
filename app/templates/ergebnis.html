@@ -284,17 +284,20 @@
    wovon die Rede ist. Danach ist es das Beste, was hier steht: ein
    Vorschlag, der ihn nichts kostet, belegt mit seinem eigenen Satz.
 
-   Höchstens zwei. Zwei Karten sind eine Zeile; alle weiteren stehen
-   vollständig im PDF. #}
+   Nur der erste. Der zweite war fast immer der schwächere und schnitt
+   sich mit dem, was die Lösung ohnehin übernimmt — ein Vorschlag, der
+   Einrichtung braucht, ist kein Vorschlag „ohne Technik" mehr. Alle
+   Hebel stehen weiterhin vollständig im PDF. #}
 {%- set ohne_technik = e.hebel | selectattr('ohne_technik') | list -%}
 {% if ohne_technik %}
 <section class="ohnetechnik">
   <div class="flaeche">
-    {%- set gezeigt = ohne_technik[:2] -%}
-    {%- set wieviele = {1: 'Eine Sache', 2: 'Zwei Dinge'}.get(
-                        gezeigt | length, 'Dinge') -%}
-    <h2>{{ wieviele }}, die Sie ohne Technik ändern könnten</h2>
-    <p class="lauftext">Das kostet Sie nichts und wirkt sofort.</p>
+    {%- set gezeigt = ohne_technik[:1] -%}
+    <h2>Eine Sache, die Sie ohne Technik ändern könnten</h2>
+    {# Kein „kostet nichts, wirkt sofort": Was es kostet und wann es
+       wirkt, wissen wir von hier aus nicht. #}
+    <p class="lauftext">Dafür braucht es keine neue Technik, sondern eine
+    Entscheidung.</p>
     <div class="hebelpaar">
       {% for h in gezeigt %}
       <article class="hebelkarte">

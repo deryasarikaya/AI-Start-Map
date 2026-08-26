@@ -7,6 +7,8 @@ ausgibt und dass kein Weg aus dem Kundenablauf dorthin führt.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
@@ -255,13 +257,15 @@ def test_a_lever_that_needs_technology_is_not_promised_as_free(
     assert "Führen Sie eine Sammelstelle ein." not in seite
 
 
-def test_the_page_shows_at_most_two_levers(
+def test_the_page_shows_exactly_one_lever(
     client: TestClient, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Vier Hebel dürfen die Seite nicht in die Länge ziehen.
+    """Die Seite zeigt den ersten Hebel, nicht mehr.
 
-    Der Abschnitt darf um höchstens 200 Pixel wachsen. Zwei Karten sind
-    eine Zeile; alle vier stehen im PDF.
+    Vorher standen zwei da. Der zweite war fast immer der schwächere und
+    schnitt sich mit dem, was die Lösung ohnehin übernimmt — ein Vorschlag,
+    der Einrichtung braucht, ist kein Vorschlag „ohne Technik" mehr. Ein
+    starker Hebel überzeugt; ein starker und ein fadenscheiniger nicht.
     """
 
     seite = _mit_hebeln(
@@ -273,6 +277,31 @@ def test_the_page_shows_at_most_two_levers(
     )
 
     assert "Erster Hebel." in seite
-    assert "Zweiter Hebel." in seite
+    assert "Zweiter Hebel." not in seite
     assert "Dritter Hebel." not in seite
-    assert "Zwei Dinge, die Sie ohne Technik ändern könnten" in seite
+    assert "Eine Sache, die Sie ohne Technik ändern könnten" in seite
+    # Was hier wegfällt, ist nicht verloren. Die Beispielseite hat keine
+    # Sitzung und damit keinen Ausdruck — geprüft wird deshalb an der
+    # Druckvorlage selbst, dass sie über alle Hebel läuft und keinen
+    # abschneidet.
+    druckvorlage = (
+        Path(__file__).resolve().parents[1]
+        / "app/templates/ergebnis_teile.html"
+    ).read_text(encoding="utf-8")
+    assert '{% for h in e.hebel %}' in druckvorlage
+
+
+def test_the_page_promises_nothing_about_cost_or_speed(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Kein „kostet Sie nichts und wirkt sofort".
+
+    Was eine Umstellung im Betrieb des Kunden kostet und wann sie wirkt,
+    lässt sich von hier aus nicht wissen. Der Satz stand als feste
+    Behauptung in der Vorlage und galt damit für jeden Betrieb.
+    """
+
+    seite = _mit_hebeln(client, monkeypatch, _hebel(idee="Erster Hebel."))
+
+    assert "kostet Sie nichts" not in seite
+    assert "wirkt sofort" not in seite

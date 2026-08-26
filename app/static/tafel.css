@@ -218,45 +218,35 @@
 .tafel .vzeile--leer { border: 1px dashed var(--linie); }
 
 /* ── Beispielansichten ────────────────────────────────────────────────
- * Eine Ansicht bekommt die volle Breite, zwei teilen sie sich. Mehr als
- * zwei zeigt die Tafel nicht. */
-/* Nicht zwei gleich grosse Karten nebeneinander — die ersticken sich.
- * Jede Ansicht bekommt die volle Breite: links, was sie zeigt, rechts die
- * Oberflaeche selbst. Die naechste spiegelt sich, damit der Blick nicht
- * einschlaeft.
+ * Die Vorschauen sind der Beweis, dass hier etwas Gebautes entsteht —
+ * also werden sie gezeigt und nicht bebildert. Zwei stehen nebeneinander
+ * im gleichen Raster, eine nimmt die ganze Breite.
  *
- * Ohne neues Markup: Der Rahmen `.mock` liefert Titel, Beschreibung und
- * Fenster als drei Kinder — hier werden sie nur anders gestellt. */
-.tafel .ansichtspaar { display: grid; gap: 40px; }
-.tafel .ansichtsplatz { background: none; border: 0; padding: 0; }
-/* Titel und Beschreibung sitzen als **ein** Block in der Mitte der
- * Textspalte. Getrennt in zwei Rasterzeilen trieben sie auseinander,
- * sobald das Fenster daneben hoch wurde — die Überschrift stand dann
- * allein auf weisser Fläche. */
-.tafel .ansichtsplatz .mock {
-  display: grid; gap: 10px 44px; align-content: center;
-  grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
-  grid-template-rows: auto auto;
+ * Vorher lag links eine schmale Textspalte und rechts das Fenster, jede
+ * zweite gespiegelt. Das las sich wie eine Zeitschriftenseite, und unter
+ * der kurzen Beschreibung stand eine grosse leere Fläche: Das Fenster
+ * daneben ist um ein Vielfaches höher als zwei Zeilen Text. Keine
+ * Einstellung an diesem Raster konnte das beheben, weil der Aufbau selbst
+ * die Lücke erzeugt hat. */
+.tafel .ansichtspaar {
+  display: grid; gap: 28px; align-items: start;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
+/* Eine einzelne Ansicht teilt sich nichts. */
+.tafel .ansichtspaar--1 { grid-template-columns: minmax(0, 1fr); }
+.tafel .ansichtsplatz { background: none; border: 0; padding: 0; }
+/* Titel, eine kurze Zeile, dann das Fenster — untereinander, in dieser
+ * Reihenfolge. Keine seitliche Textspalte, keine Spiegelung. */
+.tafel .ansichtsplatz .mock { display: block; }
 .tafel .ansichtsplatz .mock > h3 {
-  grid-column: 1; grid-row: 1; align-self: end;
-  font-size: 1.3rem; letter-spacing: -.015em;
+  font-size: 1.15rem; letter-spacing: -.015em; margin: 0 0 4px;
 }
 .tafel .ansichtsplatz .mock > .mdesc {
-  grid-column: 1; grid-row: 2; align-self: start;
-  font-size: .95rem; margin: 0;
+  font-size: .92rem; margin: 0 0 14px; color: var(--tinte-leise);
 }
 .tafel .ansichtsplatz .mock > .screen {
-  grid-column: 2; grid-row: 1 / span 2;
   box-shadow: 0 2px 4px rgb(15 23 42 / .05), 0 18px 44px -14px rgb(15 23 42 / .22);
 }
-/* Die zweite Ansicht spiegelt sich. */
-.tafel .ansichtspaar > :nth-child(even) .mock {
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr);
-}
-.tafel .ansichtspaar > :nth-child(even) .mock > h3,
-.tafel .ansichtspaar > :nth-child(even) .mock > .mdesc { grid-column: 2; }
-.tafel .ansichtspaar > :nth-child(even) .mock > .screen { grid-column: 1; }
 .tafel .ansichtsplatz > * { max-width: 100%; }
 .tafel .ansichtsplatz { background: var(--flaeche); color: var(--tinte); }
 .tafel .ansichtsplatz .bar { background: #eef2f7; }
@@ -437,17 +427,8 @@
   .tafel .flaeche { width: min(100% - 32px, 100%); }
   .tafel .kopfraster,
   .tafel .spalten,
-  .tafel .ansichtsplatz .mock,
-  .tafel .ansichtspaar > :nth-child(even) .mock {
+  .tafel .ansichtspaar {
     grid-template-columns: minmax(0, 1fr);
-  }
-  .tafel .ansichtsplatz .mock > h3,
-  .tafel .ansichtsplatz .mock > .mdesc,
-  .tafel .ansichtsplatz .mock > .screen,
-  .tafel .ansichtspaar > :nth-child(even) .mock > h3,
-  .tafel .ansichtspaar > :nth-child(even) .mock > .mdesc,
-  .tafel .ansichtspaar > :nth-child(even) .mock > .screen {
-    grid-column: 1; grid-row: auto;
   }
   /* Gepaart hat auf schmalen Schirmen keinen Sinn — nebeneinander
      passt nichts mehr. Dann stehen die Zeilen abwechselnd. */
