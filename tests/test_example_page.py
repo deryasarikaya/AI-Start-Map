@@ -232,8 +232,8 @@ def test_the_stored_example_carries_a_full_result(client: TestClient) -> None:
         "Das haben wir verstanden",
         "Was sich dadurch ändert",
         "So könnte das bei Ihnen aussehen",
-        "Das haben Sie bereits",
-        "Das ist für Ihren Betrieb sinnvoll",
+        "Darauf bauen wir auf",
+        "Das würden wir für Sie ergänzen",
         "Was automatisch läuft",
         "So würden wir anfangen",
     ):

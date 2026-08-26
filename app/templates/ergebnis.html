@@ -160,7 +160,7 @@
     <h2>Was sich dadurch ändert</h2>
     <div class="gegenueber">
       <div class="spaltenkopf spaltenkopf--heute">Heute</div>
-      <div class="spaltenkopf spaltenkopf--kuenftig">Mit AI Start Map</div>
+      <div class="spaltenkopf spaltenkopf--kuenftig">Mit Ihrer neuen Lösung</div>
       {%- set links = e.vergleich.heute -%}
       {%- set rechts = e.vergleich.kuenftig -%}
       {%- set zeilen = [links | length, rechts | length] | max -%}
@@ -219,9 +219,10 @@
 {% if e.systeme %}
 <section class="bestand">
   <div class="flaeche">
-    <h2>Das haben Sie bereits — und es bleibt</h2>
-    <p class="lauftext">Diese Systeme arbeiten in Ihrem Betrieb. Nichts davon
-    wird ersetzt; sie werden verbunden.</p>
+    <h2>Darauf bauen wir auf</h2>
+    <p class="lauftext">Diese Systeme arbeiten heute in Ihrem Betrieb. Was
+    sich anbinden lässt, verbinden wir; was bleiben soll, bleibt. Hier steht
+    für jedes, was damit passiert.</p>
     <ul class="systemliste">
       {% for system in e.systeme %}
       <li>
@@ -247,7 +248,7 @@
 {% if e.module %}
 <section class="bausteine">
   <div class="flaeche">
-    <h2>Das ist für Ihren Betrieb sinnvoll</h2>
+    <h2>Das würden wir für Sie ergänzen</h2>
     <div class="bausteinraster">
       {% for modul in e.module %}
       <article class="baustein{% if modul.stufe and modul.stufe != 'jetzt' %} baustein--spaeter{% endif %}">
@@ -270,8 +271,8 @@
       {% endfor %}
     </div>
     <p class="lauftext">Diese Bausteine gehören zu einer gemeinsamen Lösung.
-    Es sind keine Produkte, die Sie einzeln kaufen müssen — und es ist
-    keine Liste, die jeder Betrieb bekommt.</p>
+    Es sind keine Produkte, die Sie einzeln kaufen müssen — und es ist keine
+    Liste, die jeder Betrieb bekommt.</p>
   </div>
 </section>
 {% endif %}

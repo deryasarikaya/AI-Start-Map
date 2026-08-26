@@ -38,6 +38,11 @@ erfundene Zeile ist schlechter als eine fehlende.
 
 **aufgabenteilung.mensch** — höchstens sechs Zeilen. Nur eine Frage: Was
 entscheidet der Mensch?
+
+**In der Sie-Form.** Über der Spalte steht „Sie entscheiden" — dann muss
+es darunter „Sie prüfen …", „Sie geben frei …", „Sie entscheiden über …"
+heissen und nicht „Prüft …", „Gibt frei …". Die Spalte daneben beschreibt
+das System und bleibt in der dritten Person; diese hier spricht ihn an.
 Entscheidungen über Preis, Zusage, Qualität und Personal bleiben immer beim
 Menschen.
 

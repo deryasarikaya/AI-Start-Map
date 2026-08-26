@@ -49,6 +49,13 @@ bestehenden Systemen, dann zeig keine erfundene Anwendung.
 Du erfindest kein Layout: Du wählst einen `typ` aus dieser Liste und füllst
 nur Beschriftungen und Werte.
 
+**Kein „(Beispiel)" hinter den Werten.** Über den Ansichten steht bereits,
+dass Namen, Zahlen und Objekte erfunden sind — einmal, gross und für alle.
+Wer es hinter jeden Wert schreibt, macht aus einer Oberfläche einen
+Fragebogen. Schreib „12", nicht „12 (Beispiel)"; „Wohnung 2. OG links",
+nicht „Wohnung 2. OG links (Beispiel)". Die Ansicht soll im ersten Moment
+echt aussehen.
+
 | typ | wofür | was in `daten` gehört |
 |---|---|---|
 | `uebersicht` | „Was braucht heute Aufmerksamkeit" | `kennzahlen`: 4 × {`label`, `wert`}; `zeilen`: 5–7 × {`text`, `status`}; `haupttext`, `untertext`, `hinweis` |

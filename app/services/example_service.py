@@ -58,12 +58,40 @@ def example_result(database_session: Session, example_slug: str) -> Result:
         raise ExampleNotFound(example_slug)
 
     session = repository.get_example_session(database_session, example_slug)
-    if session is None or repository.get_result(database_session, session.session_id) is None:
+    gespeichert = (
+        None
+        if session is None
+        else repository.get_result(database_session, session.session_id)
+    )
+    if gespeichert is None:
         return _store_the_example(database_session, example_slug, session)
 
-    gespeichert = repository.get_result(database_session, session.session_id)
+    # **Die Datei gewinnt.** Wird ein besserer Lauf hinterlegt, muss er auch
+    # ankommen. Vorher blieb der Stand der allerersten Anfrage in `results`
+    # stehen: Die Datei liess sich austauschen, und die Seite zeigte
+    # monatelang unverändert das Alte — ohne Fehler, ohne Hinweis.
+    erzaehlung, geprueft = _gepruefte_datei(example_slug)
+    if gespeichert.payload != geprueft.model_dump(mode="json"):
+        logger.info("example.refreshed slug=%s", example_slug)
+        return _store_the_example(database_session, example_slug, session)
+
     with narrative(gespeichert.narrative):
         return Result.model_validate(gespeichert.payload)
+
+
+def _gepruefte_datei(example_slug: str) -> tuple[str, Result]:
+    """Liest die hinterlegte Datei und prüft sie gegen den Vertrag.
+
+    Ein Beispiel, das an der Prüfung vorbeiginge, wäre als Vorführung
+    wertlos — deshalb geht es denselben Weg wie ein echtes Ergebnis.
+    """
+
+    inhalt = json.loads(
+        (BEISPIEL_VERZEICHNIS / f"{example_slug}.json").read_text(encoding="utf-8")
+    )
+    erzaehlung = str(inhalt["erzaehlung"])
+    with narrative(erzaehlung):
+        return erzaehlung, Result.model_validate(inhalt["ergebnis"])
 
 
 def _store_the_example(
@@ -71,12 +99,7 @@ def _store_the_example(
     example_slug: str,
     session: object | None,
 ) -> Result:
-    inhalt = json.loads(
-        (BEISPIEL_VERZEICHNIS / f"{example_slug}.json").read_text(encoding="utf-8")
-    )
-    erzaehlung = str(inhalt["erzaehlung"])
-    with narrative(erzaehlung):
-        geprueft = Result.model_validate(inhalt["ergebnis"])
+    erzaehlung, geprueft = _gepruefte_datei(example_slug)
 
     if session is None:
         session = repository.create_example_session(database_session, example_slug)

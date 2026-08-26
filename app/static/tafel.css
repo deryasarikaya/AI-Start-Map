@@ -52,7 +52,11 @@
   margin: 0 0 6px; line-height: 1.25;
 }
 .tafel h3 { font-size: 1rem; font-weight: 620; margin: 0; }
-.tafel .lauftext { color: var(--tinte-leise); max-width: 62ch; margin: 0 0 26px; }
+/* Keine Lesebreite: Diese Zeilen sind Hinweise, keine Absätze. Mit
+ * `62ch` brachen sie mitten in der Zeile um und sahen abgehackt aus. */
+.tafel .lauftext {
+  color: var(--tinte-leise); margin: 0 0 24px; max-width: 92ch;
+}
 
 .tafel .hinweisband {
   background: #fef3c7; color: #78350f; text-align: center;
@@ -225,9 +229,14 @@
  * Fenster als drei Kinder — hier werden sie nur anders gestellt. */
 .tafel .ansichtspaar { display: grid; gap: 40px; }
 .tafel .ansichtsplatz { background: none; border: 0; padding: 0; }
+/* Titel und Beschreibung sitzen als **ein** Block in der Mitte der
+ * Textspalte. Getrennt in zwei Rasterzeilen trieben sie auseinander,
+ * sobald das Fenster daneben hoch wurde — die Überschrift stand dann
+ * allein auf weisser Fläche. */
 .tafel .ansichtsplatz .mock {
-  display: grid; gap: 12px 44px; align-items: center;
+  display: grid; gap: 10px 44px; align-content: center;
   grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+  grid-template-rows: auto auto;
 }
 .tafel .ansichtsplatz .mock > h3 {
   grid-column: 1; grid-row: 1; align-self: end;
