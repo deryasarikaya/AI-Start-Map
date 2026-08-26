@@ -204,12 +204,40 @@ def test_the_section_shows_what_costs_nothing(
     assert "Jeder arbeitet ein bisschen anders." in seite
 
 
-def test_without_levers_there_is_no_empty_heading(client: TestClient) -> None:
-    """Der Beispiellauf kennt keine Hebel — dann entfällt der Abschnitt ganz."""
+def test_without_levers_there_is_no_empty_heading(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Ohne Hebel entfällt der Abschnitt ganz.
+
+    Die Hebel werden hier ausdrücklich geleert, statt sich darauf zu
+    verlassen, dass der hinterlegte Beispiellauf gerade keine hat. Er wird
+    ersetzt, sobald ein besserer entsteht — die Zusage bleibt.
+    """
+
+    seite = _mit_hebeln(client, monkeypatch)
+
+    assert "ohne Technik ändern könnten" not in seite
+
+
+def test_the_stored_example_carries_a_full_result(client: TestClient) -> None:
+    """Der hinterlegte Lauf zeigt die Tafel vollständig.
+
+    Er ist die Rückfallebene für eine Vorführung ohne Netz. Fehlt ihm ein
+    Bereich, fehlt er genau dann, wenn jemand zuschaut.
+    """
 
     seite = client.get("/beispiel/hausverwaltung").text
 
-    assert "ohne Technik ändern könnten" not in seite
+    for abschnitt in (
+        "Das haben wir verstanden",
+        "Was sich dadurch ändert",
+        "So könnte das bei Ihnen aussehen",
+        "Das haben Sie bereits",
+        "Das ist für Ihren Betrieb sinnvoll",
+        "Was automatisch läuft",
+        "So würden wir anfangen",
+    ):
+        assert abschnitt in seite, abschnitt
 
 
 def test_a_lever_that_needs_technology_is_not_promised_as_free(

@@ -1,409 +1,589 @@
 {
-  "beschreibung": "Ein echter, von Hand gepruefter Durchlauf der grossen Hausverwaltungserzaehlung. Dient als Rueckfallebene fuer die Vorfuehrung: Die Seite /beispiel/hausverwaltung zeigt genau dieses Ergebnis, ohne einen Modellaufruf.",
+  "beschreibung": "Ein echter, von Hand geprueter Durchlauf der grossen Hausverwaltungserzaehlung. Dient als Rueckfallebene fuer die Vorfuehrung: Die Seite /beispiel/hausverwaltung zeigt genau dieses Ergebnis, ohne einen Modellaufruf.",
   "erzaehlung": "Also, wir sind eine kleinere Hausverwaltung. Wir verwalten ungefähr 450 Einheiten, hauptsächlich Wohnungen, aber auch ein paar kleinere Gewerbeeinheiten. Wir sind insgesamt acht Leute. Also wirklich kein riesiges Unternehmen, aber inzwischen groß genug, dass man nicht mehr alles irgendwie über Zuruf machen kann.\n\nUnd genau da liegt eigentlich unser Problem.\n\nAls wir noch 100 oder 150 Wohnungen hatten, ging das alles. Da wusste meine Kollegin, zu welchem Haus welcher Handwerker gehört, ich wusste, welcher Eigentümer gerade irgendein Problem hat, und wenn irgendwo ein Wasserschaden war, hat man sich halt kurz zusammengesetzt.\n\nAber inzwischen kommt einfach wahnsinnig viel rein.\n\nWir haben mehrere allgemeine E-Mail-Adressen. Dann haben manche Eigentümer natürlich direkte E-Mail-Adressen von uns. Manche Mieter rufen an. Manche schreiben über das Kontaktformular auf unserer Website. Manche schicken einen Brief. Und dann gibt es Eigentümer, die WhatsApp benutzen wollen, obwohl wir eigentlich sagen, bitte schreiben Sie eine E-Mail.\n\nWenn morgens jemand sein Outlook öffnet, sind da teilweise 70 oder 80 neue E-Mails.\n\nUnd das Problem ist nicht einmal unbedingt die Menge. Das Problem ist erst einmal herauszufinden: Was ist das eigentlich?\n\nIst das ein Schaden? Ist das eine Rechnung? Ist das eine Beschwerde? Ist das eine Kündigung? Ist das eine Anfrage eines Eigentümers? Ist es eine Terminbestätigung eines Handwerkers? Oder schreibt uns jemand zum dritten Mal, weil er seit vier Tagen keine Antwort bekommen hat?\n\nDann muss die E-Mail natürlich auch zum richtigen Objekt gehören.\n\nDas klingt einfach, ist es aber nicht immer.\n\nDie Leute schreiben zum Beispiel: „In der Wohnung im zweiten Stock funktioniert die Heizung wieder nicht.“\n\nJa, okay. Aber welches Gebäude?\n\nOder sie schreiben von einer anderen E-Mail-Adresse als der, die wir gespeichert haben.\n\nOder ein Eigentümer besitzt fünf Wohnungen und schreibt einfach: „Bei meiner Wohnung gibt es ein Problem mit dem Fenster.“\n\nDann beginnt schon das Suchen.\n\nWir haben eine Hausverwaltungssoftware. Die funktioniert grundsätzlich. Ich möchte die auch nicht ersetzen. Da sind die Stammdaten, Abrechnungen, Mietverträge und so weiter drin.\n\nAber daneben haben wir Outlook, Excel, ein Laufwerk mit Dokumenten, teilweise SharePoint, unseren Kalender und dann noch verschiedene Handwerkerportale.\n\nUnd diese Sachen sprechen kaum miteinander.\n\nWenn zum Beispiel ein Mieter schreibt, dass im Bad Wasser von der Decke kommt, passiert ungefähr Folgendes:\n\nJemand liest die E-Mail.\n\nDann schaut die Person nach, welches Objekt das ist.\n\nDann wird eventuell in unserer Hausverwaltungssoftware nach dem Mieter gesucht.\n\nDann muss herausgefunden werden, welcher Handwerker für dieses Haus zuständig ist.\n\nDann geht eine E-Mail an den Handwerker raus.\n\nManchmal wird zusätzlich noch angerufen.\n\nDann wartet man.\n\nDer Handwerker antwortet vielleicht zwei Stunden später oder am nächsten Tag.\n\nDann muss wieder jemand den ursprünglichen Vorgang finden.\n\nDann kommt vielleicht ein Termin.\n\nDann muss der Mieter informiert werden.\n\nUnd wenn irgendwann die Rechnung kommt, liegt die Rechnung wieder als PDF in einer anderen E-Mail.\n\nDann muss wieder jemand wissen, dass diese Rechnung zu genau diesem Wasserschaden gehört.\n\nUnd genau diese Kette macht mich wahnsinnig.\n\nWeil eigentlich bei jeder Station Informationen entstehen, aber es gibt nicht diesen einen Ort, an dem ich sagen kann:\n\nDas ist der Vorgang.\n\nDas ist passiert.\n\nDas haben wir gemacht.\n\nDarauf warten wir.\n\nDas ist die nächste Aufgabe.\n\nUnd diese Person ist verantwortlich.\n\nWir haben intern zwar Aufgabenlisten, aber jeder arbeitet ein bisschen anders.\n\nEine Kollegin setzt sich eine Outlook-Markierung.\n\nJemand anderes schreibt sich etwas in OneNote.\n\nEine andere Kollegin trägt eine Aufgabe in unsere Software ein.\n\nIch selbst schreibe mir manchmal tatsächlich noch Dinge auf einen Zettel, weil ich denke, das darf ich heute nicht vergessen.\n\nUnd dann haben wir natürlich die Eigentümer.\n\nDa kommen ständig Fragen.\n\n„Ist die Rechnung schon bezahlt?“\n\n„Was ist aus dem Schaden geworden?“\n\n„Hat der Handwerker schon einen Termin?“\n\n„Wann bekomme ich die Abrechnung?“\n\n„Was hat die Reparatur gekostet?“\n\nUnd viele dieser Antworten existieren eigentlich irgendwo.\n\nAber jemand muss sie zusammensuchen.\n\nTeilweise öffnen wir drei Programme, nur um eine E-Mail zu beantworten.\n\nUnd dann kommen die Dokumente dazu.\n\nRechnungen, Angebote, Mietverträge, Übergabeprotokolle, Fotos von Schäden, Handwerkerberichte, Versicherungsschreiben.\n\nDie liegen zwar digital vor, aber wenn jemand eine Datei falsch benennt oder in den falschen Ordner legt, findet man sie später schlecht.\n\nWir haben zum Beispiel Dateien wie:\n\n„Scan_2026_04_18.pdf“\n\nSuper.\n\nDann weiß natürlich niemand, was das ist.\n\nOder eine Rechnung kommt per E-Mail. Dann wird sie heruntergeladen, im Laufwerk gespeichert und später noch einmal in die Hausverwaltungssoftware eingetragen.\n\nAlso dieselbe Information wird mehrfach angefasst.\n\nBei Rechnungen ist es besonders nervig.\n\nDie kommt rein.\n\nJemand schaut nach, zu welchem Objekt sie gehört.\n\nDann Kostenstelle.\n\nDann eventuell Eigentümergemeinschaft.\n\nDann muss geprüft werden, ob der Betrag zu einem Angebot gehört.\n\nDann Freigabe.\n\nDann Buchhaltung.\n\nIch glaube, wir haben wahnsinnig viele Schritte, die eigentlich logisch und wiederholbar sind, aber trotzdem jedes Mal jemand manuell macht.\n\nUnd wir verlieren dadurch auch Zeit bei Sachen, die wirklich wichtig wären.\n\nZum Beispiel Eigentümerberatung oder schwierige Fälle.\n\nStattdessen beschäftigt sich eine Mitarbeiterin eine halbe Stunde damit, eine alte E-Mail und zwei PDFs zu finden.\n\nWas mir auch fehlt, ist Übersicht.\n\nWenn ich montags komme, möchte ich eigentlich sehen:\n\nWelche wirklich dringenden Themen haben wir?\n\nWelche Handwerker warten auf eine Rückmeldung?\n\nBei welchen Vorgängen wartet der Mieter?\n\nWelche Rechnungen müssen freigegeben werden?\n\nWelche Fristen laufen diese Woche?\n\nWelche Eigentümer haben seit mehreren Tagen keine Antwort?\n\nHeute kann ich das nicht auf einen Blick sehen.\n\nIch muss meine Leute fragen.\n\nUnd dann sagt jeder etwas.\n\nDann fällt am Mittwoch jemandem ein: Ach ja, bei Objekt XY warten wir immer noch auf das Angebot.\n\nDas ist eigentlich verrückt.\n\nWas ich aber auch nicht will, ist noch ein weiteres riesiges Programm.\n\nWir haben schon genug Software.\n\nWenn mir jetzt jemand sagt, hier ist noch ein Portal und hier noch ein Tool und hier noch eine App, dann bringt mir das nichts.\n\nEigentlich müsste das, was wir schon haben, besser zusammenarbeiten.\n\nZum Beispiel wäre mein Traum:\n\nEine E-Mail kommt rein.\n\nDas System versteht ungefähr, worum es geht.\n\nEs erkennt möglichst das Objekt und den Mieter.\n\nWenn das nicht eindeutig ist, fragt es nach oder legt es zur Prüfung vor.\n\nDann entsteht ein Vorgang.\n\nWenn ein Dokument dran hängt, landet das direkt beim richtigen Vorgang.\n\nWenn ein Handwerker angeschrieben werden muss, wird eine Nachricht vorbereitet.\n\nMeine Mitarbeiterin schaut kurz drauf und schickt sie ab.\n\nWenn der Handwerker antwortet, landet die Antwort wieder im selben Vorgang.\n\nUnd der Mieter muss nicht fünfmal anrufen, weil wir vielleicht sogar automatisch einen Status vorbereiten könnten.\n\nAber ich will nicht, dass irgendeine KI einem Mieter eigenständig verspricht, dass morgen jemand kommt, wenn das gar nicht stimmt.\n\nSolche Dinge müssen wir natürlich kontrollieren.\n\nWas ich allerdings sehr interessant fände, wäre so eine Art Assistent für Standardfragen.\n\nWenn jemand fragt: „Wann ist meine Abrechnung fertig?“ oder „Wo finde ich dieses Formular?“, dann muss dafür eigentlich nicht jedes Mal jemand 15 Minuten eine E-Mail schreiben.\n\nVielleicht könnte es auch ein Portal geben.\n\nIch weiß gar nicht, ob so etwas Sinn macht.\n\nDass Eigentümer oder vielleicht auch Mieter sehen:\n\nVorgang eingegangen.\n\nHandwerker beauftragt.\n\nTermin vereinbart.\n\nAbgeschlossen.\n\nDann würden wahrscheinlich sehr viele Rückfragen wegfallen.\n\nUnd intern hätte ich gerne wirklich ein Dashboard.\n\nNicht irgendwelche 200 Kennzahlen.\n\nSondern:\n\nWas braucht heute Aufmerksamkeit?\n\nWelche Vorgänge hängen?\n\nWo fehlt eine Antwort?\n\nWelche Fristen kommen?\n\nWo wartet jemand auf uns?\n\nDann könnte ich morgens sehen, was wirklich wichtig ist.\n\nIch glaube eigentlich, wir haben gar kein Personalproblem.\n\nWir haben eher das Problem, dass unsere Informationen ständig zwischen E-Mail, Software, Dateien und Menschen hin und her wandern.\n\nUnd sehr viel davon könnte wahrscheinlich automatisch vorbereitet werden.\n\nAber ich weiß nicht, wo man da anfangen sollte und was davon wirklich sinnvoll ist.",
   "ergebnis": {
-    "ansichten": [
+    "wert": {
+      "zeit_fuer": [
+        "Eigentümerberatung und schwierige fachliche Fälle.",
+        "Nachprüfung unklarer Objekt- oder Adresszuordnungen.",
+        "Proaktive Kommunikation mit Mietern und Handwerkern.",
+        "Tägliche Priorisierung und Planung anhand der morgendlichen Übersicht."
+      ],
+      "faellt_weg": [
+        "Suchen in mehreren Programmen nach relevanten E‑Mails und Dateien.",
+        "Mehrfaches Abtippen derselben Angaben in verschiedene Listen.",
+        "Zusammenklauben von Dokumenten aus Laufwerk, E‑Mail und SharePoint.",
+        "Wiederholtes Nachfragen, weil der aktuelle Stand nicht auf einen Blick sichtbar ist."
+      ]
+    },
+    "hebel": [
       {
-        "typ": "uebersicht",
-        "titel": "Morgenübersicht",
-        "beschreibung": "Was heute Aufmerksamkeit braucht",
-        "daten": {
-          "kennzahlen": [
-            {
-              "label": "Offene Fälle mit Handwerkerantwort ausstehend",
-              "wert": "12 (Beispiel)"
-            },
-            {
-              "label": "E-Mails ungeprüft",
-              "wert": "78 (Beispiel)"
-            },
-            {
-              "label": "Rechnungen ohne Zuordnung",
-              "wert": "9 (Beispiel)"
-            },
-            {
-              "label": "Vorgänge mit Frist diese Woche",
-              "wert": "5 (Beispiel)"
-            }
-          ],
-          "zeilen": [
-            {
-              "text": "Wasser- und Heizungsfälle: Handwerkerantwort offen",
-              "status": "rot"
-            },
-            {
-              "text": "Rechnungen: Zuordnung und Freigabe ausstehend",
-              "status": "gelb"
-            },
-            {
-              "text": "Anfragen von Eigentümern ohne Objektangabe",
-              "status": "gelb"
-            },
-            {
-              "text": "Mieteranfragen, Antwort länger als drei Tage",
-              "status": "rot"
-            },
-            {
-              "text": "Routineanfragen, Bearbeitung planbar",
-              "status": "gruen"
-            }
-          ],
-          "haupttext": "Zentrale Liste der eingegangenen Meldungen, priorisiert nach Dringlichkeit.",
-          "untertext": "Schneller Einstiegspunkt: hier sehen Sie, was heute fehlt und wer zuständig ist.",
-          "hinweis": "Zahlen sind Beispielwerte zur Illustration.",
-          "name": null,
-          "abzeichen": null,
-          "felder": null,
-          "verlauf": null,
-          "dateien": null,
-          "notiz": null,
-          "vorgaenge": null,
-          "nachrichten": null,
-          "blasen": null,
-          "tag": null,
-          "eintraege_termine": null,
-          "schritte": null,
-          "statussatz": null,
-          "eintraege_dokumente": null
-        }
+        "idee": "Machen Sie die Hausverwaltungssoftware zur verbindlichen Stammdatenquelle.",
+        "warum": "Wenn alle Namen und Objekte konsequent aus der vorhandenen Software genutzt werden, reduziert das Suche und Doppelpflege und macht Zuordnungen verlässlicher.",
+        "woraus": "Die funktioniert grundsätzlich. Ich möchte die auch nicht ersetzen.",
+        "ohne_technik": true
       },
       {
-        "typ": "vorgangsakte",
-        "titel": "Beispielakte: Wasserschaden Musterhausstraße",
-        "beschreibung": "Alle Informationen zu einem Fall an einem Ort",
-        "daten": {
-          "kennzahlen": null,
-          "zeilen": null,
-          "haupttext": null,
-          "untertext": null,
-          "hinweis": null,
-          "name": "Wasserschaden Musterhausstraße",
-          "abzeichen": {
-            "text": "Offen – Handwerker ausstehend",
-            "status": "rot"
-          },
-          "felder": [
-            {
-              "label": "Betroffene Einheit",
-              "wert": "Wohnung 2. OG links (Beispiel)"
-            },
-            {
-              "label": "Meldung eingegangen über",
-              "wert": "E-Mail (Beispiel)"
-            },
-            {
-              "label": "Erstkontakt",
-              "wert": "Mitarbeiterin A"
-            },
-            {
-              "label": "Zuständiger Handwerker",
-              "wert": "Sanitärbetrieb Meier (Beispiel)"
-            },
-            {
-              "label": "Status",
-              "wert": "Terminvereinbarung offen"
-            },
-            {
-              "label": "Angehängte Dateien",
-              "wert": "Fotos_Decke.jpg; Rechnung_Angebot.pdf"
-            }
-          ],
-          "verlauf": [
-            {
-              "zeit": "2026-04-18 09:12",
-              "text": "Meldung eingegangen: Mieter berichtet von Wasserfläche an Decke."
-            },
-            {
-              "zeit": "2026-04-18 09:45",
-              "text": "Objekt geprüft, Handwerker angefragt (E-Mail vorbereitet)."
-            },
-            {
-              "zeit": "2026-04-18 11:30",
-              "text": "Rückfrage an Mieter: fehlt Wohnungsnummer zur Bestätigung."
-            },
-            {
-              "zeit": "2026-04-19 08:50",
-              "text": "Fotos erhalten, in Akte abgelegt."
-            }
-          ],
-          "dateien": [
-            "Fotos_Decke.jpg",
-            "Angebot_Sanitär_Meier.pdf",
-            "E-Mail_Korrespondenz.eml"
-          ],
-          "notiz": "Bitte bestätigen, wenn Handwerkertermin steht.",
-          "vorgaenge": [
-            "Rechnung zuordnen",
-            "Termin mit Mieter abstimmen"
-          ],
-          "nachrichten": null,
-          "blasen": null,
-          "tag": null,
-          "eintraege_termine": null,
-          "schritte": null,
-          "statussatz": null,
-          "eintraege_dokumente": null
-        }
+        "idee": "Leiten Sie alle eingehenden Nachrichten an einen gemeinsamen Eingang weiter.",
+        "warum": "Sammeln an einer Stelle macht sofort sichtbar, welche Nachrichten noch ungeklärt sind und verhindert, dass Mitarbeitende lokal im eigenen Postfach suchen.",
+        "woraus": "Eigentlich müsste das, was wir schon haben, besser zusammenarbeiten.",
+        "ohne_technik": true
+      },
+      {
+        "idee": "Nutzen Sie eine einfache morgendliche Routineliste mit drei Prioritäten.",
+        "warum": "Eine verbindliche Prioritätenliste fokussiert das Team auf dringende Vorgänge und reduziert ad‑hoc Nachfragen während des Tages.",
+        "woraus": "Was braucht heute Aufmerksamkeit?",
+        "ohne_technik": true
       }
     ],
-    "aufgabenteilung": {
-      "system": [
-        "Sammelt eingehende E-Mails und Formulare automatisch ein (Beispielwirkung)",
-        "Schlägt zugeordnete Einheit und mögliche Fallart vor",
-        "Hebt unklare Fälle zur kurzen Prüfung hervor",
-        "Fasst zugehörige Dateien an der Akte zusammen",
-        "Bereitet Textvorschläge für Handwerker- und Mieterkommunikation vor"
-      ],
-      "mensch": [
-        "Prüft unklare Zuordnungen und bestätigt die Einheit",
-        "Bestätigt und versendet vorbereitete Nachrichten an Handwerker oder Mieter",
-        "Entscheidet über Terminzusagen und kommuniziert konkrete Zusagen",
-        "Prüft Rechnungen auf Richtigkeit und gibt Freigaben",
-        "Pflegt Stammdaten in der vorhandenen Hausverwaltungssoftware"
-      ],
-      "grenzen": [
-        {
-          "titel": "Keine eigenständigen Terminzusagen an Mieter",
-          "erlaeuterung": "Sie sagten, die KI soll nicht eigenständig einem Mieter versprechen, dass morgen jemand kommt."
-        },
-        {
-          "titel": "Keine automatische verbindliche Kostenzusage",
-          "erlaeuterung": "Sie möchten nicht, dass dem Eigentümer automatisch ein Reparaturpreis zugesagt wird."
-        },
-        {
-          "titel": "Keine eigenständige Veröffentlichung an Eigentümerportal ohne Prüfung",
-          "erlaeuterung": "Sie wollen Kontrolle behalten, bevor Informationen an Eigentümer öffentlich werden."
-        }
-      ]
-    },
-    "wert": {
-      "faellt_weg": [
-        "Manuelles Zusammensuchen von E-Mails und Dateien aus mehreren Programmen",
-        "Mehrfaches Abgleichen der selben Informationen in verschiedenen Ordnern",
-        "Wiederholtes Nachfragen intern, wer was bereits bearbeitet hat",
-        "Manuelles Suchen nach früheren Antworten und Belegen",
-        "Händisches Kopieren von Anhängen in verschiedene Ablagen"
-      ],
-      "zeit_fuer": [
-        "Mehr Zeit für Eigentümerberatung und komplexe Fälle",
-        "Sorgfältige Prüfung und Kommunikation bei heiklen Entscheidungen",
-        "Proaktive Nachverfolgung offener Angebote und Fristen",
-        "Verbesserte Abstimmung im Team und gezielte Morgenplanung"
-      ]
-    },
+    "module": [
+      {
+        "name": "Zentraler Eingang für E‑Mail und Dateien",
+        "stufe": "jetzt",
+        "gruppe": "Eingang",
+        "beschreibung": "Sammelt eingehende E‑Mails und Anhänge an einer Stelle, erkennt Mieter oder Objekt und schlägt Ihnen eine zuständige Person vor, damit Sie Zuordnungen schneller treffen.",
+        "baustein_refs": [
+          "gemeinsamer Eingang",
+          "Erkennung von Anliegen und Grunddaten",
+          "Anhang- und Fotozuordnung",
+          "Zuständigkeitsvorschlag"
+        ],
+        "solution_family_ids": [
+          "SF-01"
+        ]
+      },
+      {
+        "name": "Auftragssystem mit Status und Zuständigkeit",
+        "stufe": "danach",
+        "gruppe": "Fallführung",
+        "beschreibung": "Legt für jede neue Anfrage eine sichtbare Akte an, zeigt Status, Verlauf und wer verantwortlich ist, damit Sie Transparenz bei Übergaben haben.",
+        "baustein_refs": [
+          "Vorgangsakte",
+          "Statusmodell",
+          "Verlauf",
+          "Aufgaben und nächste Schritte"
+        ],
+        "solution_family_ids": [
+          "SF-02"
+        ]
+      },
+      {
+        "name": "Dokumentenverarbeitung und Ablage",
+        "stufe": "danach",
+        "gruppe": "Fallführung",
+        "beschreibung": "Erkennt PDF‑ und Foto-Inhalte, liest relevante Angaben aus und macht einen Zuordnungsvorschlag an die passende Akte, damit Sie Belege nicht mehr suchen müssen.",
+        "baustein_refs": [
+          "Dokumenteingang",
+          "Texterkennung und Felderfassung",
+          "Dokumenttyp bestimmen",
+          "Zuordnungsvorschlag"
+        ],
+        "solution_family_ids": [
+          "SF-03"
+        ]
+      },
+      {
+        "name": "Abgleich mit der Hausverwaltungssoftware",
+        "stufe": "danach",
+        "gruppe": "Integration",
+        "beschreibung": "Vergleicht Namen und Stammdaten mit der vorhandenen Hausverwaltungssoftware, übergibt Dokumentverknüpfungen und meldet Konflikte, damit Sie doppelte Pflege vermeiden.",
+        "baustein_refs": [
+          "Stammdatenabgleich",
+          "Dokumentübergabe",
+          "Status-Synchronisation",
+          "Fehler- und Konfliktprotokoll"
+        ],
+        "solution_family_ids": [
+          "SF-04"
+        ]
+      }
+    ],
     "systeme": [
       {
-        "name": "Outlook",
-        "umgang": "E-Mails werden zentral eingesammelt und als Eingangsquelle genutzt"
+        "name": "Outlook (E‑Mail)",
+        "umgang": "Bleibt Eingangskanal; Nachrichten werden in den gemeinsamen Eingang überführt und verknüpft.",
+        "module_refs": [
+          "Zentraler Eingang für E‑Mail und Dateien",
+          "Dokumentenverarbeitung und Ablage"
+        ]
       },
       {
         "name": "Hausverwaltungssoftware",
-        "umgang": "Stammdaten bleiben dort, System verlinkt die Akte mit Eintrag in der Verwaltungssoftware"
+        "umgang": "Bleibt führende Stammdatenquelle und wird mit der Akte abgeglichen.",
+        "module_refs": [
+          "Abgleich mit der Hausverwaltungssoftware",
+          "Auftragssystem mit Status und Zuständigkeit"
+        ]
       },
       {
-        "name": "SharePoint / Laufwerk",
-        "umgang": "Bestehende Dokumente werden angezeigt und an die Akte gehängt"
+        "name": "Laufwerk / SharePoint",
+        "umgang": "Bleibt Archivort für Dateien; erkannte Belege werden automatisch vorgeschlagen und verknüpft.",
+        "module_refs": [
+          "Dokumentenverarbeitung und Ablage"
+        ]
       },
       {
-        "name": "Kalender (Exchange)",
-        "umgang": "Termine werden aus dem Kalender gelesen und als Einträge in der Akte sichtbar gemacht"
+        "name": "Kalender",
+        "umgang": "Bleibt Terminquelle; Termine werden in der Akte sichtbar gemacht.",
+        "module_refs": [
+          "Auftragssystem mit Status und Zuständigkeit"
+        ]
       },
       {
-        "name": "Handwerkerportale (verschiedene)",
-        "umgang": "Verweise auf externe Handwerkerportale werden in der Akte sichtbar gemacht und als Kommunikationsziel angeboten"
+        "name": "Handwerkerportale und E‑Mail-Kontakte der Dienstleister",
+        "umgang": "Bleiben Kommunikationskanäle; Nachrichten werden der Akte zugeordnet und Vorlagen vorgeschlagen.",
+        "module_refs": [
+          "Zentraler Eingang für E‑Mail und Dateien",
+          "Auftragssystem mit Status und Zuständigkeit"
+        ]
+      },
+      {
+        "name": "Excel-Listen",
+        "umgang": "Bleiben vorhanden; relevante Angaben werden mit der Akte abgeglichen statt manuell kopiert.",
+        "module_refs": [
+          "Abgleich mit der Hausverwaltungssoftware",
+          "Auftragssystem mit Status und Zuständigkeit"
+        ]
       }
     ],
-    "architektur": [
-      {
-        "ebene": "Eingangsschicht",
-        "beschreibung": "Schnittstelle zu E-Mail, Formularen und sonstigen Eingangskanälen zur Erfassung der Nachricht"
-      },
-      {
-        "ebene": "Zuordnungslogik",
-        "beschreibung": "Komponente, die anhand vorhandener Adressen, Text und Anhängen eine passende Einheit vorschlägt oder zur Prüfung markiert"
-      },
-      {
-        "ebene": "Fallakte-Ansicht",
-        "beschreibung": "Zentrale Ansicht, die Verlauf, Dateien, zuständige Personen und nächste Schritte zusammenführt"
-      },
-      {
-        "ebene": "Kommunikationsunterstützung",
-        "beschreibung": "Erstellt geprüfte Textvorschläge für Handwerker- und Mieterkommunikation, die Mitarbeitende freigeben können"
-      },
-      {
-        "ebene": "Übersichts- und Berichtsschicht",
-        "beschreibung": "Dashboard mit tagesrelevanten Listen wie offene Handwerkerantworten, zuzuordnende Rechnungen und Fristen"
-      }
-    ],
-    "umsetzung": [
-      "Sammeln Sie eine Beispielmenge eingehender E-Mails und Fälle zum Test",
-      "Einrichten einer Verknüpfung zu Ihrem Outlook-Postfach für Testzwecke",
-      "Konfigurieren Sie Regeln, die Fälle mit klaren Adressen automatisch vorschlagen",
-      "Legen Sie eine Prüf-Liste für unklare Fälle an, die Mitarbeitende schnell abarbeiten",
-      "Erstellen Sie eine einfache Fallakte-Vorlage mit den wichtigsten Feldern und Dateianhängern",
-      "Bauen Sie vorbereitete Textbausteine für Handwerker- und Mieterantworten und testen Sie die Nutzung im Team",
-      "Zeigen Sie morgens eine fokussierte Liste mit Dringendem, Wartendem und Fristen",
-      "Sammeln Sie Feedback aus dem Team und passen Sie die Prüf-Liste sowie Textbausteine an",
-      "Erweitern Sie schrittweise die Zuordnungspalette für komplexere Fälle"
-    ],
-    "kurzfassung": {
-      "engpass_satz": "Informationen zu einem Vorgang landen verteilt in E‑Mail, Dateien und Köpfen",
-      "loesungsname": "Zentrale Vorgangsübersicht für Wohnungsfälle",
-      "relevante_module": [
-        "Automatischer Eingangserkenner",
-        "Zentrale Fallakte",
-        "Dokumentenzuordnung",
-        "Status- und Aufgabenboard"
-      ]
-    },
-    "verstanden": {
-      "engpass_absatz": "Die Ursache ist, dass jede eingehende Nachricht an verschiedenen Orten bleibt und nicht automatisch mit dem richtigen Objekt, dem Verlauf und den zuständigen Personen verknüpft wird. Deshalb müssen Mitarbeitende immer wieder Informationen zusammensuchen statt einen einzigen, vollständigen Vorgang zu öffnen.",
-      "belege": [
-        {
-          "zitat": "Wenn morgens jemand sein Outlook öffnet, sind da teilweise 70 oder 80 neue E-Mails.",
-          "bedeutung": "Hoher Eingangsstrom, der das manuelle Zuordnen erschwert"
-        },
-        {
-          "zitat": "Weil eigentlich bei jeder Station Informationen entstehen, aber es gibt nicht diesen einen Ort, an dem ich sagen kann:\n\nDas ist der Vorgang.",
-          "bedeutung": "Kein zentraler Ort, der alle Schritte, Dokumente und Zuständigkeiten zusammenführt"
-        },
-        {
-          "zitat": "Teilweise öffnen wir drei Programme, nur um eine E-Mail zu beantworten.",
-          "bedeutung": "Arbeit verteilt sich auf mehrere Tools, das Zusammenführen kostet Zeit"
-        }
-      ],
-      "eckdaten": [
-        "Acht Mitarbeitende",
-        "Rund 450 Einheiten",
-        "Mehrere Eingangswege",
-        "Hausverwaltungssoftware vorhanden"
-      ]
-    },
-    "warum_diese_loesung": "Sie brauchen keinen großen neuen Monolithen, sondern eine Lösung, die E‑Mails und Dateien dem richtigen Wohnungsfall zuordnet, den Verlauf zusammenhält und die nächsten Schritte sichtbar macht. Das entspricht Ihrer Teamgröße und ersetzt nicht die bestehende Hausverwaltungssoftware, sondern verbindet die relevanten Stationen und reduziert das manuelle Suchen.",
     "zielbild": {
-      "name": "Zentrale Vorgangsübersicht für Wohnungsfälle",
-      "beschreibung": "Ein schlanker zentraler Ort, der eingehende Nachrichten einem Objekt zuordnet, Dokumente anhängt und den aktuellen Status samt nächster Aufgabe zeigt.",
+      "name": "Zentraler Aufnahme- und Zuordnungsworkflow",
       "ablauf": [
         {
           "art": "eingang",
-          "label": "Eingang",
+          "label": "Nachrichten sammeln",
           "knoten": [
             {
-              "text": "E‑Mail, Formular, Anruf",
-              "kategorie": "quelle"
+              "text": "E‑Mails und Anhänge",
+              "kategorie": "eingang"
             },
             {
-              "text": "Anhänge, Fotos, PDF",
-              "kategorie": "anhang"
+              "text": "Scans und Fotos",
+              "kategorie": "eingang"
             }
           ]
         },
         {
           "art": "schluessel",
-          "label": "Erkennung und Zuordnung",
+          "label": "Automatische Zuordnung",
           "knoten": [
             {
-              "text": "Objekt finden oder prüfen",
-              "kategorie": "zuordnung"
+              "text": "Mieter- / Objektvorschlag",
+              "kategorie": "stamm"
             },
             {
-              "text": "Vorgang anlegen",
-              "kategorie": "anlage"
+              "text": "Zuständige Person",
+              "kategorie": "person"
             }
           ]
         },
         {
           "art": "verzweigung",
-          "label": "Arten checken",
+          "label": "Behandlung entscheiden",
           "knoten": [
             {
-              "text": "Schaden / Rechnung / Anfrage",
-              "kategorie": "typ"
+              "text": "Neuer Auftrag anlegen",
+              "kategorie": "auftrag"
             },
             {
-              "text": "Dringend / Routine",
-              "kategorie": "prio"
-            }
-          ]
-        },
-        {
-          "art": "nebenast",
-          "label": "Kommunikation vorbereiten",
-          "knoten": [
-            {
-              "text": "Handwerkerkontakt formulieren",
-              "kategorie": "kommunikation"
+              "text": "Antwort nötig",
+              "kategorie": "aktion"
             },
             {
-              "text": "Antwort an Mieter vorbereiten",
-              "kategorie": "kommunikation"
+              "text": "Nur Ablage",
+              "kategorie": "dokument"
             }
           ]
         },
         {
           "art": "ausgang",
-          "label": "Status und Dokumente",
+          "label": "Abgleich und Ablage",
           "knoten": [
             {
-              "text": "Vorgangsstatus sichtbar",
-              "kategorie": "status"
+              "text": "Infos an Hausverwaltung",
+              "kategorie": "sync"
             },
             {
-              "text": "Rechnung und Fotos zugeordnet",
-              "kategorie": "dokument"
+              "text": "Belege geprüft abgelegt",
+              "kategorie": "archiv"
             }
           ]
         }
-      ]
-    },
-    "vergleich": {
-      "heute": [
-        "Nachricht kommt in E‑Mail oder anderen Kanälen",
-        "Mitarbeiter sucht Objekt in der Hausverwaltungssoftware",
-        "Handwerker wird per E‑Mail oder Anruf informiert",
-        "Antworten landen in anderen Programmen oder E‑Mails",
-        "Dokumente werden separat gespeichert und wieder zusammengesucht"
       ],
-      "kuenftig": [
-        "Nachricht landet zentral und wird kurz geprüft",
-        "System ordnet Nachricht dem Objekt oder markiert zur Klärung",
-        "Standardnachrichten werden vorbereitet, Mitarbeiter bestätigt Versand",
-        "Antworten landen im selben Vorgang und sind sofort sichtbar",
-        "Rechnungen und Fotos sind automatisch an den Fall geheftet"
-      ]
+      "beschreibung": "Nachrichten und Belege landen zuerst im gemeinsamen Eingang, werden automatisch einem Mieter oder Objekt vorgeschlagen und einer sichtbaren Akte zugeordnet. Sie sehen sofort die zuständige Person und den aktuellen Stand."
     },
-    "module": [
+    "ansichten": [
       {
-        "gruppe": "Eingang und Erkennung",
-        "name": "Automatischer Eingangserkenner",
-        "beschreibung": "Sammelt E‑Mails, Formulare und Anhänge und schlägt Objekt sowie Typ (Schaden, Rechnung, Anfrage) vor"
+        "typ": "uebersicht",
+        "daten": {
+          "tag": null,
+          "name": null,
+          "notiz": null,
+          "blasen": null,
+          "felder": null,
+          "zeilen": [
+            {
+              "text": "Wasserschaden Objekt B, Handwerker ausstehend",
+              "status": "rot"
+            },
+            {
+              "text": "Rechnung 2026-04-18: Zuordnungsprüfung nötig",
+              "status": "gelb"
+            },
+            {
+              "text": "Anfrage Eigentümer Müller: Abrechnung",
+              "status": "gelb"
+            },
+            {
+              "text": "Terminbestätigung Handwerker Haus A",
+              "status": "gruen"
+            },
+            {
+              "text": "Unklare Objektangabe in E‑Mail von Mieter",
+              "status": "rot"
+            },
+            {
+              "text": "Neue Nachrichten aus mehreren E‑Mail-Adressen",
+              "status": "gelb"
+            }
+          ],
+          "dateien": null,
+          "hinweis": "Bei unsicherer Objektzuordnung wird die Meldung zur Prüfung gelegt.",
+          "verlauf": null,
+          "schritte": null,
+          "abzeichen": null,
+          "haupttext": "Kurzüberblick für morgen: Priorisieren Sie offene Schäden und wartende Handwerker.",
+          "untertext": "Dokumente mit fehlender Zuordnung bitte zuerst prüfen.",
+          "vorgaenge": null,
+          "kennzahlen": [
+            {
+              "wert": "18",
+              "label": "Offene Meldungen"
+            },
+            {
+              "wert": "5",
+              "label": "Wartende Handwerkerantworten"
+            },
+            {
+              "wert": "7",
+              "label": "Rechnungen zur Prüfung"
+            },
+            {
+              "wert": "3",
+              "label": "Fristen diese Woche"
+            }
+          ],
+          "statussatz": null,
+          "nachrichten": null,
+          "eintraege_termine": null,
+          "eintraege_dokumente": null
+        },
+        "titel": "Morgendliche Übersicht",
+        "module_refs": [
+          "Auftragssystem mit Status und Zuständigkeit",
+          "Abgleich mit der Hausverwaltungssoftware",
+          "Zentraler Eingang für E‑Mail und Dateien"
+        ],
+        "beschreibung": "Was heute Aufmerksamkeit braucht"
       },
       {
-        "gruppe": "Eingang und Erkennung",
-        "name": "Klärungsprüfung",
-        "beschreibung": "Zeigt unklare Fälle zur kurzen Prüfung an und fragt bei Bedarf nach Informationen"
+        "typ": "eingangspruefung",
+        "daten": {
+          "tag": null,
+          "name": null,
+          "notiz": null,
+          "blasen": null,
+          "felder": null,
+          "zeilen": null,
+          "dateien": null,
+          "hinweis": null,
+          "verlauf": null,
+          "schritte": null,
+          "abzeichen": null,
+          "haupttext": null,
+          "untertext": null,
+          "vorgaenge": null,
+          "kennzahlen": null,
+          "statussatz": null,
+          "nachrichten": [
+            {
+              "text": "In der Wohnung im zweiten Stock funktioniert die Heizung nicht.",
+              "zeit": "08:14",
+              "marken": [
+                "Schaden",
+                "Heizung",
+                "Objekt unklar"
+              ],
+              "absender": "mieter@example.de"
+            },
+            {
+              "text": "Rechnung für Reparatur anbei (PDF). Bitte zuordnen.",
+              "zeit": "07:55",
+              "marken": [
+                "Rechnung",
+                "Beleg",
+                "Prüfung nötig"
+              ],
+              "absender": "eigentümer@domain.de"
+            }
+          ],
+          "eintraege_termine": null,
+          "eintraege_dokumente": null
+        },
+        "titel": "Neue Nachricht öffnen",
+        "module_refs": [
+          "Zentraler Eingang für E‑Mail und Dateien",
+          "Dokumentenverarbeitung und Ablage",
+          "Abgleich mit der Hausverwaltungssoftware"
+        ],
+        "beschreibung": "Eingangsnachrichten mit erkannter Einordnung"
       },
       {
-        "gruppe": "Arbeit und Steuerung",
-        "name": "Zentrale Fallakte",
-        "beschreibung": "Fasst Verlauf, zuständige Person, Termine und alle zugehörigen Dateien an einem Ort zusammen"
-      },
-      {
-        "gruppe": "Arbeit und Steuerung",
-        "name": "Dokumentenzuordnung",
-        "beschreibung": "Ordnet eingehende PDFs, Fotos und Rechnungen automatisch dem richtigen Fall zu"
-      },
-      {
-        "gruppe": "Übersicht und Kunden",
-        "name": "Status- und Aufgabenboard",
-        "beschreibung": "Zeigt dringende Vorgänge, wartende Antworten, offene Rechnungen und Fristen in einer Morgenübersicht"
-      },
-      {
-        "gruppe": "Übersicht und Kunden",
-        "name": "Vorbereitete Kommunikationsbausteine",
-        "beschreibung": "Erstellt Textvorschläge für Handwerker‑ und Mieterkommunikation, die Mitarbeitende schnell prüfen und senden"
+        "typ": "dokumentenablage",
+        "daten": {
+          "tag": null,
+          "name": null,
+          "notiz": null,
+          "blasen": null,
+          "felder": null,
+          "zeilen": null,
+          "dateien": null,
+          "hinweis": null,
+          "verlauf": null,
+          "schritte": null,
+          "abzeichen": null,
+          "haupttext": null,
+          "untertext": null,
+          "vorgaenge": null,
+          "kennzahlen": null,
+          "statussatz": null,
+          "nachrichten": null,
+          "eintraege_termine": null,
+          "eintraege_dokumente": [
+            {
+              "typ": "Foto",
+              "name": "Feuchtigkeit_Wohnung_2OG_2026-04-18.jpg",
+              "datum": "2026-04-18",
+              "zuordnung": "Vorschlag: Objekt B, Mieter Muster"
+            },
+            {
+              "typ": "Rechnung",
+              "name": "Rechnung_Sanitär_2026-04-18.pdf",
+              "datum": "2026-04-18",
+              "zuordnung": "Vorschlag: Wasserschaden Objekt B"
+            },
+            {
+              "typ": "Scan",
+              "name": "Scan_2026_04_10_Mietvertrag.pdf",
+              "datum": "2026-04-10",
+              "zuordnung": "Vorschlag: Mietvertrag Müller, Wohnung 12"
+            },
+            {
+              "typ": "Bericht",
+              "name": "Handwerkerbericht_0426.pdf",
+              "datum": "2026-04-20",
+              "zuordnung": "Vorschlag: Termin Haus A"
+            }
+          ]
+        },
+        "titel": "Belege und Fotos zu Vorgängen",
+        "module_refs": [
+          "Dokumentenverarbeitung und Ablage",
+          "Auftragssystem mit Status und Zuständigkeit",
+          "Abgleich mit der Hausverwaltungssoftware"
+        ],
+        "beschreibung": "Gefundene Dateien mit vorgeschlagener Zuordnung"
       }
     ],
-    "contract_version": "ergebnis-v6"
+    "umsetzung": [
+      {
+        "text": "Wir erfassen, welche E‑Mail‑Adressen, Formulare und Ablageorte Sie aktuell nutzen.",
+        "module_refs": [
+          "Zentraler Eingang für E‑Mail und Dateien"
+        ]
+      },
+      {
+        "text": "Wir richten den gemeinsamen Eingang so ein, dass eingehende Nachrichten dort zusammenlaufen und erste Vorschläge erscheinen.",
+        "module_refs": [
+          "Zentraler Eingang für E‑Mail und Dateien"
+        ]
+      },
+      {
+        "text": "Wir stellen Regeln für die Erkennung von Objekt, Mieter und Dokumenttyp bereit und prüfen Beispiele mit Ihnen.",
+        "module_refs": [
+          "Zentraler Eingang für E‑Mail und Dateien",
+          "Dokumentenverarbeitung und Ablage"
+        ]
+      },
+      {
+        "text": "Wir legen die Aktenstruktur und Statusbegriffe im Auftragssystem an und verknüpfen sie mit dem Eingang.",
+        "module_refs": [
+          "Auftragssystem mit Status und Zuständigkeit"
+        ]
+      },
+      {
+        "text": "Wir konfigurieren die Dokumentverarbeitung, damit Belege und Fotos vorgeschlagen und der passenden Akte zugewiesen werden.",
+        "module_refs": [
+          "Dokumentenverarbeitung und Ablage"
+        ]
+      },
+      {
+        "text": "Wir verbinden den Abgleich zur Hausverwaltungssoftware, damit Stammdaten und Verknüpfungen synchronisiert werden.",
+        "module_refs": [
+          "Abgleich mit der Hausverwaltungssoftware"
+        ]
+      },
+      {
+        "text": "Wir bauen die morgendliche Übersichtsansicht, die die heute relevanten Vorgänge zusammenfasst.",
+        "module_refs": [
+          "Auftragssystem mit Status und Zuständigkeit",
+          "Abgleich mit der Hausverwaltungssoftware",
+          "Zentraler Eingang für E‑Mail und Dateien"
+        ]
+      },
+      {
+        "text": "Wir prüfen den Ablauf an echten Fällen und passen Zuordnungen und Prüfstellungen an.",
+        "module_refs": [
+          "Zentraler Eingang für E‑Mail und Dateien",
+          "Auftragssystem mit Status und Zuständigkeit",
+          "Dokumentenverarbeitung und Ablage",
+          "Abgleich mit der Hausverwaltungssoftware"
+        ]
+      },
+      {
+        "text": "Wir begleiten die Einführungswoche und schulen Ihre Mitarbeitenden im Umgang mit den Prüf- und Bestätigungspunkten.",
+        "module_refs": [
+          "Auftragssystem mit Status und Zuständigkeit",
+          "Zentraler Eingang für E‑Mail und Dateien",
+          "Dokumentenverarbeitung und Ablage"
+        ]
+      }
+    ],
+    "vergleich": {
+      "heute": [
+        "Eine E-Mail kommt rein und jemand liest sie",
+        "Es wird geprüft, zu welchem Objekt die Nachricht gehört",
+        "In der Hausverwaltungssoftware wird nach dem Mieter gesucht",
+        "Der zuständige Handwerker wird per E-Mail informiert",
+        "Antworten und Termine landen in separaten Nachrichten",
+        "Rechnungen kommen als PDF und werden im Laufwerk gespeichert",
+        "Mitarbeiter nutzen OneNote, persönliche Notizen oder Zettel"
+      ],
+      "kuenftig": [
+        "E‑Mail wird im gemeinsamen Eingang erfasst statt nur gelesen.",
+        "Das System schlägt Mieter oder Objekt automatisch vor statt manuellem Suchen.",
+        "Gefundene Treffer werden direkt verknüpft statt separat in der Hausverwaltungssoftware gesucht.",
+        "Die zuständige Person erscheint in der Akte statt per Einzel‑E‑Mail benachrichtigt zu werden.",
+        "Antworten und Termine werden der Akte zugeordnet statt in separaten Nachrichten zu liegen.",
+        "Rechnungen und PDFs werden erkannt und der passenden Akte zugewiesen statt im Laufwerk verstreut zu liegen.",
+        "Notizen werden in der Akte abgelegt statt in OneNote, persönlichen Notizen oder Zetteln."
+      ]
+    },
+    "rueckfrage": null,
+    "verstanden": {
+      "belege": [
+        {
+          "zitat": "Wenn morgens jemand sein Outlook öffnet, sind da teilweise 70 oder 80 neue E-Mails.",
+          "bedeutung": "Zeigt das hohe Volumen an Eingängen, die zuerst eingeordnet werden müssen"
+        },
+        {
+          "zitat": "Und genau diese Kette macht mich wahnsinnig.",
+          "bedeutung": "Beschreibt, dass die wiederholte Abfolge von Schritten und Suchen die tägliche Arbeit belastet"
+        },
+        {
+          "zitat": "Was braucht heute Aufmerksamkeit?",
+          "bedeutung": "Verlangt eine klare Priorisierung, die aktuell nicht ohne Rückfragen erkennbar ist"
+        }
+      ],
+      "eckdaten": [
+        "450 Einheiten",
+        "Acht Leute",
+        "Mehrere E-Mail-Adressen",
+        "Outlook, Excel, Laufwerk",
+        "70 oder 80 E-Mails"
+      ],
+      "engpass_absatz": "Der Engpass ist, dass eingehende Nachrichten, Dateien und Aufgaben nicht verlässlich einem Objekt und einer verantwortlichen Person zugeordnet sind. Dadurch entsteht bei jedem Eingang Such- und Abgleicharbeit, weil Mitarbeitende unterschiedlich persönliche Ablagen und Arbeitsweisen nutzen. Sie haben so keinen verlässlichen Gesamtstand und müssen vor Entscheidungen Informationen immer wieder zusammensuchen."
+    },
+    "architektur": [
+      {
+        "ebene": "Gemeinsamer Eingang",
+        "module_refs": [
+          "Zentraler Eingang für E‑Mail und Dateien"
+        ],
+        "beschreibung": "Zentrale Sammelstelle für E‑Mails, Formulare und eingescannte Briefe, die erste Zuordnungs‑Vorschläge liefert."
+      },
+      {
+        "ebene": "Erkennung und Zuordnung",
+        "module_refs": [
+          "Zentraler Eingang für E‑Mail und Dateien",
+          "Dokumentenverarbeitung und Ablage"
+        ],
+        "beschreibung": "Automatische Erkennung von Anliegen, Objekt und Mieter sowie Vorschlag zur Weiterverteilung."
+      },
+      {
+        "ebene": "Akte und Auftragssystem",
+        "module_refs": [
+          "Auftragssystem mit Status und Zuständigkeit"
+        ],
+        "beschreibung": "Sichtbare Akte mit Status, Verlauf, Verantwortlicher und offenen nächsten Schritten."
+      },
+      {
+        "ebene": "Dokumentenverarbeitung",
+        "module_refs": [
+          "Dokumentenverarbeitung und Ablage"
+        ],
+        "beschreibung": "Einlesen von PDFs, Fotos und Belegen und vorgeschlagene Ablage bei der passenden Akte."
+      },
+      {
+        "ebene": "Abgleich mit Hausverwaltungssoftware",
+        "module_refs": [
+          "Abgleich mit der Hausverwaltungssoftware"
+        ],
+        "beschreibung": "Abgleich von Namen, Objekten und Dokumentverknüpfungen zur Vermeidung doppelter Pflege."
+      }
+    ],
+    "kurzfassung": {
+      "engpass_satz": "Informationen und Dokumente liegen verteilt und haben keinen gemeinsamen Bezug",
+      "loesungsname": "Zentraler Aufnahme- und Zuordnungsworkflow",
+      "relevante_module": [
+        "Zentraler Eingang",
+        "Auftragssystem",
+        "Dokumentenverarbeitung",
+        "Datenabgleich"
+      ]
+    },
+    "aufgabenteilung": {
+      "mensch": [
+        "Bestätigen Sie bei unklarer Objektzuordnung die richtige Zuordnung.",
+        "Entscheiden Sie, ob ein Eingang einen neuen Auftrag bekommt.",
+        "Senden und final prüfen Sie Nachrichten an Handwerker und Mieter.",
+        "Prüfen und geben Sie Rechnungen oder Kostenfreigaben frei.",
+        "Übernehmen Sie Sonderfälle und fachliche Entscheidungen."
+      ],
+      "system": [
+        "Sammelt eingehende E‑Mails und Anhänge an einer gemeinsamen Stelle.",
+        "Schlägt zu jedem Eingang ein Objekt und einen Mieter vor.",
+        "Bereitet eine neue Akte mit Status und zuständiger Person vor.",
+        "Ordnet erkannte Dokumente der passenden Akte zu.",
+        "Bereitet Antwortentwürfe an Handwerker und Mieter vor.",
+        "Führt einen morgendlichen Überblick über Prioritäten zusammen."
+      ],
+      "grenzen": [
+        {
+          "titel": "Kein zusätzliches großes Programm",
+          "erlaeuterung": "Was ich aber auch nicht will, ist noch ein weiteres riesiges Programm."
+        },
+        {
+          "titel": "Hausverwaltungssoftware bleibt erhalten",
+          "erlaeuterung": "Die funktioniert grundsätzlich. Ich möchte die auch nicht ersetzen."
+        },
+        {
+          "titel": "Keine eigenständigen Versprechen an Mieter",
+          "erlaeuterung": "Ich will nicht, dass irgendeine KI einem Mieter eigenständig verspricht, dass morgen jemand kommt, wenn das gar nicht stimmt."
+        }
+      ]
+    },
+    "contract_version": "ergebnis-v6",
+    "warum_diese_loesung": "Weil eingehende E‑Mails, PDFs und persönliche Notizen heute an verschiedenen Orten liegen, müssen Sie einen ersten gemeinsamen Aufnahmepunkt, automatische Dokumentzuordnung, eine sichtbare Akte mit klarer Verantwortlichkeit und einen Abgleich mit der Hausverwaltungssoftware haben. Zusammen verhindern diese Schritte, dass Mitarbeitende wiederholt suchen und Informationen neu zusammensetzen."
   }
 }
