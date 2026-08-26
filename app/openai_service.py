@@ -374,6 +374,18 @@ def _api_key() -> str:
 # genau eine Sache ändern kann, ohne dass jemand Code anfasst — und weil ein
 # Wert, den man umstellen kann, ehrlicher ist als eine Zahl mitten im Aufruf.
 # Ohne gesetzte Umgebungsvariable gilt jeweils das, was im Betrieb gelten soll.
+def _kennt_keine_minimalstufe() -> bool:
+    """Ob das eingestellte Modell `minimal` als Denkstufe ablehnt.
+
+    `gpt-5-mini` und Geschwister kennen `minimal`. Ab `gpt-5.6` heisst
+    dieselbe Stufe `none`. Die Unterscheidung am Namen ist grob, aber
+    sie ist die einzige, die vor dem Aufruf zur Verfügung steht.
+    """
+
+    modell = os.getenv("OPENAI_MODEL", "").strip().casefold()
+    return modell.startswith("gpt-5.")
+
+
 def _reasoning_effort(*, gruendlich: bool, fuellt_nur: bool = False) -> str:
     """Wie viel das Modell nachdenken soll.
 
@@ -393,7 +405,11 @@ def _reasoning_effort(*, gruendlich: bool, fuellt_nur: bool = False) -> str:
     """
 
     if not gruendlich:
-        return "minimal"
+        # **Die niedrigste Stufe heisst nicht überall gleich.** Bei den
+        # gpt-5-Modellen ist sie `minimal`, ab gpt-5.6 `none`. Ein Wert,
+        # den das Modell nicht kennt, lässt jeden Aufruf scheitern —
+        # deshalb entscheidet der Modellname, nicht eine Annahme.
+        return "none" if _kennt_keine_minimalstufe() else "minimal"
     if fuellt_nur:
         return os.getenv("OPENAI_REASONING_EFFORT_TEIL2", "").strip() or "low"
     return os.getenv("OPENAI_REASONING_EFFORT", "").strip() or "medium"

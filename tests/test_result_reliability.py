@@ -421,3 +421,36 @@ def test_json_mode_carries_the_schema_in_the_prompt(
     system = aufruf["messages"][0]["content"]
     assert "kurzfassung" in system
     assert "verstanden" in system
+
+
+# --- Die niedrigste Denkstufe heisst nicht ueberall gleich ----------------
+
+
+def test_the_lowest_effort_level_follows_the_model(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """**Ein unbekannter Wert laesst jeden Aufruf scheitern.**
+
+    Die gpt-5-Modelle nennen die niedrigste Denkstufe `minimal`, ab
+    gpt-5.6 heisst dieselbe Stufe `none`. Wer den falschen Namen schickt,
+    bekommt keinen schlechteren Lauf, sondern gar keinen.
+    """
+
+    monkeypatch.setenv("OPENAI_MODEL", "gpt-5-mini")
+    assert openai_service._reasoning_effort(gruendlich=False) == "minimal"
+
+    monkeypatch.setenv("OPENAI_MODEL", "gpt-5.6-terra")
+    assert openai_service._reasoning_effort(gruendlich=False) == "none"
+
+
+def test_the_thorough_levels_are_named_the_same_everywhere(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """`low` und `medium` gibt es in beiden Familien — die bleiben."""
+
+    monkeypatch.delenv("OPENAI_REASONING_EFFORT", raising=False)
+    monkeypatch.delenv("OPENAI_REASONING_EFFORT_TEIL2", raising=False)
+    monkeypatch.setenv("OPENAI_MODEL", "gpt-5.6-terra")
+
+    assert openai_service._reasoning_effort(gruendlich=True) == "medium"
+    assert openai_service._reasoning_effort(gruendlich=True, fuellt_nur=True) == "low"
