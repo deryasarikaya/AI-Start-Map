@@ -813,3 +813,56 @@ def test_ten_modules_are_still_too_many() -> None:
 
     with pytest.raises(ValidationError):
         ResultPartOne.model_validate(_part_one(module=_module(10)), context=_kontext())
+
+
+# --- Der Nutzen eines Moduls ---------------------------------------------
+
+
+def test_a_module_may_carry_a_benefit() -> None:
+    """Zwei bis fuenf Woerter, was der Betrieb davon hat."""
+
+    daten = _part_one()
+    daten["module"][0]["nutzen"] = "Weniger Nachfragen"
+
+    with narrative(ERZAEHLUNG):
+        teil = ResultPartOne.model_validate(daten)
+
+    assert teil.module[0].nutzen == "Weniger Nachfragen"
+
+
+def test_a_module_without_a_benefit_still_passes() -> None:
+    """Faellt nichts Konkretes ein, bleibt die Zeile leer.
+
+    Eine Floskel waere schlechter als nichts — und aeltere gespeicherte
+    Ergebnisse kennen das Feld gar nicht.
+    """
+
+    daten = _part_one()
+    for modul in daten["module"]:
+        modul.pop("nutzen", None)
+
+    with narrative(ERZAEHLUNG):
+        teil = ResultPartOne.model_validate(daten)
+
+    assert teil.module[0].nutzen == ""
+
+
+def test_a_benefit_that_promises_hours_or_euros_is_dropped() -> None:
+    """**Die verlockendste Stelle fuer eine erfundene Ersparnis.**
+
+    Niemand hat den Betrieb des Kunden gemessen, also kann niemand
+    drei Stunden versprechen. Die Zeile faellt — der Baustein bleibt
+    mit Name und Beschreibung stehen, so wie eine schlechte Zeile im
+    Wertabschnitt auch nicht den ganzen Lauf kostet.
+    """
+
+    daten = _part_one()
+    daten["module"][0]["nutzen"] = "Spart 3 Stunden pro Woche"
+    daten["module"][1]["nutzen"] = "Weniger Nachfragen"
+
+    with narrative(ERZAEHLUNG):
+        teil = ResultPartOne.model_validate(daten)
+
+    assert teil.module[0].nutzen == ""
+    assert teil.module[0].name
+    assert teil.module[1].nutzen == "Weniger Nachfragen"

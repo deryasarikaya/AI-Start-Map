@@ -257,6 +257,9 @@
         {% endif %}
         <h3>{{ modul.name }}</h3>
         <p>{{ modul.beschreibung }}</p>
+        {% if modul.nutzen %}
+        <span class="nutzen">{{ modul.nutzen }}</span>
+        {% endif %}
         {% set beschriftung = {'jetzt': 'Jetzt',
                                'danach': 'Darauf baut auf',
                                'spaeter': 'Wo das hinführt'}.get(modul.stufe) %}

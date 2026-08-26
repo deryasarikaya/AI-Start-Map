@@ -449,6 +449,17 @@ class Module(StrictResultModel):
     gruppe: NonEmptyText
     name: NonEmptyText
     beschreibung: NonEmptyText
+    #: **Was der Betrieb davon hat**, in wenigen Wörtern.
+    #:
+    #: Die Beschreibung sagt, was der Baustein tut. Das hier sagt,
+    #: warum ihn das interessieren sollte — zwei verschiedene Fragen,
+    #: und die zweite ist die, die verkauft.
+    #:
+    #: Leer mit Vorgabe, damit ältere gespeicherte Ergebnisse lesbar
+    #: bleiben. Eine Zeit- oder Geldersparnis steht hier nicht: Die
+    #: alte Regel gegen erfundene Zahlen gilt für den ganzen
+    #: Kundentext und damit auch für dieses Feld.
+    nutzen: str = ""
     #: Wann dieser Baustein drankommt. Am Modul selbst und nicht in einer
     #: Liste daneben: So kann er weder vergessen noch zweimal eingeordnet
     #: werden — das Schema erzwingt die Zuordnung, statt sie zu prüfen.
@@ -464,6 +475,32 @@ class Module(StrictResultModel):
     #: Erzeugung verlangt `SelectedModule` beide, und der Katalog prüft sie.
     solution_family_ids: list[str] = []
     baustein_refs: list[str] = []
+
+    @model_validator(mode="after")
+    def the_benefit_promises_no_saving(self) -> Module:
+        """Ein Nutzen mit Zahl oder Zeitangabe fällt weg.
+
+        „Spart drei Stunden pro Woche" ist keine Zusage, die jemand
+        halten kann — niemand hat den Betrieb des Kunden gemessen.
+
+        Weggeworfen wird die Zeile, nicht das Ergebnis: Der Baustein
+        bleibt mit Name und Beschreibung stehen, nur ohne die
+        Behauptung. Genauso wie im Wertabschnitt und bei den
+        Zitaten — eine schlechte Zeile kostet nicht den ganzen Lauf.
+        """
+
+        if not self.nutzen:
+            return self
+        if NUMBER_PATTERN.search(self.nutzen) or TIME_UNIT_PATTERN.search(
+            self.nutzen
+        ):
+            logger.warning(
+                "result.benefit_dropped modul=%r nutzen=%r",
+                self.name,
+                self.nutzen,
+            )
+            self.nutzen = ""
+        return self
 
 
 class LabelValue(StrictResultModel):

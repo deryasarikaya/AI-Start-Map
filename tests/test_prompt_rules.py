@@ -308,3 +308,29 @@ def test_what_the_customer_must_contribute_is_named() -> None:
     fliess = _fliesstext(REST)
 
     assert "dazu brauchen wir von Ihnen einmal" in fliess
+
+
+# --- Was der Betrieb davon hat -------------------------------------------
+
+
+def test_every_module_says_what_the_business_gets_out_of_it() -> None:
+    """Die Beschreibung sagt, was der Baustein tut. Der Nutzen sagt, warum
+    das jemanden interessiert — das ist die Frage, die verkauft."""
+
+    fliess = _fliesstext(AUSWAHL)
+
+    assert "was er davon hat" in fliess
+    assert "Nicht was der Baustein tut, sondern warum ihn das interessiert" in fliess
+
+
+def test_the_benefit_may_not_become_an_invented_saving() -> None:
+    """**Kein Betrag, keine Stunde.**
+
+    Der Nutzen ist die Stelle, an der eine erfundene Ersparnis am
+    leichtesten hineinrutscht — genau dort steht das Verbot.
+    """
+
+    fliess = _fliesstext(AUSWAHL)
+
+    assert "Keine Zahl, keine Zeitangabe, kein Betrag" in fliess
+    assert "eine leere Zeile ist besser als eine Floskel" in fliess

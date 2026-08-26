@@ -313,6 +313,12 @@
   display: block; font-size: .72rem; letter-spacing: .09em;
   text-transform: uppercase; color: var(--marke); margin-bottom: 6px;
 }
+/* Was er davon hat — die Zeile, die den Baustein verkauft. */
+.tafel .nutzen {
+  display: inline-block; margin-top: 12px; padding: 5px 12px;
+  border-radius: 999px; background: var(--marke-hell);
+  color: var(--marke); font-size: .8rem; font-weight: 600;
+}
 .tafel .baustein--spaeter { background: #f8fafc; }
 .tafel .stufe {
   display: inline-block; margin-top: 13px; font-size: .74rem;

@@ -166,6 +166,12 @@ Jedes Modul hat:
 - `name` — der kundennahe Name. Deine Formulierung.
 - `beschreibung` — was es für **diesen** Betrieb tut, an seinem Alltag
   festgemacht.
+- `nutzen` — zwei bis fünf Wörter, was er davon hat. Nicht was der
+  Baustein tut, sondern warum ihn das interessiert: „Weniger
+  Nachfragen", „Nichts geht mehr verloren", „Abends früher fertig".
+  Keine Zahl, keine Zeitangabe, kein Betrag — eine Ersparnis über
+  seinen Betrieb kann niemand belegen. Fällt dir nichts Konkretes
+  ein, lass es leer; eine leere Zeile ist besser als eine Floskel.
 - `gruppe` — höchstens drei verschiedene Gruppen in der ganzen Liste. Mehrere
   Module teilen sich eine Gruppe; das ist ihr Sinn.
 - `stufe` — `jetzt`, `danach` oder `spaeter`.
