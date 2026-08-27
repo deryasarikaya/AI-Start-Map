@@ -176,7 +176,10 @@ Jedes Modul hat:
   „Zentrale Vorgangsansicht", „Ihr gemeinsamer Anfrageeingang". Es ist
   eine verbindende Arbeitsansicht über dem, was schon da ist.
 - `beschreibung` — was es für **diesen** Betrieb tut, an seinem Alltag
-  festgemacht.
+  festgemacht. **Höchstens zwei kurze Sätze.** Auf der Ergebnisseite
+  stehen vier dieser Karten nebeneinander, und der Kunde überfliegt sie
+  in fünf Sekunden. Ein Absatz an dieser Stelle wird nicht gelesen,
+  sondern übersprungen — und mit ihm der Nutzen darüber.
 - `nutzen` — **ein Satz: was er künftig nicht mehr selbst machen muss.**
   In der Sie-Form, höchstens zwölf Wörter. Das ist die Zeile, die auf
   der Karte oben steht und den Baustein verkauft.

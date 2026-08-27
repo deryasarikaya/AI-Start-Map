@@ -523,9 +523,14 @@
          Katalog verkauft nichts. Die vollständige Liste steht im
          Ausdruck. #}
       {% for modul in e.module[:4] %}
+      {# Das Zeichen kommt aus dem Nutzen, sonst aus dem Namen. Vier
+         gleiche Würfel waren Dekoration; ein Symbol, das den Nutzen
+         meint, sagt schon etwas, bevor jemand liest. #}
       <article class="baustein">
         <span class="bausteinsymbol">
-          <svg aria-hidden="true"><use href="#i-baustein"/></svg>
+          <svg aria-hidden="true">
+            <use href="#{{ (modul.nutzen or modul.name) | wandelsymbol }}"/>
+          </svg>
         </span>
         {% if modul.nutzen %}
         <h3>{{ modul.nutzen }}</h3>
@@ -642,12 +647,6 @@
     <h2>Möchten Sie so arbeiten?</h2>
     <p class="bruecke">Wir setzen genau diese Lösung für Ihren Betrieb um —
     passend zu Ihren Abläufen und Ihren bestehenden Systemen.</p>
-    {# Nicht noch einmal daran erinnern, was er schon hat — an dieser
-       Stelle soll er wollen, nicht abwägen. #}
-    <p class="versprechen">
-      <svg aria-hidden="true"><use href="#i-schutz"/></svg>
-      <span>Sie behalten die Kontrolle. Um die Umsetzung kümmern wir uns.</span>
-    </p>
     <div class="knoepfe">
       <a class="knopf knopf--haupt" href="{{ gespraechs_adresse() }}">
         <span>Genau so möchte ich arbeiten</span>
@@ -660,7 +659,7 @@
          Zusatz bleibt dieselbe Adresse eine Seite zum Lesen. #}
       <a class="knopf knopf--neben" href="/report?drucken=1">
         <svg aria-hidden="true"><use href="#i-pdf"/></svg>
-        <span>Vollständige Auswertung ansehen</span>
+        <span>Vollständige Auswertung als PDF</span>
       </a>
     </div>
     {# Der zweite Knopf ist kein zweiter Ausgang. Er stand gleichberechtigt
@@ -668,6 +667,15 @@
        bequemere. Der nächste Schritt ist das Gespräch; der Ausdruck ist
        das, was er mitnimmt und intern weitergibt. #}
     <p class="knopfnotiz">Enthält mehr Details als diese Zusammenfassung.</p>
+
+    {# Der letzte Satz der Seite. Er steht **nach** den Knöpfen: davor
+       hätte er zum Abwägen eingeladen, danach nimmt er die letzte
+       Sorge — und die Sorge vor Kontrollverlust ist bei KI die
+       grösste. #}
+    <p class="versprechen">
+      <svg aria-hidden="true"><use href="#i-schutz"/></svg>
+      <span>Sie behalten die Kontrolle. Um die Umsetzung kümmern wir uns.</span>
+    </p>
     <p class="kleingedruckt">Diese Auswertung basiert auf Ihrer eigenen
     Beschreibung.</p>
   </div>

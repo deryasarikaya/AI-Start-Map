@@ -103,7 +103,7 @@ def test_the_result_page_links_to_the_report(client: TestClient) -> None:
 
     seite = client.get("/results").text
 
-    assert "Vollständige Auswertung ansehen" in seite
+    assert "Vollständige Auswertung als PDF" in seite
     assert "/report" in seite
 
 
