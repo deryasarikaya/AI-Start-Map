@@ -26,6 +26,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Resp
 from sqlalchemy.orm import Session
 
 from app import repository
+from app.hintergrund import auswertung_erzeugen
 from app.database import get_db_session
 from app.models import AnalysisSession, InterviewQuestion
 from app.questions import INTRO_KEYS, INTRO_QUESTIONS
@@ -258,8 +259,20 @@ def analysis_status(
     keiner.
     """
 
-    repository.get_session_or_404(database_session, session_id)
+    sitzung = repository.get_session_or_404(database_session, session_id)
     complete = repository.get_result(database_session, session_id) is not None
+    # **Ein gescheiterter Lauf meldet sich sofort.** Ohne diesen Vermerk
+    # fragte der Warteschirm neunzig Mal nach und zeigte danach eine
+    # Zeitüberschreitung, obwohl der Grund seit Sekunden feststand.
+    if not complete and sitzung.lauf_fehler:
+        return JSONResponse(
+            {
+                "state": "failed",
+                "phase": "failed",
+                "message": sitzung.lauf_fehler,
+                "redirect_url": None,
+            }
+        )
     zwischenstand = repository.get_partial_result(database_session, session_id)
     if complete:
         phase = "complete"
@@ -283,16 +296,32 @@ def analyze_session(
     session_id: int,
     database_session: Session = Depends(get_db_session),
 ) -> JSONResponse:
-    """Startet die Auswertung und meldet, wie sie ausgegangen ist.
+    """Stellt die Auswertung in die Warteschlange und antwortet sofort.
 
-    Aufgerufen vom Skript auf dem Warteschirm. Gerechnet wird in
-    `analysis_service.run_generation` — zwei Modellaufrufe aus der Erzählung.
-    Die Antwort ist JSON und sagt, ob es geklappt hat; bei einem Fehler zeigt
-    der Warteschirm ihn an.
+    Aufgerufen vom Skript auf dem Warteschirm. **Gerechnet wird nicht mehr
+    hier.** Vorher lief die vollständige Analyse in diesem Request — drei
+    Modellaufrufe, rund achtzig Sekunden, in denen die Verbindung zum
+    Browser offen blieb. Ein Sprachmodell hat keine zugesagte Laufzeit, und
+    Reverse Proxies im Betrieb schneiden lange Requests ab; dann stirbt die
+    Arbeit mitten drin, und niemand weiß, wie weit sie kam.
+
+    Jetzt legt die Route den Auftrag hin und ist fertig. Den Rest macht der
+    Worker, und der Warteschirm fragt über `/analysis-status` nach.
+
+    Die Antwort sagt trotzdem, wohin es geht, wenn schon etwas vorliegt:
+    Ist das Ergebnis fertig — oder läuft Celery im Sofortmodus, wie in den
+    Tests —, geht es direkt weiter statt über eine Warteschleife.
     """
 
     repository.get_session_or_404(database_session, session_id)
-    payload, status_code = analysis_service.run_generation(session_id, database_session)
+
+    # Erst einstellen, dann nachsehen. In der Reihenfolge, weil im
+    # Sofortmodus (Tests) die Arbeit während `delay()` schon passiert.
+    auswertung_erzeugen.delay(session_id)
+    database_session.expire_all()
+    payload, status_code = analysis_service.stand_der_auswertung(
+        session_id, database_session
+    )
     return JSONResponse(payload, status_code=status_code)
 
 

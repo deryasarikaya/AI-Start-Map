@@ -45,6 +45,20 @@ class AnalysisSession(Base):
     example_slug: Mapped[str | None] = mapped_column(
         Text, nullable=True, unique=True, default=None
     )
+    #: **Warum der letzte Lauf gescheitert ist** — leer, solange alles gut
+    #: ging.
+    #:
+    #: Solange die Analyse im Request lief, stand der Fehler in der Antwort,
+    #: auf die der Browser ohnehin wartete. Seit sie im Worker läuft, ist
+    #: diese Antwort längst weg, wenn etwas schiefgeht. Ohne diesen Vermerk
+    #: fragt der Warteschirm neunzig Mal nach und meldet danach eine
+    #: Zeitüberschreitung, obwohl der Grund seit Sekunden feststeht.
+    #:
+    #: An der Sitzung und nicht am Zwischenstand, weil der erste
+    #: Modellaufruf scheitern kann, bevor es einen Zwischenstand gibt.
+    lauf_fehler: Mapped[str | None] = mapped_column(
+        Text, nullable=True, default=None
+    )
 
     interview_questions: Mapped[list[InterviewQuestion]] = relationship(
         back_populates="session",

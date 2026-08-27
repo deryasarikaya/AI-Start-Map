@@ -160,6 +160,8 @@
         for (let attempt = 0; attempt < 90; attempt += 1) {
             const result = await checkStatus();
             if (result.state === "complete") { melde(result.redirect_url); return true; }
+            // Der Worker hat den Grund hinterlegt: nicht weiter warten.
+            if (result.state === "failed") return false;
             await new Promise((resolve) => window.setTimeout(resolve, 1000));
         }
         return false;

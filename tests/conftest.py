@@ -26,6 +26,17 @@ if not test_database_url:
 os.environ["DATABASE_URL"] = test_database_url
 
 from app.database import SessionFactory, engine  # noqa: E402
+from app.hintergrund import celery_app  # noqa: E402
+
+# **Celery läuft in den Tests sofort statt in der Warteschlange.**
+#
+# Die Analyse liegt seit dem Hintergrundlauf in einem Worker. In den Tests
+# gibt es keinen — und es soll auch keiner laufen, weil sonst jeder Test
+# von einem zweiten Prozess abhinge. Im Sofortmodus führt `.delay()` die
+# Aufgabe direkt aus: **derselbe Code, nur an derselben Stelle.** Was hier
+# geprüft wird, ist damit weiterhin der Produktionspfad.
+celery_app.conf.task_always_eager = True
+celery_app.conf.task_eager_propagates = True
 from app.main import app  # noqa: E402
 
 

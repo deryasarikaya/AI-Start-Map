@@ -148,6 +148,23 @@ def create_example_session(
     return session
 
 
+def merke_lauf_fehler(
+    database_session: Session, session_id: int, grund: str | None
+) -> None:
+    """Hält fest, warum der letzte Lauf gescheitert ist — oder löscht den Vermerk.
+
+    Wird mit `None` aufgerufen, sobald ein Lauf beginnt: Ein alter Fehler
+    darf einen neuen Versuch nicht sofort wieder als gescheitert erscheinen
+    lassen.
+    """
+
+    sitzung = get_session(database_session, session_id)
+    if sitzung is None:
+        return
+    sitzung.lauf_fehler = grund
+    database_session.commit()
+
+
 def get_partial_result(
     database_session: Session, session_id: int
 ) -> PartialResult | None:

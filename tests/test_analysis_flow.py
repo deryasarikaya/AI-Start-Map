@@ -192,8 +192,12 @@ def test_a_failing_second_call_shows_an_error_and_stores_nothing(
     """Scheitert der zweite Aufruf, sieht der Kunde einen Fehler — kein halbes
     Ergebnis.
 
-    Der Warteschirm bleibt auf „pending" stehen, damit die Schaltfläche zum
-    Wiederholen greift.
+    **Und der Warteschirm erfährt den Grund sofort.** Er stand vorher auf
+    „pending" — was stimmte, solange die Analyse im Request lief und der
+    Fehler in dessen Antwort kam. Seit sie im Worker läuft, ist diese
+    Antwort längst weg: Ohne einen Vermerk fragte die Seite neunzig Mal
+    nach und meldete eine Zeitüberschreitung, obwohl der Grund seit
+    Sekunden feststand.
     """
 
     def scheitert(**_kwargs: object) -> None:
@@ -211,8 +215,12 @@ def test_a_failing_second_call_shows_an_error_and_stores_nothing(
     assert antwort.status_code == 503
     assert antwort.json()["state"] == "error"
     assert antwort.json()["message"] == (
-        "Das hat gerade nicht geklappt. Versuch es bitte noch einmal."
+        "Das hat gerade nicht geklappt. Bitte versuchen Sie es noch einmal."
     )
-    assert client.get("/analysis-status").json()["state"] == "pending"
+    stand = client.get("/analysis-status").json()
+    assert stand["state"] == "failed"
+    assert stand["message"] == (
+        "Das hat gerade nicht geklappt. Bitte versuchen Sie es noch einmal."
+    )
     session_id = database_session.scalar(select(func.max(AnalysisSession.session_id)))
     assert repository.get_result(database_session, session_id) is None

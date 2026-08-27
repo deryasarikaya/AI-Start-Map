@@ -39,3 +39,7 @@ docs/auftrag/
 # Ausgaben echter Modell- und Messlaeufe. Sie entstehen lokal und
 # gehoeren nicht ins Repository.
 messungen/
+
+# Der Umschlagplatz des Dateisystem-Brokers. Nur Nachrichten unterwegs -
+# die Daten selbst stehen in PostgreSQL.
+data/warteschlange/

@@ -90,6 +90,15 @@ def agent_pattern_context(query: str) -> tuple[list[str], list[str]]:
 
 
 MAXIMUM_ROUNDS = 2
+
+#: Was der Kunde bei einem gescheiterten Lauf liest. Als Konstante, weil
+#: derselbe Text an zwei Stellen gebraucht wird: in der Antwort des Laufs
+#: und später aus dem Vermerk an der Sitzung.
+MELDUNG_LAUF = "Das hat gerade nicht geklappt. Bitte versuchen Sie es noch einmal."
+MELDUNG_UNVOLLSTAENDIG = (
+    "Die Auswertung konnte nicht vollständig erstellt werden. "
+    "Es wurde nichts halb Fertiges übernommen."
+)
 """Wie oft der erste Aufruf höchstens läuft.
 
 Hart begrenzt, damit ein Gespräch nicht endlos wird — und weil jede Runde
@@ -405,6 +414,68 @@ def stored_result(
         return Result.model_validate(gespeichert.payload)
 
 
+def stand_der_auswertung(
+    session_id: int,
+    database_session: Session,
+) -> tuple[dict[str, object], int]:
+    """Wo die Auswertung steht — **ohne zu rechnen**.
+
+    Seit die Analyse im Worker läuft, muss die Route sagen können, wohin es
+    geht, ohne selbst etwas anzustossen. Genau dieselben Wegweiser wie in
+    `run_generation`, nur ohne den teuren Teil dazwischen.
+
+    Der Warteschirm fragt danach weiter über `/analysis-status`; diese
+    Antwort ist die erste, unmittelbar nach dem Einstellen des Auftrags.
+    """
+
+    from app.services.process_service import next_valid_path
+
+    if repository.get_result(database_session, session_id) is not None:
+        return (
+            {"state": "complete", "redirect_url": f"/sessions/{session_id}/results"},
+            status.HTTP_200_OK,
+        )
+
+    # **Ein gescheiterter Lauf meldet sich hier.** Im Sofortmodus ist der
+    # Vermerk schon da, wenn diese Zeile läuft; im Betrieb setzt ihn der
+    # Worker, und der Warteschirm liest ihn über `/analysis-status`.
+    sitzung = repository.get_session(database_session, session_id)
+    if sitzung is not None and sitzung.lauf_fehler:
+        return (
+            {
+                "state": "error",
+                "message": sitzung.lauf_fehler,
+                "redirect_url": None,
+            },
+            status.HTTP_503_SERVICE_UNAVAILABLE,
+        )
+
+    zwischenstand = repository.get_partial_result(database_session, session_id)
+    if zwischenstand is not None and zwischenstand.payload and not zwischenstand.moving_on:
+        # Der obere Teil steht, der Kunde ist noch nicht weitergegangen.
+        return (
+            {
+                "state": "complete",
+                "redirect_url": f"/sessions/{session_id}/verstanden",
+            },
+            status.HTTP_200_OK,
+        )
+
+    naechster = next_valid_path(database_session, session_id)
+    if naechster == f"/sessions/{session_id}/interview":
+        return (
+            {
+                "state": "error",
+                "message": "Bitte beschreiben Sie zuerst, wie Ihr Betrieb läuft.",
+                "redirect_url": naechster,
+            },
+            status.HTTP_409_CONFLICT,
+        )
+
+    # Der Auftrag liegt in der Warteschlange oder wird gerade bearbeitet.
+    return {"state": "processing", "redirect_url": None}, status.HTTP_200_OK
+
+
 def run_generation(
     session_id: int,
     database_session: Session,
@@ -439,6 +510,9 @@ def run_generation(
             },
             status.HTTP_409_CONFLICT,
         )
+    # Ein neuer Versuch löscht den alten Vermerk: Sonst zeigt der
+    # Warteschirm sofort wieder den Fehler von vorhin.
+    repository.merke_lauf_fehler(database_session, session_id, None)
     if not repository.acquire_session_write_lock(database_session, session_id):
         database_session.rollback()
         return (
@@ -473,10 +547,15 @@ def run_generation(
             type(error).__name__,
             str(error),
         )
+        # **Der Vermerk überlebt den Worker.** Seit die Analyse dort läuft,
+        # ist die Antwort auf `POST /analyze` längst weg, wenn etwas
+        # schiefgeht — ohne diesen Eintrag fragt der Warteschirm neunzig Mal
+        # nach und meldet eine Zeitüberschreitung statt des Grundes.
+        repository.merke_lauf_fehler(database_session, session_id, MELDUNG_LAUF)
         return (
             {
                 "state": "error",
-                "message": "Das hat gerade nicht geklappt. Versuch es bitte noch einmal.",
+                "message": MELDUNG_LAUF,
                 "redirect_url": None,
             },
             status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -489,13 +568,11 @@ def run_generation(
             type(error).__name__,
             str(error),
         )
+        repository.merke_lauf_fehler(database_session, session_id, MELDUNG_UNVOLLSTAENDIG)
         return (
             {
                 "state": "error",
-                "message": (
-                    "Die Auswertung konnte nicht vollständig erstellt werden. "
-                    "Es wurde nichts halb Fertiges übernommen."
-                ),
+                "message": MELDUNG_UNVOLLSTAENDIG,
                 "redirect_url": None,
             },
             status.HTTP_500_INTERNAL_SERVER_ERROR,
