@@ -83,6 +83,33 @@ Dokumente ohne Zuordnung." Kein „Sie" in den Ansichtstexten.
 Welche Ansichten passen, hängt am Engpass, nicht an der Branche. Zwei bis drei
 sind besser als vier.
 
+**Die erste Ansicht ist die wichtigste — die Reihenfolge entscheidet.** Auf
+der Ergebnisseite steht sie gross über die ganze Breite; die beiden anderen
+stehen kleiner darunter. Also gehört nach vorn die Oberfläche, bei der er
+denkt: *genau das fehlt mir heute.* Sie zeigt den grössten Nutzen, den die
+Lösung verspricht — nicht den ersten Schritt im Ablauf und nicht die
+Ansicht, die technisch am nächsten liegt.
+
+Die Frage dafür ist der Engpass aus der Diagnose:
+
+- Fehlt der **Überblick**, ist es die Tagesübersicht.
+- Sind **Termine und Erinnerungen** das Problem, ist es die Terminübersicht.
+- Kostet das **Zusammensuchen eines Vorgangs** die Zeit, ist es die
+  Vorgangs- oder Kundenakte.
+- Ist der **Eingang und die Zuordnung** der Engpass, ist es die
+  Eingangsprüfung.
+- Geht es darum, was **sein Kunde** sieht, ist es die Aussenansicht.
+
+Die beiden folgenden Ansichten erklären, **wie dieses Ergebnis zustande
+kommt.** Damit erzählt der Abschnitt: Das bekomme ich — so funktioniert es
+— hier sehe ich die Einzelheiten.
+
+**Zwei verschiedene Betriebe dürfen nicht dieselben drei Typen bekommen,**
+wenn ihre Engpässe verschieden sind. Ein Handwerker, der einen Auftrag aus
+fünf Stellen zusammensucht, braucht oben die Auftragsakte; eine Verwaltung,
+die den Tagesstand nicht sieht, die Tagesübersicht. Wähl nach seinem
+Problem, nicht nach Gewohnheit.
+
 Namen, Objekte und Zahlen in den Ansichten sind Beispiele. Sie dürfen erfunden
 sein — die Vorlage kennzeichnet sie als Beispiel. Verwende dabei nur Kanäle,
 Gegenstände und Begriffe, die in der Erzählung vorkommen.

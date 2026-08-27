@@ -414,3 +414,18 @@ def test_a_comparison_line_names_friction() -> None:
     assert 'Jede Zeile muss Reibung benennen' in heute
     assert 'eine Kette, keine Sammlung' in heute
     assert 'nimmt genau die Reibung weg, die gegenüber steht' in kuenftig
+def test_the_first_view_shows_the_biggest_promise() -> None:
+    """Die grosse Ansicht ist die, bei der er denkt: genau das fehlt mir.
+
+    Auf der Seite steht die erste Ansicht über die volle Breite und die
+    beiden anderen kleiner darunter. Ohne Regel liefert das Modell sie in
+    beliebiger Reihenfolge — und dann bekam ein Handwerker, dessen Problem
+    das Zusammensuchen eines Auftrags ist, oben eine Tagesübersicht.
+    """
+
+    fliess = _fliesstext(ANSICHTEN)
+
+    assert 'Die erste Ansicht ist die wichtigste' in fliess
+    assert 'nicht den ersten Schritt im Ablauf' in fliess
+    assert 'wie dieses Ergebnis zustande kommt' in fliess
+    assert 'dürfen nicht dieselben drei Typen bekommen' in fliess
