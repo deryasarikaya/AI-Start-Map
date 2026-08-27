@@ -161,16 +161,13 @@
  * Weg statt fuenf Kaesten. Die Karten liegen darauf. */
 .tafel .stufen {
   list-style: none; margin: 0; padding: 34px 26px 26px; display: flex;
-  align-items: stretch; gap: 4px; background: var(--flaeche);
+  align-items: center; gap: 2px; background: var(--flaeche);
   border-radius: 20px;
   box-shadow: var(--heben-2); overflow-x: auto; position: relative;
 }
-.tafel .stufen::before {
-  content: ""; position: absolute; left: 56px; right: 56px; top: 98px;
-  height: 2px; background: linear-gradient(90deg,
-    #dbe6f8 0%, var(--marke) 22%, var(--marke) 78%, #cdeadd 100%);
-  opacity: .45;
-}
+/* Keine durchgehende Linie mehr hinter den Karten: Die Wege werden jetzt
+ * wirklich gezeichnet — eine Kurve je Kanal, die im Schlüsselknoten
+ * zusammenläuft. Zwei Linien übereinander wären eine zu viel. */
 .tafel .bandstufe {
   flex: 1 1 0; min-width: 170px; position: relative; z-index: 1;
   background: var(--flaeche);
@@ -226,13 +223,98 @@
 }
 .tafel .bandstufe--ausgang .bandnummer { background: var(--gut); }
 .tafel .bandstufe--ausgang .knoten li { background: #fff; }
-/* Der Pfeil sitzt auf der Hoehe der Linie, nicht in der Mitte der
- * Karte — sonst laufen zwei Wege nebeneinander. */
+/* Der Pfeil sitzt auf halber Höhe. Vorher hing er an der Höhe der
+ * durchgehenden Linie, die es nicht mehr gibt. */
 .tafel .pfeil {
-  flex: 0 0 30px; display: flex; justify-content: center;
-  align-items: flex-start; padding-top: 62px; color: var(--marke);
+  flex: 0 0 34px; display: flex; justify-content: center;
+  align-items: center; color: var(--marke);
 }
 .tafel .pfeil svg { width: 20px; height: 20px; opacity: .6; }
+
+
+/* ── Die Gestalten der Stationen ──────────────────────────────────────
+ * Der Kern des Bandes. Gleich grosse Karten nebeneinander sind eine
+ * Aufzählung; verschiedene Gestalten sind ein Weg. Was hier steht, ist
+ * deshalb keine Farbgebung, sondern der Unterschied zwischen fünf Kästen
+ * und einem Bild. */
+
+/* Der Eingang: die Kanäle dieses Betriebs, jeder mit seinem Zeichen.
+ * Linksbündig statt zentriert — eine Liste liest man von links. */
+.tafel .bandstufe--eingang {
+  text-align: left; padding: 26px 18px 20px; align-self: stretch;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.tafel .bandstufe--eingang h3 { margin-bottom: 12px; }
+.tafel .kanaele {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 7px;
+}
+.tafel .kanal {
+  display: grid; grid-template-columns: 32px 1fr; gap: 10px;
+  align-items: center; font-size: .85rem; color: var(--tinte);
+  background: var(--grund); border-radius: 10px; padding: 6px 10px 6px 6px;
+}
+.tafel .kanalzeichen {
+  display: grid; place-items: center; width: 32px; height: 32px;
+  border-radius: 9px; background: #fff; color: var(--marke);
+  box-shadow: var(--heben-1);
+}
+.tafel .kanalzeichen svg { width: 17px; height: 17px; }
+/* Jeder Kanal in seiner eigenen Farbe. Ein Laie erkennt WhatsApp am Grün,
+ * bevor er das Wort gelesen hat — genau darum geht es hier. */
+.tafel .kanal:has([href="#i-whatsapp"]) .kanalzeichen { color: #16a34a; }
+.tafel .kanal:has([href="#i-telefon"]) .kanalzeichen { color: #2563eb; }
+.tafel .kanal:has([href="#i-mail"]) .kanalzeichen { color: #dc2626; }
+.tafel .kanal:has([href="#i-foto"]) .kanalzeichen { color: #7c3aed; }
+.tafel .kanal:has([href="#i-sprache"]) .kanalzeichen { color: #d97706; }
+.tafel .kanal:has([href="#i-formular"]) .kanalzeichen { color: #0891b2; }
+.tafel .kanal:has([href="#i-dokument"]) .kanalzeichen { color: #4b5563; }
+.tafel .kanal:has([href="#i-brief"]) .kanalzeichen { color: #b45309; }
+.tafel .kanal:has([href="#i-chat"]) .kanalzeichen { color: #0d9488; }
+
+/* Die zusammenlaufenden Wege. Sie ersetzen den Pfeil zwischen Eingang und
+ * Schlüsselstelle: Ein Pfeil behauptet, dass alles zusammenkommt; diese
+ * Linien zeigen es. */
+.tafel .zusammenlauf {
+  flex: 0 0 58px; align-self: stretch; display: flex; align-items: center;
+}
+.tafel .zusammenlauf svg {
+  width: 100%; height: 78%; overflow: visible;
+  stroke: var(--marke); stroke-width: 1.6; fill: none; opacity: .5;
+}
+
+/* Die Schlüsselstelle trägt die Lösung und ist deshalb grösser als der
+ * Rest — nicht nur dunkler. Gleich gross und nur eingefärbt wäre wieder
+ * eine Karte unter Karten. */
+.tafel .bandstufe--schluessel {
+  flex: 1.15 1 0; padding: 32px 18px 26px;
+}
+.tafel .bandstufe--schluessel h3 { font-size: 1.06rem; }
+
+/* Die Verzweigung teilt sich sichtbar: ein Anschlussstrich je Zweig statt
+ * dreier gestapelter grauer Kästchen. */
+.tafel .zweige {
+  list-style: none; margin: 12px 0 0; padding: 0 0 0 14px;
+  display: flex; flex-direction: column; gap: 6px;
+  text-align: left; position: relative;
+}
+.tafel .zweige::before {
+  content: ""; position: absolute; left: 3px; top: 12px; bottom: 12px;
+  width: 1.5px; background: var(--linie);
+}
+.tafel .zweige li {
+  position: relative; font-size: .82rem; color: var(--tinte-schwach);
+  background: var(--grund); border-radius: 8px; padding: 5px 9px;
+}
+.tafel .zweige li::before {
+  content: ""; position: absolute; left: -11px; top: 50%;
+  width: 9px; height: 1.5px; background: var(--linie);
+}
+
+/* Der Ausgang ist ein Ergebnis, kein weiterer Schritt. */
+.tafel .bandstufe--ausgang .knoten li {
+  background: #fff; font-weight: 600; color: #065f46;
+}
 
 /* ── Heute und kuenftig ───────────────────────────────────────────────
  * Ein Raster mit zwei Spalten, in dem jede Zeile ihr Gegenstueck

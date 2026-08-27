@@ -57,6 +57,63 @@ def gespraechs_adresse() -> str:
 
 templates.env.globals['gespraechs_adresse'] = gespraechs_adresse
 
+# Wonach ein Kanalzeichen gesucht wird. Die Reihenfolge entscheidet: Das
+# erste passende Wort gewinnt, damit „WhatsApp-Nachricht" nicht als
+# allgemeine Nachricht endet.
+KANALWOERTER: tuple[tuple[str, str], ...] = (
+    ("whatsapp", "i-whatsapp"),
+    ("sprachnotiz", "i-sprache"),
+    ("sprachnachricht", "i-sprache"),
+    ("anrufnotiz", "i-telefon"),
+    ("telefon", "i-telefon"),
+    ("anruf", "i-telefon"),
+    ("rückruf", "i-telefon"),
+    ("e-mail", "i-mail"),
+    ("email", "i-mail"),
+    ("mail", "i-mail"),
+    ("postfach", "i-mail"),
+    ("formular", "i-formular"),
+    ("website", "i-formular"),
+    ("webseite", "i-formular"),
+    ("online", "i-formular"),
+    ("portal", "i-formular"),
+    ("foto", "i-foto"),
+    ("bild", "i-foto"),
+    ("scan", "i-foto"),
+    ("aufnahme", "i-foto"),
+    ("pdf", "i-dokument"),
+    ("dokument", "i-dokument"),
+    ("beleg", "i-dokument"),
+    ("rechnung", "i-dokument"),
+    ("unterlage", "i-dokument"),
+    ("anhang", "i-dokument"),
+    ("brief", "i-brief"),
+    ("post", "i-brief"),
+    ("sms", "i-chat"),
+    ("chat", "i-chat"),
+    ("nachricht", "i-chat"),
+    ("anfrage", "i-chat"),
+)
+
+
+def kanalsymbol(text: str) -> str:
+    """Das Zeichen zu einem Eingangskanal, oder das allgemeine.
+
+    Gesucht wird im Text des Knotens, so wie das Modell ihn geschrieben hat —
+    „E-Mails und Anhänge", „WhatsApp-Gruppe der Monteure", „Scans und Fotos".
+    Trifft nichts, bleibt es beim Eingangszeichen; erfunden wird nichts.
+    """
+
+    klein = text.casefold()
+    for wort, symbol in KANALWOERTER:
+        if wort in klein:
+            return symbol
+    return "i-eingang"
+
+
+templates.env.filters["kanalsymbol"] = kanalsymbol
+
+
 PREVIEW_NOTICE = (
     "Beispielangaben zur Veranschaulichung \u2013 hier stehen sp\u00e4ter deine "
     "tats\u00e4chlichen Angaben."
