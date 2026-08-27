@@ -652,20 +652,28 @@
   margin-bottom: 14px;
 }
 .tafel .bausteinsymbol svg { width: 20px; height: 20px; }
+/* Was von seinem Tisch verschwindet. Die Zeile, die verkauft. */
 .tafel .baustein h3 {
-  margin-bottom: 0; line-height: 1.28; font-size: 1.14rem;
-  font-weight: 680; letter-spacing: -.015em;
+  margin-bottom: 0; line-height: 1.3; font-size: 1.12rem;
+  font-weight: 680; letter-spacing: -.015em; color: var(--tinte);
 }
 .tafel .baustein p {
   margin: 0; font-size: .875rem; color: var(--tinte-leise); line-height: 1.5;
 }
-/* Der technische Name, jetzt als Unterzeile. Vorher stand er als
- * Überschrift oben und der Nutzen klein am Fuss — so las sich die Reihe
- * als Softwarekatalog. Andersherum liest sie sich als das, was er davon
- * hat, und das ist es, was verkauft. */
+/* **Was Sie bekommen** — die mittlere Ebene. Vorher war der Name eine
+ * graue Unterzeile und verschwand; er ist aber das Produkt, und der
+ * Kunde muss ihn benennen können. Also mit Haken und in der Markenfarbe,
+ * deutlich leiser als die Entlastung darüber und deutlich lauter als
+ * die Erklärung darunter. */
 .tafel .bausteinname {
-  display: block; margin: 5px 0 10px; font-size: .82rem;
-  letter-spacing: .04em; color: var(--tinte-leise);
+  display: grid; grid-template-columns: 16px 1fr; gap: 8px;
+  align-items: center; margin: 9px 0 11px; font-size: .88rem;
+  font-weight: 650; color: var(--marke);
+}
+.tafel .bausteinname svg { width: 15px; height: 15px; }
+/* Wie es arbeitet: die leise Ebene. */
+.tafel .bausteintext {
+  font-size: .855rem; line-height: 1.55; color: var(--tinte-leise);
 }
 /* **Keine graue Ausnahme.** Die spätere Stufe war grau eingefärbt,
  * während die erste weiss blieb — nebeneinander sah das aus wie ein

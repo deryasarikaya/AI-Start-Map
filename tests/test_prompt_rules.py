@@ -315,13 +315,18 @@ def test_what_the_customer_must_contribute_is_named() -> None:
 
 
 def test_every_module_says_what_the_business_gets_out_of_it() -> None:
-    """Die Beschreibung sagt, was der Baustein tut. Der Nutzen sagt, warum
-    das jemanden interessiert — das ist die Frage, die verkauft."""
+    """**Was von seinem Tisch verschwindet**, nicht was der Baustein kann.
+
+    Die Zusage war einmal „warum ihn das interessiert" und wurde damit
+    von Eigenschaften erfüllt: „Weniger Nachfragen", „Zentrale Ablage".
+    Das beschreibt den Baustein und entlastet niemanden. Der Kunde soll
+    den Satz vervollständigen können: Danach muss ich nicht mehr …
+    """
 
     fliess = _fliesstext(AUSWAHL)
 
-    assert "was er davon hat" in fliess
-    assert "Nicht was der Baustein tut, sondern warum ihn das interessiert" in fliess
+    assert "was er künftig nicht mehr selbst machen muss" in fliess
+    assert "das ist eine Beschreibung und keine Entlastung" in fliess
 
 
 def test_the_benefit_may_not_become_an_invented_saving() -> None:
@@ -394,3 +399,18 @@ def test_a_comparison_line_fits_on_a_card() -> None:
     assert 'Höchstens acht Wörter je Zeile' in _fliesstext(DIAGNOSE)
     assert 'Höchstens acht Wörter je Zeile' in _fliesstext(AUSWAHL)
     assert 'den Vergleich zieht der Leser selbst' in _fliesstext(AUSWAHL)
+def test_a_comparison_line_names_friction() -> None:
+    """Eine Heute-Zeile muss wehtun, sonst ist der Vergleich keiner.
+
+    Beim Schulungszentrum begann die Reihe mit „Teilnehmer melden sich über
+    die Website" — wahr, und kein Problem. Daneben stand dann eine
+    Verbesserung ohne Ursache, und der Kunde las vier Beobachtungen statt
+    einer Kette.
+    """
+
+    heute = _fliesstext(DIAGNOSE)
+    kuenftig = _fliesstext(AUSWAHL)
+
+    assert 'Jede Zeile muss Reibung benennen' in heute
+    assert 'eine Kette, keine Sammlung' in heute
+    assert 'nimmt genau die Reibung weg, die gegenüber steht' in kuenftig

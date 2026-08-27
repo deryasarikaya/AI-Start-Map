@@ -177,9 +177,19 @@ Jedes Modul hat:
   eine verbindende Arbeitsansicht über dem, was schon da ist.
 - `beschreibung` — was es für **diesen** Betrieb tut, an seinem Alltag
   festgemacht.
-- `nutzen` — zwei bis fünf Wörter, was er davon hat. Nicht was der
-  Baustein tut, sondern warum ihn das interessiert: „Weniger
-  Nachfragen", „Nichts geht mehr verloren", „Abends früher fertig".
+- `nutzen` — **ein Satz: was er künftig nicht mehr selbst machen muss.**
+  In der Sie-Form, höchstens zwölf Wörter. Das ist die Zeile, die auf
+  der Karte oben steht und den Baustein verkauft.
+
+  > „Sie müssen keine Erinnerungen mehr von Hand vorbereiten."
+  >
+  > „Sie suchen Unterlagen nicht mehr in vier Ordnern zusammen."
+  >
+  > „Niemand muss morgens mehr durchgehen, was heute ansteht."
+
+  Nicht die Eigenschaft des Bausteins („Weniger Nachfragen",
+  „Zentrale Ablage") — das ist eine Beschreibung und keine Entlastung.
+  Der Kunde soll erkennen, welche Arbeit von seinem Tisch verschwindet.
   Fällt dir nichts Konkretes ein, lass es leer; eine leere Zeile ist
   besser als eine Floskel.
 
@@ -287,6 +297,11 @@ der Leser selbst.
 > Hausverwaltungssoftware gesucht
 >
 > Sondern: Treffer werden direkt verknüpft
+
+**Jede Zeile nimmt genau die Reibung weg, die gegenüber steht.** Die
+heutige Zeile benennt etwas, das ihn Zeit kostet; die künftige sagt, dass
+genau das wegfällt. Steht gegenüber ein neutraler Schritt, ist auch die
+Verbesserung keine — dann fehlt dem Paar der Grund.
 
 **Jede Zeile muss dieselbe Sache meinen wie ihre Gegenzeile.** Nicht eine
 andere Sache, die auch wahr wäre. Beides nebeneinander liest jemand, der

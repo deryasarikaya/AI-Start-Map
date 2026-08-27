@@ -106,6 +106,22 @@ den Vergleich schon verloren.
 >
 > Sondern: Objekt von Hand heraussuchen
 
+**Jede Zeile muss Reibung benennen.** Etwas, das Zeit kostet, verloren
+geht, zweimal gemacht oder nachgefragt werden muss. Ein neutraler
+Schritt gehört nicht in diese Liste, auch wenn er zum Ablauf gehört:
+Er tut niemandem weh, und daneben steht dann eine Verbesserung ohne
+Problem.
+
+> Nicht: Teilnehmer melden sich über die Website an
+> — das ist kein Problem, das ist der Anfang.
+>
+> Sondern: Morgens wird von Hand geprüft, welche Kurse anstehen
+
+**Und die Zeilen sind eine Kette, keine Sammlung.** Sie folgen dem
+Vorgang von seinem Anfang bis zu seinem Ende, jede Zeile einen Schritt
+weiter. Vier zusammenhanglose Beobachtungen beantworten nicht, was der
+eine Ablauf ist, an dem sich etwas ändern soll.
+
 ## Die Rückfrage — `rueckfrage`
 
 Meistens leer. Das ist der Normalfall und kein Mangel.

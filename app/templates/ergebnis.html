@@ -443,11 +443,18 @@
    folgt aus dem, was dieser Betrieb erzählt hat — mal zwei Bausteine,
    mal sechs.
 
-   **Der Nutzen steht oben, der Name darunter.** Vorher führte jede Karte
-   mit ihrem technischen Namen und trug den Nutzen klein in einer Pille am
-   Fuss. So las sich die Reihe als Softwarekatalog. Andersherum liest sie
-   sich als das, was er davon hat — und das ist es, was verkauft. Fehlt
-   der Nutzen, führt der Name; erfunden wird nichts. #}
+   **Drei Ebenen, in dieser Reihenfolge.** Nach zehn Sekunden soll der
+   Kunde drei Sätze vervollständigen können — „Heute nervt mich …",
+   „Ich bekomme von euch …", „Danach muss ich nicht mehr …". Die dritte
+   ist die, die verkauft, und sie führt deshalb die Karte:
+
+     was Sie nicht mehr tun müssen   `nutzen`, gross
+     was Sie bekommen                `name`, als Produktzeile
+     wie es arbeitet                 `beschreibung`, klein
+
+   Vorher führte der technische Name, und die Reihe las sich als
+   Softwarekatalog. Fehlt der Nutzen, führt der Name; erfunden wird
+   nichts. #}
 {% if e.module %}
 <section class="bausteine" data-auftritt>
   <div class="flaeche">
@@ -460,11 +467,14 @@
         </span>
         {% if modul.nutzen %}
         <h3>{{ modul.nutzen }}</h3>
-        <span class="bausteinname">{{ modul.name }}</span>
+        <p class="bausteinname">
+          <svg aria-hidden="true"><use href="#i-haken"/></svg>
+          <span>{{ modul.name }}</span>
+        </p>
         {% else %}
         <h3>{{ modul.name }}</h3>
         {% endif %}
-        <p>{{ modul.beschreibung }}</p>
+        <p class="bausteintext">{{ modul.beschreibung }}</p>
       </article>
       {% endfor %}
     </div>

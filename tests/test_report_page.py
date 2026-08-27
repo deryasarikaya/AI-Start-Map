@@ -130,8 +130,10 @@ def test_the_module_card_leads_with_the_benefit(client: TestClient) -> None:
     vorlage = (
         Path(__file__).resolve().parents[1] / "app/templates/ergebnis.html"
     ).read_text(encoding="utf-8")
-    nutzen_zuerst = vorlage.index("<h3>{{ modul.nutzen }}</h3>")
-    assert nutzen_zuerst < vorlage.index('<span class="bausteinname">')
+    entlastung = vorlage.index("<h3>{{ modul.nutzen }}</h3>")
+    produkt = vorlage.index('<p class="bausteinname">')
+    erklaerung = vorlage.index('<p class="bausteintext">')
+    assert entlastung < produkt < erklaerung
 
 
 
