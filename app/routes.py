@@ -388,6 +388,45 @@ async def save_understanding(
     return redirect_response(f"/sessions/{session_id}/processing")
 
 
+def kartenkontext(ergebnis: object) -> dict[str, object]:
+    """Die Landschaft mit den Markierungen dieses Betriebs.
+
+    **Erzeugt wird hier nichts.** Die Karte steht fest; aus dem Ergebnis
+    kommen nur zwei Listen von Kennungen — die Familien der empfohlenen
+    Module und die des Ausbaupfads. Genau deshalb kann dieser Abschnitt
+    weder halluzinieren noch zu klein ausfallen.
+    """
+
+    from app import karte as kartenmodul
+
+    def kennungen(eintraege: object) -> list[str]:
+        """Die Familienkennungen — egal ob Modell oder Wörterbuch.
+
+        Gespeicherte Ergebnisse kommen als geprüfte Objekte, Testaufbauten
+        als einfache Wörterbücher. Die Karte darf an dieser Kleinigkeit
+        nicht scheitern: Sie zeigt eine feste Landschaft und ist der
+        letzte Ort, an dem eine Ausnahme etwas verbessern würde.
+        """
+
+        gesammelt: list[str] = []
+        for eintrag in eintraege or []:
+            roh = (
+                eintrag.get("solution_family_ids")
+                if isinstance(eintrag, dict)
+                else getattr(eintrag, "solution_family_ids", None)
+            )
+            gesammelt.extend(roh or [])
+        return gesammelt
+
+    beginnt = kennungen(getattr(ergebnis, "module", None))
+    daneben = kennungen(getattr(ergebnis, "ausbaupfad", None))
+    return {
+        "karte": True,
+        "mitte": kartenmodul.MITTE,
+        "gebiete": kartenmodul.landschaft(beginnt, daneben),
+    }
+
+
 @router.get(
     "/sessions/{session_id}/results",
     response_class=HTMLResponse,
@@ -414,7 +453,7 @@ def show_results(
     return templates.TemplateResponse(
         request=request,
         name="ergebnis.html",
-        context={"session_id": session_id, "e": ergebnis},
+        context={"session_id": session_id, "e": ergebnis, **kartenkontext(ergebnis)},
     )
 
 
@@ -448,6 +487,7 @@ def show_report(
         name="report.html",
         context={
             "e": ergebnis,
+            **kartenkontext(ergebnis),
             "auswertungsdatum": date.today().strftime("%d.%m.%Y"),
             "sofort_drucken": request.query_params.get("drucken") == "1",
         },
@@ -509,7 +549,7 @@ def show_example(
     return templates.TemplateResponse(
         request=request,
         name="ergebnis.html",
-        context={"e": ergebnis, "beispiel": True},
+        context={"e": ergebnis, "beispiel": True, **kartenkontext(ergebnis)},
     )
 
 

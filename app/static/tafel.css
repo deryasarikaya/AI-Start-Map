@@ -1048,6 +1048,114 @@
  *
  * Ruhiger gesetzt als die Bausteine davor - es ist ein Weg, kein
  * Angebot, und es soll nicht mit dem ersten Schritt konkurrieren. */
+/* -- Die AI Start Map -------------------------------------------------
+ * Gelaende, kein Organigramm. Deshalb: keine Kaesten, keine Pfeilspitzen,
+ * kein Raster. Weiche Zonen ohne harten Rand, Punkte statt Knoten, viel
+ * Leere. Die Mitte ist die einzige volle Flaeche - alles andere ordnet
+ * sich um sie.
+ *
+ * Drei Zustaende, mehr nicht. Wer mehr Abstufungen einbaut, braucht eine
+ * Legende - und eine Legende ist der Beweis, dass das Bild allein nicht
+ * spricht. */
+.tafel .kartenteil .flaeche {
+  padding: 40px 38px 34px; border-radius: 20px;
+  background: linear-gradient(168deg, var(--teal-soft) 0%, var(--grund) 100%);
+  border: 1px solid var(--linie);
+}
+
+.tafel .karte { margin-top: 26px; }
+
+/* Die Mitte: der Ort, an dem alles zusammenlaeuft. Sie steht oben und
+   nicht im geometrischen Zentrum - auf einem Bildschirm liest man von
+   oben, nicht von innen. */
+.tafel .kartenmitte {
+  display: grid; justify-items: center; gap: 3px;
+  padding: 18px 20px; margin-bottom: 26px;
+  border-radius: 16px; background: var(--flaeche);
+  border: 1px solid var(--linie); box-shadow: var(--heben-1);
+  text-align: center;
+}
+.tafel .mittenpunkt {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--ki); margin-bottom: 4px;
+}
+.tafel .kartenmitte b { font-size: 1.06rem; font-weight: 680; }
+.tafel .mittennotiz { font-size: .84rem; color: var(--tinte-leise); }
+
+.tafel .gebiete {
+  display: grid; gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
+}
+/* Ohne Rand: Ein Gebiet ist eine Zone, kein Kasten. Die Flaeche ist so
+   leise, dass sie nur die Zugehoerigkeit zeigt. */
+.tafel .gebiet {
+  padding: 16px 18px 14px; border-radius: 14px;
+  background: rgb(255 255 255 / .5);
+}
+.tafel .gebiet--lebt { background: rgb(255 255 255 / .85); }
+.tafel .gebiet h3 {
+  margin: 0 0 10px; font-size: .82rem; font-weight: 700;
+  letter-spacing: .04em; color: var(--tinte-schwach);
+}
+
+.tafel .punkte { margin: 0; padding: 0; list-style: none; display: grid; gap: 9px; }
+.tafel .punkt {
+  display: grid; grid-template-columns: 11px 1fr; gap: 10px;
+  align-items: start;
+}
+.tafel .punktzeichen {
+  width: 9px; height: 9px; margin-top: 6px; border-radius: 50%;
+  border: 1.5px solid var(--linie); background: transparent;
+}
+.tafel .punkt b {
+  display: block; font-size: .9rem; font-weight: 640; line-height: 1.35;
+  color: var(--tinte);
+}
+.tafel .punkt span {
+  display: block; margin-top: 2px; font-size: .8rem; line-height: 1.45;
+  color: var(--tinte-leise);
+}
+
+/* Hier fangen wir an: der einzige gefuellte Punkt, und der einzige, der
+   atmet. */
+.tafel .punkt--start .punktzeichen {
+  border-color: var(--ki); background: var(--ki);
+  animation: kartenpuls 2.2s ease-in-out infinite;
+}
+.tafel .punkt--start b { color: var(--ki-tief, #1f6d62); font-weight: 720; }
+@keyframes kartenpuls {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(47 125 112 / 35%); }
+  50% { box-shadow: 0 0 0 6px rgb(47 125 112 / 0%); }
+}
+
+/* In der Naehe: umrandet, nicht gefuellt. */
+.tafel .punkt--nah .punktzeichen { border-color: var(--ki); }
+
+/* Gibt es auch: still, aber lesbar. Nicht ausgegraut - wer entdeckt, was
+   hier noch liegt, ruft an, und genau das soll er. */
+.tafel .punkt--still b { color: var(--tinte-schwach); font-weight: 560; }
+
+.tafel .stille { margin-top: 10px; }
+.tafel .stille > summary {
+  font-size: .8rem; color: var(--tinte-leise); cursor: pointer;
+  list-style: none; padding: 2px 0;
+}
+.tafel .stille > summary::-webkit-details-marker { display: none; }
+.tafel .stille > summary:hover { color: var(--ki); }
+.tafel .stille[open] > summary { margin-bottom: 9px; }
+
+.tafel .kartenlegende {
+  display: flex; flex-wrap: wrap; gap: 16px;
+  margin: 24px 0 0; font-size: .8rem; color: var(--tinte-leise);
+}
+.tafel .legende { display: inline-flex; align-items: center; gap: 7px; }
+.tafel .legende::before {
+  width: 9px; height: 9px; border-radius: 50%;
+  border: 1.5px solid var(--linie); content: "";
+}
+.tafel .legende--start::before { border-color: var(--ki); background: var(--ki); }
+.tafel .legende--nah::before { border-color: var(--ki); }
+
 .tafel .wachstum .flaeche {
   padding: 40px 38px 36px; border-radius: 20px;
   background: linear-gradient(168deg, var(--teal-soft) 0%, var(--grund) 100%);

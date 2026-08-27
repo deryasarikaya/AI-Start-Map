@@ -500,6 +500,31 @@
 {% endif %}
 
 
+{# ═══════════════ 6 · IHRE AI START MAP ═══════════════
+
+   **Die eine Stelle, an der nichts erzeugt wird.**
+
+   Alles darüber und darunter kommt aus seiner Erzählung. Die Karte nicht:
+   Sie ist für jeden Betrieb dieselbe Landschaft, und markiert wird nur,
+   wo er steht und was von dort erreichbar ist.
+
+   Das ist ihr ganzer Wert. Eine erzeugte Zukunft bleibt auf der Schiene,
+   über die das Modell gerade geschrieben hat — auf „ein gemeinsamer
+   Fahrzeugstand" folgte „Statusfragen automatisch beantworten". Eine
+   feste Karte kann nicht zu klein ausfallen, weil sie nicht erzeugt wird. #}
+{% if karte %}
+<section class="kartenteil" data-auftritt>
+  <div class="flaeche">
+    <p class="marke">Ihre AI Start Map</p>
+    <h2>Sie sind hier. Und das ist das Gelände dahinter.</h2>
+    <p class="lauftext">Die Karte zeigt den möglichen Lösungsraum für Ihren
+    Betrieb. Hervorgehoben ist, wo ein sinnvoller Startpunkt liegt.</p>
+    {% include "karte.html" %}
+  </div>
+</section>
+{% endif %}
+
+
 {# ═══════════════ 6 · DAS WÜRDEN WIR FÜR SIE UMSETZEN ════════════
 
    Ein Branchenkatalog zeigt jedem dieselben zwölf Kacheln. Diese Liste

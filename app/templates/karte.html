@@ -1,0 +1,66 @@
+{# **Die AI Start Map** — für jeden Betrieb dieselbe Landschaft.
+
+   Sie wird nicht erzeugt. Markiert werden nur drei Dinge: wo wir anfangen
+   würden, was von dort erreichbar ist, und was es sonst noch gibt. Damit
+   kann die Vision nicht zu klein ausfallen, weil sie nicht erzeugt wird —
+   und nichts halluziniert werden, weil nichts geschrieben wird.
+
+   **Ohne JavaScript vollständig richtig.** Zustände, Nähe und Beschriftung
+   stehen im Markup; das Aufklappen der stillen Punkte macht `<details>`
+   selbst. Deshalb steht dieselbe Karte auch im PDF, ohne dass sie ein
+   zweites Mal gebaut werden müsste. #}
+
+<div class="karte">
+  <div class="kartenmitte">
+    <span class="mittenpunkt" aria-hidden="true"></span>
+    <b>{{ mitte }}</b>
+    <span class="mittennotiz">Hier läuft alles zusammen</span>
+  </div>
+
+  <div class="gebiete">
+    {% for gebiet in gebiete %}
+    <section class="gebiet{% if gebiet.hat_markierung %} gebiet--lebt{% endif %}">
+      <h3>{{ gebiet.name }}</h3>
+
+      {# Sofort sichtbar nur, was markiert ist. Fünfundzwanzig gleich laute
+         Punkte wären wieder „viel Zeug" statt „das ist mein Betrieb". #}
+      <ul class="punkte">
+        {% for punkt in gebiet.punkte if punkt.zustand != 'still' %}
+        <li class="punkt punkt--{{ punkt.zustand }}">
+          <span class="punktzeichen" aria-hidden="true"></span>
+          <div>
+            <b>{{ punkt.name }}</b>
+            {% if punkt.nutzen %}<span>{{ punkt.nutzen }}</span>{% endif %}
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+
+      {# Der Rest bleibt erreichbar, aber still. Wer entdeckt, dass hier
+         noch fünf Gebiete liegen, ruft an — genau das soll er. #}
+      {% if gebiet.stille %}
+      <details class="stille">
+        <summary>+{{ gebiet.stille }} weitere Möglichkeiten</summary>
+        <ul class="punkte">
+          {% for punkt in gebiet.punkte if punkt.zustand == 'still' %}
+          <li class="punkt punkt--still">
+            <span class="punktzeichen" aria-hidden="true"></span>
+            <div>
+              <b>{{ punkt.name }}</b>
+              {% if punkt.nutzen %}<span>{{ punkt.nutzen }}</span>{% endif %}
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+      </details>
+      {% endif %}
+    </section>
+    {% endfor %}
+  </div>
+
+  <p class="kartenlegende">
+    <span class="legende legende--start">Hier würden wir anfangen</span>
+    <span class="legende legende--nah">Das liegt in der Nähe</span>
+    <span class="legende legende--still">Das gibt es auch</span>
+  </p>
+</div>
