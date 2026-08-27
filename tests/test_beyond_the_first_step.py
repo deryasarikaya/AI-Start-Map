@@ -95,7 +95,7 @@ def test_the_path_gets_its_own_section(
 
     seite = _mit_pfad(client, monkeypatch, PFAD)
 
-    assert "So könnte Ihre Lösung mit Ihrem Betrieb wachsen" in seite
+    assert "Welche Möglichkeiten wir danach gemeinsam prüfen würden" in seite
     assert "Sie müssen nicht alles auf einmal umsetzen" in seite
 
 
@@ -114,40 +114,46 @@ def test_without_a_path_the_section_disappears(
     assert "So könnte Ihre Lösung mit Ihrem Betrieb wachsen" not in seite
 
 
-def test_every_station_is_visible_as_a_step(
+def test_the_section_shows_possibilities_not_a_plan(
     client: TestClient, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Vier Stationen, nummeriert, mit ihren Teilen.
+    """**Keine Nummern, keine Reihenfolge, keine Bausteine.**
 
-    Nebeneinander gestellte Kacheln sind eine Sammlung, und eine Sammlung
-    hat keine Richtung. Die Ordnungszahlen und die Reihenfolge sind der
-    Unterschied zwischen „hier ist noch etwas" und „so weit geht das".
+    Die Auswertung diagnostiziert und öffnet den Lösungsraum; über die
+    Route entscheidet das Gespräch. Eine nummerierte Folge sagt „das ist
+    der Plan" — gemeint ist „das ist das Gelände". Und Bausteine wären an
+    einer Stelle, die neugierig machen soll, schon Umsetzungsdetail; sie
+    stehen oben bei der Grundlage.
     """
 
     seite = _mit_pfad(client, monkeypatch, PFAD)
 
-    for schritt in PFAD:
+    # Die Grundlage steht oben als „Damit würden wir anfangen" und wird
+    # hier nicht wiederholt.
+    for schritt in PFAD[1:]:
         assert schritt["name"] in seite, schritt["name"]
         assert schritt["nutzen"] in seite, schritt["nutzen"]
-    assert seite.count('class="station station--') == 4
-    # Die Teile eines Bereichs zeigen, woraus so ein Schritt besteht.
-    assert "Freigaben online" in seite
+    assert PFAD[0]["name"] not in seite
+
+    assert "stationsnummer" not in seite
+    assert "Freigaben online" not in seite
+    assert seite.count('class="moeglichkeit"') == 3
 
 
-def test_the_foundation_is_marked_as_the_one_being_built(
+def test_the_nearness_is_named_instead_of_numbered(
     client: TestClient, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Die erste Station ist die Grundlage, nicht die erste Aussicht.
+    """Wie weit weg etwas liegt, steht als Wort da — nicht als Ziffer.
 
-    Ohne diesen Unterschied liest sich alles gleich weit weg — auch das,
-    was gerade angeboten wird. Der Kunde soll sehen, wo er einsteigt.
+    „Das liegt in der Nähe" und „Das könnte später sinnvoll werden" sagen
+    dasselbe wie eine 2 und eine 4, ohne eine Reihenfolge zu behaupten,
+    die erst im Gespräch entschieden wird.
     """
 
     seite = _mit_pfad(client, monkeypatch, PFAD)
 
-    assert "station station--jetzt" in seite
-    assert "Die Grundlage" in seite
-    assert "Ausbau" in seite
+    assert "Das liegt in der Nähe" in seite
+    assert "Das könnte später sinnvoll werden" in seite
 
 
 def test_the_section_says_that_the_path_is_not_yet_decided(

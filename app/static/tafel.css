@@ -1054,64 +1054,32 @@
   border: 1px solid var(--linie);
 }
 
-.tafel .pfad {
-  margin: 26px 0 0; padding: 0; list-style: none;
-  display: grid; gap: 0;
+/* **Keine Nummern, keine Linie.** Beides sagte „das ist der Plan" - und
+ * die Auswertung liefert bewusst keinen. Vier Moeglichkeiten nebeneinander,
+ * die Naehe steht als Marke darueber statt als Ordnungszahl davor. */
+.tafel .moeglichkeiten {
+  display: grid; gap: 14px; margin-top: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 }
-.tafel .station {
-  position: relative; display: grid; gap: 18px;
-  grid-template-columns: 38px 1fr; padding: 0 0 26px;
+.tafel .moeglichkeit {
+  padding: 20px 21px; border-radius: var(--rund);
+  background: rgb(255 255 255 / .78); border: 1px solid var(--linie);
   transition: transform .5s cubic-bezier(.22, .61, .36, 1) var(--verzug, 0ms),
               opacity .5s ease var(--verzug, 0ms);
 }
-/* Die Linie verbindet die Stationen und hört vor der letzten auf -
- * sonst läuft der Weg ins Leere. */
-.tafel .station:not(:last-child)::before {
-  content: ""; position: absolute; left: 18px; top: 40px;
-  width: 2px; height: calc(100% - 40px); background: var(--linie);
+.tafel .moeglichkeitsmarke {
+  margin: 0 0 6px; font-size: .7rem; font-weight: 700;
+  letter-spacing: .09em; text-transform: uppercase; color: var(--tinte-leise);
 }
-.tafel .station:last-child { padding-bottom: 0; }
-
-.tafel .stationsnummer {
-  z-index: 1; display: grid; place-items: center;
-  width: 38px; height: 38px; border-radius: 50%;
-  background: var(--marke-hell); color: var(--marke);
-  font-size: .95rem; font-weight: 700; font-variant-numeric: tabular-nums;
-}
-/* Die Grundlage ist das, was jetzt gebaut wird. Sie sitzt fester als
- * der Weg dahinter - sonst liest sich alles gleich weit weg. */
-.tafel .station--jetzt .stationsnummer {
-  background: var(--ki, #2f7d70); color: #fff;
-}
-
-.tafel .stationsmarke {
-  margin: 0 0 3px; font-size: .7rem; font-weight: 700;
-  letter-spacing: .1em; text-transform: uppercase; color: var(--tinte-leise);
-}
-.tafel .station--jetzt .stationsmarke { color: var(--ki, #2f7d70); }
-.tafel .station h3 {
-  margin: 0; font-size: 1.06rem; font-weight: 660; line-height: 1.3;
+.tafel .moeglichkeit h3 {
+  margin: 0; font-size: 1.04rem; font-weight: 660; line-height: 1.3;
   letter-spacing: -.014em;
 }
-.tafel .stationsnutzen {
-  margin: 6px 0 0; font-size: .93rem; line-height: 1.5;
+.tafel .moeglichkeitsnutzen {
+  margin: 7px 0 0; font-size: .93rem; line-height: 1.5;
   color: var(--tinte-leise);
 }
 
-/* Die Teile eines Bereichs: klein, waagerecht, ohne Kästchen. Sie sollen
- * zeigen, woraus so ein Schritt besteht, ohne schon ein Angebot zu sein. */
-.tafel .stationsteile {
-  display: flex; flex-wrap: wrap; gap: 6px;
-  margin: 12px 0 0; padding: 0; list-style: none;
-}
-.tafel .stationsteile li {
-  padding: 4px 11px; border-radius: 999px;
-  background: rgb(255 255 255 / .78); border: 1px solid var(--linie);
-  font-size: .8rem; color: var(--tinte-schwach);
-}
-
-/* Der Satz, der den Weg ehrlich hält: Was davon passt, ist noch nicht
- * entschieden. */
 .tafel .wachstumsnotiz {
   margin: 26px 0 0; font-size: .85rem; color: var(--tinte-leise);
   max-width: 62ch;

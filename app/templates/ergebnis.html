@@ -448,9 +448,13 @@
        auf einzelne Stellen zeigen — die wären pro Fall erfunden. Diese
        drei gelten für jede Oberfläche, die wir bauen würden. #}
     <ul class="mikronutzen">
-      <li><svg aria-hidden="true"><use href="#i-schluessel"/></svg>Läuft von selbst</li>
-      <li><svg aria-hidden="true"><use href="#i-haken"/></svg>Stand sichtbar</li>
-      <li><svg aria-hidden="true"><use href="#i-pfeil"/></svg>Nächster Schritt</li>
+      {# **Konkret statt pauschal.** Hier stand „Läuft von selbst" — und das
+         stimmt nicht: Nicht die ganze Lösung läuft von selbst, sondern die
+         wiederkehrenden Schritte. Ein Versprechen, das die Ansichten
+         darunter nicht halten, kostet mehr, als es einbringt. #}
+      <li><svg aria-hidden="true"><use href="#i-schluessel"/></svg>Informationen zusammengeführt</li>
+      <li><svg aria-hidden="true"><use href="#i-haken"/></svg>Status sofort sichtbar</li>
+      <li><svg aria-hidden="true"><use href="#i-pfeil"/></svg>Nächster Schritt klar</li>
     </ul>
 
     {# `breit-schmal` heisst: breite Ansicht links, schmale rechts. #}
@@ -667,42 +671,38 @@
    Fehlt der Pfad — gespeicherte Ergebnisse von vorher kennen ihn nicht —,
    fällt der Abschnitt weg. Ein erfundener Ausblick wäre schlimmer als
    keiner. #}
-{% if e.ausbaupfad %}
+{# **Ein Moeglichkeitsraum, kein Umsetzungsplan.**
+
+   Die Auswertung diagnostiziert und oeffnet den Loesungsraum; ueber die
+   Route entscheidet das Gespraech. Daraus folgt, dass hier keine Nummern
+   stehen: Eine nummerierte Folge sagt „das ist der Plan", gemeint ist
+   „das ist das Gelaende".
+
+   Die Grundlage selbst faellt weg — sie steht oben als „Damit wuerden wir
+   anfangen". Und die Bausteine bleiben ebenfalls dort: An einer Stelle,
+   die neugierig machen soll, waeren sie schon Umsetzungsdetail. #}
+{%- set weitere = e.ausbaupfad | rejectattr('stufe', 'equalto', 'jetzt') | list -%}
+{% if weitere %}
 <section class="wachstum" data-auftritt>
   <div class="flaeche">
     <p class="marke">Wenn das läuft</p>
-    <h2>So könnte Ihre Lösung mit Ihrem Betrieb wachsen</h2>
+    <h2>Welche Möglichkeiten wir danach gemeinsam prüfen würden</h2>
     <p class="lauftext">Sie müssen nicht alles auf einmal umsetzen. Wenn die
     Grundlage steht, können weitere Bereiche Schritt für Schritt angebunden
     und automatisiert werden.</p>
 
-    {# Eine Ordnungszahl je Station und eine durchgehende Linie: Erst das
-       macht aus vier Kacheln eine Folge. Ohne sie liest man wieder eine
-       Sammlung, und eine Sammlung hat keine Richtung. #}
-    <ol class="pfad">
-      {% for schritt in e.ausbaupfad[:6] %}
-      <li class="station station--{{ schritt.stufe or 'danach' }}"
-          style="--verzug: {{ loop.index0 * 80 }}ms">
-        <span class="stationsnummer" aria-hidden="true">{{ loop.index }}</span>
-        <div class="stationstext">
-          <p class="stationsmarke">
-            {%- if schritt.stufe == 'jetzt' -%}Die Grundlage
-            {%- elif schritt.stufe == 'spaeter' -%}Ausbau
-            {%- else -%}Danach{%- endif -%}
-          </p>
-          <h3>{{ schritt.name }}</h3>
-          <p class="stationsnutzen">{{ schritt.nutzen }}</p>
-          {% if schritt.bausteine %}
-          <ul class="stationsteile">
-            {% for teil in schritt.bausteine[:5] %}
-            <li>{{ teil }}</li>
-            {% endfor %}
-          </ul>
-          {% endif %}
-        </div>
-      </li>
+    <div class="moeglichkeiten">
+      {% for schritt in weitere[:4] %}
+      <article class="moeglichkeit" style="--verzug: {{ loop.index0 * 80 }}ms">
+        <p class="moeglichkeitsmarke">
+          {%- if schritt.stufe == 'spaeter' -%}Das könnte später sinnvoll werden
+          {%- else -%}Das liegt in der Nähe{%- endif -%}
+        </p>
+        <h3>{{ schritt.name }}</h3>
+        <p class="moeglichkeitsnutzen">{{ schritt.nutzen }}</p>
+      </article>
       {% endfor %}
-    </ol>
+    </div>
 
     <p class="wachstumsnotiz">Welche Bereiche für Sie sinnvoll sind und in
     welcher Reihenfolge sie kommen, hängt von Ihren bestehenden Systemen und

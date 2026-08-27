@@ -70,6 +70,23 @@ nur richtig, wenn wirklich keine dieser Stellen vorkommt.
 `titel` in wenigen Worten. `erlaeuterung` in einem Satz, der die Formulierung
 des Betriebs aufgreift, statt sie zu verallgemeinern.
 
+**Schneide die Grenze so eng zu, wie er sie gezogen hat — nicht enger.**
+
+Ein Betrieb sagte, es dürfe niemand einen Wagen für morgen zusagen, wenn die
+Werkstatt voll ist. Daraus wurde „Keine automatische Terminvergabe". Das ist
+mehr, als er gesagt hat: Er war gegen **ungedeckte Zusagen**, nicht gegen
+Terminplanung. Und was hier zu weit gefasst wird, schneidet ihm im Gespräch
+eine Möglichkeit ab, die er nie ausgeschlossen hat.
+
+> Er sagt: „Bloss nicht irgendwelche Termine versprechen, wenn das System
+> nicht weiss, ob wir Kapazität haben."
+>
+> Zu weit: „Keine automatische Terminvergabe"
+> Richtig: „Keine Terminzusagen ohne geprüfte Kapazität"
+
+Die Probe: Steht in deinem `titel` ein Verbot, das er so nicht ausgesprochen
+hat? Dann formulier ihn auf die Bedingung um, die er wirklich genannt hat.
+
 **wert.faellt_weg** — höchstens acht Zeilen. Nur eine Frage: Welche
 konkrete unnötige Arbeit fällt weg? Keine Wiederholung der Lösung.
 
