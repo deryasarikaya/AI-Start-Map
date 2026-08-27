@@ -37,7 +37,12 @@ def test_landing_voice_fallback_and_mobile_assets(client: TestClient) -> None:
     assert session.SESSION_COOKIE in interview_start.headers["set-cookie"]
     interview = client.get("/interview")
     assert "Aufnahme starten" in interview.text
-    assert "Lieber schreiben" in interview.text
+    assert "Stattdessen schreiben" in interview.text
+    # Der Leitfaden steht vor dem Feld und ist keine Auswahl: keine
+    # Kästchen, keine Pflichtangaben — nur Orientierung beim Erzählen.
+    assert "Was uns hilft, Ihren Betrieb wirklich zu verstehen" in interview.text
+    assert 'type="checkbox"' not in interview.text
+    assert 'type="radio"' not in interview.text
     assert "contenteditable" not in interview.text
     assert 'name="free_description"' in interview.text
     assert "/sessions/" not in interview.text

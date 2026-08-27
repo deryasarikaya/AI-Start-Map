@@ -108,7 +108,6 @@ ul, ol { margin-top: 0; }
 .section-title { max-width: 30ch; margin-bottom: .9rem; font-size: clamp(1.625rem, 3vw, 2rem); letter-spacing: -.02em; }
 .lead, .page-description { max-width: 70ch; color: var(--muted); font-size: clamp(1.02rem, 1.5vw, 1.125rem); }
 .content-intro { max-width: 58rem; margin-bottom: 1.7rem; }
-.compact-intro { max-width: 50rem; }
 .supporting-copy, .micro-copy, .voice-support, .contact-note { color: var(--muted); font-size: .9rem; }
 
 .primary-button, .secondary-button, .microphone-button { display: inline-flex; min-height: 3.35rem; align-items: center; justify-content: center; gap: .55rem; padding: .82rem 1.3rem; border-radius: .9rem; font-weight: 820; text-align: center; text-decoration: none; cursor: pointer; }
@@ -256,10 +255,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .hero-copy .lead { max-width: 43rem; margin-bottom: 0; }
 .hero-copy form { margin: 1rem 0 .45rem; }
 .hero-button { min-width: 12rem; background: var(--green); border-color: var(--green); }
-.recognition-section { padding-top: 1.5rem; }
-.recognition-list { display: grid; gap: .65rem; max-width: 53rem; padding: 0; list-style: none; }
-.recognition-list li { position: relative; padding: .75rem .8rem .75rem 2.7rem; border-bottom: 1px solid var(--border); font-size: clamp(1rem, 2vw, 1.14rem); }
-.recognition-list li::before { position: absolute; left: .6rem; content: "✓"; color: var(--teal); font-weight: 900; }
 .simple-steps { display: grid; gap: .9rem; }
 .simple-steps article { display: grid; grid-template-columns: 2.8rem 1fr; gap: .8rem; padding: .8rem 0; border-bottom: 1px solid var(--border); }
 .simple-steps article > span { display: grid; width: 2.5rem; height: 2.5rem; place-items: center; border-radius: .75rem; color: #fff; background: var(--teal); font-weight: 900; box-shadow: 0 6px 16px -6px rgb(47 125 112 / 50%); }
@@ -313,41 +308,16 @@ input, textarea { display: block; width: 100%; padding: .95rem 1rem; border: 1px
 input { min-height: 3.2rem; }
 textarea { min-height: 7rem; resize: vertical; font-size: 1.02rem; }
 input:focus, textarea:focus { border-color: var(--green); }
-.thought-prompts { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .8rem; }
-.thought-prompts span { padding: .35rem .6rem; border-radius: 999px; color: var(--muted); background: var(--cream); font-size: .78rem; }
 .sticky-action { position: sticky; bottom: 0; z-index: 10; display: flex; justify-content: flex-end; margin-top: 1rem; padding: .8rem 0; background: linear-gradient(transparent, var(--cream) 28%); }
 .sticky-action .primary-button { width: 100%; }
 .error-message { margin-bottom: 1rem; padding: .85rem 1rem; border: 1px solid #d99f8b; border-radius: .8rem; color: #703c2c; background: #fff0ea; font-weight: 700; }
-
-.option-list { display: grid; gap: 1rem; margin-bottom: 1.2rem; }
-.process-card { display: grid; gap: .75rem; padding: 1rem; border: 1px solid var(--border); border-radius: var(--radius-sm); background: #fff; }
-.process-card.recommended-process { border: 2px solid var(--green); }
-.process-card h2 { margin: .5rem 0; font-size: 1.45rem; }
-.recommendation-label { display: inline-flex; padding: .28rem .55rem; border-radius: 999px; color: var(--ink); background: var(--sun); font-size: .72rem; font-weight: 850; }
-.recognition-reason { margin-bottom: .5rem; color: var(--muted); }
-.process-option-details { margin-top: .7rem; }
-.process-option-details summary, .result-details summary { min-height: 3rem; color: var(--ink); font-weight: 780; cursor: pointer; }
-.boundary-list { display: grid; gap: .6rem; margin: .5rem 0 0; }
-.boundary-list div { padding: .7rem; border-radius: .7rem; background: var(--cream); }
-.boundary-list dt { color: var(--green); font-size: .72rem; font-weight: 850; text-transform: uppercase; }
-.boundary-list dd { margin: 0; }
-
-.process-summary-panel { max-width: 50rem; }
-.process-strip { display: grid; gap: 0; margin: 1.25rem 0 0; padding: 0; list-style: none; }
-.process-strip li { position: relative; display: grid; min-width: 0; grid-template-columns: 2.4rem minmax(0, 1fr); gap: .8rem; padding: .55rem 0 1.25rem; }
-.process-strip li:not(:last-child)::after { position: absolute; top: 2.7rem; bottom: .05rem; left: 1.17rem; width: 2px; content: ""; background: var(--green-soft); }
-.process-strip li > span { z-index: 1; display: grid; width: 2.4rem; height: 2.4rem; place-items: center; border-radius: .75rem; color: #fff; background: var(--green); font-weight: 850; }
 .process-strip li.problem > span { color: var(--ink); background: var(--sun); }
-.process-strip li p { min-width: 0; margin: .38rem 0 0; overflow-wrap: anywhere; }
 .process-strip.compact li { padding-bottom: .75rem; }
 .confirmation-choice .primary-button { color: var(--ink); border-color: var(--sun); background: var(--sun); box-shadow: none; }
 .correction-panel { max-width: 50rem; margin-top: 1rem; }
 .step-editor { display: grid; grid-template-columns: 1.8rem minmax(0, 1fr) 2.8rem; gap: .5rem; align-items: center; }
 .step-editor > span { color: var(--green); font-weight: 850; text-align: center; }
 .step-editor button { min-height: 2.8rem; border: 0; border-radius: .7rem; color: var(--muted); background: var(--cream); cursor: pointer; }
-.question-focus-card > label { font: 700 clamp(1.4rem, 4vw, 2rem)/1.25 Georgia, serif; }
-.question-reason { color: var(--muted); }
-.follow-up-actions { max-width: 62rem; justify-content: space-between; }
 
 /* ── Der Zwischenschirm ────────────────────────────────────────────────
  * Liegt ueber **jeder** Seite und ist nur Sekunden sichtbar - deshalb
@@ -454,73 +424,70 @@ input:focus, textarea:focus { border-color: var(--green); }
 
 .result-layout { width: min(100%, 68rem); margin-inline: auto; }
 .result-layout p, .result-layout li, .result-layout dd { max-width: 72ch; }
-.result-intro { max-width: 52rem; padding: clamp(.4rem, 2vw, 1rem) 0 clamp(1.4rem, 4vw, 2.4rem); }
-.result-intro h1 { max-width: 46rem; font-size: clamp(2.1rem, 4vw, 2.5rem); letter-spacing: -.025em; }
-.result-bottleneck { margin-bottom: .6rem; color: var(--ink); font: 700 clamp(1.12rem, 2vw, 1.3rem)/1.5 Georgia, serif; }
-.result-block { margin: 0 0 clamp(1.8rem, 4vw, 2.8rem); }
-.result-block h2, .human-check-callout h2 { max-width: 48rem; font-size: clamp(1.625rem, 3vw, 2rem); letter-spacing: -.015em; }
-.result-block h3 { font-size: 1.2rem; }
-.recommendation-focus { padding: clamp(1rem, 2vw, 1.35rem); border-left: .3rem solid var(--green); background: var(--green-soft); }
-.recommendation-focus h2 { max-width: 50rem; margin-bottom: .55rem; font-size: clamp(1.8rem, 3.5vw, 2.35rem); overflow-wrap: anywhere; }
-.concrete-output h2 { margin-bottom: 1rem; }
-.sample-output-compact { max-width: 58rem; padding: clamp(.9rem, 2vw, 1.2rem); border-radius: var(--radius-sm); color: #fff; background: var(--ink); }
-.sample-output-compact dl { display: grid; gap: .4rem; margin: .4rem 0; }
-.sample-output-compact dl > div { display: grid; gap: .15rem; padding: .55rem 0; border-bottom: 1px solid rgb(255 255 255 / 18%); }
-.sample-output-compact dt { color: #b9d7ca; font-size: .76rem; font-weight: 850; text-transform: uppercase; }
-.sample-output-compact dd { margin: 0; overflow-wrap: anywhere; }
-.sample-output-compact .sample-attachments, .sample-output-compact .preview-notice { color: #e7eeeb; }
-.human-check-callout { display: grid; gap: .6rem 2rem; align-items: center; padding: clamp(1rem, 2vw, 1.3rem); border-left: .3rem solid #91b7c5; background: var(--sky); }
-.human-check-callout h2, .human-check-callout p { margin-bottom: 0; }
-.implementation-steps { display: grid; gap: .45rem; max-width: 48rem; margin-top: 1rem; padding-left: 1.3rem; }
-.contact-cta { display: grid; gap: 1rem; align-items: center; margin-top: 2rem; padding: clamp(1rem, 3vw, 1.5rem); border-radius: var(--radius); background: var(--green-soft); }
-.contact-actions { display: flex; flex-wrap: wrap; gap: .65rem; margin: .9rem 0 .55rem; }
-.contact-note { margin-bottom: 0; }
 
 .gentle-error-mark { display: grid; width: 3.5rem; height: 3.5rem; place-items: center; margin-bottom: 1rem; border-radius: 1rem; color: var(--ink); background: var(--green-soft); font-size: 1.5rem; }
 .error-page { max-width: 44rem; }
-.print-toolbar { display: flex; gap: 1rem; align-items: center; justify-content: space-between; margin-bottom: 1rem; padding: 1rem; border-radius: var(--radius); background: var(--green-soft); }
-.print-toolbar p { margin: 0; }
-.customer-report { background: #fff; box-shadow: var(--shadow); }
-.report-page { padding: clamp(1.2rem, 5vw, 2.5rem); border-bottom: 1px solid var(--border); }
-.report-header { display: grid; gap: 1rem; padding-bottom: 1.1rem; border-bottom: 3px solid var(--green); }
-.report-header h1 { font-size: clamp(2rem, 4vw, 2.5rem); }
-.report-disclaimer { max-width: 36rem; margin: 0; color: var(--muted); font-size: .9rem; }
-.report-bottleneck, .report-future { margin-top: 1rem; }
-.report-bottleneck h2, .report-future h2 { max-width: 48rem; font-size: clamp(1.4rem, 3vw, 1.8rem); }
-.report-bottleneck-text { max-width: 52rem; font-weight: 650; }
-.report-primary, .report-support, .report-sample, .report-block, .report-later { margin-top: 1rem; padding: .85rem 1rem; border-radius: .75rem; background: var(--cream); }
-.report-primary { background: var(--green-soft); }
-.report-primary h2 { max-width: 48rem; font-size: clamp(1.45rem, 3vw, 1.9rem); }
-.report-title-row { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: .5rem 1rem; }
 .report-title-row .section-kicker { margin-bottom: .35rem; }
-.report-flow { display: grid; gap: .4rem; margin: .8rem 0 0; padding: 0; list-style: none; }
-.report-flow li { display: grid; grid-template-columns: 1.75rem minmax(0, 1fr); gap: .65rem; align-items: start; }
-.report-flow li > span { display: grid; width: 1.75rem; height: 1.75rem; place-items: center; border-radius: 50%; color: #fff; background: var(--green); font-size: .78rem; font-weight: 850; }
-.report-flow p { margin: .15rem 0 .35rem; }
-.report-support dl, .report-sample dl { display: grid; grid-template-columns: 9rem 1fr; gap: .35rem .7rem; margin: 0; }
-.report-support dt, .report-sample dt { color: var(--green); font-weight: 850; }
-.report-support dd, .report-sample dd { margin: 0; }
-.report-sample dt, .report-sample dd { min-width: 0; overflow-wrap: anywhere; }
-.report-sample { border: 1px solid var(--green); background: #fff; }
-.report-sample h3 { margin-bottom: .45rem; font-size: 1.2rem; }
-.report-sample .sample-story-label { color: var(--green); }
-.report-sample .sample-missing { border-top-color: var(--border); }
-.preview-badge { padding: .25rem .5rem; border-radius: 999px; color: var(--ink); background: var(--sun); font-size: .72rem; font-weight: 850; }
-.report-page-heading { padding-bottom: 1rem; border-bottom: 2px solid var(--green); }
-.report-page-heading h2 { font-size: clamp(1.55rem, 3vw, 1.9rem); }
-.report-grid h3, .report-block h3 { font-size: 1.05rem; }
-.report-page footer { margin-top: 1.2rem; padding-top: .8rem; border-top: 1px solid var(--border); color: var(--muted); font-size: .82rem; }
-.report-page footer p { margin: 0; }
-.report-contact { margin-top: 1rem; padding-top: .8rem; border-top: 2px solid var(--green); }
-.report-contact h3 { font-size: 1.1rem; }
-.report-contact p { margin-bottom: .45rem; }
-.report-contact a { color: var(--green); font-weight: 800; }
-.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
 
 /* ── Der Erzählbereich ────────────────────────────────────────────────
  * Sprache und Text sind ein Eingabebereich, keine zwei Wege. Beides landet
  * in derselben Beschreibung, und das muss man sehen. */
+/* -- Die Betriebsbeschreibung -----------------------------------------
+ * Der Kopf sagt, was die Seite will, und was der Kunde dafuer bekommt.
+ * Die Nutzenzeile steht bewusst darunter und nicht daneben: erst der
+ * Auftrag, dann der Lohn. */
+.erhebung-kopf { margin-bottom: 2.2rem; }
+.erhebung-nutzen {
+    max-width: 60ch; margin: .8rem 0 0; padding-left: .9rem;
+    border-left: 3px solid var(--teal);
+    color: var(--teal-tief); font-size: .95rem; line-height: 1.55;
+}
+
+/* **Der Leitfaden ist keine Checkliste.** Kaestchen, Rahmen und gleich
+ * grosse Kacheln wuerden nach Auswahl aussehen, und dann beantwortet der
+ * Kunde sechs Fragen, statt zu erzaehlen. Zwei Spalten, ruhige Zeilen,
+ * eine gemeinsame Flaeche. */
+.leitfaden {
+    margin-bottom: 2rem; padding: 1.5rem 1.6rem;
+    border: 1px solid var(--linie); border-radius: var(--radius-lg);
+    background: var(--teal-soft);
+}
+.leitfaden h2 { margin: 0 0 .35rem; font-size: 1.2rem; font-weight: 700; }
+.leitfaden-hinweis {
+    margin: 0 0 1.3rem; max-width: 62ch;
+    color: var(--tinte-schwach); font-size: .92rem;
+}
+.leitfaden-raster {
+    display: grid; gap: 1rem 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+}
+.leitfaden-thema b {
+    display: block; margin-bottom: .15rem;
+    color: var(--tinte); font-size: .97rem; font-weight: 700;
+}
+.leitfaden-thema span {
+    display: block; color: var(--tinte-schwach);
+    font-size: .88rem; line-height: 1.55;
+}
+.erhebung-laenge {
+    max-width: 64ch; margin: 1.5rem 0 0; padding-top: 1.1rem;
+    border-top: 1px solid rgb(24 51 44 / 10%);
+    color: var(--tinte); font-size: .95rem; line-height: 1.6;
+}
+.erhebung-laenge span {
+    display: block; margin-top: .3rem;
+    color: var(--tinte-leise); font-size: .87rem;
+}
+
+/* Der Hinweis unter dem Knopf: Er nimmt die Angst vor der unvollstaendigen
+   Erzaehlung, ohne etwas zu versprechen, das selten eintritt. */
+.ctahinweis {
+    max-width: 58ch; margin: .7rem auto 0;
+    color: var(--tinte-leise); font-size: .84rem; line-height: 1.5;
+    text-align: center;
+}
+
 .eingabe {
     display: grid; gap: 0;
     padding: 1.4rem 1.5rem 1.6rem; border: 1px solid var(--border);
@@ -529,23 +496,21 @@ input:focus, textarea:focus { border-color: var(--green); }
 }
 /* Der Satz, der die Zeitangst nimmt. Er steht vor allem anderen, weil die
  * erste Sorge nicht das Mikrofon ist, sondern „wie lange muss das sein". */
-.freiraum {
-    margin: 0 0 1.1rem; color: var(--text-primary);
-    font-size: 1.02rem; font-weight: 700;
-}
-.freiraum span {
-    display: block; margin-top: .2rem; color: var(--muted);
-    font-size: .88rem; font-weight: 500;
-}
+/* `.freiraum` stand ueber dem Eingabebereich und sagte „30 Sekunden oder 10 Minuten“.
+   Der Satz ist in den Leitfaden gewandert und dort ausfuehrlicher;
+   die Regel bleibt dieselbe. */
 .eingabe .voice-card { margin: 0; box-shadow: none; }
 .eingabe .text-entry-card {
     margin: 1.3rem 0 0; padding: 1.3rem 0 0; border: 0;
-    border-top: 1px solid var(--border); border-radius: 0; background: none;
+    border-top: 1px solid var(--linie); border-radius: 0; background: none;
     box-shadow: none;
 }
+/* Das Mikrofon gehoert zur Verarbeitung, nicht zur Warnung - deshalb
+   Teal und nicht Coral. */
+.eingabe .voice-orb { background: var(--teal-soft); color: var(--teal-tief); }
+.eingabe .voice-card h2 { font-size: 1.08rem; }
 .voice-hint { margin: .35rem 0 0; color: var(--muted); font-size: .85rem; }
 .feldnotiz { margin: -.25rem 0 .6rem; color: var(--muted); font-size: .85rem; }
-.page-note { margin: .5rem 0 0; color: var(--muted); font-size: .9rem; }
 
 /* Das Feld darf nicht wie ein Formularfeld aussehen. Wer ein kleines
  * Kästchen sieht, schreibt einen kleinen Satz. */
@@ -559,14 +524,6 @@ input:focus, textarea:focus { border-color: var(--green); }
     margin: 0 0 1rem; padding: .6rem .85rem; border: 0;
     border-radius: var(--radius-sm); background: var(--teal-soft);
     color: var(--teal-tief); font-size: .84rem; line-height: 1.45;
-}
-
-/* Gedankenstützen, keine Auswahl: sehr hell, ohne Rahmen, klein. Mit
- * Kästchen und Rand sahen sie aus wie Pflichtfelder. */
-.thought-prompts { gap: .4rem; margin-top: .9rem; }
-.thought-prompts span {
-    padding: .3rem .7rem; border: 0; border-radius: 999px;
-    background: var(--grund-tief); color: var(--muted); font-size: .8rem;
 }
 
 /* Der aktive Schritt trägt Teal statt Gelb — Gelb war der lauteste Ton der
@@ -656,73 +613,17 @@ input:focus, textarea:focus { border-color: var(--green); }
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
-
-/* ---------------------------------------------------------------------------
-   Ergebnisdarstellung: drei Beispielformen, Zweispalter, Moeglichkeitskacheln
-   --------------------------------------------------------------------------- */
-
-.example-hint { margin: 0 0 .75rem; font-size: .8125rem; color: var(--text-secondary); }
-
-/* nachricht — Sprechblasen, abwechselnd */
-.example-thread { display: flex; flex-direction: column; gap: .6rem; }
-.example-turn { display: flex; flex-direction: column; max-width: 82%; }
-.example-turn.incoming { align-self: flex-start; align-items: flex-start; }
-.example-turn.reply { align-self: flex-end; align-items: flex-end; }
-.example-speaker { margin: 0 0 .2rem; font-size: .75rem; color: var(--text-secondary); }
-.example-bubble { margin: 0; padding: .6rem .8rem; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; }
-.example-turn.incoming .example-bubble { border-bottom-left-radius: 4px; }
-.example-turn.reply .example-bubble { background: var(--bg-success); border-color: var(--bg-success); color: var(--text-success); border-bottom-right-radius: 4px; }
-.example-note { margin: .5rem 0 0; font-size: .8125rem; color: var(--text-secondary); }
-
-/* karte — umrandeter Block mit Feldtabelle */
-.example-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-.example-card-head { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .6rem .85rem; }
-.example-card-head h4 { margin: 0; font-size: .9375rem; font-weight: 500; }
-.example-fields { margin: 0; padding: .3rem .85rem .6rem; border-top: 1px solid var(--border); display: grid; grid-template-columns: 38% 1fr; column-gap: .75rem; }
-.example-fields dt { padding: .3rem 0; font-size: .8125rem; color: var(--text-secondary); }
-.example-fields dd { margin: 0; padding: .3rem 0; color: var(--text-primary); }
-.example-card-foot { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; padding: .55rem .85rem; border-top: 1px solid var(--border); font-size: .8125rem; }
 .example-card-foot .missing { color: var(--text-danger); }
 .example-card-foot .approval { color: var(--text-secondary); white-space: nowrap; }
-
-/* liste — Zeilen mit Statuspille */
-.example-list { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-.example-list-head { padding: .6rem .85rem; font-size: .9375rem; font-weight: 500; }
-.example-row { display: flex; align-items: baseline; gap: .75rem; padding: .5rem .85rem; border-top: 1px solid var(--border); }
-.example-row .when { min-width: 8.5rem; font-size: .8125rem; color: var(--text-secondary); }
 .example-row .what { flex: 1; }
-
-.status-pill { display: inline-block; padding: .1rem .5rem; border-radius: 999px; font-size: .75rem; white-space: nowrap; }
 .status-pill.ready { background: var(--bg-success); color: var(--text-success); }
 .status-pill.missing { background: var(--bg-danger); color: var(--text-danger); }
 .status-pill.check { background: var(--bg-warning); color: var(--text-warning); }
-
-/* Zweispalter heute gegen kuenftig */
-.flow-compare-columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
-.flow-side { padding: .85rem; border-radius: 12px; }
 .flow-side.today { background: var(--bg-danger); }
 .flow-side.future { background: var(--bg-success); }
-.flow-side h3 { margin: 0 0 .5rem; font-size: .75rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
 .flow-side.today h3 { color: var(--text-danger); }
 .flow-side.future h3 { color: var(--text-success); }
-.flow-side ol { margin: 0; padding: 0; list-style: none; counter-reset: flowstep; }
-.flow-side li { counter-increment: flowstep; padding: .3rem 0 .3rem 1.6rem; position: relative; font-size: .9375rem; }
-.flow-side li::before { content: counter(flowstep); position: absolute; left: 0; top: .35rem; font-size: .75rem; color: var(--text-secondary); }
-
-/* Moeglichkeiten als Kacheln */
-.opportunity-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
-.opportunity-tile { background: var(--surface); border: .5px solid var(--border); border-radius: 12px; padding: .85rem; }
 .opportunity-tile .rank { margin: 0 0 .35rem; font-size: .6875rem; letter-spacing: .06em; text-transform: uppercase; color: var(--text-secondary); }
-.opportunity-tile h3 { margin: 0 0 .3rem; font-size: 15px; font-weight: 500; }
-.opportunity-tile p { margin: 0; font-size: 13px; color: var(--text-secondary); }
-
-/* ---------------------------------------------------------------------------
-   Bewegung: Kacheln beim Ueberfahren, sanftes Einblenden beim Scrollen
-   --------------------------------------------------------------------------- */
-
-.opportunity-tile { transition: transform .18s ease, border-color .18s ease; }
-.opportunity-tile:hover,
-.opportunity-tile:focus-within { transform: translateY(-3px); border-color: var(--border-strong); }
 
 /* Der Startzustand haengt an .reveal-armed. Die Klasse setzt ausschliesslich
    app.js. Ohne JavaScript existiert sie nicht - dann ist alles sichtbar. */

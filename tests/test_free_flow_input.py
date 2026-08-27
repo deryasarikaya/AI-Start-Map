@@ -80,21 +80,25 @@ def test_the_page_does_not_ask_for_brevity(client: TestClient) -> None:
     „Erzähl mir kurz" stand in der Überschrift und widerspricht allem, was
     diese Seite will: Wer glaubt, er soll sich kurzfassen, lässt genau die
     Nebensätze weg, aus denen die Diagnose lebt.
+
+    Auch die Zeitangabe ist gestrichen: Sie passte zu einer Seite, die
+    schnell fertig sein wollte, nicht zu einer, die eine belastbare
+    Analyse verspricht. Der Raum wird jetzt anders zugesagt.
     """
 
     client.post("/begin", follow_redirects=False)
 
     seite = client.get("/interview").text
 
-    for auffordernd in ("kurz,", "in wenigen Sätzen", "maximal"):
+    for auffordernd in ("kurz,", "in wenigen Sätzen", "maximal", "30 Sekunden"):
         assert auffordernd not in seite, auffordernd
-    assert "so ausführlich, wie du möchtest" in seite
-    assert "30 Sekunden oder 10 Minuten" in seite
+    assert "so ausführlich, wie es für Ihren Betrieb nötig ist" in seite
+    assert "Nehmen Sie sich ein paar Minuten" in seite
 
 
 @pytest.mark.parametrize(
     "thema",
-    ["Telefon", "Kunden", "Termine", "interne Abläufe"],
+    ["Telefon", "Kunden", "Termine", "Kanäle"],
 )
 def test_the_page_opens_more_than_the_inbox(client: TestClient, thema: str) -> None:
     """Die Beispiele dürfen nicht auf Ablage eichen.
@@ -103,6 +107,9 @@ def test_the_page_opens_more_than_the_inbox(client: TestClient, thema: str) -> N
     Mehrfacharbeit — und danach erzählte auch jeder nur davon. Was jemand
     über sein Telefon oder seine wiederkehrenden Fragen gesagt hätte, kam
     nie zur Sprache, und damit war der halbe Katalog unerreichbar.
+
+    Diese Aufgabe trägt jetzt der Leitfaden: sechs Bereiche als
+    Orientierung, vom Kundenkontakt bis zu den Grenzen.
     """
 
     client.post("/begin", follow_redirects=False)
