@@ -34,7 +34,7 @@ def test_the_example_is_available_without_a_model_call(
     antwort = client.get("/beispiel/hausverwaltung")
 
     assert antwort.status_code == 200
-    assert "Das hätten Sie künftig vor sich" in antwort.text
+    assert "So hätten Sie Ihren Betrieb künftig im Blick" in antwort.text
 
 
 def test_the_example_says_that_it_is_an_example(client: TestClient) -> None:
@@ -232,7 +232,7 @@ def test_the_stored_example_carries_a_full_result(client: TestClient) -> None:
         "Das haben wir verstanden",
         "Was heute unnötig Aufwand erzeugt",
         "Das würde sich für Sie verändern",
-        "Das hätten Sie künftig vor sich",
+        "So hätten Sie Ihren Betrieb künftig im Blick",
         "Das würden wir für Sie umsetzen",
         "Das läuft künftig automatisch",
         "Möchten Sie so arbeiten?",

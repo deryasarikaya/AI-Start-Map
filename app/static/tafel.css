@@ -583,7 +583,14 @@
 /* Drei Ansichten: die erste über die volle Breite, die beiden anderen
  * darunter nebeneinander. Drei gleich breite Spalten wären dreimal zu
  * schmal für eine Tabelle. */
-.tafel .ansichtspaar--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+/* **Die feste Komposition.** Eine grosse Hauptansicht über die ganze
+ * Breite, darunter zwei ergänzende im Verhältnis 58/42. Bewusst nicht
+ * gleich gross: Zwei gleichwertige Fenster nebeneinander sehen aus wie
+ * zwei Beispiele in einer Dokumentation, ungleich gross wie eine
+ * Produktlandschaft. */
+.tafel .ansichtspaar--3 {
+  grid-template-columns: minmax(0, 58fr) minmax(0, 42fr);
+}
 .tafel .ansichtspaar--3 > :first-child { grid-column: 1 / -1; }
 /* Zwei gleichartige teilen sich die Fläche; das ist der Normalfall
    und steht bereits oben. Keine erzwungene gleiche Höhe: Die schmale
@@ -602,9 +609,26 @@
   font-size: .92rem; margin: 0 0 14px; color: var(--tinte-leise);
   max-width: none;
 }
-/* Der Produktbeweis liegt am höchsten von allem auf der Tafel. */
+/* Der Produktbeweis liegt am höchsten von allem auf der Tafel. Die
+ * Nebenansichten liegen sichtbar tiefer — so entsteht ohne ein Wort die
+ * Reihenfolge Hauptprodukt, ergänzendes Detail, einzelne Information. */
 .tafel .ansichtsplatz .mock > .screen {
-  box-shadow: var(--heben-3); border: 0;
+  box-shadow: 0 20px 50px rgb(24 51 44 / .1),
+              0 2px 6px rgb(24 51 44 / .05);
+  border: 0;
+}
+/* Die Hauptansicht: mehr Luft, stärkerer Schatten, ein Hauch Teal
+   dahinter — das ist der Bildschirm, den er morgens öffnen würde. */
+.tafel .ansichtspaar--3 > :first-child { margin-bottom: 14px; }
+.tafel .ansichtspaar--3 > :first-child .screen {
+  box-shadow: 0 28px 64px -12px rgb(24 51 44 / .16),
+              0 3px 8px rgb(24 51 44 / .06),
+              0 0 60px -20px rgb(47 125 112 / .5);
+}
+/* Die beiden darunter: rund 60 Prozent der Tiefe. */
+.tafel .ansichtspaar--3 > :not(:first-child) .screen {
+  box-shadow: 0 12px 30px -8px rgb(24 51 44 / .09),
+              0 1px 4px rgb(24 51 44 / .04);
 }
 .tafel .ansichtsplatz > * { max-width: 100%; }
 /* **Keine zweite Hintergrundregel.** Hier stand noch einmal
@@ -644,6 +668,37 @@
 .tafel .ansichtsplatz .badge.green { background: var(--gut); }
 .tafel .ansichtsplatz .badge.grey { background: #64748b; }
 .tafel .ansichtsplatz h3 { font-family: inherit; }
+
+
+/* ── Drei Mikro-Nutzen über den Ansichten ─────────────────────────────
+ * Fest für jeden Betrieb. Beschriftungen, die auf einzelne Stellen im
+ * Bildschirm zeigen, wären pro Fall erfunden — diese drei gelten für jede
+ * Oberfläche, die wir bauen würden. */
+.tafel .mikronutzen {
+  list-style: none; margin: 0 0 26px; padding: 0;
+  display: flex; flex-wrap: wrap; gap: 10px;
+}
+.tafel .mikronutzen li {
+  display: inline-grid; grid-template-columns: 16px auto; gap: 8px;
+  align-items: center; padding: 7px 15px 7px 12px; border-radius: 999px;
+  background: #e3f2ef; color: #1f6d62;
+  font-size: .84rem; font-weight: 640;
+}
+.tafel .mikronutzen svg { width: 15px; height: 15px; }
+
+/* ── Die Entlastungszeile ──────────────────────────────────────────────
+ * Bis hierher hat er Bildschirme gesehen, und Bildschirme kauft niemand.
+ * Dieser eine Satz übersetzt das Produkt zurück in seinen Alltag — also
+ * bekommt er Luft und Grösse. */
+.tafel .entlastung {
+  margin: 34px 0 0; text-align: center;
+  font-size: clamp(1.1rem, 1.5vw, 1.35rem); font-weight: 650;
+  letter-spacing: -.018em; color: var(--marke-tief);
+}
+.tafel .konkret .kleingedruckt {
+  margin: 10px 0 0; text-align: center; font-size: .78rem;
+  color: var(--tinte-leise);
+}
 
 /* ── Was schon da ist ─────────────────────────────────────────────────
  * Bewusst ruhig gesetzt: Diese Liste beruhigt, sie verkauft nicht. */

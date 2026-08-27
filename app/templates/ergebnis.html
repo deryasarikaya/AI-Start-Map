@@ -402,12 +402,18 @@
    geliefert hat. Eine wurde jedes Mal weggeworfen — ausgerechnet die, die
    den Beweis vollständig gemacht hätte.
 
-   **Die Grösse folgt dem Ansichtstyp.** Ein Tagesüberblick ist eine breite
-   Tabelle, eine Nachrichtenliste ist schmal. Beide in zwei gleiche Hälften
-   zu pressen macht aus einer Komposition ein Tabellenblatt: Die breite wird
-   gequetscht, neben der schmalen bleibt Luft. Welche breit ist, steht im
-   Typ und muss nie geraten werden. Stellt sich eine Zuordnung als falsch
-   heraus, ändert sich eine Zeile hier — nicht der Aufbau der Seite. #}
+   **Ein festes Produktbild für jeden Betrieb.** Die Diagnose ist
+   individuell, die Darstellung nicht: Jeder Kunde sieht denselben Aufbau —
+   eine grosse Hauptansicht, darunter zwei ergänzende im Verhältnis 58/42 —
+   und erkennt darin sein eigenes Geschäft. Was wechselt, sind die Inhalte.
+
+   So erzählt der Abschnitt für jeden dieselbe Geschichte: Ich sehe morgens
+   den Gesamtstand; ich kann direkt in das Wichtige hineingehen; neue
+   Informationen sind schon zugeordnet. Kein Betrieb bekommt ein eigenes
+   Layout, und keiner bekommt einen erfundenen Sonderfall.
+
+   Bei zwei Ansichten entscheidet der Typ, welche die breite ist: Ein
+   Tagesüberblick ist eine Tabelle, eine Nachrichtenliste ist schmal. #}
 {% set gezeigte = e.ansichten[:3] %}
 {% set breite_typen = ['uebersicht', 'terminuebersicht',
                        'dokumentenablage', 'vorgangsakte'] %}
@@ -423,9 +429,21 @@
 {% if gezeigte %}
 <section class="konkret" data-auftritt>
   <div class="flaeche">
-    <h2>Das hätten Sie künftig vor sich</h2>
-    <p class="lauftext">Die Oberflächen, auf die Sie und Ihr Team schauen
-    würden. Namen und Objekte darin sind erfunden — der Aufbau ist gemeint.</p>
+    {# Überschrift und Unterzeile sind fest. Sie müssen für jeden Betrieb
+       stimmen und verkaufen Klarheit im Alltag, nicht Bildschirme. #}
+    <h2>So hätten Sie Ihren Betrieb künftig im Blick</h2>
+    <p class="lauftext">Eine klare Oberfläche für das, was heute wichtig
+    ist — mit Status, Zuständigkeit und nächstem Schritt.</p>
+
+    {# Drei feste Mikro-Nutzen. Keine Beschriftungen am Bildschirm, die
+       auf einzelne Stellen zeigen — die wären pro Fall erfunden. Diese
+       drei gelten für jede Oberfläche, die wir bauen würden. #}
+    <ul class="mikronutzen">
+      <li><svg aria-hidden="true"><use href="#i-schluessel"/></svg>Überblick</li>
+      <li><svg aria-hidden="true"><use href="#i-haken"/></svg>Status</li>
+      <li><svg aria-hidden="true"><use href="#i-pfeil"/></svg>Nächster Schritt</li>
+    </ul>
+
     {# `breit-schmal` heisst: breite Ansicht links, schmale rechts. #}
     <div class="ansichtspaar ansichtspaar--{{ gezeigte | length }}{% if gezeigte | length == 2 %} ansichtspaar--{{ form }}{% endif %}">
       {% for v in gezeigte %}
@@ -436,6 +454,17 @@
       <div class="ansichtsplatz ergebnis">{{ ansichten.ansicht(v) }}</div>
       {% endfor %}
     </div>
+
+    {# Der Satz, der das Produkt zurück in seinen Alltag übersetzt. Fest
+       für alle: Bis hierher hat er Bildschirme gesehen, und Bildschirme
+       kauft niemand. #}
+    <p class="entlastung">Weniger suchen. Weniger nachfassen.
+    Mehr sofort sehen.</p>
+
+    {# Der Hinweis gehört dazu und bleibt: Die Namen und Zahlen in den
+       Fenstern sind erfunden. Klein, aber nicht weg. #}
+    <p class="kleingedruckt">Beispielbildschirme — Namen, Zahlen und
+    Objekte darin sind erfunden. Gemeint ist der Aufbau.</p>
   </div>
 </section>
 {% endif %}

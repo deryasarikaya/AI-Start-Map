@@ -160,7 +160,7 @@ def test_the_page_holds_without_an_order(client: TestClient, monkeypatch) -> Non
 
     assert antwort.status_code == 200
     assert "Womit wir anfangen" not in antwort.text
-    assert "Das hätten Sie künftig vor sich" in antwort.text
+    assert "So hätten Sie Ihren Betrieb künftig im Blick" in antwort.text
 def test_the_pdf_button_opens_the_print_dialog(client: TestClient) -> None:
     """Der Knopf führt zu einer Seite, die von selbst zu drucken beginnt.
 

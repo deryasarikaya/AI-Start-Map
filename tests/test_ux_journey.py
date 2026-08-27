@@ -98,7 +98,7 @@ def test_complete_public_journey(
     ergebnis = client.get("/results")
     for text in (
         "AI Start Map · Auswertung",
-        "Das hätten Sie künftig vor sich",
+        "So hätten Sie Ihren Betrieb künftig im Blick",
         "Das würden wir für Sie umsetzen",
         "Genau so möchte ich arbeiten",
     ):
