@@ -1036,6 +1036,48 @@
 }
 
 
+
+/* ── Was darüber hinaus möglich wäre ───────────────────────────────────
+ * Der Abschnitt, der aus einem Aufräumer einen Berater macht. Er steht
+ * bewusst nach dem Konkreten und vor dem Knopf: Erst muss der Kunde
+ * glauben, dass wir den ersten Schritt können.
+ *
+ * Ruhiger gesetzt als die Bausteine davor — es ist ein Ausblick, kein
+ * Angebot, und es soll nicht mit dem ersten Schritt konkurrieren. */
+.tafel .ausblick .flaeche {
+  padding: 40px 38px 36px; border-radius: 20px;
+  background: linear-gradient(168deg, #eef4f8 0%, #f7fafb 100%);
+  border: 1px solid #dde7ee;
+}
+.tafel .ausblickraster {
+  display: grid; gap: 16px; margin-top: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+.tafel .weiter {
+  background: rgb(255 255 255 / .72); border-radius: var(--rund);
+  padding: 22px; border: 1px solid #e2eaf0;
+  transition: transform .5s cubic-bezier(.22, .61, .36, 1) var(--verzug, 0ms),
+              opacity .5s ease var(--verzug, 0ms);
+}
+.tafel .weiterzeichen {
+  display: grid; place-items: center; width: 42px; height: 42px;
+  border-radius: 13px; background: #e5edf4; color: #3d6480;
+  margin-bottom: 14px;
+}
+.tafel .weiterzeichen svg { width: 22px; height: 22px; }
+.tafel .weiter h3 {
+  margin-bottom: 0; font-size: 1.06rem; font-weight: 660; line-height: 1.3;
+  letter-spacing: -.014em;
+}
+.tafel .weitername {
+  margin: 8px 0 10px; font-size: .84rem; font-weight: 640; color: #3d6480;
+}
+/* Der Satz, der den Ausblick ehrlich hält: Das ist nicht das Angebot. */
+.tafel .ausblicknotiz {
+  margin: 24px 0 0; font-size: .85rem; color: var(--tinte-leise);
+  max-width: 62ch;
+}
+
 /* ── Der Schlussteil ───────────────────────────────────────────────────*/
 
 /* Die Spaltenüberschriften tragen ihr Zeichen: links, wo Arbeit

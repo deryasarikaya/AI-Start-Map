@@ -522,7 +522,11 @@
       {# **Höchstens vier.** Neun Karten sind ein Katalog, und ein
          Katalog verkauft nichts. Die vollständige Liste steht im
          Ausdruck. #}
-      {% for modul in e.module[:4] %}
+      {# Ohne die Ausblicksmodule: Die stehen weiter unten in ihrem
+         eigenen Abschnitt und wären hier ein zweites Mal dasselbe. #}
+      {%- set jetzt = e.module | rejectattr('stufe', 'equalto', 'spaeter')
+                      | list -%}
+      {% for modul in (jetzt or e.module)[:4] %}
       {# Das Zeichen kommt aus dem Nutzen, sonst aus dem Namen. Vier
          gleiche Würfel waren Dekoration; ein Symbol, das den Nutzen
          meint, sagt schon etwas, bevor jemand liest. #}
@@ -637,7 +641,53 @@
 {% endif %}
 
 
-{# ═══════════════ 8 · WIE ES WEITERGEHT ═══════════════
+{# ═══════════════ 8 · WAS DARÜBER HINAUS MÖGLICH WÄRE ═══════════
+
+   Bis hierher sagt die Seite: Das können wir vereinfachen. Hier sagt sie:
+   Und das wäre für Ihren Betrieb ausserdem möglich.
+
+   Das ist der Unterschied zwischen jemandem, der aufräumt, und jemandem,
+   der zeigt, wohin es gehen kann. Ein kleiner Betrieb muss nicht morgen
+   eine grosse Lösung kaufen — aber er soll wissen, dass es sie gibt.
+
+   **Gezeigt wird nur, was das Modell auf `spaeter` gesetzt hat**: aus dem
+   freigegebenen Katalog, gebunden an einen Engpass, den er beschrieben
+   hat. Findet sich nichts, fällt der Abschnitt weg — ein erfundener
+   Ausblick wäre schlimmer als keiner. #}
+{%- set ausblick = e.module | selectattr('stufe', 'equalto', 'spaeter') | list -%}
+{% if ausblick %}
+<section class="ausblick" data-auftritt>
+  <div class="flaeche">
+    <p class="marke">Wenn das läuft</p>
+    <h2>Was darüber hinaus für Sie möglich wäre</h2>
+    <p class="lauftext">Nicht für morgen — aber Sie sollen wissen, wohin es
+    gehen kann, wenn der erste Teil steht.</p>
+
+    <div class="ausblickraster">
+      {% for modul in ausblick[:3] %}
+      <article class="weiter" style="--verzug: {{ loop.index0 * 90 }}ms">
+        <span class="weiterzeichen">
+          <svg aria-hidden="true">
+            <use href="#{{ (modul.nutzen or modul.name) | wandelsymbol }}"/>
+          </svg>
+        </span>
+        <h3>{{ modul.nutzen or modul.name }}</h3>
+        {% if modul.nutzen %}
+        <p class="weitername">{{ modul.name }}</p>
+        {% endif %}
+        <p class="bausteintext">{{ modul.beschreibung }}</p>
+      </article>
+      {% endfor %}
+    </div>
+
+    <p class="ausblicknotiz">Das gehört nicht zum ersten Schritt. Wir sagen
+    es Ihnen trotzdem — damit Sie es kennen, wenn es soweit ist.</p>
+  </div>
+</section>
+{% endif %}
+
+
+{# ═══════════════ 9 · WIE ES WEITERGEHT ═══════════════
 
    Eine Frage, keine Ansage. Der Startplan stand früher hier und hat
    erklärt, wie wir vorgehen — das interessiert an dieser Stelle noch

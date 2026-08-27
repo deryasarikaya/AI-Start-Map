@@ -429,3 +429,40 @@ def test_the_first_view_shows_the_biggest_promise() -> None:
     assert 'nicht den ersten Schritt im Ablauf' in fliess
     assert 'wie dieses Ergebnis zustande kommt' in fliess
     assert 'dürfen nicht dieselben drei Typen bekommen' in fliess
+def test_evidence_binds_the_problem_not_the_solution() -> None:
+    """**Beleg für das Problem, Freiheit für die Lösung.**
+
+    Zwei Regeln zusammen — „die kleinste Menge" und „nur was der Betrieb
+    genannt hat" — ergaben E-Mail sortieren, Kalender abgleichen, Aufgaben
+    anzeigen. Der Kunde kann keinen Telefonassistenten verlangen, wenn er
+    nicht weiss, dass es ihn gibt; wer nur vorschlägt, was er selbst
+    benennen konnte, schlägt nie etwas Neues vor.
+
+    Der Engpass bleibt an seine Worte gebunden. Das ist die Zusage, die
+    diese Lockerung überhaupt vertretbar macht.
+    """
+
+    fliess = _fliesstext(AUSWAHL)
+
+    assert 'Beleg für das Problem, Freiheit für die Lösung' in fliess
+    assert 'er kann es also auch nicht verlangen' in fliess
+    assert 'Eine Lösung ohne Problem bleibt eine Erfindung' in fliess
+
+
+def test_the_third_stage_may_name_what_he_does_not_know() -> None:
+    """`spaeter` ist die Ambitionsebene, nicht der dritte Bauabschnitt.
+
+    Ohne sie endet jede Auswertung bei dem, was der Betrieb ohnehin schon
+    ahnt. Mit ihr sagt die Seite: hier ist der einfache Einstieg — und hier
+    ist, was darüber hinaus möglich wäre.
+
+    Die Fessel bleibt: Gibt der freigegebene Katalog nichts her, das auf
+    einen belegten Engpass zeigt, bleibt die Stufe leer.
+    """
+
+    fliess = _fliesstext(AUSWAHL)
+
+    assert 'Das ist die Ambitionsebene, kein Bauplan' in fliess
+    assert 'was er noch nicht kennt' in fliess
+    assert 'gehört mindestens eines auf `spaeter`' in fliess
+    assert 'bleibt die Stufe leer; erfunden wird nichts' in fliess

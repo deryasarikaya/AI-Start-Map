@@ -47,6 +47,21 @@ könnte diesem Betrieb ausserdem helfen. Sondern: Was braucht er, damit genau
 dieser Engpass gelöst ist. Höchstens acht — aber acht ist eine Grenze, kein
 Ziel.
 
+### Beleg für das Problem, Freiheit für die Lösung
+
+**Der Engpass muss aus seinen Worten kommen. Was ihn löst, darf über das
+hinausgehen, was er kennt.** Das sind zwei verschiedene Fragen, und nur
+die erste ist an seine Erzählung gebunden.
+
+Ein Betrieb, der sagt „das Telefon klingelt ständig, während ich beim
+Kunden bin", hat einen belegten Engpass. Dass ein Assistent Anrufe
+annehmen kann, weiss er womöglich nicht — **er kann es also auch nicht
+verlangen.** Wer nur vorschlägt, was der Kunde selbst benennen konnte,
+schlägt nie etwas vor, das er noch nicht kennt.
+
+Was weiterhin gilt: Jede gewählte Familie muss auf einen Engpass zeigen,
+den er beschrieben hat. Eine Lösung ohne Problem bleibt eine Erfindung.
+
 ### Erst vollständig, dann klein
 
 **Vollständigkeit kommt vor Minimalität.** Wähle zuerst alle Familien, die
@@ -217,7 +232,24 @@ Jedes Modul hat:
   verlierst den Nutzen, nicht nur die Zahl. Im Zweifel ohne Zahl.
 - `gruppe` — höchstens drei verschiedene Gruppen in der ganzen Liste. Mehrere
   Module teilen sich eine Gruppe; das ist ihr Sinn.
-- `stufe` — `jetzt`, `danach` oder `spaeter`.
+- `stufe` — `jetzt`, `danach` oder `spaeter`. **Das ist die Ambitionsebene,
+  kein Bauplan.**
+
+  - `jetzt` — klein, schnell wirksam, mit dem Vorhandenen machbar.
+    Verbinden, zuordnen, erinnern, ablegen.
+  - `danach` — ein ganzer Arbeitsbereich läuft von selbst. Eine
+    Angebotsstrecke, eine zentrale Akte, eine Nachfass-Automatik.
+  - `spaeter` — **das, was heute möglich wäre und was er noch nicht
+    kennt.** Ein Assistent, der ans Telefon geht. Ein Auskunftsdienst,
+    der Standardfragen rund um die Uhr beantwortet. Ein Portal, in dem
+    sein Kunde den Stand selbst sieht.
+
+  **Bei einer Lösung mit vier oder mehr Modulen gehört mindestens eines
+  auf `spaeter`** — sofern der freigegebene Katalog dafür eine Familie
+  hergibt, die auf einen belegten Engpass zeigt. Findet sich keine, bleibt
+  die Stufe leer; erfunden wird nichts. Aber such danach: Ein Betrieb, der
+  nur hört, wie seine E-Mails besser sortiert werden, erfährt nie, was
+  sonst noch ginge.
 - `solution_family_ids` — aus welcher deiner gewählten Familien es stammt. Eine
   reicht; ein Modul, das zwei Familien verbindet, nennt beide.
 - `baustein_refs` — welche Bausteine dieser Familien es umsetzt, **wörtlich aus
