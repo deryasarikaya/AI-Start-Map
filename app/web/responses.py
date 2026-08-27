@@ -116,9 +116,9 @@ templates.env.filters["kanalsymbol"] = kanalsymbol
 
 # Ausgeschriebene Zahlwörter. „Acht Leute" ist genauso seine Angabe wie
 # „450 Einheiten" — nur schreibt er das eine aus und das andere nicht.
+# „ein"/„eine" fehlen mit Absicht: Eins ist nie eine interessante Menge, und
+# als Artikel stünde es in jedem zweiten Satz („eine Liste", „ein Termin").
 ZAHLWOERTER = (
-    "ein",
-    "eine",
     "zwei",
     "drei",
     "vier",
@@ -132,38 +132,57 @@ ZAHLWOERTER = (
     "zwölf",
 )
 
-#: Eine Mengenangabe am Anfang, gefolgt von dem, was gezählt wird.
-#: Deckt „450 Einheiten", „~620 Wartungskunden", „70 oder 80 E-Mails",
-#: „250 bis 320 Teilnehmer/Monat" und „Sechs bis acht Kurse/Woche" ab.
-_MENGE = (
-    r"(?:[~≈ca.\s]*\d[\d.,]*|" + "|".join(ZAHLWOERTER) + r")"
-)
-KENNZAHL_PATTERN = re.compile(
-    r"^\s*(" + _MENGE + r"(?:\s*(?:bis|oder|–|-|\+)\s*" + _MENGE + r")?)"
-    r"\s+(\S.*)$",
+#: Eine Mengenangabe: „450", „~620", „70 oder 80", „250 bis 320",
+#: „Sechs bis acht".
+_MENGE = r"(?:[~≈]?\s*\d[\d.,]*|" + "|".join(ZAHLWOERTER) + r")"
+ZAHL_IM_SATZ = re.compile(
+    r"\b(" + _MENGE + r"(?:\s*(?:bis|oder|–|-)\s*" + _MENGE + r")?)"
+    r"\s+((?:\w+[-\w]*\s*){1,2})",
     re.IGNORECASE,
 )
 
+# Steht eine davon vor der Zahl, ist es ein Zeitpunkt und keine Menge:
+# „in zwei Tagen", „seit drei Wochen", „nach zehn Minuten".
+ZEITWOERTER = frozenset("in seit vor nach binnen innerhalb ab um".split())
 
-def als_kennzahl(text: str) -> dict[str, str] | None:
-    """Zerlegt ein Eckdatum in Zahl und Bezeichnung, oder gibt nichts zurück.
 
-    „450 Einheiten" wird zu `{"zahl": "450", "wort": "Einheiten"}`. Was mit
-    keiner Menge anfängt, ist keine Kennzahl — „Outlook, Excel, Laufwerk"
-    ist eine Bestandsliste und gehört nicht in den Kopf einer Verkaufsseite.
+def zahl_im_satz(text: str) -> dict[str, str] | None:
+    """Holt die erste Mengenangabe samt Bezeichnung aus einem Satz.
 
-    Erfunden wird nichts: Beide Teile stehen wörtlich in dem, was der Kunde
-    gesagt hat, nur getrennt gesetzt.
+    „…sind da teilweise 70 oder 80 neue E-Mails." wird zu
+    `{"zahl": "70 oder 80", "wort": "neue E-Mails"}`. Steht keine Menge
+    darin, kommt nichts zurück — dann trägt der Satz keine Zahl, und eine
+    zu erfinden wäre genau der Fehler, den diese Seite vermeidet.
+
+    **Nicht jede Zahl ist eine Menge.** „In zwei Minuten draufgucken" ist
+    eine Redewendung, „Kurse, die in zwei Tagen stattfinden" ein Zeitpunkt.
+    Gross gesetzt behaupteten beide, hier sei etwas gemessen worden.
+    Deshalb: was gezählt wird, muss ein Substantiv sein — im Deutschen gross
+    geschrieben —, und vor der Zahl darf keine Zeitpräposition stehen.
+
+    Beide Teile stehen wörtlich in dem, was der Kunde gesagt hat; sie werden
+    nur getrennt gesetzt, damit die Zahl gross erscheinen kann.
     """
 
-    treffer = KENNZAHL_PATTERN.match(text.strip())
-    if treffer is None:
-        return None
-    zahl, wort = treffer.group(1).strip(), treffer.group(2).strip()
-    return {"zahl": zahl, "wort": wort}
+    for treffer in ZAHL_IM_SATZ.finditer(text.strip()):
+        davor = text[: treffer.start()].split()
+        if davor and davor[-1].strip(",.;:").casefold() in ZEITWOERTER:
+            continue
+
+        woerter = treffer.group(2).split()
+        while woerter and not woerter[-1].strip(",.;:")[:1].isupper():
+            woerter.pop()
+        if not woerter:
+            continue
+
+        return {
+            "zahl": " ".join(treffer.group(1).split()),
+            "wort": " ".join(woerter).strip(",.;:"),
+        }
+    return None
 
 
-templates.env.filters["als_kennzahl"] = als_kennzahl
+templates.env.filters["zahl_im_satz"] = zahl_im_satz
 
 
 

@@ -127,50 +127,131 @@
    im Ausdruck. Auf dieser Seite entscheidet er in wenigen Sekunden, ob er
    weiterschaut, und dafür genügt: Wir haben es begriffen, hier ist Ihr
    eigener Satz als Beweis. #}
-{# **Seine Zahlen, nicht unsere.** Andere Auswertungen setzen hier einen
-   Punktestand hin — 78 von 100 — der aus ein paar Ankreuzfragen entsteht.
-   Das sieht aus wie eine Messung und ist geraten.
+{# Links das Zielbild in einem Satz, rechts der Beweis, dass wir zugehört
+   haben. Beides muss oben stehen: Ohne das Zielbild weiss er nicht, wovon
+   die Rede ist; ohne seinen eigenen Satz glaubt er es nicht.
 
-   Was hier steht, hat der Kunde selbst gesagt: 450 Einheiten, 70 oder 80
-   E-Mails, ~620 Wartungskunden. Gross gesetzt tun sie dasselbe — sie machen
-   den Abstand sichtbar —, nur sind sie wahr. Eckdaten ohne Menge fallen
-   weg; „Outlook, Excel, Laufwerk" ist eine Bestandsliste und gehört nicht
-   auf die Seite, auf der er entscheidet, ob er weiterschaut. #}
-{%- set kennzahlen = e.verstanden.eckdaten | map('als_kennzahl')
-                     | select | list -%}
-{% set beleg = e.verstanden.belege[0] if e.verstanden.belege else none %}
+   Hier stand zwischendurch ein Punktestand nach dem Vorbild anderer
+   Auswertungen. Der beantwortet „Wie stehe ich da?" — die Frage eines
+   Audits. Unsere Frage ist „Was bringt mir das?", und eine Zahl zieht die
+   Aufmerksamkeit genau davon weg: Der Kunde rechnet dann an der 78 herum,
+   statt sich in der Lösung wiederzuerkennen. #}
 <header class="kopf">
   <div class="flaeche kopfraster">
     <div class="kopftext">
       <p class="marke">AI Start Map · Auswertung</p>
       <h1>So könnte Ihr Betrieb künftig laufen</h1>
-      <p class="befund">{{ e.kurzfassung.engpass_satz }}</p>
-      {% if beleg %}
-      <figure class="zitat">
-        <blockquote>„{{ beleg.zitat }}“</blockquote>
-        <figcaption>Ihre eigenen Worte</figcaption>
-      </figure>
-      {% endif %}
+      <p class="befund">{{ e.zielbild.beschreibung }}</p>
     </div>
-
-    {% if kennzahlen %}
-    <aside class="kennzahlen" data-auftritt>
-      <p class="kennzahlenkopf">Das haben Sie uns gesagt</p>
-      <ul>
-        {% for kennzahl in kennzahlen[:4] %}
-        <li>
-          <b>{{ kennzahl.zahl }}</b>
-          <span>{{ kennzahl.wort }}</span>
-        </li>
-        {% endfor %}
-      </ul>
-    </aside>
-    {% endif %}
   </div>
 </header>
 
+{# ═══════════════ 2 · WAS DEN AUFWAND ERZEUGT ═══════════════
 
-{# ═══════════════ 2 · DAS ABLAUFBAND ═══════════════
+   Drei Fakten aus seiner eigenen Erzählung, jeder mit dem, was er bedeutet.
+
+   Vorher standen die Eckdaten als lose Chips im Kopf — „450 Einheiten",
+   „Acht Leute", „70 oder 80 E-Mails". Die erzeugen Wiedererkennung, aber
+   keinen Nutzen: Sie hängen da und erklären nichts. Eine Zahl braucht eine
+   Aufgabe, sonst ist sie Dekoration.
+
+   Die Aufgabe liefern die Belege selbst mit: Jeder ist ein Zitat **und**
+   seine Bedeutung, geprüft gegen die Erzählung. Trägt das Zitat eine Menge,
+   steht sie gross darüber; trägt es keine, führt der Satz. Erfunden wird
+   nichts, und keine Zahl erscheint, nur weil sie irgendwo auftauchte.
+
+   Der Abschnitt endet mit dem Übergang in die Lösung. Ohne ihn wären es
+   drei Feststellungen ohne Folge. #}
+{% if e.verstanden.belege %}
+<section class="aufwand" data-auftritt>
+  <div class="flaeche">
+    <p class="marke">Das haben wir verstanden</p>
+    <h2>Was bei Ihnen gerade den Aufwand erzeugt</h2>
+    <p class="lauftext">{{ e.kurzfassung.engpass_satz }}</p>
+
+    <div class="fakten">
+      {% for beleg in e.verstanden.belege[:3] %}
+      {%- set menge = beleg.zitat | zahl_im_satz -%}
+      <article class="fakt" style="--verzug: {{ loop.index0 * 90 }}ms">
+        {% if menge %}
+        <p class="faktzahl">
+          <b>{{ menge.zahl }}</b><span>{{ menge.wort }}</span>
+        </p>
+        {% endif %}
+        <blockquote>„{{ beleg.zitat }}“</blockquote>
+        <p class="bedeutung">{{ beleg.bedeutung }}</p>
+      </article>
+      {% endfor %}
+    </div>
+
+    <p class="uebergang">
+      <svg aria-hidden="true"><use href="#i-pfeil"/></svg>
+      <span>Genau hier würden wir ansetzen.</span>
+    </p>
+  </div>
+</section>
+{% endif %}
+
+
+
+{# ═══════════════ 3 · AUF EINEN BLICK ═══════════════
+
+   Der erste Abschnitt nach dem Kopf, und der wichtigste. Er beantwortet in
+   drei Sekunden die einzige Frage, die der Kunde an dieser Stelle hat: Was
+   ändert sich für **mich**?
+
+   Hier stand dieser Vergleich früher als vierter Abschnitt, in kleinen
+   Zeilen, zwei Spalten nebeneinander. Damit war er eine Tabelle, die man
+   liest — und gelesen wird an dieser Stelle nichts. Als Karten mit der
+   Zukunft als lauterer Hälfte ist es ein Bild, das man erfasst.
+
+   Höchstens vier. Sieben machen daraus wieder einen Bericht; der
+   vollständige Vergleich steht im Ausdruck.
+
+   **Die Nutzen-Zeilen oben drauf, wenn es sie gibt.** `modul.nutzen` ist
+   das Feld für „Nichts geht mehr verloren" — zwei bis fünf Wörter, was er
+   davon hat. Fehlt es, fällt die Reihe weg; erfunden wird hier nichts. #}
+{%- set nutzen = e.module | map(attribute='nutzen') | select | list -%}
+{% if e.vergleich.heute and e.vergleich.kuenftig %}
+<section class="blick" data-auftritt>
+  <div class="flaeche">
+    <p class="marke">Auf einen Blick</p>
+    <h2>Das würde sich für Sie verändern</h2>
+
+    {% if nutzen %}
+    <ul class="nutzenreihe">
+      {% for zeile in nutzen[:3] %}
+      <li><svg aria-hidden="true"><use href="#i-haken"/></svg>{{ zeile }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    <div class="wandel">
+      {%- set links = e.vergleich.heute[:4] -%}
+      {%- set rechts = e.vergleich.kuenftig[:4] -%}
+      {% for kuenftig in rechts %}
+      <article class="wandelkarte" style="--verzug: {{ loop.index0 * 80 }}ms">
+        {% if loop.index0 < links | length %}
+        <p class="heute">
+          <svg aria-hidden="true"><use href="#i-kreuz"/></svg>
+          <span>{{ links[loop.index0] }}</span>
+        </p>
+        {% endif %}
+        <p class="kuenftig">
+          <svg aria-hidden="true"><use href="#i-haken"/></svg>
+          <span>{{ kuenftig }}</span>
+        </p>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+
+
+
+{# ═══════════════ 4 · DAS ABLAUFBAND ═══════════════
 
    Das Herzstück. Es kommt vollständig aus `zielbild.ablauf` — so viele
    Stufen, wie dieser Betrieb hat. Ein Blumenladen bekommt drei Karten, eine
@@ -275,50 +356,7 @@
 {% endif %}
 
 
-{# ═══════════════ 2b · HEUTE UND KÜNFTIG ═══════════════
-
-   Direkt nach dem Band: Der Kunde hat gerade gesehen, wie es laufen könnte,
-   und liest jetzt Zeile für Zeile, was sich dadurch ändert.
-
-   **Gepaart, nicht als zwei Listen.** Der Prompt verlangt, dass Zeile drei
-   künftig dasselbe beschreibt wie Zeile drei heute — also stehen sie
-   nebeneinander, und der Blick liest quer statt zweimal längs. Sind die
-   Listen ungleich lang, wird nur so weit gepaart, wie beide reichen; der
-   Rest steht darunter.
-
-   **Höchstens vier Paare.** Sieben machen aus einer Tafel wieder einen
-   Bericht — und niemand liest vierzehn Zeilen, um den Unterschied zu
-   verstehen. Der vollständige Vergleich steht im Ausdruck; hier steht
-   das, was verkauft. #}
-{% if e.vergleich.heute and e.vergleich.kuenftig %}
-<section class="vergleich" data-auftritt>
-  <div class="flaeche">
-    <h2>Was sich dadurch ändert</h2>
-    <div class="gegenueber">
-      <div class="spaltenkopf spaltenkopf--heute">Heute</div>
-      <div class="spaltenkopf spaltenkopf--kuenftig">Mit Ihrer neuen Lösung</div>
-      {%- set links = e.vergleich.heute[:4] -%}
-      {%- set rechts = e.vergleich.kuenftig[:4] -%}
-      {%- set zeilen = [links | length, rechts | length] | max -%}
-      {% for i in range(zeilen) %}
-      {% if i < links | length %}
-      <div class="vzeile vzeile--heute">
-        <svg aria-hidden="true"><use href="#i-kreuz"/></svg><span>{{ links[i] }}</span>
-      </div>
-      {% else %}<div class="vzeile vzeile--leer"></div>{% endif %}
-      {% if i < rechts | length %}
-      <div class="vzeile vzeile--kuenftig">
-        <svg aria-hidden="true"><use href="#i-haken"/></svg><span>{{ rechts[i] }}</span>
-      </div>
-      {% else %}<div class="vzeile vzeile--leer"></div>{% endif %}
-      {% endfor %}
-    </div>
-  </div>
-</section>
-{% endif %}
-
-
-{# ═══════════════ 3 · SO SIEHT DAS KONKRET AUS ═══════════════
+{# ═══════════════ 5 · SO SIEHT DAS KONKRET AUS ═══════════════
 
    Die Beispielansichten, die das Modell für **diesen** Betrieb gewählt hat.
    Die Makros dafür stehen seit jeher in `ansichten.html` — hier bekommen
@@ -372,7 +410,7 @@
 {% endif %}
 
 
-{# ═══════════════ 4 · DAS WÜRDEN WIR FÜR SIE ERGÄNZEN ═════════════
+{# ═══════════════ 6 · DAS WÜRDEN WIR FÜR SIE UMSETZEN ════════════
 
    Ein Branchenkatalog zeigt jedem dieselben zwölf Kacheln. Diese Liste
    folgt aus dem, was dieser Betrieb erzählt hat — mal zwei Bausteine,
@@ -413,7 +451,7 @@
 {% endif %}
 
 
-{# ═══════════════ 5 · AUTOMATISCH UND MENSCH ═══════════════
+{# ═══════════════ 7 · AUTOMATISCH UND MENSCH ═══════════════
 
    Die wichtigste Fläche für das Vertrauen eines kleinen Betriebs: Er gibt
    nichts aus der Hand.
@@ -480,7 +518,7 @@
 {% endif %}
 
 
-{# ═══════════════ 7 · WIE ES WEITERGEHT ═══════════════
+{# ═══════════════ 8 · WIE ES WEITERGEHT ═══════════════
 
    Eine Frage, keine Ansage. Der Startplan stand früher hier und hat
    erklärt, wie wir vorgehen — das interessiert an dieser Stelle noch

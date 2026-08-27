@@ -129,10 +129,10 @@
   from { transform: translate3d(-6%, 0, 0) scale(1); }
   to   { transform: translate3d(8%, 4%, 0) scale(1.12); }
 }
-.tafel .kopfraster {
-  display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
-  gap: 40px; align-items: start;
-}
+/* Einspaltig. Der Kopf hat eine Aufgabe — sagen, worum es geht — und die
+ * braucht keine zweite Spalte. Was wir verstanden haben, steht gleich
+ * darunter in einem eigenen Abschnitt und hat dort mehr Platz. */
+.tafel .kopfraster { max-width: 62ch; }
 .tafel .marke {
   margin: 0 0 14px; font-size: .78rem; letter-spacing: .13em;
   text-transform: uppercase; color: #93b4f0;
@@ -365,37 +365,104 @@
   background: rgb(52 211 153 / .16); font-weight: 600; color: #a7f3d0;
 }
 
-/* ── Heute und kuenftig ───────────────────────────────────────────────
- * Ein Raster mit zwei Spalten, in dem jede Zeile ihr Gegenstueck
- * neben sich hat. Der Blick liest quer, nicht zweimal laengs. */
-.tafel .gegenueber {
-  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px 20px; margin-top: 22px; align-items: stretch;
+
+/* ── Was den Aufwand erzeugt ──────────────────────────────────────────
+ * Drei Fakten aus seiner Erzählung, jeder mit seiner Bedeutung.
+ *
+ * Als lose Chips im Kopf erzeugten dieselben Zahlen nur Wiedererkennung:
+ * „450 Einheiten" hängt da und erklärt nichts. Eine Zahl braucht eine
+ * Aufgabe — hier ist es die Zeile darunter, die sagt, warum sie Arbeit
+ * macht. Zahl, Beleg, Bedeutung: erst zusammen führen sie irgendwohin. */
+.tafel .aufwand { padding-top: 12px; }
+.tafel .fakten {
+  display: grid; gap: 16px; margin-top: 22px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
-.tafel .spaltenkopf {
-  font-size: .78rem; font-weight: 700; letter-spacing: .1em;
-  text-transform: uppercase; padding-bottom: 4px;
+.tafel .fakt {
+  background: var(--flaeche); border-radius: var(--rund); padding: 22px;
+  box-shadow: var(--heben-2);
+  transition: transform .5s cubic-bezier(.22, .61, .36, 1) var(--verzug, 0ms),
+              opacity .5s ease var(--verzug, 0ms);
 }
-.tafel .spaltenkopf--heute { color: #f87171; }
-.tafel .spaltenkopf--kuenftig { color: var(--gut); }
-.tafel .vzeile {
-  display: grid; grid-template-columns: 20px 1fr; gap: 11px;
-  align-items: start; padding: 13px 16px; border-radius: var(--rund);
-  font-size: .92rem; line-height: 1.45;
+.tafel .faktzahl { margin: 0 0 12px; }
+.tafel .faktzahl b {
+  display: block; font-size: clamp(1.9rem, 2.7vw, 2.5rem); font-weight: 700;
+  line-height: 1; letter-spacing: -.035em; color: #fff;
 }
-.tafel .vzeile svg { width: 18px; height: 18px; margin-top: 2px; }
-.tafel .vzeile--heute {
-  background: rgb(248 113 113 / .1); color: #fecaca;
-  box-shadow: inset 0 0 0 1px rgb(248 113 113 / .22);
+.tafel .faktzahl span {
+  display: block; margin-top: 4px; font-size: .84rem; color: var(--marke);
+  font-weight: 600;
 }
-.tafel .vzeile--heute svg { color: #f87171; }
-.tafel .vzeile--kuenftig {
-  background: var(--gut-hell); color: #a7f3d0;
+/* Sein Satz, als Zitat erkennbar — sonst liest es sich, als hätten wir es
+   behauptet. */
+.tafel .fakt blockquote {
+  margin: 0; padding-left: 13px; border-left: 2px solid rgb(255 255 255 / .16);
+  font-size: .9rem; font-style: italic; line-height: 1.5;
+  color: var(--tinte-schwach);
+}
+.tafel .bedeutung {
+  margin: 12px 0 0; font-size: .88rem; line-height: 1.5; color: var(--tinte);
+}
+/* Der Übergang. Ohne ihn wären es drei Feststellungen ohne Folge. */
+.tafel .uebergang {
+  display: inline-grid; grid-template-columns: 20px auto; gap: 11px;
+  align-items: center; margin: 26px 0 0; padding: 11px 20px 11px 16px;
+  border-radius: 999px; background: var(--marke-hell); color: #cfe0ff;
+  font-size: .98rem; font-weight: 600;
+}
+.tafel .uebergang svg { width: 18px; height: 18px; color: var(--marke); }
+
+/* ── Auf einen Blick ──────────────────────────────────────────────────
+ * Der erste Abschnitt nach dem Kopf und der wichtigste: Was ändert sich
+ * für mich?
+ *
+ * Dasselbe stand hier früher als kleine zweispaltige Tabelle weiter unten.
+ * Eine Tabelle liest man — und an dieser Stelle liest niemand. Als Karten
+ * mit der Zukunft als lauterer Hälfte wird daraus ein Bild, das man in drei
+ * Sekunden erfasst. Das ist das Prinzip, das wir von den Punkteständen
+ * übernehmen; die Zahl selbst brauchen wir dafür nicht. */
+.tafel .blick { padding-top: 46px; }
+.tafel .nutzenreihe {
+  list-style: none; margin: 20px 0 0; padding: 0; display: grid; gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+.tafel .nutzenreihe li {
+  display: grid; grid-template-columns: 22px 1fr; gap: 11px;
+  align-items: center; padding: 15px 18px; border-radius: var(--rund);
+  background: var(--gut-hell); color: #d7fbec;
+  font-size: 1.02rem; font-weight: 620; line-height: 1.3;
   box-shadow: inset 0 0 0 1px rgb(52 211 153 / .25);
 }
-.tafel .vzeile--kuenftig svg { color: var(--gut); }
-/* Sind die Listen ungleich lang, haelt eine leere Zelle die Paarung. */
-.tafel .vzeile--leer { border: 1px dashed #cbd5e1; }
+.tafel .nutzenreihe svg { width: 19px; height: 19px; color: var(--gut); }
+
+.tafel .wandel {
+  display: grid; gap: 16px; margin-top: 22px;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+}
+.tafel .wandelkarte {
+  background: var(--flaeche); border-radius: var(--rund); padding: 20px 22px;
+  box-shadow: var(--heben-2);
+  transition: transform .5s cubic-bezier(.22, .61, .36, 1) var(--verzug, 0ms),
+              opacity .5s ease var(--verzug, 0ms);
+}
+.tafel .wandelkarte p {
+  display: grid; grid-template-columns: 18px 1fr; gap: 10px;
+  align-items: start; margin: 0;
+}
+.tafel .wandelkarte svg { width: 16px; height: 16px; margin-top: 4px; }
+/* Das Heute ist leise: Es ist der Ausgangspunkt, nicht die Botschaft.
+ * Durchgestrichen wäre zu viel — es stimmt ja noch. */
+.tafel .heute {
+  font-size: .82rem; color: #93a4bd; padding-bottom: 11px;
+  margin-bottom: 11px !important;
+  border-bottom: 1px solid rgb(255 255 255 / .08);
+}
+.tafel .heute svg { color: #f87171; }
+/* Die Zukunft ist die laute Hälfte — das ist der ganze Sinn der Karte. */
+.tafel .kuenftig {
+  font-size: 1rem; font-weight: 600; line-height: 1.4; color: #e6f6ef;
+}
+.tafel .kuenftig svg { color: var(--gut); }
 
 /* ── Beispielansichten ────────────────────────────────────────────────
  * Die Vorschauen sind der Beweis, dass hier etwas Gebautes entsteht —
@@ -766,8 +833,9 @@
   }
   /* Gepaart hat auf schmalen Schirmen keinen Sinn — nebeneinander
      passt nichts mehr. Dann stehen die Zeilen abwechselnd. */
-  .tafel .gegenueber { grid-template-columns: minmax(0, 1fr); gap: 8px; }
-  .tafel .spaltenkopf { margin-top: 10px; }
+  .tafel .wandel, .tafel .nutzenreihe {
+    grid-template-columns: minmax(0, 1fr);
+  }
   .tafel .stufen { flex-direction: column; }
   .tafel .pfeil { flex: 0 0 24px; }
   .tafel .pfeil svg { transform: rotate(90deg); }
