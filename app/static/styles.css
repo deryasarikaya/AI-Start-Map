@@ -944,6 +944,28 @@ input:focus, textarea:focus { border-color: var(--green); }
   display:inline-block;background:var(--accent);color:#fff;text-decoration:none;
   padding:13px 26px;border-radius:8px;font-weight:600;font-size:15px;margin-top:6px
 }
+/* **So laeuft es heute** - die Verdichtung von zehn Minuten Erzaehlung.
+ * Sie steht unter dem Zitat und nicht daneben: erst sein eigener Satz,
+ * dann der Ablauf, den wir daraus gelesen haben. Die Liste kommt aus
+ * `vergleich_heute` und waechst mit der Erzaehlung. */
+.ergebnis .heutelauf {
+  margin-top: 22px; padding-left: 16px;
+  border-left: 2px solid var(--line);
+}
+.ergebnis .heutemarke {
+  margin: 0 0 8px; font-size: 12px; font-weight: 800;
+  letter-spacing: .09em; text-transform: uppercase; color: var(--ink-3);
+}
+.ergebnis .heutelauf ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 7px; }
+.ergebnis .heutelauf li {
+  position: relative; padding-left: 15px;
+  font-size: 14.5px; line-height: 1.5; color: var(--ink-2);
+}
+.ergebnis .heutelauf li::before {
+  position: absolute; left: 0; top: .62em; width: 5px; height: 5px;
+  border-radius: 50%; background: var(--ink-3); content: "";
+}
+
 /* -- Die Bestaetigungsseite -------------------------------------------
  * Das Feld erbte bisher die Browsergestaltung und stand als Fremdkoerper
  * auf einer sonst durchgestalteten Seite. */

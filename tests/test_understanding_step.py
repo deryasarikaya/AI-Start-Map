@@ -80,7 +80,7 @@ def test_a_follow_up_question_is_shown(
     assert seite.status_code == 200
     assert FRAGE["frage"] in seite.text
     assert FRAGE["warum"] in seite.text
-    assert "Eine Sache weiß ich noch nicht" in seite.text
+    assert "Eine Information fehlt mir noch für eine sinnvolle Empfehlung" in seite.text
 
 
 def test_without_a_question_the_page_says_so(
@@ -101,7 +101,7 @@ def test_without_a_question_the_page_says_so(
     seite = client.get("/verstanden")
 
     assert "Passt das so?" in seite.text
-    assert "Eine Sache weiß ich noch nicht" not in seite.text
+    assert "Eine Information fehlt mir noch" not in seite.text
 
 
 def test_skipping_goes_straight_to_the_result(

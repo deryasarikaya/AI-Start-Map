@@ -461,6 +461,61 @@ def test_the_third_stage_may_name_what_he_does_not_know() -> None:
 
     assert 'Das ist die Ambitionsebene, kein Bauplan' in fliess
     assert 'was er noch nicht kennt' in fliess
+def test_a_fact_must_change_the_recommendation_to_earn_its_place() -> None:
+    """**Die Eckdaten waren ein Organigramm.**
+
+    Ein Heizungsbetrieb erzählte zehn Minuten über Telefonchaos, dieselbe
+    Anfrage über drei Kanäle und Wissen in Köpfen. Heraus kamen „Acht
+    Leute", „Fünf draussen", „Zwei im Büro", „Alle mit Smartphones" —
+    kein einziger Punkt über sein Problem. Der letzte war sogar
+    beiläufig gesagt, um zu erklären, dass er *nicht* auf Papier arbeitet.
+
+    Wahr sein reicht also nicht. Die Probe ist, ob sich die Empfehlung
+    änderte, wenn die Angabe anders wäre.
+    """
+
+    fliess = _fliesstext(DIAGNOSE)
+
+    assert "Jede Angabe muss sich verdienen" in fliess
+    assert "nicht dadurch, dass sie wahr ist" in fliess
+    assert "Das ist sein Organigramm" in fliess
+    assert "ein bis zwei Angaben zum Rahmen, drei zum Schmerz" in fliess
+
+
+def test_the_question_speaks_his_language_not_the_page_s() -> None:
+    """„Nerven" kam von unserer Seite, nicht von ihm.
+
+    Die Interview-Überschrift fragte nach „Zeit, Nerven oder
+    Aufmerksamkeit", und das Modell übernahm die Formulierung in seine
+    Rückfrage. Wir wollen den Betrieb verstehen, nicht die Gefühlslage —
+    und sein Betrieb gehört ihm, nicht der Allgemeinheit.
+    """
+
+    fliess = _fliesstext(DIAGNOSE)
+
+    # Deutsche Anführungszeichen nie direkt in eine Python-Zeichenkette:
+    # Das schliessende Zeichen ist ein ASCII-Anführungszeichen und beendet
+    # sie vorzeitig. Deshalb hier zusammengesetzt.
+    assert "Nicht " + chr(8222) + "Nerven" + chr(34) in fliess
+    assert "Zeit oder unnötiger Arbeit" in fliess
+    assert "Sein Betrieb gehört ihm" in fliess
+
+
+def test_a_rich_narrative_gets_no_question() -> None:
+    """Wer alles gesagt hat, wird nicht noch einmal gefragt.
+
+    Der Friseur schrieb einen Satz und bekam zu Recht eine Rückfrage. Der
+    Heizungsbetrieb beschrieb Betrieb, Team, Kanäle, Ablauf, Aufwand,
+    Prioritäten und Grenzen — dort ist eine Frage nach etwas bereits
+    Gesagtem kein Zeichen von Sorgfalt, sondern von Nichtzuhören.
+    """
+
+    fliess = _fliesstext(DIAGNOSE)
+
+    assert "Und wenn er ausführlich erzählt hat, frag nicht" in fliess
+    assert "kein Zeichen von Sorgfalt, sondern von Nichtzuhören" in fliess
+
+
 def test_the_bottleneck_may_lie_outside_the_business() -> None:
     """Nicht jeder Engpass ist ein Ablageproblem.
 

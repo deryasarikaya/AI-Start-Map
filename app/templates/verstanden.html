@@ -45,6 +45,27 @@
     <div class="q"><em>„{{ beleg.zitat }}“</em><span>{{ beleg.bedeutung }}</span></div>
   </div>
   {% endif %}
+
+  {# **Die Zusammenfassung seines Problems — ohne neues Feld.**
+
+     Die Diagnose erzeugt `vergleich_heute` längst: den Vorgang, wie er heute
+     läuft, als Kette, serverseitig geprüft. Die Liste stand bisher nur auf der
+     Ergebnisseite. Wer zehn Minuten erzählt hat, sah hier dieselben vier
+     Eckdaten wie jemand mit einem Satz — die Seite wuchs nicht mit dem, was er
+     investiert hatte.
+
+     Sie skaliert jetzt von selbst: ein Satz Eingabe ergibt zwei Zeilen, zehn
+     Minuten ergeben fünf. #}
+  {% if e.vergleich_heute %}
+  <div class="heutelauf">
+    <p class="heutemarke">So läuft es heute</p>
+    <ul>
+      {% for zeile in e.vergleich_heute[:5] %}
+      <li>{{ zeile }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
 </div>
 
 <section>
@@ -55,7 +76,7 @@
       {# Hier ist das offene Feld richtig: Es steht unter einer Frage, die
          gestellt wurde. Das Modell fragt selten, und nur dann, wenn die
          Antwort das Ergebnis verändern würde. #}
-      <h2>Eine Sache weiß ich noch nicht</h2>
+      <h2>Eine Information fehlt mir noch für eine sinnvolle Empfehlung</h2>
       <p class="big">{{ rueckfrage.frage }}</p>
       <p class="sub"><em>{{ rueckfrage.warum }}</em></p>
       <textarea name="antwort" rows="3" placeholder="Ihre Antwort in einem Satz"></textarea>
@@ -75,8 +96,8 @@
       </div>
     {% else %}
       <h2>Passt das so?</h2>
-      <p class="sub">Wenn das Ihren Alltag trifft, stelle ich jetzt Ihre
-      Auswertung zusammen.</p>
+      <p class="sub">Wenn das Ihren Betrieb trifft, erstellen wir daraus jetzt Ihre
+      Auswertung.</p>
       <div class="ctabuttons">
         <button class="btn" type="submit" name="weiter" value="ja">Ja, Auswertung erstellen <span aria-hidden="true">→</span></button>
       </div>

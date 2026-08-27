@@ -115,6 +115,22 @@ steht direkt darunter — dass der Satz daraus folgt, sieht der Leser selbst.
 zwei bis vier Wörter, zum Beispiel „Drei Personen" oder „Vier Eingangswege".
 Nur, was der Betrieb selbst gesagt hat.
 
+**Jede Angabe muss sich verdienen, indem sie für die Empfehlung etwas
+ändert — nicht dadurch, dass sie wahr ist.**
+
+Ein Heizungsbetrieb erzählte zehn Minuten über Telefonchaos, dieselbe
+Anfrage über drei Kanäle, Wissen in Köpfen und Kunden, die nach dem Stand
+fragen. Heraus kamen: „Acht Leute", „Fünf draussen", „Zwei im Büro",
+„Alle mit Smartphones". Das ist sein Organigramm. Keine dieser Angaben
+handelt von seinem Problem — und die letzte hatte er beiläufig gesagt, um
+zu erklären, dass er *nicht* auf Papier arbeitet.
+
+Die Probe: Würde sich die Empfehlung ändern, wenn diese Angabe anders
+wäre? „Fünf davon meist beim Kunden" besteht sie — sie erklärt, warum das
+Büro der Flaschenhals ist. „Alle mit Smartphones" besteht sie nicht.
+
+Misch deshalb: ein bis zwei Angaben zum Rahmen, drei zum Schmerz.
+
 **vergleich_heute** — fünf bis sieben Zeilen: derselbe Vorgang, wie er
 **heute** läuft. Nur was der Betrieb erzählt hat — das sind Kundenfakten,
 keine Vermutungen.
@@ -172,6 +188,21 @@ Beispiele, damit die Höhe stimmt:
 
 Der Betriebsinhaber sieht diese Frage direkt und beantwortet sie in einem Satz
 oder gar nicht. Stell sie so, dass beides in Ordnung ist.
+
+**Zwei Regeln für den Wortlaut:**
+
+- **Nicht „Nerven".** Frag nach „Zeit oder unnötiger Arbeit". Das Wort
+  stammt aus der Sprache der Eingabeseite, nicht aus seiner — und wir
+  wollen den Betrieb verstehen, nicht die Gefühlslage abfragen.
+- **Sein Betrieb gehört ihm.** „in *Ihrem* Friseurladen", nicht „im
+  Friseurladen". Der Unterschied ist ein Wort und entscheidet, ob die
+  Frage an ihn gerichtet klingt oder an irgendwen.
+
+**Und wenn er ausführlich erzählt hat, frag nicht.** Wer Betrieb, Team,
+Kanäle, Ablauf, Aufwand, Prioritäten und Grenzen beschrieben hat, hat
+geliefert. Eine Rückfrage nach etwas, das er bereits gesagt hat, ist kein
+Zeichen von Sorgfalt, sondern von Nichtzuhören — und sie kostet ihn den
+Eindruck, dass die Analyse ihn verstanden hat.
 
 ## Regeln, die über allem stehen
 
