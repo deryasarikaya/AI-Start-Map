@@ -37,12 +37,15 @@ def test_landing_voice_fallback_and_mobile_assets(client: TestClient) -> None:
     script = client.get("/static/app.js").text
     assert "window.SpeechRecognition || window.webkitSpeechRecognition" in script
     assert 'recognition.lang = "de-DE"' in script
-    assert "Dein Browser unterstützt die Spracheingabe" in script
+    assert "Ihr Browser unterstützt die Spracheingabe" in script
     for state in ("recording", "processing", "done", "error"):
         assert state in script
 
     styles = client.get("/static/styles.css").text
-    assert "--ink: #183b32" in styles
+    # Die eingefrorene Palette (28.08.) ist die eine Quelle. `--ink` zeigt
+    # nur noch darauf, damit die alten Regeln sich von selbst umfärben.
+    assert "--tinte: #18332c" in styles
+    assert "--ink: var(--tinte)" in styles
     assert "@media (max-width: 42.99rem)" in styles
     assert "min-height: 3.35rem" in styles
     assert "overflow-x: hidden" in styles

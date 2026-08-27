@@ -1,16 +1,45 @@
 :root {
     color-scheme: light;
-    --ink: #183b32;
-    --green: #2f6b57;
-    --green-soft: #dcebe4;
-    --cream: #fff9f1;
-    --surface: #ffffff;
-    --sun: #f3c75f;
-    --coral: #e98b6d;
-    --sky: #ddecf2;
-    --text: #25312b;
-    --muted: #68736c;
-    --border: #d8ded9;
+
+    /* ── Die eingefrorene Farbwelt ─────────────────────────────────
+       Am 28.08. festgelegt und fuer jede Seite verbindlich: Landing,
+       Interview, Zwischenschirme, Warteschirm, Bestaetigung, Ergebnis
+       und PDF. Keine Seite bringt mehr eine eigene Palette mit.
+
+       Die Regel dahinter ist wichtiger als die Werte: **Die Farbe macht
+       keine KI-Seite.** Der Charakter kommt aus dem Verhalten - Daten
+       laufen sichtbar zusammen, die Analyse arbeitet, Systemzustaende
+       aendern sich. Nicht aus Neonblau und nicht aus Robotersymbolen. */
+    --tinte: #18332c;
+    --tinte-schwach: #45605a;
+    --tinte-leise: #6b8079;
+    --marke: #2f6b57;
+    --marke-tief: #143d31;
+    --marke-hell: #e8f0ec;
+    --linie: #e0e3dc;
+    --flaeche: #ffffff;
+    /* Warnung und Aufmerksamkeit - wirklich nur punktuell. */
+    --warm: #d9a441;
+    --heute: #d86a5a;
+
+    /* ── Die alten Namen zeigen auf die neuen ──────────────────────
+       Der Bestand trug drei Paletten nebeneinander, und jede Seite hat
+       sich bedient, wo sie herkam. Statt hunderte Regeln umzuschreiben,
+       bekommen die alten Namen die neuen Werte: Wer `--ink` benutzt,
+       faerbt sich von selbst um. Neue Regeln nehmen die Namen oben. */
+    --ink: var(--tinte);
+    --green: var(--marke);
+    --green-soft: var(--marke-hell);
+    --cream: var(--grund);
+    --surface: var(--flaeche);
+    --sun: var(--warm);
+    --coral: var(--heute);
+    /* War ein Hellblau (#ddecf2) - das einzige Blau der Seite, und es sass
+       ausgerechnet auf dem Datenschutzhinweis. */
+    --sky: var(--teal-soft);
+    --text: var(--tinte);
+    --muted: var(--tinte-leise);
+    --border: var(--linie);
     --shadow: 0 18px 50px rgb(24 59 50 / 10%);
     --radius-sm: .7rem;
     --radius: 1rem;
@@ -175,15 +204,42 @@ input:focus, textarea:focus { border-color: var(--green); }
 .question-reason { color: var(--muted); }
 .follow-up-actions { max-width: 62rem; justify-content: space-between; }
 
-.processing-layer { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; padding: 1rem; background: rgb(24 59 50 / 62%); backdrop-filter: blur(6px); }
-.processing-layer-card { width: min(100%, 30rem); padding: 2rem; border-radius: var(--radius-lg); background: #fff; box-shadow: 0 25px 70px rgb(0 0 0 / 25%); text-align: center; }
-.processing-layer-card strong { display: block; margin-bottom: .4rem; color: var(--ink); font: 700 1.55rem/1.25 Georgia, serif; }
-.processing-layer-card p { margin: 0; color: var(--muted); }
-.processing-symbol { display: flex; justify-content: center; gap: .38rem; margin-bottom: 1.2rem; }
-.processing-symbol span { width: .7rem; height: .7rem; border-radius: 50%; background: var(--green); animation: dots 1.25s infinite; }
-.processing-symbol span:nth-child(2) { animation-delay: .15s; background: var(--sun); }
-.processing-symbol span:nth-child(3) { animation-delay: .3s; background: var(--coral); }
-@keyframes dots { 50% { opacity: .35; transform: translateY(-.28rem); } }
+/* ── Der Zwischenschirm ────────────────────────────────────────────────
+ * Liegt ueber **jeder** Seite und ist nur Sekunden sichtbar - deshalb
+ * gehoert er trotzdem zum Produkt und nicht in eine eigene Farbwelt.
+ *
+ * Der Schleier war neutralgrau und machte die warme Flaeche darunter kalt.
+ * Jetzt ein durchsichtiges Dunkelgruen aus derselben Palette. */
+.processing-layer {
+    position: fixed; z-index: 100; inset: 0; display: grid; place-items: center;
+    padding: 1rem; background: rgb(24 51 44 / 55%); backdrop-filter: blur(5px);
+}
+/* Kompakter als vorher: Wer eine Sekunde lang etwas liest, braucht keine
+   Flaeche von einer halben Bildschirmhoehe. */
+.processing-layer-card {
+    width: min(100%, 24rem); padding: 1.6rem 1.8rem;
+    border-radius: var(--radius-lg); background: var(--flaeche);
+    box-shadow: var(--heben-3); text-align: center;
+}
+.processing-layer-card strong {
+    display: block; margin-bottom: .3rem; color: var(--tinte);
+    font: 700 1.25rem/1.3 Georgia, serif;
+}
+.processing-layer-card p { margin: 0; color: var(--tinte-leise); font-size: .92rem; }
+
+/* **Ein Punkt statt drei.** Gruen, Gelb und Coral nebeneinander sahen aus
+   wie eine Ampel - ein Signal, das etwas bedeutet, obwohl es nichts
+   bedeutet. Teal heisst in diesem System „hier arbeitet gerade etwas".
+   Genau das ist die Aussage, und dafuer reicht einer. */
+.processing-symbol { display: flex; justify-content: center; margin-bottom: 1rem; }
+.processing-symbol span {
+    width: .6rem; height: .6rem; border-radius: 50%;
+    background: var(--teal); animation: atmen 1.8s ease-in-out infinite;
+}
+@keyframes atmen {
+    0%, 100% { box-shadow: 0 0 0 0 rgb(47 125 112 / 40%); opacity: 1; }
+    50% { box-shadow: 0 0 0 .5rem rgb(47 125 112 / 0%); opacity: .75; }
+}
 .processing-card { max-width: 48rem; margin-inline: auto; text-align: center; }
 .processing-card .page-title, .processing-card .page-description { margin-inline: auto; }
 /* -- Der Warteschirm --------------------------------------------------
@@ -551,21 +607,26 @@ input:focus, textarea:focus { border-color: var(--green); }
    und die Farbvariablen werden dort neu gesetzt statt global - dadurch kann
    das bestehende Aussehen der uebrigen Seiten sich nicht aendern.
    ======================================================================= */
+/* **Die Ergebnisseite hatte ihre eigene, kuehle Palette** - ein blaugraues
+   #F2F5F8 als Grund, #16212B als Tinte, #426A86 als Nebenton. Deshalb sah
+   dieselbe Reise nach zwei Produkten aus: warm bis zum Interview, kuehl ab
+   der Auswertung. Die Namen bleiben, damit die vorhandenen Regeln weiter
+   greifen - die Werte kommen jetzt von oben. */
 .ergebnis{
-  --bg:#F2F5F8;
-  --surface:#FFFFFF;
-  --ink:#16212B;
-  --ink-2:#3E4C59;
-  --ink-3:#617180;
-  --line:#D8E0E7;
-  --line-2:#E7EDF2;
-  --accent:#0B6F70;
-  --accent-soft:#DCEFF0;
-  --slate:#426A86;
-  --accent-warm:#B7791F;
-  --warn:#BE4D4D;
-  --good:#0B6F70;
-  --amber:#B7791F;
+  --bg: var(--grund);
+  --surface: var(--flaeche);
+  --ink: var(--tinte);
+  --ink-2: var(--tinte-schwach);
+  --ink-3: var(--tinte-leise);
+  --line: var(--linie);
+  --line-2: var(--grund-tief);
+  --accent: var(--marke);
+  --accent-soft: var(--marke-hell);
+  --slate: var(--teal);
+  --accent-warm: var(--warm);
+  --warn: var(--heute);
+  --good: var(--marke);
+  --amber: var(--warm);
   --r:10px;
 }
 .ergebnis *{box-sizing:border-box}

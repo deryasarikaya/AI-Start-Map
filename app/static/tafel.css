@@ -959,7 +959,7 @@
   border-radius: 13px;
   background: linear-gradient(160deg, var(--marke) 0%, var(--marke-tief) 100%);
   color: #fff; font-size: 1.1rem; font-weight: 680; margin-bottom: 15px;
-  box-shadow: 0 6px 16px -6px rgb(29 78 216 / .6);
+  box-shadow: 0 6px 16px -6px rgb(47 107 87 / .45);
 }
 .tafel .schritte p { margin: 0; font-size: .92rem; line-height: 1.55;
   color: var(--tinte-schwach); }
@@ -1051,8 +1051,8 @@
  * Angebot, und es soll nicht mit dem ersten Schritt konkurrieren. */
 .tafel .wachstum .flaeche {
   padding: 40px 38px 36px; border-radius: 20px;
-  background: linear-gradient(168deg, #eef4f8 0%, #f7fafb 100%);
-  border: 1px solid #dde7ee;
+  background: linear-gradient(168deg, var(--teal-soft) 0%, var(--grund) 100%);
+  border: 1px solid var(--linie);
 }
 
 .tafel .pfad {
@@ -1069,14 +1069,14 @@
  * sonst läuft der Weg ins Leere. */
 .tafel .station:not(:last-child)::before {
   content: ""; position: absolute; left: 18px; top: 40px;
-  width: 2px; height: calc(100% - 40px); background: #d3e0ea;
+  width: 2px; height: calc(100% - 40px); background: var(--linie);
 }
 .tafel .station:last-child { padding-bottom: 0; }
 
 .tafel .stationsnummer {
   z-index: 1; display: grid; place-items: center;
   width: 38px; height: 38px; border-radius: 50%;
-  background: #e5edf4; color: #3d6480;
+  background: var(--marke-hell); color: var(--marke);
   font-size: .95rem; font-weight: 700; font-variant-numeric: tabular-nums;
 }
 /* Die Grundlage ist das, was jetzt gebaut wird. Sie sitzt fester als
@@ -1087,7 +1087,7 @@
 
 .tafel .stationsmarke {
   margin: 0 0 3px; font-size: .7rem; font-weight: 700;
-  letter-spacing: .1em; text-transform: uppercase; color: #6d8ba1;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--tinte-leise);
 }
 .tafel .station--jetzt .stationsmarke { color: var(--ki, #2f7d70); }
 .tafel .station h3 {
@@ -1107,8 +1107,8 @@
 }
 .tafel .stationsteile li {
   padding: 4px 11px; border-radius: 999px;
-  background: rgb(255 255 255 / .78); border: 1px solid #e2eaf0;
-  font-size: .8rem; color: #45657d;
+  background: rgb(255 255 255 / .78); border: 1px solid var(--linie);
+  font-size: .8rem; color: var(--tinte-schwach);
 }
 
 /* Der Satz, der den Weg ehrlich hält: Was davon passt, ist noch nicht
@@ -1177,7 +1177,7 @@
 }
 .tafel .knopf svg { width: 19px; height: 19px; }
 .tafel .knopf--haupt { background: var(--marke); color: #fff; }
-.tafel .knopf--haupt:hover { background: #1a44c2; }
+.tafel .knopf--haupt:hover { background: var(--marke-tief); }
 .tafel .knopf--neben {
   background: var(--flaeche); color: var(--tinte);
   border-color: var(--linie); box-shadow: var(--schatten);

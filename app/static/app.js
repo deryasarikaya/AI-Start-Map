@@ -56,9 +56,9 @@
         };
 
         if (!Recognition) {
-            if (support) support.textContent = "Dein Browser unterstützt die Spracheingabe hier nicht. Du kannst direkt losschreiben.";
+            if (support) support.textContent = "Ihr Browser unterstützt die Spracheingabe hier nicht. Sie können direkt losschreiben.";
             if (start) start.disabled = true;
-            update("error", "Spracheingabe ist in diesem Browser nicht verfügbar. Deine Texteingabe funktioniert weiterhin.");
+            update("error", "Spracheingabe ist in diesem Browser nicht verfügbar. Ihre Texteingabe funktioniert weiterhin.");
         } else {
             recognition = new Recognition();
             recognition.lang = "de-DE";
@@ -83,19 +83,19 @@
             recognition.onend = () => update(
                 "done",
                 selbstBeendet
-                    ? "Das haben wir verstanden. Du kannst den Text direkt bearbeiten."
-                    : "Aufnahme pausiert. Du kannst weiter erzählen oder den Text direkt bearbeiten.",
+                    ? "Das haben wir verstanden. Sie können den Text direkt bearbeiten."
+                    : "Aufnahme pausiert. Sie können weiter erzählen oder den Text direkt bearbeiten.",
             );
-            recognition.onerror = () => update("error", "Das hat gerade nicht geklappt. Du kannst es erneut versuchen oder einfach schreiben.");
+            recognition.onerror = () => update("error", "Das hat gerade nicht geklappt. Sie können es erneut versuchen oder einfach schreiben.");
         }
 
         start?.addEventListener("click", () => {
             if (!recognition) return target?.focus();
-            try { recognition.start(); } catch (_error) { update("error", "Das hat gerade nicht geklappt. Du kannst es erneut versuchen oder einfach schreiben."); }
+            try { recognition.start(); } catch (_error) { update("error", "Das hat gerade nicht geklappt. Sie können es erneut versuchen oder einfach schreiben."); }
         });
         stop?.addEventListener("click", () => {
             selbstBeendet = true;
-            update("processing", "Wir bringen deine Erzählung gerade in Text.");
+            update("processing", "Wir bringen Ihre Erzählung gerade in Text.");
             recognition?.stop();
         });
         retry?.addEventListener("click", () => start?.click());
