@@ -295,7 +295,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .journey-progress .done { color: var(--green); background: var(--green-soft); font-weight: 780; }
 .privacy-banner { margin-bottom: 1rem; padding: .75rem 1rem; border-left: 4px solid #91b7c5; border-radius: .4rem .8rem .8rem .4rem; color: var(--muted); background: var(--sky); font-size: .88rem; }
 .narration-form, .summary-form, .single-question-form { max-width: 62rem; }
-.voice-card, .text-entry-card, .question-focus-card, .process-summary-panel, .correction-panel, .processing-card { margin-bottom: 1rem; padding: clamp(1rem, 2.5vw, 1.4rem); border: 1px solid var(--border); border-radius: var(--radius); background: #fff; box-shadow: 0 8px 24px rgb(24 59 50 / 6%); }
+.voice-card, .text-entry-card, .correction-panel { margin-bottom: 1rem; padding: clamp(1rem, 2.5vw, 1.4rem); border: 1px solid var(--linie); border-radius: var(--radius); background: var(--flaeche); box-shadow: var(--heben-1); }
 .voice-card { display: grid; gap: .8rem; align-items: center; border-color: var(--green); background: linear-gradient(145deg, #fff, var(--green-soft)); }
 .voice-card h2 { margin-bottom: .3rem; }
 .voice-orb { display: grid; width: 3.6rem; height: 3.6rem; place-items: center; border: 7px solid #f4e5df; border-radius: 50%; color: var(--coral); background: #fff; box-shadow: 0 0 0 1px var(--coral); }
@@ -355,8 +355,33 @@ input:focus, textarea:focus { border-color: var(--green); }
     0%, 100% { box-shadow: 0 0 0 0 rgb(47 125 112 / 40%); opacity: 1; }
     50% { box-shadow: 0 0 0 .5rem rgb(47 125 112 / 0%); opacity: .75; }
 }
-.processing-card { max-width: 48rem; margin-inline: auto; text-align: center; }
-.processing-card .page-title, .processing-card .page-description { margin-inline: auto; }
+/* -- Der Analysepfad -------------------------------------------------
+ * Der Wartezustand ist Teil des Produkts. Vorher lag hier eine grosse
+ * weisse Standardkarte mit einer nummerierten Liste darin - das las sich
+ * wie ein Zwischenstand aus der Werkstatt.
+ *
+ * Jetzt: der Kopf frei auf dem warmen Grund, und nur der Pfad selbst sitzt
+ * auf einer leicht erhoehten Flaeche mit einem sehr leisen Teal-Schein.
+ * Genau dort wird gearbeitet, und nur dort bewegt sich etwas. */
+.analyse { max-width: 44rem; margin-inline: auto; text-align: center; }
+.analyse .page-title { margin-inline: auto; max-width: 18ch; }
+.analyse .page-description { margin-inline: auto; max-width: 54ch; }
+
+.analysepfad {
+    position: relative; margin: 2.2rem 0 1.6rem;
+    padding: 1.8rem 1.9rem 1.5rem;
+    border: 1px solid var(--linie); border-radius: var(--radius-lg);
+    background: var(--flaeche); box-shadow: var(--heben-2);
+}
+.analysepfad::before {
+    position: absolute; z-index: -1; inset: -12% -6%;
+    background: radial-gradient(closest-side, rgb(47 125 112 / 10%), transparent);
+    content: ""; pointer-events: none;
+}
+.fertigmeldung {
+    margin: 1rem 0 0; color: var(--marke);
+    font-size: 1.02rem; font-weight: 700;
+}
 /* -- Der Warteschirm --------------------------------------------------
  * Vier Stationen an einer Linie. Die Linie ist der Punkt: Sie macht aus
  * vier Zeilen einen Weg, und ein Weg hat sichtbar ein Ende. */

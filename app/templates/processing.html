@@ -1,54 +1,71 @@
 {% extends "base.html" %}
-{% block title %}Dein Ergebnis wird vorbereitet · AI Start Map{% endblock %}
+
+{# **Der Warteschirm ist Teil des Produkts, nicht eine Ladeanzeige.**
+
+   Vorher stand hier eine gelbe Fortschrittsleiste ueber einer grossen
+   weissen Karte, darin eine nummerierte Liste. Das las sich wie ein
+   Debug-Zustand: vier Zeilen, kein Gefuehl, dass gerade wirklich etwas
+   gerechnet wird.
+
+   Jetzt ein senkrechter Analysepfad. Und die wichtigste Regel steht im
+   Skript weiter unten: **Markiert wird nur, was die Statusabfrage belegen
+   kann.** Der Server kennt zwei echte Phasen — die beiden Modellaufrufe.
+   Die uebrigen Stationen warten sichtbar, statt einen Haken zu bekommen,
+   den niemand verdient hat. #}
+
+{% block title %}Ihre Auswertung entsteht · AI Start Map{% endblock %}
 {% block content %}
-{# **Vier benannte Phasen, aber nur zwei sind belegbar.**
+{# Keine Fortschrittsleiste: Sie sah nach Formularstrecke aus und stand in
+   Konkurrenz zum eigentlichen Analysezustand. #}
+<section class="analyse" data-analyze-url="{{ url_for('analyze_session_public') }}" data-status-url="{{ url_for('analysis_status_public') }}" data-edit-url="{{ url_for('show_interview_public') }}">
+    <h1 class="page-title">Ihre Auswertung entsteht gerade.</h1>
+    <p class="page-description">AI Start Map verbindet Ihre Beschreibung mit passenden
+    Automatisierungs- und KI-Möglichkeiten und bereitet daraus Ihre individuelle
+    Auswertung vor.</p>
 
-   Die Statusabfrage kann heute genau zwei Dinge nachweisen: dass die
-   Erzählung übernommen ist, und welcher der beiden Modellaufrufe gerade
-   läuft. Mehr steht nirgends, also wird auch nicht mehr behauptet — die
-   übrigen Phasen stehen neutral da, nicht als erledigt.
+    <div class="analysepfad">
+        <ol class="phasen" data-phasen>
+          <li class="phase phase--fertig" data-phase="uebernommen">
+            <span class="phasenpunkt" aria-hidden="true"></span>
+            <div><b>Ihre Beschreibung verstehen</b><span>Abläufe, Beteiligte und Zusammenhänge einordnen</span></div>
+          </li>
+          <li class="phase" data-phase="verstehen">
+            <span class="phasenpunkt" aria-hidden="true"></span>
+            <div><b>Engpässe &amp; Potenziale erkennen</b><span>Wiederkehrende Arbeit, Reibung und relevante Hebel prüfen</span></div>
+          </li>
+          <li class="phase" data-phase="loesung">
+            <span class="phasenpunkt" aria-hidden="true"></span>
+            <div><b>Passende Möglichkeiten prüfen</b><span>Vom sinnvollen ersten Schritt bis zu größeren KI-Lösungen</span></div>
+          </li>
+          <li class="phase" data-phase="ergebnis">
+            <span class="phasenpunkt" aria-hidden="true"></span>
+            <div><b>Auswertung vorbereiten</b><span>Empfehlung, Zielbild und AI Start Map zusammenführen</span></div>
+          </li>
+        </ol>
 
-   Vorher war die mittlere von drei Zeilen immer aktiv, egal was
-   tatsächlich geschah. Das ist kein Fortschritt, sondern ein Bild davon. #}
-<nav class="journey-progress" aria-label="Fortschritt"><span class="done">Erzählen ✓</span><span class="current">Auswerten ●</span></nav>
-<section class="processing-card" data-analyze-url="{{ url_for('analyze_session_public') }}" data-status-url="{{ url_for('analysis_status_public') }}" data-edit-url="{{ url_for('show_interview_public') }}">
-    <h1 class="page-title">Ich finde gerade heraus, was bei dir wirklich Sinn ergibt.</h1>
-    <p class="page-description">Ich prüfe deinen Ablauf, passende Automatisierungen und auch größere KI-Möglichkeiten für deinen Betrieb.</p>
+        {# Eine einzige mitlaufende Zeile. Vier gleichzeitig waeren wieder
+           eine Liste; eine ist ein Vorgang. #}
+        <p class="laufzeile" data-laufzeile aria-live="polite">Ihre Abläufe werden gerade eingeordnet …</p>
+    </div>
 
-    {# Die Zeile wechselt mit der Phase. Eine einzige, nicht vier
-       gleichzeitig — sonst liest man wieder eine Liste statt einen
-       Vorgang. #}
-    <p class="laufzeile" data-laufzeile aria-live="polite">Ich ordne deine Aussagen gerade ein …</p>
-
-    <ol class="phasen" data-phasen>
-      <li class="phase phase--fertig" data-phase="uebernommen">
-        <span class="phasenpunkt" aria-hidden="true"></span>
-        <div><b>Verstehen</b><span>Deine Aussagen und Zusammenhänge werden eingeordnet.</span></div>
-      </li>
-      <li class="phase" data-phase="verstehen">
-        <span class="phasenpunkt" aria-hidden="true"></span>
-        <div><b>Erkennen</b><span>Engpässe und Automatisierungspotenziale werden herausgearbeitet.</span></div>
-      </li>
-      <li class="phase" data-phase="loesung">
-        <span class="phasenpunkt" aria-hidden="true"></span>
-        <div><b>Möglichkeiten prüfen</b><span>Von schnellen Entlastungen bis zu größeren KI-Lösungen.</span></div>
-      </li>
-      <li class="phase" data-phase="ergebnis">
-        <span class="phasenpunkt" aria-hidden="true"></span>
-        <div><b>Ergebnis zusammenstellen</b><span>Deine Empfehlung und dein Zukunftsbild werden vorbereitet.</span></div>
-      </li>
-    </ol>
-
-    <p class="page-description wartehinweis">Du musst nichts weiter tun. Die Auswertung dauert meist etwa eine Minute.<span>Längere Beschreibungen können etwas mehr Zeit brauchen.</span></p>
+    {# **Keine Dauerangabe, die nicht stimmt.** Die Laufzeit schwankt mit der
+       Laenge der Beschreibung; eine Minute zu versprechen waere eine Zusage,
+       die niemand halten kann. #}
+    <p class="wartehinweis">Sie müssen nichts weiter tun. Die Dauer hängt davon ab, wie
+    umfangreich Ihre Beschreibung und die Analyse sind.<span>Diese Seite aktualisiert sich
+    automatisch, sobald Ihre Auswertung bereit ist.</span></p>
     <p class="processing-delay" data-processing-delay hidden>Das dauert diesmal etwas länger.</p>
-    <a class="processing-cancel" data-processing-cancel href="{{ url_for('show_interview_public') }}" hidden>Abbrechen und zurück zu meiner Erzählung</a>
-    <section class="processing-error" role="alert" hidden><h2>Die Auswertung konnte gerade nicht abgeschlossen werden.</h2><p>Deine Beschreibung ist weiterhin vorhanden. Du kannst es erneut versuchen.</p><div class="form-actions"><button class="primary-button" type="button" data-retry-analysis>Auswertung erneut starten</button><a class="secondary-button button-link" data-edit-answers href="#">Beschreibung bearbeiten</a></div></section>
+    <a class="processing-cancel" data-processing-cancel href="{{ url_for('show_interview_public') }}" hidden>Abbrechen und zurück zu meiner Beschreibung</a>
+
+    <section class="processing-error" role="alert" hidden><h2>Die Auswertung konnte gerade nicht abgeschlossen werden.</h2><p>Ihre Beschreibung ist weiterhin vorhanden. Sie können die Auswertung erneut starten.</p><div class="form-actions"><button class="primary-button" type="button" data-retry-analysis>Erneut versuchen</button><a class="secondary-button button-link" data-edit-answers href="#">Beschreibung bearbeiten</a></div></section>
+
+    <p class="fertigmeldung" data-fertig hidden>✓ Ihre Auswertung ist fertig.</p>
 </section>
 {% endblock %}
 {% block scripts %}
 <script>
 (() => {
-    const card = document.querySelector(".processing-card");
+    const card = document.querySelector(".analyse");
     const errorBox = card.querySelector(".processing-error");
     const retry = card.querySelector("[data-retry-analysis]");
     const edit = card.querySelector("[data-edit-answers]");
@@ -68,14 +85,14 @@
     const FOLGE = ["uebernommen", "verstehen", "loesung", "ergebnis"];
     const LAUFZEILEN = {
         verstehen: [
-            "Ich ordne deine Aussagen gerade ein …",
-            "Ich suche, was bei dir immer wieder Zeit kostet …",
-            "Ich prüfe, wo dein Ablauf hängen bleibt …",
+            "Ihre Abläufe werden gerade eingeordnet …",
+            "Wiederkehrende Arbeit wird gesucht …",
+            "Es wird geprüft, wo Ihr Ablauf hängen bleibt …",
         ],
         loesung: [
-            "Ich gehe die passenden Lösungen durch …",
-            "Ich prüfe auch größere KI-Möglichkeiten für deinen Betrieb …",
-            "Ich stelle dein Ergebnis zusammen …",
+            "Passende Automatisierungsansätze werden geprüft …",
+            "Auch größere KI-Möglichkeiten werden betrachtet …",
+            "Ihre Auswertung wird vorbereitet …",
         ],
     };
     let phase = "verstehen";
@@ -96,6 +113,15 @@
         zeigeZeile(zeilen[zeilenNummer % zeilen.length]);
         zeilenNummer += 1;
     };
+    // **Der Erfolgsmoment.** Kurz zeigen, dass es geschafft ist, dann
+    // weiterleiten -- ohne dass der Kunde noch etwas entscheiden muss.
+    const melde = (ziel) => {
+        const fertig = card.querySelector("[data-fertig]");
+        setzePhase("complete");
+        if (fertig) fertig.hidden = false;
+        window.setTimeout(() => window.location.assign(ziel), 700);
+    };
+
     const setzePhase = (neu) => {
         const bis = neu === "complete" ? FOLGE.length : FOLGE.indexOf(neu);
         if (bis < 0) return;
@@ -133,7 +159,7 @@
     const waitForCompletion = async () => {
         for (let attempt = 0; attempt < 90; attempt += 1) {
             const result = await checkStatus();
-            if (result.state === "complete") { window.location.assign(result.redirect_url); return true; }
+            if (result.state === "complete") { melde(result.redirect_url); return true; }
             await new Promise((resolve) => window.setTimeout(resolve, 1000));
         }
         return false;
@@ -154,10 +180,10 @@
         beobachte();
         try {
             const current = await checkStatus();
-            if (current.state === "complete") return window.location.assign(current.redirect_url);
+            if (current.state === "complete") return melde(current.redirect_url);
             const response = await fetch(card.dataset.analyzeUrl, {method: "POST", headers: {"Accept": "application/json"}});
             const result = await response.json();
-            if (result.state === "complete") return window.location.assign(result.redirect_url);
+            if (result.state === "complete") return melde(result.redirect_url);
             if (result.state === "processing" && await waitForCompletion()) return;
             throw new Error();
         } catch (_error) {

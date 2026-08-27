@@ -97,13 +97,15 @@ def test_the_screen_names_every_station_of_the_way(client: TestClient) -> None:
     seite = client.get("/processing").text
 
     for station in (
-        "Verstehen",
-        "Erkennen",
-        "M\u00f6glichkeiten pr\u00fcfen",
-        "Ergebnis zusammenstellen",
+        "Ihre Beschreibung verstehen",
+        "Potenziale erkennen",
+        "Passende Möglichkeiten prüfen",
+        "Auswertung vorbereiten",
     ):
         assert station in seite, station
-    assert "gr\u00f6\u00dfere KI-M\u00f6glichkeiten" in seite
+    # Die Seite nennt ausdrücklich auch das Größere, nicht nur den ersten
+    # Schritt — sonst liest sich das Warten wie eine Textverarbeitung.
+    assert "größeren KI-Lösungen" in seite
 
 
 def test_the_screen_invents_no_progress(client: TestClient) -> None:
@@ -151,5 +153,5 @@ def test_the_error_keeps_the_customers_words(client: TestClient) -> None:
     seite = client.get("/processing").text
 
     assert "Die Auswertung konnte gerade nicht abgeschlossen werden." in seite
-    assert "Deine Beschreibung ist weiterhin vorhanden." in seite
-    assert "Auswertung erneut starten" in seite
+    assert "Ihre Beschreibung ist weiterhin vorhanden." in seite
+    assert "Erneut versuchen" in seite
