@@ -86,10 +86,11 @@ def test_a_follow_up_question_is_shown(
 def test_without_a_question_the_page_says_so(
     client: TestClient, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Ohne Frage steht dort, dass alles Nötige verstanden wurde.
+    """Ohne Frage wird der Kunde nur um seine Zustimmung gebeten.
 
     Das ist der Normalfall. Ein Agent, der nur fragt, wenn er etwas braucht,
-    wirkt klüger als einer, der immer fragt.
+    wirkt klüger als einer, der immer fragt — und die Seite gibt ihm dann
+    auch nichts zu tun ausser weiterzugehen.
     """
 
     monkeypatch.setattr(
@@ -99,8 +100,7 @@ def test_without_a_question_the_page_says_so(
 
     seite = client.get("/verstanden")
 
-    assert "Ich habe alles verstanden, was ich brauche" in seite.text
-    assert "Möchten Sie noch etwas ergänzen?" in seite.text
+    assert "Passt das so?" in seite.text
     assert "Eine Sache weiß ich noch nicht" not in seite.text
 
 

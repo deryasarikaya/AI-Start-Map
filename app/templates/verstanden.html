@@ -1,9 +1,16 @@
-{# „Das habe ich verstanden" — zwischen Erzählung und Ergebnis.
+{# „Passt das so?" — zwischen Erzählung und Ergebnis.
 
-   Absichtlich kurz. Der alte Bestätigungsschritt flog raus, weil er dem
-   Kunden unsere Arbeit aufhalste: Er sollte prüfen, ob wir richtig verstanden
-   hatten. Diese Seite lässt nichts prüfen. Sie zeigt, dass zugehört wurde,
-   und stellt höchstens eine Frage.
+   **Die Seite ist eine Bestätigung, keine Aufgabe.** Der alte Bestätigungs-
+   schritt flog einmal raus, weil er dem Kunden unsere Arbeit aufhalste: Er
+   sollte prüfen, ob wir richtig verstanden hatten. Danach fragte die Seite
+   „Möchten Sie noch etwas ergänzen?" — und stellte damit dieselbe Aufgabe
+   wieder, nur höflicher. Ein offenes Textfeld ist eine Frage, auch ohne
+   Fragezeichen.
+
+   Jetzt steht vorn die Antwort, die der Kunde geben will: Ja, weiter. Die
+   Korrektur bleibt erreichbar, aber sie kostet einen Klick — sie ist der
+   Ausnahmefall und sieht auch so aus. Ohne JavaScript funktioniert das
+   ebenfalls, weil `<details>` das selbst kann.
 
    Die Seite erweitert bewusst nicht `base.html`: Sie gehört sichtbar zur
    Ergebnisseite und bringt deren Farbsystem unter `.ergebnis` mit. #}
@@ -12,16 +19,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Das habe ich verstanden · AI Start Map</title>
+{# Der Titel folgt dem Zustand der Seite: Eine Seite, die fragt, ist
+   keine Bestätigung. #}
+<title>{% if rueckfrage %}Eine Frage habe ich noch{% else %}Passt das so?{% endif %} · AI Start Map</title>
 <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
 </head>
 <body class="ergebnis">
 
 <div class="wrap top">
   <p class="eyebrow">AI Start Map · Das habe ich verstanden</p>
-  {# Die Verstandenseite zeigt eine **Diagnose**, keine Lösung. Seit dem
-     24.08. steht der Engpass-Satz deshalb direkt darin und nicht mehr in
-     einer Kurzfassung, die auch den Lösungsnamen trägt. #}
+  {# Die Verstandenseite zeigt eine **Diagnose**, keine Lösung. Der
+     Engpass-Satz steht deshalb direkt darin und nicht in einer Kurzfassung,
+     die auch den Lösungsnamen trägt. #}
   <h1>{{ e.engpass_satz }}</h1>
   <div class="chipline">
     {% for eckdatum in e.verstanden.eckdaten %}
@@ -43,6 +52,9 @@
   <div class="cta">
     <form method="post" action="{{ url_for('save_understanding_public') }}">
     {% if rueckfrage %}
+      {# Hier ist das offene Feld richtig: Es steht unter einer Frage, die
+         gestellt wurde. Das Modell fragt selten, und nur dann, wenn die
+         Antwort das Ergebnis verändern würde. #}
       <h2>Eine Sache weiß ich noch nicht</h2>
       <p class="big">{{ rueckfrage.frage }}</p>
       <p class="sub"><em>{{ rueckfrage.warum }}</em></p>
@@ -62,13 +74,19 @@
         <button class="btn" type="submit" name="weiter" value="ja">Weiter zur Auswertung</button>
       </div>
     {% else %}
-      <h2>Ich habe alles verstanden, was ich brauche</h2>
-      <p class="sub">Möchten Sie noch etwas ergänzen?</p>
-      <textarea name="antwort" rows="3" placeholder="Wenn Ihnen noch etwas einfällt"></textarea>
+      <h2>Passt das so?</h2>
+      <p class="sub">Wenn das Ihren Alltag trifft, stelle ich jetzt Ihre
+      Auswertung zusammen.</p>
       <div class="ctabuttons">
-        <button class="btn" type="submit" name="weiter" value="nein">Ja, das noch</button>
-        <button class="btn ghost" type="submit" name="weiter" value="ja">Nein, weiter</button>
+        <button class="btn" type="submit" name="weiter" value="ja">Ja, Auswertung erstellen <span aria-hidden="true">→</span></button>
       </div>
+      {# Auf Wunsch, nicht im Weg. Zugeklappt ist es ein Angebot, aufgeklappt
+         ein Feld — und niemand muss daran vorbei, der einverstanden ist. #}
+      <details class="korrektur">
+        <summary>Etwas korrigieren oder ergänzen</summary>
+        <textarea name="antwort" rows="4" placeholder="Was fehlt oder stimmt so nicht?"></textarea>
+        <button class="btn ghost" type="submit" name="weiter" value="nein">Ergänzung übernehmen</button>
+      </details>
     {% endif %}
     </form>
   </div>
