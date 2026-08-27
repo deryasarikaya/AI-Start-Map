@@ -259,6 +259,65 @@ input:focus, textarea:focus { border-color: var(--green); }
 .report-contact a { color: var(--green); font-weight: 800; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
+
+/* ── Der Erzählbereich ────────────────────────────────────────────────
+ * Sprache und Text sind ein Eingabebereich, keine zwei Wege. Beides landet
+ * in derselben Beschreibung, und das muss man sehen. */
+.eingabe {
+    display: grid; gap: 0;
+    padding: 1.4rem 1.5rem 1.6rem; border: 1px solid var(--border);
+    border-radius: var(--radius-lg); background: var(--surface);
+    box-shadow: var(--heben-1);
+}
+/* Der Satz, der die Zeitangst nimmt. Er steht vor allem anderen, weil die
+ * erste Sorge nicht das Mikrofon ist, sondern „wie lange muss das sein". */
+.freiraum {
+    margin: 0 0 1.1rem; color: var(--text-primary);
+    font-size: 1.02rem; font-weight: 700;
+}
+.freiraum span {
+    display: block; margin-top: .2rem; color: var(--muted);
+    font-size: .88rem; font-weight: 500;
+}
+.eingabe .voice-card { margin: 0; box-shadow: none; }
+.eingabe .text-entry-card {
+    margin: 1.3rem 0 0; padding: 1.3rem 0 0; border: 0;
+    border-top: 1px solid var(--border); border-radius: 0; background: none;
+    box-shadow: none;
+}
+.voice-hint { margin: .35rem 0 0; color: var(--muted); font-size: .85rem; }
+.feldnotiz { margin: -.25rem 0 .6rem; color: var(--muted); font-size: .85rem; }
+.page-note { margin: .5rem 0 0; color: var(--muted); font-size: .9rem; }
+
+/* Das Feld darf nicht wie ein Formularfeld aussehen. Wer ein kleines
+ * Kästchen sieht, schreibt einen kleinen Satz. */
+.eingabe textarea { min-height: 15rem; line-height: 1.6; resize: vertical; }
+
+/* **Der Datenschutzhinweis tritt zurück.** Er war der zweite laute Block
+ * der Seite und stand zwischen dem Kunden und seiner Erzählung. Er soll
+ * beruhigen, nicht unterbrechen. */
+.privacy-banner {
+    display: flex; gap: .55rem; align-items: flex-start;
+    margin: 0 0 1rem; padding: .6rem .85rem; border: 0;
+    border-radius: var(--radius-sm); background: var(--teal-soft);
+    color: var(--teal-tief); font-size: .84rem; line-height: 1.45;
+}
+
+/* Gedankenstützen, keine Auswahl: sehr hell, ohne Rahmen, klein. Mit
+ * Kästchen und Rand sahen sie aus wie Pflichtfelder. */
+.thought-prompts { gap: .4rem; margin-top: .9rem; }
+.thought-prompts span {
+    padding: .3rem .7rem; border: 0; border-radius: 999px;
+    background: var(--grund-tief); color: var(--muted); font-size: .8rem;
+}
+
+/* Der aktive Schritt trägt Teal statt Gelb — Gelb war der lauteste Ton der
+ * Seite und stand auf einer Wegmarke. */
+.journey-progress .current {
+    color: #fff; background: var(--teal); font-weight: 800;
+    box-shadow: 0 6px 16px -6px rgb(47 125 112 / 55%);
+}
+
 @media (min-width: 43rem) {
     .page-shell { width: min(calc(100% - 3rem), 72rem); }
     .header-note { display: block; }

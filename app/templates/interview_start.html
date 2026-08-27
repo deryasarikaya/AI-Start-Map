@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Erzähl von deinem Arbeitsalltag · AI Start Map{% endblock %}
+{% block title %}Erzähl von deinem Betrieb · AI Start Map{% endblock %}
 
 {% block content %}
 <nav class="journey-progress" aria-label="Fortschritt">
@@ -8,33 +8,59 @@
 </nav>
 <section class="content-intro narrow-intro">
     <p class="section-kicker">Du erzählst</p>
-    <h1 class="page-title">Erzähl mir kurz, wie dein Arbeitsalltag gerade läuft.</h1>
-    <p class="page-description">Wo verlierst du Zeit, musst Informationen zusammensuchen oder Dinge mehrfach machen?</p>
+    {# **Kein „kurz".** Das Wort stand vorher in der Überschrift und
+       widerspricht allem, was diese Seite will: Wer glaubt, er soll sich
+       kurzfassen, lässt genau die Nebensätze weg, aus denen die Diagnose
+       lebt. #}
+    <h1 class="page-title">Erzähl mir, was in deinem Betrieb gerade Zeit, Nerven oder Aufmerksamkeit kostet.</h1>
+    {# Die Beispiele nennen bewusst Kunden und Telefon zuerst. Vorher stand
+       hier nur Zeitverlust, Zusammensuchen und Mehrfacharbeit — und danach
+       erzählte auch jeder nur davon. #}
+    <p class="page-description">Du kannst einfach drauflos erzählen oder schreiben – so ausführlich, wie du möchtest. Zum Beispiel über Kunden, Telefon, Termine, wiederkehrende Aufgaben, interne Abläufe oder Dinge, die immer wieder an dir hängen bleiben.</p>
+    <p class="page-note">Du musst nichts vorbereiten und nichts über KI wissen.</p>
 </section>
 
-<form class="narration-form" action="{{ url_for('save_interview_public') }}" method="post" data-disable-on-submit data-submitting-label="Ich prüfe deine Beschreibung …" data-processing-title="Ich prüfe deine Beschreibung." data-processing-copy="Gleich siehst du die erkannten Abläufe." data-voice-input data-voice-target="free_description">
+<form class="narration-form" action="{{ url_for('save_interview_public') }}" method="post" data-disable-on-submit data-submitting-label="Ich lese deine Beschreibung …" data-processing-title="Ich lese deine Beschreibung." data-processing-copy="Gleich siehst du, was ich verstanden habe." data-voice-input data-voice-target="free_description">
     {% if error_message %}<div class="error-message" role="alert">{{ error_message }}</div>{% endif %}
-    <div class="privacy-banner">Bitte nenne keine vollständigen Namen oder vertraulichen Daten von Kunden und Mitarbeitenden.</div>
-    <section class="voice-card" aria-labelledby="voice-title">
-        <div class="voice-orb" aria-hidden="true"><span>●</span></div>
-        <div>
-            <h2 id="voice-title">Sprich einfach drauflos</h2>
-            <p class="voice-status" data-voice-status aria-live="polite">Tippe auf das Mikrofon und erzähl einfach drauflos.</p>
-            <p class="voice-support" data-voice-support></p>
-        </div>
-        <div class="voice-actions">
-            <button class="microphone-button" type="button" data-voice-start><span aria-hidden="true">●</span> Aufnahme starten</button>
-            <button class="secondary-button" type="button" data-voice-stop hidden>Aufnahme beenden</button>
-            <button class="secondary-button" type="button" data-voice-retry hidden>Noch einmal versuchen</button>
-            <button class="text-button" type="button" data-voice-write>Lieber schreiben</button>
-        </div>
-    </section>
 
-    <div class="text-entry-card">
-        <label for="free_description">Deine Beschreibung</label>
-        <textarea id="free_description" name="free_description" rows="6" required placeholder="Meine Kunden schreiben mir über WhatsApp, rufen an oder kommen direkt vorbei. Ich weiß oft nicht mehr, wem ich schon geantwortet habe und welcher Auftrag gerade wo liegt.">{{ answers.get('problem_overview', '')|customer_text }}</textarea>
-        <div class="thought-prompts" aria-label="Gedankenstützen"><span>Woran verlierst du Zeit?</span><span>Wo musst du oft suchen oder nachfragen?</span><span>Was wird immer wieder vergessen?</span><span>Was bleibt ständig an dir hängen?</span></div>
+    {# Der Hinweis bleibt inhaltlich, tritt aber zurück: Er war der zweite
+       laute Block der Seite und unterbrach den Erzählfluss, bevor er begann. #}
+    <p class="privacy-banner"><span aria-hidden="true">🛡</span> Bitte nenne keine vollständigen Namen oder vertraulichen Daten von Kunden und Mitarbeitenden.</p>
+
+    {# **Ein gemeinsamer Eingabebereich.** Sprache und Text waren zwei
+       getrennte Kästen und sahen aus wie zwei Wege. Es ist einer: Beides
+       landet in derselben Beschreibung. #}
+    <div class="eingabe">
+        <p class="freiraum">Nimm dir so viel Zeit, wie du brauchst.<span>30 Sekunden oder 10 Minuten – beides ist völlig in Ordnung.</span></p>
+
+        <section class="voice-card" aria-labelledby="voice-title">
+            <div class="voice-orb" aria-hidden="true"><span>●</span></div>
+            <div>
+                <h2 id="voice-title">Sprich einfach drauflos</h2>
+                <p class="voice-status" data-voice-status aria-live="polite">Du musst nichts vorbereiten. Erzähl einfach, was bei euch passiert, was dich nervt, aufhält oder immer wieder bei dir landet.</p>
+                <p class="voice-hint">Du kannst jederzeit pausieren und danach weiter erzählen.</p>
+                <p class="voice-support" data-voice-support></p>
+            </div>
+            <div class="voice-actions">
+                <button class="microphone-button" type="button" data-voice-start><span aria-hidden="true">●</span> Aufnahme starten</button>
+                <button class="secondary-button" type="button" data-voice-stop hidden>Aufnahme beenden</button>
+                <button class="secondary-button" type="button" data-voice-retry hidden>Weiter erzählen</button>
+                <button class="text-button" type="button" data-voice-write>Lieber schreiben</button>
+            </div>
+        </section>
+
+        <div class="text-entry-card">
+            <label for="free_description">Oder schreib direkt</label>
+            <p class="feldnotiz">Schreib so ausführlich, wie du möchtest.</p>
+            {# Kein `maxlength`: Eine Erzählung von zehn Minuten sind rund
+               28.000 Zeichen, und die kommen vollständig an — nachgemessen. #}
+            <textarea id="free_description" name="free_description" rows="12" required placeholder="Bei uns klingelt oft das Telefon, Kunden fragen immer wieder ähnliche Dinge, Termine werden nebenbei abgestimmt und vieles bleibt an mir hängen. Manche Informationen liegen in verschiedenen Systemen, manche Aufgaben werden immer wieder manuell gemacht. Ich würde gern verstehen, was davon sinnvoll automatisiert werden könnte und was mit KI darüber hinaus möglich wäre.">{{ answers.get('problem_overview', '')|customer_text }}</textarea>
+            {# Gedankenstützen, keine Pflichtfragen — deshalb klein, blass und
+               ohne Rahmen, der nach Auswahl aussieht. #}
+            <div class="thought-prompts" aria-label="Gedankenstützen"><span>Was kostet dich jeden Tag unnötig Zeit?</span><span>Welche Fragen oder Aufgaben wiederholen sich ständig?</span><span>Wo warten Kunden oder Mitarbeiter oft auf dich?</span><span>Was würdest du am liebsten nicht mehr selbst machen müssen?</span><span>Wo denkst du: Das müsste doch eigentlich einfacher gehen?</span></div>
+        </div>
     </div>
-    <div class="sticky-action"><button class="primary-button" type="submit">Erzählung übernehmen <span aria-hidden="true">→</span></button></div>
+
+    <div class="sticky-action"><button class="primary-button" type="submit">Beschreibung analysieren <span aria-hidden="true">→</span></button></div>
 </form>
 {% endblock %}

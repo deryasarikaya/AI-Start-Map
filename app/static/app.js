@@ -42,6 +42,10 @@
         const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recognition = null;
         let finalText = "";
+        // Der Browser beendet die Erkennung nach einer laengeren Pause von
+        // selbst. Ob jemand fertig ist oder nur Luft geholt hat, weiss nur
+        // dieser Merker.
+        let selbstBeendet = false;
 
         const update = (state, message) => {
             container.dataset.voiceState = state;
@@ -61,7 +65,10 @@
             recognition.continuous = true;
             recognition.interimResults = true;
             recognition.onstart = () => {
+                // Vorhandenen Text uebernehmen statt ersetzen: Wer
+                // weitererzaehlt, soll nicht von vorn anfangen.
                 finalText = target?.value.trim() || "";
+                selbstBeendet = false;
                 update("recording", "Ich höre zu …");
             };
             recognition.onresult = (event) => {
@@ -73,7 +80,12 @@
                 }
                 if (target) target.value = `${finalText}${interim}`.trim();
             };
-            recognition.onend = () => update("done", "Das haben wir verstanden. Du kannst den Text direkt bearbeiten.");
+            recognition.onend = () => update(
+                "done",
+                selbstBeendet
+                    ? "Das haben wir verstanden. Du kannst den Text direkt bearbeiten."
+                    : "Aufnahme pausiert. Du kannst weiter erzählen oder den Text direkt bearbeiten.",
+            );
             recognition.onerror = () => update("error", "Das hat gerade nicht geklappt. Du kannst es erneut versuchen oder einfach schreiben.");
         }
 
@@ -81,7 +93,11 @@
             if (!recognition) return target?.focus();
             try { recognition.start(); } catch (_error) { update("error", "Das hat gerade nicht geklappt. Du kannst es erneut versuchen oder einfach schreiben."); }
         });
-        stop?.addEventListener("click", () => { update("processing", "Wir bringen deine Erzählung gerade in Text."); recognition?.stop(); });
+        stop?.addEventListener("click", () => {
+            selbstBeendet = true;
+            update("processing", "Wir bringen deine Erzählung gerade in Text.");
+            recognition?.stop();
+        });
         retry?.addEventListener("click", () => start?.click());
         write?.addEventListener("click", () => target?.focus());
     });
