@@ -58,6 +58,16 @@ class Familie:
     setzt_voraus: tuple[str, ...] = ()
     kundennaher_name: str = ""
     gilt_fuer_betriebsarten: tuple[str, ...] = ()
+    #: **Wann diese Familie im Ausbau an der Reihe ist.**
+    #:
+    #: Der Katalog weiss, dass ein Kundenportal nicht der erste Schritt
+    #: ist und eine Nachfass-Automatik eine Historie braucht. Ohne
+    #: dieses Feld muss das Modell die Reihenfolge raten - und rat es,
+    #: bleibt es bei der Familie, die es schon gewaehlt hat.
+    reihenfolge_hinweis: str = ""
+    #: Welche Familien ueblicherweise daneben stehen. Der Faden, an dem
+    #: entlang ein Ausbaupfad ueberhaupt entsteht.
+    typische_kombination: tuple[str, ...] = ()
     voller_datensatz: dict = field(default_factory=dict, repr=False)
 
 
@@ -132,6 +142,8 @@ def katalog() -> dict[str, Familie]:
             setzt_voraus=_texte(datensatz, "setzt_voraus"),
             kundennaher_name=str(datensatz.get("kundennaher_name") or ""),
             gilt_fuer_betriebsarten=_texte(datensatz, "gilt_fuer_betriebsarten"),
+            reihenfolge_hinweis=str(datensatz.get("reihenfolge_hinweis") or ""),
+            typische_kombination=_texte(datensatz, "typische_kombination"),
             voller_datensatz=datensatz,
         )
     if not gefunden:
@@ -155,6 +167,12 @@ def zur_auswahl(bevorzugt: list[str] | None = None) -> list[dict[str, object]]:
     Modell **alle** und nicht nur die abgerufenen: Ein schlechter Treffer im
     Abruf soll nicht verhindern, dass die richtige Familie überhaupt wählbar
     ist. Was der Abruf gefunden hat, steht als Hinweis dabei.
+
+    **Mit Reihenfolge.** `reihenfolge_hinweis` und `typische_kombination`
+    stehen dabei, weil der Ausbaupfad sonst geraten wird. Ein Modell, das
+    nicht weiss, was worauf aufbaut, hängt an die gewählte Familie noch
+    eine Variante derselben Familie — und der Ausblick zeigt zum dritten
+    Mal dasselbe Thema.
     """
 
     vorne = list(bevorzugt or [])
@@ -165,6 +183,8 @@ def zur_auswahl(bevorzugt: list[str] | None = None) -> list[dict[str, object]]:
             "worum_es_geht": familie.worum_es_geht,
             "geeignet_wenn": list(familie.geeignet_wenn),
             "nicht_geeignet_wenn": list(familie.nicht_geeignet_wenn),
+            "reihenfolge_hinweis": familie.reihenfolge_hinweis,
+            "typische_kombination": list(familie.typische_kombination),
             "vom_abruf_vorgeschlagen": familie.kennung in vorne,
         }
         for familie in katalog().values()

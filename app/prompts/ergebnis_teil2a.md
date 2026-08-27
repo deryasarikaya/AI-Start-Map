@@ -99,9 +99,46 @@ Die Frage dafür ist der Engpass aus der Diagnose:
   Vorgangs- oder Kundenakte.
 - Ist der **Eingang und die Zuordnung** der Engpass, ist es die
   Eingangsprüfung.
-- Klingelt ständig das **Telefon** und niemand kann rangehen, ist es
-  der Telefonassistent.
 - Geht es darum, was **sein Kunde** sieht, ist es die Aussenansicht.
+
+**Beim Telefon ist die Frage nicht der Kanal, sondern das Anliegen.**
+
+Dass ständig das Telefon klingelt, heißt nicht, dass ein Assistent ans
+Telefon gehen soll. Der Anruf ist der Weg, nicht der Wunsch. Frag zuerst,
+**was** die Leute wollen:
+
+- Sie fragen nach dem **Stand** ihrer Sache. Dann ist die Antwort eine
+  Stelle, an der sie selbst nachsehen — die Aussenansicht — oder ein
+  Verlauf, in dem sie fragen können. Wer für jede Statusfrage anrufen
+  muss, hat kein Telefonproblem, sondern kein Fenster in seinen Vorgang.
+- Sie wollen einen **Termin**. Dann ist es die Terminübersicht.
+- Sie schildern etwas **Neues**. Dann ist es die Eingangsprüfung.
+- Sie rufen an, weil sie **nicht anders können** — kein Portal, keine
+  Adresse, kein Chat, und daran ändert sich auch nichts. **Erst dann**
+  ist es der Telefonassistent.
+
+Der Telefonassistent ist die Ansicht für den Anruf, der bleibt. Für alles,
+was auch schriftlich oder zum Selbstnachsehen ginge, ist er die
+umständlichste Antwort auf die Frage — und die, die am ehesten wie ein
+Notbehelf wirkt.
+
+**Und er zeigt nie eine Frage, die eine andere Ansicht schon beantwortet.**
+
+Steht daneben eine Aussenansicht, in der der Kunde den Stand selbst sieht,
+dann ist „Kann ich mein Auto heute abholen?" der falsche Anruf für dieses
+Bild: Die Seite beantwortet dieselbe Frage zweimal und führt dabei den
+umständlicheren Weg vor. Wer das liest, denkt nicht „gut gelöst", sondern
+„wozu dann das Portal".
+
+Nimm den Anruf, der wirklich bleibt — den, den keine Selbstauskunft
+abfängt:
+
+> „Mein Auto zieht seit gestern nach rechts, kann ich vorbeikommen?"
+> „Ich muss den Termin am Donnerstag verschieben."
+> „Die Reparatur wird teurer — machen wir das so?"
+
+Das sind Anliegen, die jemand schildern muss. Genau dafür ist der
+Assistent da.
 
 Die beiden folgenden Ansichten erklären, **wie dieses Ergebnis zustande
 kommt.** Damit erzählt der Abschnitt: Das bekomme ich — so funktioniert es

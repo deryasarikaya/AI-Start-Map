@@ -641,47 +641,70 @@
 {% endif %}
 
 
-{# ═══════════════ 8 · WAS DARÜBER HINAUS MÖGLICH WÄRE ═══════════
+{# ═══════════════ 8 · SO KÖNNTE IHRE LÖSUNG WACHSEN ═══════════
 
    Bis hierher sagt die Seite: Das können wir vereinfachen. Hier sagt sie:
-   Und das wäre für Ihren Betrieb ausserdem möglich.
+   Und so weit kann das gehen.
 
-   Das ist der Unterschied zwischen jemandem, der aufräumt, und jemandem,
-   der zeigt, wohin es gehen kann. Ein kleiner Betrieb muss nicht morgen
-   eine grosse Lösung kaufen — aber er soll wissen, dass es sie gibt.
+   **Vorher stand hier eine Karte.** Eine einzige, mit einem Satz darauf —
+   „Sie müssen einfache Statusfragen nicht mehr selbst beantworten." Das
+   war ein Ausblick auf ein Merkmal, nicht auf einen Betrieb. Wer das
+   liest, kauft eine Funktion.
 
-   **Gezeigt wird nur, was das Modell auf `spaeter` gesetzt hat**: aus dem
-   freigegebenen Katalog, gebunden an einen Engpass, den er beschrieben
-   hat. Findet sich nichts, fällt der Abschnitt weg — ein erfundener
-   Ausblick wäre schlimmer als keiner. #}
-{%- set ausblick = e.module | selectattr('stufe', 'equalto', 'spaeter') | list -%}
-{% if ausblick %}
-<section class="ausblick" data-auftritt>
+   Jetzt ist es ein Weg mit vier bis sechs Stationen, und jede öffnet
+   einen Bereich, den die vorige nicht berührt hat: erst die Grundlage,
+   dann die Kundenkommunikation, dann die Selbstauskunft, dann die
+   Historie, dann das Nachfassen. Der Server lässt keine Stufe durch, die
+   dieselbe Lösungsfamilie noch einmal aufmacht.
+
+   Der Pfad kommt aus `ausbaupfad` und nicht mehr aus den Modulen auf
+   `spaeter`: Ein Modul ist ein Teil der Lösung, eine Stufe ist ein
+   Bereich des Betriebs. Solange beides dieselbe Liste war, schrieb das
+   Modell den Ausblick als viertes Modul.
+
+   Fehlt der Pfad — gespeicherte Ergebnisse von vorher kennen ihn nicht —,
+   fällt der Abschnitt weg. Ein erfundener Ausblick wäre schlimmer als
+   keiner. #}
+{% if e.ausbaupfad %}
+<section class="wachstum" data-auftritt>
   <div class="flaeche">
     <p class="marke">Wenn das läuft</p>
-    <h2>Was darüber hinaus für Sie möglich wäre</h2>
-    <p class="lauftext">Nicht für morgen — aber Sie sollen wissen, wohin es
-    gehen kann, wenn der erste Teil steht.</p>
+    <h2>So könnte Ihre Lösung mit Ihrem Betrieb wachsen</h2>
+    <p class="lauftext">Sie müssen nicht alles auf einmal umsetzen. Wenn die
+    Grundlage steht, können weitere Bereiche Schritt für Schritt angebunden
+    und automatisiert werden.</p>
 
-    <div class="ausblickraster">
-      {% for modul in ausblick[:3] %}
-      <article class="weiter" style="--verzug: {{ loop.index0 * 90 }}ms">
-        <span class="weiterzeichen">
-          <svg aria-hidden="true">
-            <use href="#{{ (modul.nutzen or modul.name) | wandelsymbol }}"/>
-          </svg>
-        </span>
-        <h3>{{ modul.nutzen or modul.name }}</h3>
-        {% if modul.nutzen %}
-        <p class="weitername">{{ modul.name }}</p>
-        {% endif %}
-        <p class="bausteintext">{{ modul.beschreibung }}</p>
-      </article>
+    {# Eine Ordnungszahl je Station und eine durchgehende Linie: Erst das
+       macht aus vier Kacheln eine Folge. Ohne sie liest man wieder eine
+       Sammlung, und eine Sammlung hat keine Richtung. #}
+    <ol class="pfad">
+      {% for schritt in e.ausbaupfad[:6] %}
+      <li class="station station--{{ schritt.stufe or 'danach' }}"
+          style="--verzug: {{ loop.index0 * 80 }}ms">
+        <span class="stationsnummer" aria-hidden="true">{{ loop.index }}</span>
+        <div class="stationstext">
+          <p class="stationsmarke">
+            {%- if schritt.stufe == 'jetzt' -%}Die Grundlage
+            {%- elif schritt.stufe == 'spaeter' -%}Ausbau
+            {%- else -%}Danach{%- endif -%}
+          </p>
+          <h3>{{ schritt.name }}</h3>
+          <p class="stationsnutzen">{{ schritt.nutzen }}</p>
+          {% if schritt.bausteine %}
+          <ul class="stationsteile">
+            {% for teil in schritt.bausteine[:5] %}
+            <li>{{ teil }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+      </li>
       {% endfor %}
-    </div>
+    </ol>
 
-    <p class="ausblicknotiz">Das gehört nicht zum ersten Schritt. Wir sagen
-    es Ihnen trotzdem — damit Sie es kennen, wenn es soweit ist.</p>
+    <p class="wachstumsnotiz">Welche Bereiche für Sie sinnvoll sind und in
+    welcher Reihenfolge sie kommen, hängt von Ihren bestehenden Systemen und
+    Ihrem tatsächlichen Ablauf ab. Das klären wir gemeinsam.</p>
   </div>
 </section>
 {% endif %}

@@ -254,6 +254,12 @@ def zusammengesetzt(diagnose: Diagnose, gewaehlt: Zielarchitektur) -> ResultPart
                 "kuenftig": gewaehlt.vergleich_kuenftig,
             },
             "module": [modul.model_dump() for modul in gewaehlt.module],
+            # Der Ausbaupfad steht neben den Modulen, nicht in ihnen: Die
+            # Module sind die Lösung, der Pfad ist das, was danach möglich
+            # wird.
+            "ausbaupfad": [
+                schritt.model_dump() for schritt in gewaehlt.ausbaupfad
+            ],
             "rueckfrage": (
                 diagnose.rueckfrage.model_dump()
                 if diagnose.rueckfrage is not None

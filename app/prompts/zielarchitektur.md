@@ -24,7 +24,9 @@ der Bausteine deiner gewählten Familien ist, wird die Antwort zurückgewiesen.
   **Das sind die einzigen Fakten über diesen Betrieb.**
 - LOESUNGSKATALOG: alle Familien, die AI Start Map anbieten darf. Je Eintrag
   `id`, `name`, `worum_es_geht`, `geeignet_wenn`, `nicht_geeignet_wenn` und die
-  zulässigen `bausteine`.
+  zulässigen `bausteine`. Dazu `reihenfolge_hinweis` — wann diese Familie an
+  der Reihe ist — und `typische_kombination`, welche Familien üblicherweise
+  daneben stehen. **Beides brauchst du für den Ausbaupfad.**
 - ABRUF_SCHLAEGT_VOR: welche Familien der Wissensabruf zur Diagnose für am
   ehesten passend hält. **Ein Vorschlag, keine Vorgabe.** Du darfst jede Familie
   aus dem Katalog wählen, auch eine, die hier nicht steht — und du darfst einen
@@ -80,6 +82,44 @@ Bleibt eine dieser Stellen offen, ist der Engpass nicht gelöst, sondern
 verschoben. Ein Betrieb, der eine Stunde über seinen Alltag erzählt hat,
 bekommt keine Antwort aus einem einzigen Baustein — es sei denn, sein
 Engpass ist wirklich so klein.
+
+**Die häufigste Art, diese Prüfung zu verfehlen, ist eine einzige Familie.**
+
+Eine Werkstatt erzählte von Anrufen, die die Arbeit unterbrechen, von
+Kunden, die den Stand ihres Autos nicht kennen, und von Zetteln in der
+Halle. Die Antwort war Vorgangsmanagement: drei Module, eine Familie, der
+Stand liegt jetzt an einem Ort.
+
+Stelle 1 blieb offen — der Anruf kommt weiterhin ungefiltert an, mitten in
+die Arbeit. Stelle 4 blieb offen — sein Kunde erfährt nach wie vor nichts,
+ohne anzurufen. Der Engpass war nicht gelöst, sondern umgeräumt: Das
+Zusammensuchen fällt weg, das Klingeln bleibt.
+
+**Hast du am Ende genau eine Familie, geh die vier Stellen noch einmal ab.**
+Fast immer fehlt dann der Eingang oder das, was sein Kunde sieht.
+
+### Und du schreibst das Ergebnis auf — `abdeckung`
+
+Vier Einträge, einer je Stelle: `eingang`, `zusammenlauf`, `sichtbarkeit`,
+`ergebnis`. Je Eintrag welche deiner gewählten Familien die Stelle abdecken
+(`abgedeckt_durch`) und ein Satz dazu (`begruendung`).
+
+**Eine Stelle darf offen bleiben.** Nicht jeder Betrieb hat überall ein
+Problem — wer nur Laufkundschaft hat, braucht keinen digitalen Eingang.
+Dann steht `abgedeckt_durch` leer und in `begruendung` steht, warum das
+für diesen Betrieb in Ordnung ist.
+
+Schreib es hin, bevor du deine Auswahl für fertig hältst. Wer „eingang:
+nicht abgedeckt" hinschreiben muss, sieht, dass das Telefon weiterklingelt
+— und merkt, dass eine Familie fehlt.
+
+```
+{"stelle": "eingang", "abgedeckt_durch": ["SF-15"],
+ "begruendung": "Anrufe werden angenommen und dem Fahrzeug zugeordnet."}
+{"stelle": "ergebnis", "abgedeckt_durch": [],
+ "begruendung": "Der Betrieb übergibt persönlich; ein digitaler Abschluss
+ kommt in seiner Erzählung nicht vor."}
+```
 
 Die Reihenfolge ist wichtig. Kürzt du zuerst, prüfst du jede Familie für sich
 — und für sich allein wirkt fast jede verzichtbar. Nach fünf solchen
@@ -262,15 +302,10 @@ Jedes Modul hat:
     der Standardfragen rund um die Uhr beantwortet. Ein Portal, in dem
     sein Kunde den Stand selbst sieht.
 
-  **Zu jeder Lösung gehört ein Modul auf `spaeter`** — unabhängig davon,
-  wie viele es insgesamt sind. Gerade die kleine Lösung braucht den
-  Ausblick am dringendsten: Wer nur hört, wie seine Mails besser sortiert
-  werden, erfährt nie, was sonst noch ginge.
-
-  Die Bedingung bleibt hart: Der freigegebene Katalog muss eine Familie
-  hergeben, die auf einen Engpass zeigt, den er **beschrieben hat**.
-  Findet sich keine, bleibt die Stufe leer — erfunden wird nichts. Aber
-  such danach, bevor du es lässt.
+  Die Module sind die Lösung, die **gebaut wird**. Wie weit es darüber
+  hinaus gehen kann, gehört nicht hierher, sondern in `ausbaupfad` — ein
+  Ausblick als viertes Modul liest sich wie eine vierte Funktion, und
+  genau das ist er nicht.
 - `solution_family_ids` — aus welcher deiner gewählten Familien es stammt. Eine
   reicht; ein Modul, das zwei Familien verbindet, nennt beide.
 - `baustein_refs` — welche Bausteine dieser Familien es umsetzt, **wörtlich aus
@@ -376,6 +411,89 @@ wie es geschieht, und nicht, dass es entfällt.
 
 Prüf jede Zeile einmal gegen ihre Gegenzeile: Ist es dieselbe Handlung?
 Wenn nein, gehört die Zeile umgeschrieben oder gestrichen.
+
+## Der Ausbaupfad — `ausbaupfad`
+
+Hier entscheidet sich, ob der Betrieb eine **Funktion** kauft oder eine
+**Richtung** erkennt.
+
+Die Module oben sind der erste Schritt. Der Ausbaupfad beantwortet die
+Frage danach: *Wenn Ihr Betrieb einmal digital verbunden ist — welche
+Bereiche könnten wir anschließend automatisieren?*
+
+**Eine Stufe ist kein weiteres Merkmal. Eine Stufe ist ein Bereich des
+Betriebs.**
+
+Das ist der Fehler, der hier immer wieder passiert: Auf „ein gemeinsamer
+Fahrzeugstand" folgt als Ausblick „Statusfragen automatisch beantworten".
+Das ist dieselbe Sache, ein Merkmal weiter. Der Betrieb liest es und sieht
+eine Funktion. Er soll sehen, wie weit das gehen kann.
+
+Richtig ist eine Folge, die sich öffnet:
+
+```
+1 · Fahrzeugstand an einem Ort          jetzt     (SF-02)
+2 · Anfragen automatisch zuordnen       danach    (SF-01)
+3 · Kunden sehen selbst nach            danach    (SF-10)
+4 · Kunden- und Fahrzeughistorie        spaeter   (SF-24)
+5 · Erinnerungen und Nachfassen         spaeter   (SF-17)
+```
+
+Jede Zeile macht etwas auf, das die Zeile darüber nicht berührt hat.
+
+### Wie du ihn baust
+
+- **Vier bis sechs Stufen.** Weniger ist kein Weg, mehr ist ein Katalog.
+- **Die erste Stufe ist `jetzt`** und beschreibt die Grundlage, die du
+  gerade empfohlen hast. Sie trägt dieselbe Familie wie deine Module. Ohne
+  sie hinge der Rest in der Luft.
+- **Danach steigt die Ambition:** `danach` für die Bereiche, die auf der
+  Grundlage aufsetzen, `spaeter` für das, was er heute nicht auf dem Schirm
+  hat.
+- **Keine Familie zweimal.** Jede Stufe nennt Familien, die keine frühere
+  Stufe schon genannt hat. Der Server weist die Antwort sonst zurück — und
+  er hat recht: Ein Weg, der zweimal dieselbe Tür öffnet, führt nirgendwohin.
+- **Die Reihenfolge steht im Katalog.** `reihenfolge_hinweis` sagt dir, was
+  eine Familie voraussetzt; `typische_kombination` sagt dir, was neben ihr
+  steht. Rate nicht.
+
+### Die Felder
+
+- `stufe` — `jetzt`, `danach` oder `spaeter`.
+- `name` — der Bereich, nicht das Produkt. „Kunden selbst Auskunft
+  ermöglichen", nicht „Kundenportal Pro". Höchstens sechs Wörter.
+- `nutzen` — ein Satz in der Sie-Form: **was er dann nicht mehr selbst
+  macht.** Höchstens vierzehn Wörter, keine Zahl, keine Ersparnis.
+- `bausteine` — zwei bis fünf greifbare Teile dieses Bereichs, je zwei bis
+  vier Wörter, in seiner Sprache. Sie zeigen, woraus so ein Schritt besteht.
+
+  > Für ein Kundenportal etwa: „Stand des Auftrags", „Freigaben online",
+  > „Rechnungen ansehen", „Termine vereinbaren".
+
+  Das sind **keine** `baustein_refs` aus dem Katalog. Sie müssen zu der
+  gewählten Familie passen, aber du schreibst sie in seiner Sprache.
+- `solution_family_ids` — die Kennungen, aus denen dieser Bereich kommt.
+  Mindestens eine, aus dem Katalog. Der Server prüft sie.
+
+### Beleg für das Problem, Freiheit für den Weg
+
+Für den Ausbaupfad brauchst du **keinen** Satz wie „Ich hätte gern ein
+Kundenportal". Den sagt niemand. Was belegt sein muss, ist der Engpass; was
+daraus wachsen kann, darf über das hinausgehen, was er kennt — sonst
+verkaufst du ihm nur, was er sich schon selbst ausgedacht hat.
+
+Belegt ist beim KFZ-Betrieb: viele Statusanfragen, Telefon unterbricht die
+Arbeit, die Information liegt irgendwo, der Kunde weiß nicht, was los ist.
+Daraus folgt legitim ein Weg über Zuordnung, Selbstauskunft, Historie und
+Nachfassen — auch wenn er keines dieser Wörter gesagt hat.
+
+**Aber der Weg muss zu diesem Betrieb passen.** Nicht jeder bekommt Portal,
+Historie, Erinnerungen und internen Assistenten. Wer allein arbeitet und
+zwanzig Kunden im Jahr hat, braucht kein Kundenportal. Prüf jede Stufe
+gegen `nicht_geeignet_wenn` der Familie und gegen das, was in der Diagnose
+steht. Eine Stufe, die du nur hinschreibst, damit es fünf werden, ist eine
+Branchenvorlage — und Branchenvorlagen sind genau das, wogegen dieser
+ganze Weg gebaut ist.
 
 ## Ein Zielbild, keine Sammlung von Einzelteilen
 

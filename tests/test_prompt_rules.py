@@ -455,17 +455,12 @@ def test_the_third_stage_may_name_what_he_does_not_know() -> None:
     Ohne sie endet jede Auswertung bei dem, was der Betrieb ohnehin schon
     ahnt. Mit ihr sagt die Seite: hier ist der einfache Einstieg — und hier
     ist, was darüber hinaus möglich wäre.
-
-    Die Fessel bleibt: Gibt der freigegebene Katalog nichts her, das auf
-    einen belegten Engpass zeigt, bleibt die Stufe leer.
     """
 
     fliess = _fliesstext(AUSWAHL)
 
     assert 'Das ist die Ambitionsebene, kein Bauplan' in fliess
     assert 'was er noch nicht kennt' in fliess
-    assert 'Zu jeder Lösung gehört ein Modul auf `spaeter`' in fliess
-    assert 'bleibt die Stufe leer — erfunden wird nichts' in fliess
 def test_the_bottleneck_may_lie_outside_the_business() -> None:
     """Nicht jeder Engpass ist ein Ablageproblem.
 
@@ -511,15 +506,128 @@ def test_one_module_is_the_exception() -> None:
     assert 'Ende zu Ende heisst: der ganze Weg' in fliess
 
 
-def test_the_outlook_does_not_depend_on_how_many_modules() -> None:
-    """Gerade die kleine Lösung braucht den Ausblick.
+def test_the_channel_is_a_choice_and_not_a_consequence() -> None:
+    """**Ein klingelndes Telefon ist kein Auftrag für einen Telefonbot.**
 
-    Die Regel hing an der Modulzahl — bei vier oder mehr. Bei einer
-    minimalen Lösung griff sie nie, und ausgerechnet dort fehlt der
-    Ausblick am meisten.
+    Der Prompt sagte: „Klingelt ständig das Telefon und niemand kann
+    rangehen, ist es der Telefonassistent." Damit war der Kanal aus dem
+    Engpass abgeleitet — und eine Werkstatt, deren Kunden nach dem Stand
+    fragen, bekam einen Assistenten, der Statusfragen am Telefon
+    beantwortet.
+
+    Der Anruf ist der Weg, nicht der Wunsch. Wer für jede Statusfrage
+    anrufen muss, hat kein Telefonproblem, sondern kein Fenster in seinen
+    Vorgang.
+    """
+
+    fliess = _fliesstext(ANSICHTEN)
+
+    assert 'die Frage nicht der Kanal, sondern das Anliegen' in fliess
+    assert 'Der Anruf ist der Weg, nicht der Wunsch' in fliess
+    assert 'hat kein Telefonproblem, sondern kein Fenster in seinen Vorgang' in fliess
+    # Die alte Verdrahtung darf nicht zurückkommen. Der Telefonassistent
+    # bleibt erlaubt — aber erst, nachdem nach dem Anliegen gefragt wurde,
+    # nicht als Schluss aus dem Klingeln.
+    assert 'Klingelt ständig das **Telefon**' not in fliess
+    assert 'nicht anders können' in fliess
+    assert '**Erst dann** ist es der Telefonassistent' in fliess
+
+
+def test_two_views_may_not_answer_the_same_question() -> None:
+    """Die Selbstauskunft und der Anruf zeigen nicht dasselbe.
+
+    „Kann ich mein Auto heute abholen?" neben einer Aussenansicht, die
+    genau das zeigt, führt den umständlicheren Weg vor. Der Betrachter
+    denkt dann nicht „gut gelöst", sondern „wozu dann das Portal".
+    """
+
+    fliess = _fliesstext(ANSICHTEN)
+
+    assert 'zeigt nie eine Frage, die eine andere Ansicht schon beantwortet' in fliess
+    assert 'Nimm den Anruf, der wirklich bleibt' in fliess
+
+
+def test_one_family_is_the_signal_to_check_again() -> None:
+    """**Eine einzige Familie ist fast immer eine übersprungene Stelle.**
+
+    Der Werkstattfall lief so: Anrufe unterbrechen die Arbeit, Kunden
+    kennen den Stand nicht, Zettel liegen in der Halle. Heraus kam
+    Vorgangsmanagement — drei Module, eine Familie. Der Stand liegt jetzt
+    an einem Ort, das Klingeln blieb, und was sein Kunde sieht, blieb
+    ebenfalls. Der Engpass war umgeräumt, nicht gelöst.
+
+    Die Vier-Stellen-Prüfung stand schon im Prompt und half nicht: Sie
+    ist abstrakt, und abstrakte Prüfungen hakt ein Modell ab. Das
+    konkrete Gegenbeispiel dazu ist der Unterschied.
     """
 
     fliess = _fliesstext(AUSWAHL)
 
-    assert 'unabhängig davon, wie viele es insgesamt sind' in fliess
-    assert 'bleibt die Stufe leer — erfunden wird nichts' in fliess
+    assert 'Die häufigste Art, diese Prüfung zu verfehlen, ist eine einzige Familie' in fliess
+    assert 'Der Engpass war nicht gelöst, sondern umgeräumt' in fliess
+    assert 'Hast du am Ende genau eine Familie, geh die vier Stellen noch einmal ab' in fliess
+
+
+def test_the_outlook_is_a_path_and_not_one_more_feature() -> None:
+    """**Der Ausblick war ein Merkmal. Er muss eine Richtung sein.**
+
+    Der Ausblick hing früher als Modul auf `spaeter` an derselben Liste
+    wie die Lösung — und schrieb sich entsprechend: Auf „ein gemeinsamer
+    Fahrzeugstand" folgte „Statusfragen automatisch beantworten". Dieselbe
+    Sache, ein Merkmal weiter. Wer das liest, kauft eine Funktion.
+
+    Eine Stufe ist deshalb kein Merkmal, sondern ein Bereich des Betriebs,
+    und der Prompt muss das sagen. Sonst fällt das Modell in die alte
+    Bahn zurück, weil sie die naheliegendste ist.
+    """
+
+    fliess = _fliesstext(AUSWAHL)
+
+    assert 'Eine Stufe ist kein weiteres Merkmal' in fliess
+    assert 'Eine Stufe ist ein Bereich des Betriebs' in fliess
+    assert 'Vier bis sechs Stufen' in fliess
+    assert 'Keine Familie zweimal' in fliess
+
+
+def test_the_path_may_exceed_what_he_asked_for() -> None:
+    """Kein Kunde sagt „Ich hätte gern ein Kundenportal".
+
+    Für den Engpass gilt die harte Bindung an seine Worte. Für den Weg
+    daraus nicht — sonst verkauft die Seite ihm nur, was er sich schon
+    selbst ausgedacht hat, und der ganze Abschnitt wäre überflüssig.
+    """
+
+    fliess = _fliesstext(AUSWAHL)
+
+    assert 'Beleg für das Problem, Freiheit für den Weg' in fliess
+    assert 'Was belegt sein muss, ist der Engpass' in fliess
+
+
+def test_the_path_is_not_an_industry_template() -> None:
+    """Die Gegenprobe zur Freiheit.
+
+    „Der Weg darf über seine Worte hinausgehen" wird ohne diese Grenze zu
+    „jeder Betrieb bekommt Portal, Historie, Erinnerungen und Assistent" —
+    also zu einer Branchenvorlage, und Branchenvorlagen sind genau das,
+    wogegen der ganze Katalogweg gebaut ist.
+    """
+
+    fliess = _fliesstext(AUSWAHL)
+
+    assert 'Nicht jeder bekommt Portal' in fliess
+    assert 'damit es fünf werden, ist eine Branchenvorlage' in fliess
+
+
+def test_the_ordering_comes_from_the_catalogue_not_from_guessing() -> None:
+    """Der Katalog weiss, was worauf aufbaut — er wurde nur nie gefragt.
+
+    Jede Familie trägt einen `reihenfolge_hinweis`, und keiner davon kam
+    je in einen Prompt. Ein Modell, das die Reihenfolge raten muss, hängt
+    an die gewählte Familie eine Variante derselben Familie.
+    """
+
+    fliess = _fliesstext(AUSWAHL)
+
+    assert 'Die Reihenfolge steht im Katalog' in fliess
+    assert '`reihenfolge_hinweis` sagt dir, was eine Familie voraussetzt' in fliess
+    assert 'Rate nicht' in fliess

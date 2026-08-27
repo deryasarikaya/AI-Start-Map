@@ -942,6 +942,72 @@ class Diagnose(StrictResultModel):
     rueckfrage: FollowUp | None = None
 
 
+#: Die vier Stellen, an denen ein Ablauf hängen bleiben kann.
+Stelle = Literal["eingang", "zusammenlauf", "sichtbarkeit", "ergebnis"]
+
+
+class Abdeckung(StrictResultModel):
+    """Eine der vier Stellen des Ablaufs — und was sie abdeckt.
+
+    **Warum das ein Feld ist und keine Prompt-Regel.**
+
+    Die Regel stand schon da: „Geh den ganzen Weg ab und prüfe jede Stelle
+    einzeln." Drei Läufe auf demselben Fall wählten daraufhin eine, drei
+    und wieder eine Familie. Eine Prüfung, die niemand aufschreiben muss,
+    wird abgehakt — sie kostet nichts, sie hinterlässt nichts, und ihr
+    Ergebnis kann niemand nachlesen.
+
+    Aufgeschrieben kostet sie etwas: Wer „eingang: nicht abgedeckt"
+    hinschreiben muss, sieht, dass der Anruf weiterhin ungefiltert
+    ankommt. Das ist der ganze Zweck.
+
+    Der Kunde sieht davon nichts. Es steht im Protokoll und im Vertrag.
+    """
+
+    stelle: Stelle
+    #: Welche gewählten Familien diese Stelle abdecken. Leer ist erlaubt —
+    #: aber dann muss `begruendung` sagen, warum das in Ordnung ist.
+    abgedeckt_durch: Annotated[list[str], Field(max_length=4)] = []
+    #: Bei Abdeckung: was dort geschieht. Ohne Abdeckung: warum diese
+    #: Stelle für diesen Betrieb keine ist.
+    begruendung: NonEmptyText
+
+
+class Ausbaustufe(StrictResultModel):
+    """Ein Schritt auf dem Weg vom ersten Engpass zum verbundenen Betrieb.
+
+    **Der Unterschied zu einem Modul.** Ein Modul ist ein Teil der Lösung,
+    die jetzt gebaut wird. Eine Ausbaustufe ist ein *Bereich des Betriebs*,
+    der danach dazukommen kann — die Kundenkommunikation, die Selbst-
+    auskunft, die Kundenhistorie, das Nachfassen.
+
+    Solange der Ausblick ein Modul war, blieb er auf derselben Schiene:
+    Auf einen gemeinsamen Fahrzeugstand folgte „Statusfragen automatisch
+    beantworten" — dieselbe Sache, ein Feature weiter. Ein Betrieb, der so
+    etwas liest, sieht eine Funktion. Er soll sehen, wie weit das gehen
+    kann.
+    """
+
+    #: Wann dieser Bereich an die Reihe kommt. Die erste Stufe ist immer
+    #: `jetzt` — das ist die Grundlage, die gerade empfohlen wurde.
+    stufe: Stage
+    #: Der Bereich, um den es geht. „Kundenkommunikation anbinden",
+    #: „Kunden selbst Auskunft ermöglichen" — keine Produktnamen.
+    name: NonEmptyText
+    #: **Was der Betrieb dann nicht mehr selbst macht**, in einem Satz.
+    #: Wie bei `Module.nutzen`: Die Beschreibung sagt, was entsteht; das
+    #: hier sagt, warum es ihn angeht.
+    nutzen: NonEmptyText
+    #: Zwei bis fünf greifbare Teile dieses Bereichs, in seiner Sprache.
+    #: Der Kunde soll sehen, woraus so ein Schritt besteht, ohne dass
+    #: daraus schon ein Angebot wird.
+    bausteine: Annotated[list[NonEmptyText], Field(max_length=6)] = []
+    #: **Woher dieser Bereich kommt.** Intern, der Kunde sieht es nie.
+    #: Ohne Katalogbindung wäre der Ausbaupfad genau das, was dieser ganze
+    #: Weg verhindert: eine überzeugend klingende Erfindung.
+    solution_family_ids: Annotated[list[str], Field(min_length=1, max_length=3)]
+
+
 class Zielarchitektur(StrictResultModel):
     """Die ausgewählte Lösung und ihre Formulierung — Aufruf 2.
 
@@ -969,6 +1035,69 @@ class Zielarchitektur(StrictResultModel):
     zielbild: TargetPicture
     vergleich_kuenftig: Annotated[list[NonEmptyText], Field(max_length=7)]
     module: Annotated[list[SelectedModule], Field(max_length=9)]
+    #: **Wie die Lösung mit dem Betrieb wachsen kann.** Drei bis sechs
+    #: Stufen, jede ein eigener Bereich. Leer mit Vorgabe, damit ältere
+    #: gespeicherte Ergebnisse lesbar bleiben.
+    ausbaupfad: Annotated[list[Ausbaustufe], Field(max_length=6)] = []
+    #: **Der ausgeschriebene Weg.** Vier Einträge, einer je Stelle. Leer
+    #: mit Vorgabe, damit ältere gespeicherte Ergebnisse lesbar bleiben.
+    abdeckung: Annotated[list[Abdeckung], Field(max_length=4)] = []
+
+    @model_validator(mode="after")
+    def the_whole_way_is_written_down(self) -> Zielarchitektur:
+        """Vier Stellen, jede genau einmal, jede mit einem Satz.
+
+        Ohne Katalogtreffer entfällt die Prüfung: Wo nichts empfohlen
+        wird, gibt es auch nichts abzudecken.
+
+        Eine Stelle ohne Abdeckung ist erlaubt — nicht jeder Betrieb hat
+        an jeder Stelle ein Problem. Sie muss nur benannt sein. Genau
+        darin liegt der Nutzen: Wer hinschreiben muss, dass der Eingang
+        offen bleibt, sieht es auch.
+        """
+
+        if not self.catalog_fit or not self.abdeckung:
+            return self
+        from app import solution_catalog
+
+        gesehen: list[str] = []
+        for eintrag in self.abdeckung:
+            if eintrag.stelle in gesehen:
+                raise ValueError(
+                    f"Die Stelle „{eintrag.stelle}“ steht zweimal in der "
+                    "Abdeckung. Jede Stelle genau einmal."
+                )
+            gesehen.append(eintrag.stelle)
+            eigene, fremde = solution_catalog.pruefe_auswahl(
+                eintrag.abgedeckt_durch
+            )
+            if fremde:
+                raise ValueError(
+                    f"Die Stelle „{eintrag.stelle}“ nennt eine Familie, die "
+                    f"es nicht gibt: {fremde}."
+                )
+            ausserhalb = [
+                kennung
+                for kennung in eigene
+                if kennung not in self.selected_solution_family_ids
+            ]
+            if ausserhalb:
+                raise ValueError(
+                    f"Die Stelle „{eintrag.stelle}“ nennt {ausserhalb}, aber "
+                    "diese Familie wurde nicht ausgewählt."
+                )
+            eintrag.abgedeckt_durch = eigene
+        fehlend = [
+            stelle
+            for stelle in ("eingang", "zusammenlauf", "sichtbarkeit", "ergebnis")
+            if stelle not in gesehen
+        ]
+        if fehlend:
+            raise ValueError(
+                f"In der Abdeckung fehlen diese Stellen: {fehlend}. Der Weg "
+                "wird ganz abgegangen oder gar nicht."
+            )
+        return self
 
     @model_validator(mode="after")
     def every_module_comes_from_the_catalogue(self) -> Zielarchitektur:
@@ -1040,6 +1169,49 @@ class Zielarchitektur(StrictResultModel):
             modul.baustein_refs = getroffen
         return self
 
+    @model_validator(mode="after")
+    def the_path_opens_a_new_area_each_step(self) -> Zielarchitektur:
+        """Jede Stufe eine Familie, und keine Familie zweimal.
+
+        Die Kennungen müssen im freigegebenen Katalog stehen — sonst wäre
+        der Ausbaupfad genau das, wogegen dieser ganze Weg gebaut ist.
+
+        **Und keine Stufe wiederholt die Familie einer früheren.** Daran
+        wäre der alte Ausblick gescheitert: „Gemeinsamer Fahrzeugstand"
+        und danach „Statusauskunft zum Fahrzeugstand" sind zwei Kacheln
+        und ein Thema. Ein Weg, der zweimal dieselbe Tür öffnet, führt
+        nirgendwohin — und der Betrieb, der ihn liest, sieht eine
+        Funktion statt einer Richtung.
+        """
+
+        from app import solution_catalog
+
+        schon_offen: list[str] = []
+        for schritt in self.ausbaupfad:
+            eigene, fremde = solution_catalog.pruefe_auswahl(
+                schritt.solution_family_ids
+            )
+            if fremde:
+                raise ValueError(
+                    f"Die Ausbaustufe „{schritt.name}“ nennt eine Familie, "
+                    f"die es nicht gibt: {fremde}."
+                )
+            if not eigene:
+                raise ValueError(
+                    f"Die Ausbaustufe „{schritt.name}“ nennt keine Familie "
+                    "aus dem Katalog."
+                )
+            wiederholt = [kennung for kennung in eigene if kennung in schon_offen]
+            if wiederholt:
+                raise ValueError(
+                    f"Die Ausbaustufe „{schritt.name}“ öffnet mit "
+                    f"{wiederholt} denselben Bereich noch einmal. Jede Stufe "
+                    "erschliesst einen Bereich, den die vorigen nicht haben."
+                )
+            schritt.solution_family_ids = eigene
+            schon_offen.extend(eigene)
+        return self
+
 
 class ResultPartOne(StrictResultModel):
     """Der obere Teil der Ergebnisseite — der erste Modellaufruf.
@@ -1061,6 +1233,17 @@ class ResultPartOne(StrictResultModel):
     # Die Obergrenze bleibt — sie schützt vor einer Aufzählung statt einer
     # Lösung.
     module: Annotated[list[Module], Field(max_length=9)]
+    # **Der Ausbaupfad, nicht ein weiteres Modul.**
+    #
+    # Er steht neben den Modulen und nicht zwischen ihnen: Die Module
+    # sind die Lösung, die gebaut wird; der Pfad ist das, was danach
+    # möglich wird. Solange beides dieselbe Liste war, las sich der
+    # Ausblick wie ein viertes Modul — und das Modell schrieb ihn auch
+    # so.
+    #
+    # Leer mit Vorgabe, damit gespeicherte Ergebnisse von vorher lesbar
+    # bleiben; die Vorlage lässt den Abschnitt dann weg.
+    ausbaupfad: Annotated[list[Ausbaustufe], Field(max_length=6)] = []
     # `None` ist der Normalfall und kein Mangel: Ein Agent, der nur fragt,
     # wenn er etwas braucht, wirkt klüger als einer, der immer fragt. Der
     # Vorgabewert steht hier, damit ein älteres gespeichertes Ergebnis ohne

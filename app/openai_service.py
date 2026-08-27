@@ -900,6 +900,20 @@ def generate_target_architecture(
         gewaehlt.catalog_fit,
         gewaehlt.recommend_new_technology,
     )
+    # **Welche Stellen offen geblieben sind, gehört ins Protokoll.**
+    # Eine Lösung, die drei der vier Stellen abdeckt, sieht im Ergebnis
+    # vollständig aus — man sieht ihr nicht an, was fehlt. Hier steht es.
+    if gewaehlt.abdeckung:
+        offen = [
+            eintrag.stelle
+            for eintrag in gewaehlt.abdeckung
+            if not eintrag.abgedeckt_durch
+        ]
+        logger.info(
+            "solution.coverage stufen=%d offen=%s",
+            len(gewaehlt.ausbaupfad),
+            offen or "keine",
+        )
     return gewaehlt
 
 
