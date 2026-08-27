@@ -229,7 +229,7 @@ def test_the_stored_example_carries_a_full_result(client: TestClient) -> None:
     seite = client.get("/beispiel/hausverwaltung").text
 
     for abschnitt in (
-        "Das haben wir verstanden",
+        "Das haben Sie uns gesagt",
         "Was sich dadurch ändert",
         "Das hätten Sie künftig vor sich",
         "Das würden wir für Sie umsetzen",

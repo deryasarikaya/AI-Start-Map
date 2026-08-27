@@ -127,29 +127,45 @@
    im Ausdruck. Auf dieser Seite entscheidet er in wenigen Sekunden, ob er
    weiterschaut, und dafür genügt: Wir haben es begriffen, hier ist Ihr
    eigener Satz als Beweis. #}
+{# **Seine Zahlen, nicht unsere.** Andere Auswertungen setzen hier einen
+   Punktestand hin — 78 von 100 — der aus ein paar Ankreuzfragen entsteht.
+   Das sieht aus wie eine Messung und ist geraten.
+
+   Was hier steht, hat der Kunde selbst gesagt: 450 Einheiten, 70 oder 80
+   E-Mails, ~620 Wartungskunden. Gross gesetzt tun sie dasselbe — sie machen
+   den Abstand sichtbar —, nur sind sie wahr. Eckdaten ohne Menge fallen
+   weg; „Outlook, Excel, Laufwerk" ist eine Bestandsliste und gehört nicht
+   auf die Seite, auf der er entscheidet, ob er weiterschaut. #}
+{%- set kennzahlen = e.verstanden.eckdaten | map('als_kennzahl')
+                     | select | list -%}
+{% set beleg = e.verstanden.belege[0] if e.verstanden.belege else none %}
 <header class="kopf">
   <div class="flaeche kopfraster">
     <div class="kopftext">
       <p class="marke">AI Start Map · Auswertung</p>
       <h1>So könnte Ihr Betrieb künftig laufen</h1>
-      <p class="unterzeile">{{ e.zielbild.beschreibung }}</p>
-      {% if e.verstanden.eckdaten %}
-      <ul class="eckdaten">
-        {% for eckdatum in e.verstanden.eckdaten %}
-        <li>{{ eckdatum }}</li>
-        {% endfor %}
-      </ul>
+      <p class="befund">{{ e.kurzfassung.engpass_satz }}</p>
+      {% if beleg %}
+      <figure class="zitat">
+        <blockquote>„{{ beleg.zitat }}“</blockquote>
+        <figcaption>Ihre eigenen Worte</figcaption>
+      </figure>
       {% endif %}
     </div>
 
-    <figure class="zitatkarte">
-      <figcaption>Das haben wir verstanden</figcaption>
-      <p class="befund">{{ e.kurzfassung.engpass_satz }}</p>
-      {% set beleg = e.verstanden.belege[0] if e.verstanden.belege else none %}
-      {% if beleg %}
-      <blockquote>„{{ beleg.zitat }}“</blockquote>
-      {% endif %}
-    </figure>
+    {% if kennzahlen %}
+    <aside class="kennzahlen">
+      <p class="kennzahlenkopf">Das haben Sie uns gesagt</p>
+      <ul>
+        {% for kennzahl in kennzahlen[:4] %}
+        <li>
+          <b>{{ kennzahl.zahl }}</b>
+          <span>{{ kennzahl.wort }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </aside>
+    {% endif %}
   </div>
 </header>
 

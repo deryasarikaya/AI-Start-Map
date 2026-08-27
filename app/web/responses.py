@@ -7,6 +7,7 @@ aus `routes.py` hierher verschoben.
 from __future__ import annotations
 
 import os
+import re
 from pathlib import Path
 from urllib.parse import quote
 
@@ -112,6 +113,58 @@ def kanalsymbol(text: str) -> str:
 
 
 templates.env.filters["kanalsymbol"] = kanalsymbol
+
+# Ausgeschriebene Zahlwörter. „Acht Leute" ist genauso seine Angabe wie
+# „450 Einheiten" — nur schreibt er das eine aus und das andere nicht.
+ZAHLWOERTER = (
+    "ein",
+    "eine",
+    "zwei",
+    "drei",
+    "vier",
+    "fünf",
+    "sechs",
+    "sieben",
+    "acht",
+    "neun",
+    "zehn",
+    "elf",
+    "zwölf",
+)
+
+#: Eine Mengenangabe am Anfang, gefolgt von dem, was gezählt wird.
+#: Deckt „450 Einheiten", „~620 Wartungskunden", „70 oder 80 E-Mails",
+#: „250 bis 320 Teilnehmer/Monat" und „Sechs bis acht Kurse/Woche" ab.
+_MENGE = (
+    r"(?:[~≈ca.\s]*\d[\d.,]*|" + "|".join(ZAHLWOERTER) + r")"
+)
+KENNZAHL_PATTERN = re.compile(
+    r"^\s*(" + _MENGE + r"(?:\s*(?:bis|oder|–|-|\+)\s*" + _MENGE + r")?)"
+    r"\s+(\S.*)$",
+    re.IGNORECASE,
+)
+
+
+def als_kennzahl(text: str) -> dict[str, str] | None:
+    """Zerlegt ein Eckdatum in Zahl und Bezeichnung, oder gibt nichts zurück.
+
+    „450 Einheiten" wird zu `{"zahl": "450", "wort": "Einheiten"}`. Was mit
+    keiner Menge anfängt, ist keine Kennzahl — „Outlook, Excel, Laufwerk"
+    ist eine Bestandsliste und gehört nicht in den Kopf einer Verkaufsseite.
+
+    Erfunden wird nichts: Beide Teile stehen wörtlich in dem, was der Kunde
+    gesagt hat, nur getrennt gesetzt.
+    """
+
+    treffer = KENNZAHL_PATTERN.match(text.strip())
+    if treffer is None:
+        return None
+    zahl, wort = treffer.group(1).strip(), treffer.group(2).strip()
+    return {"zahl": zahl, "wort": wort}
+
+
+templates.env.filters["als_kennzahl"] = als_kennzahl
+
 
 
 PREVIEW_NOTICE = (

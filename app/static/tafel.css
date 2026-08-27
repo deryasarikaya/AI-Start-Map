@@ -114,35 +114,53 @@
   font-weight: 680; line-height: 1.15; letter-spacing: -.025em;
   color: #fff;
 }
-.tafel .unterzeile {
-  margin: 0; font-size: 1.06rem; color: #cfe0fb; max-width: 56ch;
+/* Der Befund ist die Unterzeile: ein Satz über seinen Engpass, in seiner
+ * Sache. Vorher stand hier die Beschreibung des Zielbilds — eine Erklärung,
+ * bevor irgendetwas gezeigt wurde. */
+.tafel .befund {
+  margin: 0; font-size: 1.16rem; font-weight: 500; line-height: 1.45;
+  color: #dbe7fb; max-width: 54ch;
 }
-.tafel .eckdaten {
-  list-style: none; display: flex; flex-wrap: wrap; gap: 8px;
-  margin: 22px 0 0; padding: 0;
+.tafel .zitat {
+  margin: 22px 0 0; padding-left: 16px;
+  border-left: 2px solid rgb(255 255 255 / .28);
 }
-.tafel .eckdaten li {
-  background: rgb(255 255 255 / .11); border: 1px solid rgb(255 255 255 / .16);
-  border-radius: 999px; padding: 5px 13px; font-size: .85rem; color: #e4edfd;
+.tafel .zitat blockquote {
+  margin: 0; font-size: 1rem; line-height: 1.5; font-style: italic;
+  color: #eaf1fd;
+}
+.tafel .zitat figcaption {
+  margin-top: 7px; font-size: .74rem; letter-spacing: .12em;
+  text-transform: uppercase; color: #93b4f0;
 }
 
-.tafel .zitatkarte {
-  margin: 0; background: rgb(255 255 255 / .1);
-  border: 1px solid rgb(255 255 255 / .18);
-  border-radius: var(--rund); padding: 22px 24px;
+/* **Seine Zahlen, gross.** Das Gegenstück zum Punktestand anderer
+ * Auswertungen — nur geraten die ihren, und diese hier hat er gesagt.
+ * Zwei mal zwei, damit der Kopf ein Schirm bleibt und nicht scrollt. */
+.tafel .kennzahlen {
+  background: rgb(255 255 255 / .07);
+  border: 1px solid rgb(255 255 255 / .14);
+  border-radius: 18px; padding: 22px 24px 24px;
 }
-.tafel .zitatkarte figcaption {
-  font-size: .78rem; letter-spacing: .1em; text-transform: uppercase;
-  color: #93b4f0; margin-bottom: 12px;
+.tafel .kennzahlenkopf {
+  margin: 0 0 16px; font-size: .74rem; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: #93b4f0;
 }
-.tafel .befund {
-  margin: 0 0 10px; font-size: 1.06rem; font-weight: 600; line-height: 1.4;
+.tafel .kennzahlen ul {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 22px;
 }
-.tafel .zitatkarte blockquote {
-  margin: 14px 0 0; padding-top: 14px; font-size: .98rem; line-height: 1.5;
-  font-style: italic; border-top: 1px solid rgb(255 255 255 / .18);
+/* Sehr gross neben sehr klein. Eine Zahl in Fliesstextgrösse ist keine
+ * Kennzahl mehr, sondern ein Wort mit Ziffern. */
+.tafel .kennzahlen b {
+  display: block; font-size: clamp(1.7rem, 2.4vw, 2.15rem); font-weight: 700;
+  line-height: 1.05; letter-spacing: -.03em; color: #fff;
 }
-.tafel .deutung { margin: 12px 0 0; font-size: .9rem; color: #bcd2f7; }
+.tafel .kennzahlen span {
+  display: block; margin-top: 3px; font-size: .82rem; color: #bcd2f7;
+  line-height: 1.3;
+}
 
 /* ── Das Ablaufband ───────────────────────────────────────────────────
  * Die Stufen kommen aus den Daten, also darf ihre Anzahl nicht im
