@@ -382,3 +382,15 @@ def test_a_quotation_is_short_enough_to_read() -> None:
 
     assert 'Wähl einen kurzen Satz' in fliess
     assert 'Wörtlich heisst nicht vollständig' in fliess
+def test_a_comparison_line_fits_on_a_card() -> None:
+    """Acht Wörter, sonst ist es kein Vergleich mehr, sondern ein Absatz.
+
+    Die Zeilen stehen paarweise auf einer Karte, vier davon nebeneinander.
+    Wer dort einen Nebensatz liest, hat den Vergleich schon verloren — und
+    das „statt …" ist ohnehin überflüssig, weil das Heute direkt daneben
+    steht.
+    """
+
+    assert 'Höchstens acht Wörter je Zeile' in _fliesstext(DIAGNOSE)
+    assert 'Höchstens acht Wörter je Zeile' in _fliesstext(AUSWAHL)
+    assert 'den Vergleich zieht der Leser selbst' in _fliesstext(AUSWAHL)

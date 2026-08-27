@@ -35,7 +35,7 @@
    * an der Stelle erscheint, an der Verarbeitung passiert. Ein einziger
    * starker Moment ist mehr wert als zehn Roboter-Symbole. */
   --ki: #3fa7a3;
-  --ki-tief: #1f6663;
+  --ki-tief: #1f7a72;
   /* Sehr sparsam: Fristen und Aufmerksamkeit. */
   --warm: #d9a441;
   /* Kein aggressives Rot. Das Heute ist der Ausgangspunkt, nicht der Alarm. */
@@ -216,14 +216,18 @@
   margin: 0 0 6px; font-size: .76rem; font-weight: 700;
   letter-spacing: .12em; text-transform: uppercase; color: var(--marke);
 }
-.tafel .bandkopf .lauftext { margin: 8px auto 0; max-width: 62ch; }
+/* Von Rand zu Rand. Mit `62ch` stand er als schmale Säule mitten auf
+ * einer breiten Fläche und brach nach zwei Dritteln um. */
+.tafel .bandkopf .lauftext { margin: 8px 0 0; max-width: none; }
 /* Eine durchgehende Linie hinter den Karten: Der Blick liest einen
  * Weg statt fuenf Kaesten. Die Karten liegen darauf. */
+/* **Kein Kasten um den ganzen Ablauf.** Der schwere Container war das,
+ * was aus dem Weg ein Architekturdiagramm gemacht hat — so etwas zeigt
+ * ein Berater einem IT-Team. Ohne ihn schweben die Stationen auf der
+ * Fläche, und die Verbindungen tragen den Weg allein. */
 .tafel .stufen {
-  list-style: none; margin: 0; padding: 34px 26px 26px; display: flex;
-  align-items: center; gap: 2px; background: var(--flaeche);
-  border-radius: 20px;
-  box-shadow: var(--heben-2); overflow-x: auto; position: relative;
+  list-style: none; margin: 0; padding: 22px 0 8px; display: flex;
+  align-items: center; gap: 2px; overflow-x: auto; position: relative;
 }
 /* Keine durchgehende Linie mehr hinter den Karten: Die Wege werden jetzt
  * wirklich gezeichnet — eine Kurve je Kanal, die im Schlüsselknoten
@@ -231,8 +235,8 @@
 .tafel .bandstufe {
   flex: 1 1 0; min-width: 170px; position: relative; z-index: 1;
   background: var(--flaeche);
-  border-radius: var(--rund); padding: 26px 15px 18px; text-align: center;
-  box-shadow: var(--heben-1);
+  border-radius: 16px; padding: 26px 16px 20px; text-align: center;
+  box-shadow: var(--heben-2);
 }
 .tafel .bandnummer {
   position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
@@ -277,8 +281,14 @@
   background: rgb(255 255 255 / .18); color: #eafaf9;
 }
 /* Was hinten herauskommt, ist das Ergebnis — gruen, nicht blau. */
+/* **Die Geschichte endet mit Ordnung.** Der Ausgang ist nicht die
+ * letzte Station unter gleichen, sondern der erreichte Zustand — also
+ * etwas grösser, etwas höher, mit einem weichen grünen Schein. */
 .tafel .bandstufe--ausgang {
-  background: linear-gradient(165deg, #e8f0ec, #f6f9f7);
+  flex: 1.1 1 0;
+  background: linear-gradient(165deg, #e4efe9, #f7faf8);
+  box-shadow: var(--heben-2), 0 0 38px -14px rgb(47 107 87 / .45);
+  transform: translateY(-4px); padding-bottom: 24px;
 }
 .tafel .bandstufe--ausgang .bandsymbol {
   background: #d7e8e0; color: var(--marke);
@@ -475,19 +485,33 @@
   align-items: start; margin: 0;
 }
 .tafel .wandelkarte svg { width: 16px; height: 16px; margin-top: 4px; }
-/* Das Heute ist leise: Es ist der Ausgangspunkt, nicht die Botschaft.
+/* Das Heute ist leise: der Ausgangspunkt, nicht die Botschaft.
  * Durchgestrichen wäre zu viel — es stimmt ja noch. */
 .tafel .heute {
-  font-size: .82rem; color: var(--tinte-leise); padding-bottom: 11px;
-  margin-bottom: 11px !important;
+  font-size: .8rem; color: var(--tinte-leise); padding-bottom: 13px;
+  margin-bottom: 15px !important;
   border-bottom: 1px solid var(--linie);
 }
-.tafel .heute svg { color: var(--heute); }
-/* Die Zukunft ist die laute Hälfte — das ist der ganze Sinn der Karte. */
+.tafel .heute svg { color: var(--heute); opacity: .75; }
+/* **Die Zukunft übernimmt die Karte.** Vorher lebten beide Hälften auf
+ * derselben Fläche mit fast demselben Gewicht — dann ist es eine
+ * Aufzählung und kein Wandel. Jetzt: eigenes Zeichen, grössere Schrift,
+ * grüner Grund. Das Alte wird kleiner, das Neue nimmt den Platz ein. */
 .tafel .kuenftig {
-  font-size: 1rem; font-weight: 600; line-height: 1.4; color: var(--tinte);
+  display: grid; grid-template-columns: 38px 1fr; gap: 13px;
+  align-items: start; margin: 0 -6px -4px; padding: 13px 14px 14px 12px;
+  border-radius: 12px; background: var(--gut-hell);
 }
-.tafel .kuenftig svg { color: var(--gut); }
+.tafel .kuenftig p {
+  display: block; margin: 0; font-size: 1.04rem; font-weight: 620;
+  line-height: 1.38; color: var(--marke-tief); letter-spacing: -.012em;
+}
+.tafel .wandelzeichen {
+  display: grid; place-items: center; width: 38px; height: 38px;
+  border-radius: 11px; background: #fff; color: var(--marke);
+  box-shadow: var(--heben-1);
+}
+.tafel .wandelzeichen svg { width: 19px; height: 19px; }
 
 /* ── Beispielansichten ────────────────────────────────────────────────
  * Die Vorschauen sind der Beweis, dass hier etwas Gebautes entsteht —

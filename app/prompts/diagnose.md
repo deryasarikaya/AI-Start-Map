@@ -94,8 +94,17 @@ zwei bis vier Wörter, zum Beispiel „Drei Personen" oder „Vier Eingangswege"
 Nur, was der Betrieb selbst gesagt hat.
 
 **vergleich_heute** — fünf bis sieben Zeilen: derselbe Vorgang, wie er
-**heute** läuft. Kurze Aussagesätze ohne Punkt am Ende. Nur was der
-Betrieb erzählt hat — das sind Kundenfakten, keine Vermutungen.
+**heute** läuft. Nur was der Betrieb erzählt hat — das sind Kundenfakten,
+keine Vermutungen.
+
+**Höchstens acht Wörter je Zeile, ohne Punkt am Ende.** Die Zeilen stehen
+auf der Ergebnisseite paarweise nebeneinander, und eine solche Karte muss
+man in zwei Sekunden erfassen können. Wer dort einen Nebensatz liest, hat
+den Vergleich schon verloren.
+
+> Nicht: Es wird geprüft, zu welchem Objekt die Nachricht gehört
+>
+> Sondern: Objekt von Hand heraussuchen
 
 ## Die Rückfrage — `rueckfrage`
 

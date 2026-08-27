@@ -184,6 +184,57 @@ def zahl_im_satz(text: str) -> dict[str, str] | None:
 
 templates.env.filters["zahl_im_satz"] = zahl_im_satz
 
+# Woran man eine Veränderung erkennt, bevor man sie liest. Wie bei den
+# Kanälen: ein geteilter Wortschatz kleiner Betriebe, keine Vorlage für
+# eine bestimmte Branche. Die Reihenfolge entscheidet — das erste passende
+# Wort gewinnt.
+WANDELWOERTER: tuple[tuple[str, str], ...] = (
+    ("erinner", "i-glocke"),
+    ("frist", "i-glocke"),
+    ("fällig", "i-glocke"),
+    ("benachrichtig", "i-glocke"),
+    ("akte", "i-akte"),
+    ("vorgang", "i-akte"),
+    ("ablage", "i-akte"),
+    ("dokument", "i-akte"),
+    ("beleg", "i-akte"),
+    ("zuordn", "i-verbindung"),
+    ("verknüpf", "i-verbindung"),
+    ("verbind", "i-verbindung"),
+    ("übernomm", "i-verbindung"),
+    ("abgleich", "i-verbindung"),
+    ("synchron", "i-verbindung"),
+    ("eingang", "i-eingang"),
+    ("postfach", "i-mail"),
+    ("e-mail", "i-mail"),
+    ("nachricht", "i-chat"),
+    ("zuständig", "i-person"),
+    ("person", "i-person"),
+    ("team", "i-person"),
+    ("übersicht", "i-schluessel"),
+    ("status", "i-schluessel"),
+    ("priorit", "i-schluessel"),
+    ("automatisch", "i-schluessel"),
+)
+
+
+def wandelsymbol(text: str) -> str:
+    """Das Zeichen zu einer Veränderung, oder das allgemeine Häkchen.
+
+    Gesucht wird in dem Satz, den das Modell geschrieben hat. Trifft nichts,
+    bleibt es beim Haken — erfunden wird kein Sinn, der nicht dasteht.
+    """
+
+    klein = text.casefold()
+    for wort, symbol in WANDELWOERTER:
+        if wort in klein:
+            return symbol
+    return "i-haken"
+
+
+templates.env.filters["wandelsymbol"] = wandelsymbol
+
+
 
 
 PREVIEW_NOTICE = (

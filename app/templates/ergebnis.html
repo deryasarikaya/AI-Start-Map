@@ -34,6 +34,19 @@
 <svg class="sprite" aria-hidden="true" focusable="false" width="0" height="0">
   <!-- Die Kanäle, durch die Arbeit hereinkommt. Sie sind das Erste, was
        jemand auf dieser Seite wiedererkennt: Das habe ich. -->
+  <symbol id="i-akte" viewBox="0 0 24 24">
+    <path d="M3 7.5A2 2 0 0 1 5 5.5h3.6l1.7 2H19a2 2 0 0 1 2 2v7.5a2 2 0 0
+             1-2 2H5a2 2 0 0 1-2-2z"/>
+  </symbol>
+  <symbol id="i-glocke" viewBox="0 0 24 24">
+    <path d="M18 15.5V10a6 6 0 1 0-12 0v5.5L4.5 18h15z"/>
+    <path d="M10 21a2.2 2.2 0 0 0 4 0"/>
+  </symbol>
+  <symbol id="i-verbindung" viewBox="0 0 24 24">
+    <circle cx="6" cy="6" r="2.6"/><circle cx="18" cy="18" r="2.6"/>
+    <circle cx="18" cy="6" r="2.6"/>
+    <path d="M8.4 7.4 15.6 16.6M8.6 6h6.8"/>
+  </symbol>
   <symbol id="i-telefon" viewBox="0 0 24 24">
     <path d="M6.5 3h3l1.5 4-2 1.5a12 12 0 0 0 6.5 6.5L17 13l4 1.5v3a2.5 2.5 0
              0 1-2.7 2.5A16.5 16.5 0 0 1 3 6.7 2.5 2.5 0 0 1 5.5 4z"/>
@@ -237,6 +250,10 @@
       {%- set links = e.vergleich.heute[:4] -%}
       {%- set rechts = e.vergleich.kuenftig[:4] -%}
       {% for kuenftig in rechts %}
+      {# Das Zeichen kommt aus dem Satz selbst — Eingang, Zuordnung,
+         Akte, Erinnerung. Vier gleich aussehende Karten sind vier
+         Absätze; mit je eigenem Symbol versteht man die vier
+         Veränderungen, bevor man ein Wort gelesen hat. #}
       <article class="wandelkarte" style="--verzug: {{ loop.index0 * 80 }}ms">
         {% if loop.index0 < links | length %}
         <p class="heute">
@@ -244,10 +261,12 @@
           <span>{{ links[loop.index0] }}</span>
         </p>
         {% endif %}
-        <p class="kuenftig">
-          <svg aria-hidden="true"><use href="#i-haken"/></svg>
-          <span>{{ kuenftig }}</span>
-        </p>
+        <div class="kuenftig">
+          <span class="wandelzeichen">
+            <svg aria-hidden="true"><use href="#{{ kuenftig | wandelsymbol }}"/></svg>
+          </span>
+          <p>{{ kuenftig }}</p>
+        </div>
       </article>
       {% endfor %}
     </div>
@@ -280,8 +299,9 @@
       <p class="zielbildname">{{ e.zielbild.name }}</p>
       {% endif %}
       <h2>So liefe Ihr Alltag künftig</h2>
-      <p class="lauftext">Heute läuft es anders. Das hier ist der Weg, den
-      eine Anfrage nähme, wenn die Lösung steht.</p>
+      <p class="lauftext">So wird aus Ihrem heutigen Ablauf ein klarer,
+      strukturierter Prozess mit weniger manueller Arbeit und mehr
+      Überblick.</p>
     </div>
     {# Jede Station bekommt eine eigene Gestalt. Gleich grosse Karten
        nebeneinander liest das Auge als Aufzählung — dann ist es gleichgültig,

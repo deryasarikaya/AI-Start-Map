@@ -278,6 +278,16 @@ die Lösung steht. Zeile für Zeile vergleichbar mit dem heutigen Ablauf aus
 der Diagnose: Was heute Zeile drei ist, ist künftig Zeile drei. Hier steht
 nur, **was sich ändert** — keine Begründung, keine Systembeschreibung.
 
+**Höchstens acht Wörter je Zeile.** Die Zeile steht auf der Ergebnisseite
+gross auf der Karte und trägt sie. Das „statt …" gehört nicht dazu —
+links daneben steht bereits, wie es heute ist, und den Vergleich zieht
+der Leser selbst.
+
+> Nicht: Gefundene Treffer werden direkt verknüpft statt separat in der
+> Hausverwaltungssoftware gesucht
+>
+> Sondern: Treffer werden direkt verknüpft
+
 **Jede Zeile muss dieselbe Sache meinen wie ihre Gegenzeile.** Nicht eine
 andere Sache, die auch wahr wäre. Beides nebeneinander liest jemand, der
 seinen eigenen Betrieb kennt: Passt es nicht zusammen, fällt es sofort auf
