@@ -73,8 +73,8 @@ def test_complete_public_journey(
     assert gespeichert.headers["location"] == "/processing"
 
     warteschirm = client.get("/processing")
-    assert "Ich lese, was du erzählt hast." in warteschirm.text
-    assert "Deine Erzählung ist gespeichert" in warteschirm.text
+    assert "Ich finde gerade heraus, was bei dir wirklich Sinn ergibt." in warteschirm.text
+    assert "Deine Beschreibung ist weiterhin vorhanden" in warteschirm.text
     assert "data-retry-analysis" in warteschirm.text
     # Abbrechen und "Erzählung bearbeiten" müssen auf eine Seite führen, die
     # es noch gibt - sonst läuft der Ausstieg ins Leere.

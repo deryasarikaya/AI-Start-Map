@@ -239,18 +239,38 @@ def analysis_status(
     session_id: int,
     database_session: Session = Depends(get_db_session),
 ) -> JSONResponse:
-    """Sagt dem wartenden Browser, ob die Auswertung fertig ist.
+    """Sagt dem wartenden Browser, wie weit die Auswertung ist.
 
     Diese Adresse ruft kein Mensch auf, sondern das Skript auf dem
     Warteschirm. Die Antwort ist JSON, keine Seite. Steht dort „complete",
     leitet der Browser selbst zum Ergebnis weiter.
+
+    **`phase` sagt, welcher Aufruf gerade läuft.** Ablesbar ist das am
+    Zwischenstand, den der Lauf zwischen den beiden Modellaufrufen
+    ablegt — ohne eine einzige zusätzliche Spalte:
+
+    * kein Zwischenstand → der erste Aufruf läuft (`verstehen`)
+    * Zwischenstand da   → der zweite Aufruf läuft (`loesung`)
+    * Ergebnis da        → `complete`
+
+    Mehr ist heute nicht belegbar. Der Warteschirm zeigt deshalb auch
+    nicht mehr: Ein Fortschritt, der nur so tut, ist schlechter als
+    keiner.
     """
 
     repository.get_session_or_404(database_session, session_id)
     complete = repository.get_result(database_session, session_id) is not None
+    zwischenstand = repository.get_partial_result(database_session, session_id)
+    if complete:
+        phase = "complete"
+    elif zwischenstand is not None and zwischenstand.payload:
+        phase = "loesung"
+    else:
+        phase = "verstehen"
     return JSONResponse(
         {
             "state": "complete" if complete else "pending",
+            "phase": phase,
             "redirect_url": (
                 f"/sessions/{session_id}/results" if complete else None
             ),

@@ -1,18 +1,48 @@
 {% extends "base.html" %}
 {% block title %}Dein Ergebnis wird vorbereitet · AI Start Map{% endblock %}
 {% block content %}
-{# Zwei Zwischenschritte, weil es zwei Modellaufrufe sind. Sie stehen fest auf
-   der Seite: Der Warteschirm erfährt nicht, welcher Aufruf gerade läuft, und
-   ein Fortschritt, der nur so tut, wäre schlechter als keiner. #}
+{# **Vier benannte Phasen, aber nur zwei sind belegbar.**
+
+   Die Statusabfrage kann heute genau zwei Dinge nachweisen: dass die
+   Erzählung übernommen ist, und welcher der beiden Modellaufrufe gerade
+   läuft. Mehr steht nirgends, also wird auch nicht mehr behauptet — die
+   übrigen Phasen stehen neutral da, nicht als erledigt.
+
+   Vorher war die mittlere von drei Zeilen immer aktiv, egal was
+   tatsächlich geschah. Das ist kein Fortschritt, sondern ein Bild davon. #}
 <nav class="journey-progress" aria-label="Fortschritt"><span class="done">Erzählen ✓</span><span class="current">Auswerten ●</span></nav>
 <section class="processing-card" data-analyze-url="{{ url_for('analyze_session_public') }}" data-status-url="{{ url_for('analysis_status_public') }}" data-edit-url="{{ url_for('show_interview_public') }}">
-    <div class="processing-indicator" aria-hidden="true"><span></span><span></span><span></span></div>
-    <h1 class="page-title">Ich lese, was du erzählt hast.</h1>
-    <p class="page-description">Das dauert etwa eine Minute. Du musst nichts weiter tun.</p>
+    <h1 class="page-title">Ich finde gerade heraus, was bei dir wirklich Sinn ergibt.</h1>
+    <p class="page-description">Ich prüfe deinen Ablauf, passende Automatisierungen und auch größere KI-Möglichkeiten für deinen Betrieb.</p>
+
+    {# Die Zeile wechselt mit der Phase. Eine einzige, nicht vier
+       gleichzeitig — sonst liest man wieder eine Liste statt einen
+       Vorgang. #}
+    <p class="laufzeile" data-laufzeile aria-live="polite">Ich ordne deine Aussagen gerade ein …</p>
+
+    <ol class="phasen" data-phasen>
+      <li class="phase phase--fertig" data-phase="uebernommen">
+        <span class="phasenpunkt" aria-hidden="true"></span>
+        <div><b>Verstehen</b><span>Deine Aussagen und Zusammenhänge werden eingeordnet.</span></div>
+      </li>
+      <li class="phase" data-phase="verstehen">
+        <span class="phasenpunkt" aria-hidden="true"></span>
+        <div><b>Erkennen</b><span>Engpässe und Automatisierungspotenziale werden herausgearbeitet.</span></div>
+      </li>
+      <li class="phase" data-phase="loesung">
+        <span class="phasenpunkt" aria-hidden="true"></span>
+        <div><b>Möglichkeiten prüfen</b><span>Von schnellen Entlastungen bis zu größeren KI-Lösungen.</span></div>
+      </li>
+      <li class="phase" data-phase="ergebnis">
+        <span class="phasenpunkt" aria-hidden="true"></span>
+        <div><b>Ergebnis zusammenstellen</b><span>Deine Empfehlung und dein Zukunftsbild werden vorbereitet.</span></div>
+      </li>
+    </ol>
+
+    <p class="page-description wartehinweis">Du musst nichts weiter tun. Die Auswertung dauert meist etwa eine Minute.<span>Längere Beschreibungen können etwas mehr Zeit brauchen.</span></p>
     <p class="processing-delay" data-processing-delay hidden>Das dauert diesmal etwas länger.</p>
     <a class="processing-cancel" data-processing-cancel href="{{ url_for('show_interview_public') }}" hidden>Abbrechen und zurück zu meiner Erzählung</a>
-    <ol class="processing-steps" aria-live="polite"><li class="complete">✓ Deine Erzählung wurde übernommen</li><li class="active">• Dein Engpass wird herausgearbeitet</li><li>○ Deine Lösung wird zusammengestellt</li></ol>
-    <section class="processing-error" role="alert" hidden><h2>Das hat gerade nicht geklappt. Versuch es bitte noch einmal.</h2><p>Deine Erzählung ist gespeichert. Du musst nichts noch einmal erzählen.</p><div class="form-actions"><button class="primary-button" type="button" data-retry-analysis>Wiederholen</button><a class="secondary-button button-link" data-edit-answers href="#">Erzählung bearbeiten</a></div></section>
+    <section class="processing-error" role="alert" hidden><h2>Die Auswertung konnte gerade nicht abgeschlossen werden.</h2><p>Deine Beschreibung ist weiterhin vorhanden. Du kannst es erneut versuchen.</p><div class="form-actions"><button class="primary-button" type="button" data-retry-analysis>Auswertung erneut starten</button><a class="secondary-button button-link" data-edit-answers href="#">Beschreibung bearbeiten</a></div></section>
 </section>
 {% endblock %}
 {% block scripts %}
@@ -24,10 +54,76 @@
     const edit = card.querySelector("[data-edit-answers]");
     const delayMessage = card.querySelector("[data-processing-delay]");
     const cancel = card.querySelector("[data-processing-cancel]");
+    const laufzeile = card.querySelector("[data-laufzeile]");
+    const stationen = [...card.querySelectorAll("[data-phase]")];
     let running = false;
     let delayTimer;
     let cancelTimer;
     edit.href = card.dataset.editUrl;
+
+    // Die Reihenfolge der Stationen. Belegbar sind nur "verstehen" und
+    // "loesung" -- das sind die beiden Modellaufrufe. "ergebnis" meldet der
+    // Server nicht, die Station bleibt deshalb unmarkiert, bis alles fertig
+    // ist. Lieber eine Station ohne Haken als ein Haken ohne Grund.
+    const FOLGE = ["uebernommen", "verstehen", "loesung", "ergebnis"];
+    const LAUFZEILEN = {
+        verstehen: [
+            "Ich ordne deine Aussagen gerade ein …",
+            "Ich suche, was bei dir immer wieder Zeit kostet …",
+            "Ich prüfe, wo dein Ablauf hängen bleibt …",
+        ],
+        loesung: [
+            "Ich gehe die passenden Lösungen durch …",
+            "Ich prüfe auch größere KI-Möglichkeiten für deinen Betrieb …",
+            "Ich stelle dein Ergebnis zusammen …",
+        ],
+    };
+    let phase = "verstehen";
+    let zeilenNummer = 0;
+    let zeilenTimer;
+
+    const zeigeZeile = (text) => {
+        if (!laufzeile || laufzeile.textContent === text) return;
+        laufzeile.dataset.wechsel = "";
+        window.setTimeout(() => {
+            laufzeile.textContent = text;
+            delete laufzeile.dataset.wechsel;
+        }, 300);
+    };
+    const naechsteZeile = () => {
+        const zeilen = LAUFZEILEN[phase];
+        if (!zeilen) return;
+        zeigeZeile(zeilen[zeilenNummer % zeilen.length]);
+        zeilenNummer += 1;
+    };
+    const setzePhase = (neu) => {
+        const bis = neu === "complete" ? FOLGE.length : FOLGE.indexOf(neu);
+        if (bis < 0) return;
+        stationen.forEach((station, nummer) => {
+            station.classList.toggle("phase--fertig", nummer < bis);
+            station.classList.toggle("phase--aktiv", nummer === bis);
+        });
+        if (neu === phase) return;
+        phase = neu;
+        zeilenNummer = 0;
+        naechsteZeile();
+    };
+
+    // Der Lauf steckt im POST, der eine gute Minute braucht. Diese Schleife
+    // fragt daneben nach, wie weit er ist -- ohne ihn zu beeinflussen.
+    const beobachte = async () => {
+        while (running) {
+            await new Promise((resolve) => window.setTimeout(resolve, 2000));
+            if (!running) return;
+            try {
+                const stand = await checkStatus();
+                if (stand.phase) setzePhase(stand.phase);
+            } catch (_fehler) {
+                // Eine verpasste Abfrage sagt nichts ueber den Lauf. Der
+                // POST entscheidet, ob es geklappt hat.
+            }
+        }
+    };
 
     const checkStatus = async () => {
         const response = await fetch(card.dataset.statusUrl, {headers: {"Accept": "application/json"}});
@@ -53,6 +149,9 @@
         delayTimer = window.setTimeout(() => { delayMessage.hidden = false; }, 20000);
         cancelTimer = window.setTimeout(() => { cancel.hidden = false; }, 60000);
         retry.disabled = true;
+        setzePhase("verstehen");
+        zeilenTimer = window.setInterval(naechsteZeile, 5000);
+        beobachte();
         try {
             const current = await checkStatus();
             if (current.state === "complete") return window.location.assign(current.redirect_url);
@@ -66,6 +165,7 @@
         } finally {
             window.clearTimeout(delayTimer);
             window.clearTimeout(cancelTimer);
+            window.clearInterval(zeilenTimer);
             running = false;
             retry.disabled = false;
         }

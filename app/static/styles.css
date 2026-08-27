@@ -179,20 +179,77 @@ input:focus, textarea:focus { border-color: var(--green); }
 .processing-layer-card { width: min(100%, 30rem); padding: 2rem; border-radius: var(--radius-lg); background: #fff; box-shadow: 0 25px 70px rgb(0 0 0 / 25%); text-align: center; }
 .processing-layer-card strong { display: block; margin-bottom: .4rem; color: var(--ink); font: 700 1.55rem/1.25 Georgia, serif; }
 .processing-layer-card p { margin: 0; color: var(--muted); }
-.processing-symbol, .processing-indicator { display: flex; justify-content: center; gap: .38rem; margin-bottom: 1.2rem; }
-.processing-symbol span, .processing-indicator span { width: .7rem; height: .7rem; border-radius: 50%; background: var(--green); animation: dots 1.25s infinite; }
-.processing-symbol span:nth-child(2), .processing-indicator span:nth-child(2) { animation-delay: .15s; background: var(--sun); }
-.processing-symbol span:nth-child(3), .processing-indicator span:nth-child(3) { animation-delay: .3s; background: var(--coral); }
+.processing-symbol { display: flex; justify-content: center; gap: .38rem; margin-bottom: 1.2rem; }
+.processing-symbol span { width: .7rem; height: .7rem; border-radius: 50%; background: var(--green); animation: dots 1.25s infinite; }
+.processing-symbol span:nth-child(2) { animation-delay: .15s; background: var(--sun); }
+.processing-symbol span:nth-child(3) { animation-delay: .3s; background: var(--coral); }
 @keyframes dots { 50% { opacity: .35; transform: translateY(-.28rem); } }
 .processing-card { max-width: 48rem; margin-inline: auto; text-align: center; }
 .processing-card .page-title, .processing-card .page-description { margin-inline: auto; }
-.processing-steps { display: grid; gap: .25rem; max-width: 35rem; margin: 1.2rem auto 0; padding: 0; list-style: none; text-align: left; }
-.processing-steps li { padding: .55rem .2rem; border-bottom: 1px solid var(--border); color: var(--muted); }
-.processing-steps .complete { color: var(--green); }
-.processing-steps .active { color: var(--ink); font-weight: 800; }
+/* -- Der Warteschirm --------------------------------------------------
+ * Vier Stationen an einer Linie. Die Linie ist der Punkt: Sie macht aus
+ * vier Zeilen einen Weg, und ein Weg hat sichtbar ein Ende. */
+.phasen {
+    display: grid; gap: 0; max-width: 33rem; margin: 1.6rem auto 1.4rem;
+    padding: 0; list-style: none; text-align: left;
+}
+.phase {
+    position: relative; display: grid; gap: .85rem;
+    grid-template-columns: 1.1rem 1fr; padding: .75rem 0;
+}
+/* Die Linie verbindet die Punkte, hoert aber vor dem letzten auf - sonst
+ * laeuft sie ins Leere. */
+.phase:not(:last-child)::before {
+    position: absolute; top: 1.55rem; left: .5rem; width: 2px;
+    height: calc(100% - .8rem); background: var(--border); content: "";
+}
+.phasenpunkt {
+    z-index: 1; width: 1.1rem; height: 1.1rem; margin-top: .22rem;
+    border: 2px solid var(--border); border-radius: 50%;
+    background: var(--surface, #fff);
+    transition: background .35s ease, border-color .35s ease;
+}
+.phase b {
+    display: block; color: var(--muted); font-size: 1rem; font-weight: 700;
+    transition: color .35s ease;
+}
+.phase span:not(.phasenpunkt) {
+    display: block; margin-top: .12rem; color: var(--muted);
+    font-size: .86rem; line-height: 1.45;
+}
+
+/* Erledigt: ausgefuellter Punkt, ruhige Schrift. */
+.phase--fertig .phasenpunkt { border-color: var(--teal); background: var(--teal); }
+.phase--fertig:not(:last-child)::before { background: var(--teal); }
+.phase--fertig b { color: var(--text-primary, var(--ink)); }
+
+/* Laufend: derselbe Punkt, aber er atmet. Kein zweites Symbol, keine
+ * Prozentzahl - nur der Hinweis, dass hier gerade etwas geschieht. */
+.phase--aktiv .phasenpunkt {
+    border-color: var(--teal); background: var(--teal-soft);
+    animation: phasenpuls 1.8s ease-in-out infinite;
+}
+.phase--aktiv b { color: var(--teal-tief); font-weight: 800; }
+@keyframes phasenpuls {
+    0%, 100% { box-shadow: 0 0 0 0 rgb(47 125 112 / 35%); }
+    50% { box-shadow: 0 0 0 .38rem rgb(47 125 112 / 0%); }
+}
+
+/* Eine einzige Zeile, die mitlaeuft. Vier gleichzeitig waeren wieder eine
+ * Liste; eine ist ein Vorgang. */
+.laufzeile {
+    min-height: 1.4rem; margin: 1.1rem 0 0; color: var(--teal-tief);
+    font-size: .96rem; font-weight: 650;
+    transition: opacity .3s ease;
+}
+.laufzeile[data-wechsel] { opacity: 0; }
+.wartehinweis { margin-top: .2rem; font-size: .95rem; }
+.wartehinweis span {
+    display: block; margin-top: .15rem; color: var(--muted); font-size: .85rem;
+}
 .processing-error { margin-top: 1rem; padding: 1rem; border: 1px solid #d99f8b; border-radius: var(--radius); background: #fff0ea; text-align: left; }
 .processing-delay { margin: .75rem auto 0; color: var(--muted); font-size: .92rem; }
-.processing-cancel { display: inline-block; margin-top: .4rem; color: var(--green); font-size: .9rem; font-weight: 750; }
+.processing-cancel { display: inline-block; margin-top: .4rem; color: var(--teal); font-size: .9rem; font-weight: 750; }
 
 .result-layout { width: min(100%, 68rem); margin-inline: auto; }
 .result-layout p, .result-layout li, .result-layout dd { max-width: 72ch; }
