@@ -617,18 +617,24 @@
               0 2px 6px rgb(24 51 44 / .05);
   border: 0;
 }
-/* Die Hauptansicht: mehr Luft, stärkerer Schatten, ein Hauch Teal
-   dahinter — das ist der Bildschirm, den er morgens öffnen würde. */
-.tafel .ansichtspaar--3 > :first-child { margin-bottom: 14px; }
+/* **Die Hauptansicht ist das Zukunftsprodukt.** Sie trägt den Abschnitt,
+   also bekommt sie die grösste Tiefe der ganzen Seite und einen Hauch
+   Teal dahinter — das ist der Bildschirm, den er morgens öffnen würde. */
+.tafel .ansichtspaar--3 > :first-child { margin-bottom: 26px; }
 .tafel .ansichtspaar--3 > :first-child .screen {
-  box-shadow: 0 28px 64px -12px rgb(24 51 44 / .16),
-              0 3px 8px rgb(24 51 44 / .06),
-              0 0 60px -20px rgb(47 125 112 / .5);
+  box-shadow: 0 40px 88px -20px rgb(24 51 44 / .2),
+              0 12px 26px -10px rgb(24 51 44 / .1),
+              0 2px 5px rgb(24 51 44 / .05),
+              0 0 90px -26px rgb(47 125 112 / .7);
 }
-/* Die beiden darunter: rund 60 Prozent der Tiefe. */
+/* **Die beiden darunter begleiten.** Sie sind Ergänzung, kein zweites
+   und drittes Produkt: flacher, etwas zurückgenommen, leiser im Titel. */
 .tafel .ansichtspaar--3 > :not(:first-child) .screen {
-  box-shadow: 0 12px 30px -8px rgb(24 51 44 / .09),
-              0 1px 4px rgb(24 51 44 / .04);
+  box-shadow: 0 8px 20px -8px rgb(24 51 44 / .07),
+              0 1px 3px rgb(24 51 44 / .04);
+}
+.tafel .ansichtspaar--3 > :not(:first-child) .mock > h3 {
+  font-size: 1rem; color: var(--tinte-schwach);
 }
 .tafel .ansichtsplatz > * { max-width: 100%; }
 /* **Keine zweite Hintergrundregel.** Hier stand noch einmal
@@ -690,15 +696,66 @@
  * Bis hierher hat er Bildschirme gesehen, und Bildschirme kauft niemand.
  * Dieser eine Satz übersetzt das Produkt zurück in seinen Alltag — also
  * bekommt er Luft und Grösse. */
+/* Die emotionale Übersetzung des Produkts. Sie braucht Luft davor und
+   danach, sonst ist sie nur die nächste Zeile. */
 .tafel .entlastung {
-  margin: 34px 0 0; text-align: center;
-  font-size: clamp(1.1rem, 1.5vw, 1.35rem); font-weight: 650;
-  letter-spacing: -.018em; color: var(--marke-tief);
+  margin: 54px auto 0; max-width: 30ch; text-align: center;
+  font-size: clamp(1.3rem, 1.9vw, 1.65rem); font-weight: 660;
+  line-height: 1.35; letter-spacing: -.022em; color: var(--marke-tief);
 }
 .tafel .konkret .kleingedruckt {
-  margin: 10px 0 0; text-align: center; font-size: .78rem;
+  margin: 22px 0 0; text-align: center; font-size: .76rem;
   color: var(--tinte-leise);
 }
+
+
+/* ── Feinschliff in den Fenstern ───────────────────────────────────────
+ * Der Aufbau der Ansichten steckt in `ansichten.html` und in `styles.css`;
+ * hier steht nur, wie sie sich auf der Tafel verhalten. Alles Folgende
+ * dient einer Frage: Was fällt zuerst ins Auge? */
+
+/* **Die Fensterleiste tritt zurück.** Drei kräftige Punkte und eine
+ * Trennlinie sahen technisch aus — nach Bildschirmfoto statt nach Produkt. */
+.tafel .ansichtsplatz .bar {
+  background: #fafbf9; padding: 9px 14px; border-bottom: 1px solid #f0f1ec;
+}
+.tafel .ansichtsplatz .dot {
+  width: 7px; height: 7px; background: #dcdfd6;
+}
+.tafel .ansichtsplatz .bar .name {
+  font-size: 11px; letter-spacing: .04em; color: #9aa79f;
+}
+
+/* **Fokus auf die Kennzahlen.** In der Hauptansicht sind sie das Erste, was
+ * jemand erfassen soll — nicht die Tabelle darunter. Grössere Zahl, eigener
+ * Grund, und statt eines Rahmens nur eine Kante in der Markenfarbe. */
+.tafel .ansichtspaar--3 > :first-child .stats { margin-bottom: 24px; }
+.tafel .ansichtsplatz .stat {
+  border: 0; border-left: 3px solid var(--marke); background: #f7f9f7;
+  box-shadow: none;
+}
+.tafel .ansichtspaar--3 > :first-child .stat b { font-size: 30px; }
+.tafel .ansichtsplatz .stat.alert { border-left-color: var(--warm); }
+.tafel .ansichtsplatz .stat.alert b { color: #a9761c; }
+
+/* Weichere Tabellenlinien: Die Zeilen sollen sich gruppieren lassen, statt
+ * ein Gitter zu bilden. */
+.tafel .ansichtsplatz .row, .tafel .ansichtsplatz .tlrow {
+  border-color: #f1f3ef;
+}
+
+/* **Ein einziger Hinweis, wo Arbeit wegfällt.** Nicht überall „KI" — nur an
+ * der Hauptansicht, und mit festem Text: Welche Stelle im Bildschirm genau
+ * automatisch entstanden ist, wüssten wir nur, wenn das Modell es sagt, und
+ * das tut es nicht. Der Satz gilt für jede Lösung, die wir bauen würden. */
+.tafel .kiband {
+  display: inline-grid; grid-template-columns: 15px auto; gap: 8px;
+  align-items: center; margin: 0 0 12px;
+  padding: 6px 14px 6px 11px; border-radius: 999px;
+  background: #e3f2ef; color: #1f6d62;
+  font-size: .78rem; font-weight: 640; letter-spacing: .01em;
+}
+.tafel .kiband svg { width: 14px; height: 14px; }
 
 /* ── Was schon da ist ─────────────────────────────────────────────────
  * Bewusst ruhig gesetzt: Diese Liste beruhigt, sie verkauft nicht. */

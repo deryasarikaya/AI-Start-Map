@@ -34,6 +34,11 @@
 <svg class="sprite" aria-hidden="true" focusable="false" width="0" height="0">
   <!-- Die Kanäle, durch die Arbeit hereinkommt. Sie sind das Erste, was
        jemand auf dieser Seite wiedererkennt: Das habe ich. -->
+  <symbol id="i-funke" viewBox="0 0 24 24">
+    <path d="M12 3.2 13.8 9l5.8 1.8-5.8 1.8L12 18.4l-1.8-5.8L4.4 10.8
+             10.2 9z"/>
+    <path d="M18.6 3.4l.7 2.2 2.2.7-2.2.7-.7 2.2-.7-2.2-2.2-.7 2.2-.7z"/>
+  </symbol>
   <symbol id="i-akte" viewBox="0 0 24 24">
     <path d="M3 7.5A2 2 0 0 1 5 5.5h3.6l1.7 2H19a2 2 0 0 1 2 2v7.5a2 2 0 0
              1-2 2H5a2 2 0 0 1-2-2z"/>
@@ -451,7 +456,21 @@
          Beispielansichten haengt seit jeher an dieser Klasse. Ohne
          sie stuenden Kennzahlen, Zeilen und Abzeichen als nackter
          Text da. #}
-      <div class="ansichtsplatz ergebnis">{{ ansichten.ansicht(v) }}</div>
+      <div class="ansichtsplatz ergebnis">
+        {% if loop.first %}
+        {# **Ein einziger Hinweis, wo Arbeit wegfällt** — an der
+           Hauptansicht und sonst nirgends. Welche Zeile im Bildschirm
+           genau automatisch entstanden ist, wüssten wir nur, wenn das
+           Modell es sagt, und das tut es nicht. Also ein fester Satz,
+           der für jede Lösung gilt, die wir bauen würden. Zehn solcher
+           Marken wären Dekoration; eine ist eine Aussage. #}
+        <p class="kiband">
+          <svg aria-hidden="true"><use href="#i-funke"/></svg>
+          <span>Vom System vorbereitet</span>
+        </p>
+        {% endif %}
+        {{ ansichten.ansicht(v) }}
+      </div>
       {% endfor %}
     </div>
 
