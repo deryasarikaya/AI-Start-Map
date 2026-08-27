@@ -227,7 +227,7 @@
  * Fläche, und die Verbindungen tragen den Weg allein. */
 .tafel .stufen {
   list-style: none; margin: 0; padding: 22px 0 8px; display: flex;
-  align-items: center; gap: 2px; overflow-x: auto; position: relative;
+  align-items: stretch; gap: 2px; overflow-x: auto; position: relative;
 }
 /* Keine durchgehende Linie mehr hinter den Karten: Die Wege werden jetzt
  * wirklich gezeichnet — eine Kurve je Kanal, die im Schlüsselknoten
@@ -271,12 +271,9 @@
  * Teal, Ergebnis sehr helles Grün. Die Steigerung liegt in der Sättigung
  * und in der Höhe, nicht im Kontrast. */
 .tafel .bandstufe--schluessel {
-  flex: 1.18 1 0;
   background: linear-gradient(165deg, #cfeae7 0%, #ebf6f5 100%);
   box-shadow: var(--heben-3), 0 0 46px -12px rgb(31 122 114 / .5);
-  transform: translateY(-10px); padding: 30px 18px 26px;
 }
-.tafel .bandstufe--schluessel h3 { font-size: 1.08rem; }
 .tafel .bandstufe--schluessel .bandsymbol {
   background: #fff; color: var(--ki-tief); box-shadow: var(--heben-1);
 }
@@ -291,10 +288,8 @@
  * letzte Station unter gleichen, sondern der erreichte Zustand — also
  * etwas grösser, etwas höher, mit einem weichen grünen Schein. */
 .tafel .bandstufe--ausgang {
-  flex: 1.1 1 0;
   background: linear-gradient(165deg, #e4efe9, #f7faf8);
   box-shadow: var(--heben-2), 0 0 34px -14px rgb(47 107 87 / .35);
-  transform: translateY(-4px); padding-bottom: 24px;
 }
 .tafel .bandstufe--ausgang .bandsymbol {
   background: #d7e8e0; color: var(--marke);
