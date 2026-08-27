@@ -23,8 +23,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Ihre Auswertung · AI Start Map</title>
-<link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', path='/tafel.css') }}">
+<link rel="stylesheet" href="{{ statisch('/styles.css') }}">
+<link rel="stylesheet" href="{{ statisch('/tafel.css') }}">
 </head>
 <body class="tafel">
 
@@ -757,7 +757,7 @@
 {# Am Ende und mit `defer`: Die Seite ist vollständig lesbar, bevor das
    Skript überhaupt läuft. Bewegung ist Zugabe, nie Voraussetzung — ohne
    JavaScript stehen alle Abschnitte sofort da. #}
-<script src="{{ url_for('static', path='/tafel.js') }}" defer></script>
+<script src="{{ statisch('/tafel.js') }}" defer></script>
 
 </body>
 </html>

@@ -22,7 +22,7 @@
 {# Der Titel folgt dem Zustand der Seite: Eine Seite, die fragt, ist
    keine Bestätigung. #}
 <title>{% if rueckfrage %}Eine Frage habe ich noch{% else %}Passt das so?{% endif %} · AI Start Map</title>
-<link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
+<link rel="stylesheet" href="{{ statisch('/styles.css') }}">
 </head>
 <body class="ergebnis">
 

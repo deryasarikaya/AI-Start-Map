@@ -12,13 +12,21 @@ def test_landing_voice_fallback_and_mobile_assets(client: TestClient) -> None:
     landing = client.get("/")
     assert landing.status_code == 200
     for text in (
-        "FÜR SELBSTSTÄNDIGE UND KLEINE BETRIEBE",
-        "Was könnte KI in deinem Betrieb wirklich übernehmen?",
-        "Kunden erreichen euch ständig über Telefon, E-Mail, WhatsApp oder Website.",
-        "Drei einfache Schritte",
-        "Mein KI-Potenzial entdecken",
+        "Kostenlose individuelle KI-Analyse für kleine Betriebe",
+        "Erzählen Sie, wie Ihr Betrieb wirklich läuft.",
+        "Das sehen Sie nach Ihrer Analyse",
+        "KI kann heute weit mehr als Texte schreiben",
+        "So entsteht Ihre persönliche AI Start Map",
+        "Meine persönliche AI Start Map erstellen",
     ):
         assert text in landing.text
+    # **Die Startseite duzt nicht mehr.** Sie war die letzte Stelle, an der
+    # die Anrede zwischen Eingang und Auswertung kippte.
+    for du in (" du ", " dir ", " dich ", "dein", "euch"):
+        assert du not in landing.text.lower(), du
+    # Und sie fordert nirgends zur Kürze auf - wer glaubt, er solle sich
+    # kurzfassen, lässt genau die Nebensätze weg, aus denen die Diagnose lebt.
+    assert "kurz" not in landing.text.lower()
     assert "RAG" not in landing.text
     assert "LLM" not in landing.text
     # Die Startseite zeigt kein Eingabefeld - erzählt wird erst danach.

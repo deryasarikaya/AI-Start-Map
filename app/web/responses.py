@@ -7,6 +7,7 @@ aus `routes.py` hierher verschoben.
 from __future__ import annotations
 
 import os
+from functools import lru_cache
 import re
 from pathlib import Path
 from urllib.parse import quote
@@ -57,6 +58,45 @@ def gespraechs_adresse() -> str:
 
 
 templates.env.globals['gespraechs_adresse'] = gespraechs_adresse
+
+#: Wo die ausgelieferten Dateien liegen. Einmal berechnet, nicht je Aufruf.
+STATISCHER_ORDNER = Path(__file__).resolve().parents[1] / "static"
+
+
+@lru_cache(maxsize=64)
+def _stand_der_datei(name: str) -> str:
+    """Der Änderungszeitpunkt einer statischen Datei als kurze Kennung."""
+
+    datei = STATISCHER_ORDNER / name.lstrip("/")
+    try:
+        return f"{int(datei.stat().st_mtime):x}"
+    except OSError:
+        # Fehlt die Datei, hängt eben nichts dran. Ein fehlender
+        # Zwischenspeicher-Schlüssel ist kein Grund, die Seite nicht
+        # auszuliefern.
+        return ""
+
+
+def mit_stand(pfad: str) -> str:
+    """Hängt an eine statische Adresse den Änderungszeitpunkt der Datei.
+
+    **Warum es das gibt.** Der Browser hält `styles.css` fest, bis er einen
+    Grund zum Nachladen hat. Während der Arbeit heisst das: Die Datei auf
+    der Platte ist neu, die Seite zeigt die alte — und man sucht den Fehler
+    im CSS, das man gerade richtig geschrieben hat. Nach einer
+    Veröffentlichung wäre es schlimmer: Die Änderung ist drauf und kommt bei
+    niemandem an.
+
+    Ändert sich die Datei, ändert sich die Adresse. Ändert sie sich nicht,
+    behält der Browser seine Kopie — das ist richtig und schnell.
+    """
+
+    stand = _stand_der_datei(pfad)
+    return f"/static{pfad}?v={stand}" if stand else f"/static{pfad}"
+
+
+templates.env.globals["statisch"] = mit_stand
+
 
 # Wonach ein Kanalzeichen gesucht wird. Die Reihenfolge entscheidet: Das
 # erste passende Wort gewinnt, damit „WhatsApp-Nachricht" nicht als

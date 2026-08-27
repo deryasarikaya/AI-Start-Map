@@ -110,9 +110,11 @@ def test_unsubstantiated_benefit_claims_do_not_reach_the_customer() -> None:
 
 def test_landing_processing_and_mobile_contract(client: TestClient) -> None:
     landing = client.get("/").text
-    assert "Was könnte KI in deinem Betrieb wirklich übernehmen?" in landing
-    assert "Per Sprache oder Text · dauert wenige Minuten" in landing
-    assert landing.count('<section class="landing-section') <= 5
+    assert "Erzählen Sie, wie Ihr Betrieb wirklich läuft." in landing
+    # „dauert wenige Minuten" ist raus: Die Seite will, dass er sich Zeit
+    # nimmt, und darf ihn nicht gleichzeitig zur Eile mahnen.
+    assert "Kostenlos · per Sprache oder Text · keine KI-Vorkenntnisse nötig" in landing
+    assert landing.count('<section class="landing-section') <= 8
     base = (ROOT / "app/templates/base.html").read_text(encoding="utf-8")
     app_js = (ROOT / "app/static/app.js").read_text(encoding="utf-8")
     styles = (ROOT / "app/static/styles.css").read_text(encoding="utf-8")

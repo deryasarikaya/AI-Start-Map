@@ -120,7 +120,130 @@ ul, ol { margin-top: 0; }
 button:disabled { cursor: wait; opacity: .55; box-shadow: none; transform: none; }
 button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 3px solid rgb(243 199 95 / 70%); outline-offset: 3px; }
 
-.landing-section { margin-bottom: clamp(2.3rem, 5vw, 3.5rem); }
+/* **Die Abstaende waren zu gross.** Zwischen Hero-Knopf und naechstem
+   Inhalt lagen mehrere hundert Pixel; damit liest man zwei Seiten statt
+   einer Geschichte. Jetzt 56-80 px, wie besprochen. */
+.landing-section { margin-bottom: clamp(3.5rem, 5vw, 5rem); }
+.landing-hero { margin-bottom: clamp(3.5rem, 4vw, 4.5rem); }
+
+/* -- Was bekomme ich? -------------------------------------------------
+ * Der Abschnitt, der die investierten Minuten rechtfertigt. Drei
+ * Bausteine, die den Bogen der Auswertung vorwegnehmen. Sie sind
+ * unterschiedlich eingefaerbt, damit man den Weg sieht, bevor man liest:
+ * heute warm, der Start in Teal, das Gelaende gruen. */
+.ausbeute-reihe {
+    display: grid; gap: 1rem; margin-top: 1.6rem;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+}
+.ausbeute-teil {
+    position: relative; padding: 1.35rem 1.4rem;
+    border: 1px solid var(--linie); border-radius: var(--radius);
+    background: var(--flaeche); box-shadow: var(--heben-1);
+}
+.ausbeute-teil h3 {
+    margin: 0 0 .5rem; font-size: 1.06rem; font-weight: 660; line-height: 1.35;
+}
+.teilmarke {
+    margin: 0 0 .45rem; font-size: .7rem; font-weight: 800;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--tinte-leise);
+}
+.teilbeispiel {
+    margin: 0; color: var(--tinte-schwach); font-size: .89rem; line-height: 1.55;
+}
+.ausbeute-teil--heute { background: var(--grund-tief); box-shadow: none; }
+.ausbeute-teil--heute .teilmarke { color: var(--tinte-schwach); }
+.ausbeute-teil--start {
+    border-color: var(--teal); background: var(--teal-soft);
+    box-shadow: var(--heben-2);
+}
+.ausbeute-teil--start .teilmarke { color: var(--teal-tief); }
+.ausbeute-teil--karte { background: var(--erledigt-soft); border-color: #cfe3d7; }
+.ausbeute-teil--karte .teilmarke { color: var(--marke); }
+
+/* -- Was heute schon moeglich ist -------------------------------------
+ * Vier Alltagssituationen statt vier braver Haekchen. Die Szene steht
+ * ueber dem Nutzen: erst erkennt er sich wieder, dann erfaehrt er, dass
+ * das loesbar ist. */
+.koennen-raster {
+    display: grid; gap: 1rem; margin-top: 1.6rem;
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+}
+.koennen-fall {
+    padding: 1.4rem 1.45rem; border: 1px solid var(--linie);
+    border-radius: var(--radius); background: var(--flaeche);
+    box-shadow: var(--heben-1);
+    transition: transform .35s ease, box-shadow .35s ease;
+}
+.koennen-fall:hover { transform: translateY(-3px); box-shadow: var(--heben-2); }
+.fallzeichen {
+    display: grid; place-items: center; width: 2.5rem; height: 2.5rem;
+    margin-bottom: .9rem; border-radius: .8rem;
+    background: var(--teal-soft); color: var(--teal-tief);
+}
+.fallzeichen svg { width: 1.25rem; height: 1.25rem; }
+.koennen-fall h3 { margin: 0 0 .5rem; font-size: 1.12rem; font-weight: 680; }
+.fallszene {
+    margin: 0 0 .55rem; color: var(--tinte); font-size: .95rem;
+    font-weight: 600; line-height: 1.5;
+}
+.fallnutzen { margin: 0; color: var(--tinte-schwach); font-size: .89rem; line-height: 1.6; }
+
+/* -- Fuer die, die mehr wissen wollen ---------------------------------
+ * Zugeklappt, damit die Seite nicht in fuenfzehn Erklaerabschnitte
+ * zerfaellt. Wer mehr will, klickt; alle anderen scrollen vorbei. */
+.vertiefung-block {
+    padding: 1.1rem 1.4rem; border: 1px solid var(--linie);
+    border-radius: var(--radius); background: var(--grund-tief);
+}
+.vertiefung-block > summary {
+    color: var(--marke); font-size: 1rem; font-weight: 700;
+    cursor: pointer; list-style: none;
+}
+.vertiefung-block > summary::-webkit-details-marker { display: none; }
+.vertiefung-block > summary::after { content: " \2193"; color: var(--tinte-leise); }
+.vertiefung-block[open] > summary::after { content: " \2191"; }
+.vertiefung-block[open] > summary { margin-bottom: 1rem; }
+.vertiefung-lead {
+    margin: 0 0 1.2rem; max-width: 62ch;
+    color: var(--tinte-schwach); font-size: .95rem; line-height: 1.65;
+}
+.vertiefung-raster {
+    display: grid; gap: .9rem 1.6rem;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}
+.vertiefung-raster b { display: block; font-size: .95rem; color: var(--tinte); }
+.vertiefung-raster span {
+    display: block; margin-top: .15rem;
+    color: var(--tinte-leise); font-size: .85rem; line-height: 1.5;
+}
+
+/* -- Vertrauen --------------------------------------------------------*/
+.vertrauen-text { max-width: 62ch; margin: 0 0 1.1rem; color: var(--tinte-schwach); }
+.vertrauen-punkte {
+    display: flex; flex-wrap: wrap; gap: .5rem;
+    margin: 0; padding: 0; list-style: none;
+}
+.vertrauen-punkte li {
+    padding: .4rem .85rem; border-radius: 999px;
+    background: var(--marke-hell); color: var(--marke);
+    font-size: .84rem; font-weight: 620;
+}
+
+/* -- Der Schlussruf ---------------------------------------------------*/
+.schlussruf {
+    padding: clamp(2rem, 4vw, 2.8rem) clamp(1.4rem, 3vw, 2.4rem);
+    border: 1px solid #d6e6df; border-radius: var(--radius-lg);
+    background: linear-gradient(168deg, #e6f2ee 0%, #f2f8f5 100%);
+    text-align: center;
+}
+.schlussruf .section-title { margin-inline: auto; max-width: 22ch; }
+.schlussruf-text {
+    max-width: 54ch; margin: 0 auto 1.4rem;
+    color: var(--tinte-schwach); line-height: 1.65;
+}
+.schlussruf form { margin-bottom: .5rem; }
+.schlussruf .micro-copy { margin: 0; }
+
 /* Ein sehr leiser Teal-Schein hinter dem Kopf. Er soll nicht auffallen,
    sondern nur verhindern, dass die Fläche tot wirkt. */
 .landing-hero { position: relative; padding-block: clamp(.5rem, 2vw, 1.5rem); }
@@ -142,10 +265,32 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .simple-steps article > span { display: grid; width: 2.5rem; height: 2.5rem; place-items: center; border-radius: .75rem; color: #fff; background: var(--teal); font-weight: 900; box-shadow: 0 6px 16px -6px rgb(47 125 112 / 50%); }
 .simple-steps h3 { margin-bottom: .3rem; font-size: 1.25rem; }
 .simple-steps p { margin: 0; color: var(--muted); }
-.comparison-section { padding: clamp(1rem, 3vw, 1.5rem); border-radius: var(--radius); background: var(--sky); }
-.comparison-grid { display: grid; gap: 1rem; }
-.comparison-card { padding: 1.15rem 1.2rem; border: 1px solid var(--teal); border-radius: var(--radius-sm); background: var(--teal-soft); box-shadow: var(--heben-1); }
-.comparison-card.muted-card { padding: 1rem; border: 1px solid var(--border); background: rgb(255 255 255 / 65%); box-shadow: none; }
+.comparison-section {
+    padding: clamp(1.5rem, 3vw, 2.2rem); border-radius: var(--radius-lg);
+    background: var(--teal-soft);
+}
+.comparison-section .section-title { max-width: 24ch; }
+.comparison-grid { display: grid; gap: 1rem; margin-top: 1.4rem; }
+/* Die Schlusszeile ist der Satz, der haengen bleiben soll. */
+.karten-schluss {
+    margin: .9rem 0 0; padding-top: .8rem;
+    border-top: 1px solid var(--linie);
+    color: var(--tinte-leise); font-size: .9rem;
+}
+.karten-schluss--stark {
+    border-top-color: var(--teal); color: var(--teal-tief);
+    font-size: 1.02rem; font-weight: 750;
+}
+.comparison-card {
+    padding: 1.3rem 1.4rem; border: 1px solid var(--teal);
+    border-radius: var(--radius); background: var(--flaeche);
+    box-shadow: var(--heben-2);
+}
+.comparison-card p { margin: 0; color: var(--tinte-schwach); line-height: 1.6; }
+.comparison-card.muted-card {
+    border-color: var(--linie); background: rgb(255 255 255 / 55%);
+    box-shadow: none;
+}
 .comparison-card blockquote { margin: 0; font: 650 1.08rem/1.55 Georgia, serif; }
 .final-cta h2, .final-cta .section-kicker { margin-inline: auto; color: #fff; }
 
