@@ -10,40 +10,48 @@
  */
 
 .tafel {
-  /* **Durchgehend dunkel.** Vorher war nur der Kopf dunkel und der Rest
-   * hellgrau — das Muster von 2019, und der Grund, warum diese Seite neben
-   * den Referenzseiten alt aussah.
+  /* **Hell, aber nicht steril.** Ein warmer, sehr heller Grund mit
+   * grünlichem Unterton wirkt hochwertig und ruhig; reines Weiss wirkt
+   * klinisch und wie ein Formular.
    *
-   * Es geht dabei nicht um Mode: Die hellen Produktansichten leuchten auf
-   * dunklem Grund wie Bildschirme in einem dunklen Raum. Genau das macht
-   * aus einer Abbildung einen Beweis. */
-  --tinte: #f1f5fb;
-  --tinte-schwach: #b6c4da;
-  --tinte-leise: #8ea1bd;
-  --linie: rgb(255 255 255 / .1);
-  /* Karten sind nicht weiss, sondern eine Spur heller als der Grund. Auf
-   * Dunkel ist Helligkeit das, was Rahmen auf Hell waren. */
-  --flaeche: #131c2e;
-  --flaeche-hoch: #18233a;
-  --grund: #0a1120;
-  --grund-tief: #060b16;
-  --marke: #4d86ff;
-  --marke-hell: rgb(77 134 255 / .14);
-  --marke-tief: #0b2a63;
-  --gut: #34d399;
-  --gut-hell: rgb(52 211 153 / .13);
+   * Die Tinte ist kein Schwarz, sondern ein dunkles Grün-Anthrazit. Schwarz
+   * ist härter und technischer; dieser Ton gibt Ruhe — und die Seite will
+   * Vertrauen erzeugen, nicht Respekt vor Technik. */
+  --tinte: #18332c;
+  --tinte-schwach: #45605a;
+  --tinte-leise: #6b8079;
+  --linie: #e0e3dc;
+  --flaeche: #ffffff;
+  --flaeche-hoch: #ffffff;
+  --grund: #f6f7f4;
+  --grund-tief: #eeefe9;
+  /* Grün ist das Signal für Kontrolle, Klarheit, Lösung. */
+  --marke: #2f6b57;
+  --marke-hell: #e8f0ec;
+  --marke-tief: #143d31;
+  --gut: #2f6b57;
+  --gut-hell: #e8f0ec;
+  /* **Der KI-Ton, und nur dort.** Ein kühleres Blaugrün, das ausschliesslich
+   * an der Stelle erscheint, an der Verarbeitung passiert. Ein einziger
+   * starker Moment ist mehr wert als zehn Roboter-Symbole. */
+  --ki: #3fa7a3;
+  --ki-tief: #1f6663;
+  /* Sehr sparsam: Fristen und Aufmerksamkeit. */
+  --warm: #d9a441;
+  /* Kein aggressives Rot. Das Heute ist der Ausgangspunkt, nicht der Alarm. */
+  --heute: #d86a5a;
+  --heute-hell: #fbeeeb;
   /* Drei Höhen, nicht mehr. Vier wären Unruhe, eine wäre wieder flach.
    * Gross, sehr weich, sehr durchsichtig und immer aus derselben
    * Richtung — daran hängt der Unterschied zwischen Tiefe und einem
    * Schlagschatten von 2005. */
-  /* Auf Dunkel hebt nicht der Schatten, sondern die Kante: eine hauchdünne
-   * helle Linie oben, als fiele Licht darauf. Der Schatten bleibt, aber er
-   * trennt jetzt vom Grund statt Höhe zu behaupten. */
-  --heben-1: inset 0 1px 0 rgb(255 255 255 / .05), 0 2px 8px rgb(0 0 0 / .3);
-  --heben-2: inset 0 1px 0 rgb(255 255 255 / .07),
-             0 16px 34px -12px rgb(0 0 0 / .55);
-  --heben-3: inset 0 1px 0 rgb(255 255 255 / .09),
-             0 30px 62px -20px rgb(0 0 0 / .7);
+  /* Drei Ebenen, und sie erzählen mit: die Seite, die Inhalte darauf, und
+   * die eine Stelle, an der die Intelligenz passiert. Gross, sehr weich,
+   * sehr durchsichtig und immer aus derselben Richtung — daran hängt der
+   * Unterschied zwischen Tiefe und einem Schlagschatten von 2005. */
+  --heben-1: 0 1px 2px rgb(24 51 44 / .05), 0 4px 12px -3px rgb(24 51 44 / .07);
+  --heben-2: 0 2px 5px rgb(24 51 44 / .05), 0 18px 36px -14px rgb(24 51 44 / .16);
+  --heben-3: 0 4px 9px rgb(24 51 44 / .06), 0 34px 66px -22px rgb(24 51 44 / .26);
   --schatten: var(--heben-1);
   --rund: 14px;
 
@@ -101,7 +109,7 @@
 .tafel .kachel svg { width: 21px; height: 21px; }
 
 .tafel .hinweisband {
-  background: rgb(251 191 36 / .16); color: #fde68a; text-align: center;
+  background: #fdf4e0; color: #7a5a15; text-align: center;
   padding: 12px 24px; font-size: .92rem;
 }
 
@@ -117,17 +125,17 @@
 .tafel .kopf {
   position: relative; padding: 58px 0 34px; overflow: hidden;
   background:
-    radial-gradient(120% 140% at 12% -10%, rgb(77 134 255 / .3) 0%,
-                    transparent 58%),
-    radial-gradient(90% 120% at 88% 0%, rgb(52 211 153 / .13) 0%,
-                    transparent 55%);
+    linear-gradient(180deg, #fbfbf8 0%, var(--grund) 100%),
+    radial-gradient(90% 130% at 88% -20%,
+                    rgb(63 167 163 / .1) 0%, transparent 60%);
 }
-/* Das Leuchten wandert langsam. Nicht als Spielerei: Eine Fläche, auf der
- * sich nie etwas bewegt, liest sich als Bild — eine, auf der sich etwas
- * regt, als etwas, das läuft. */
+/* Ein Hauch Bewegung im Grund, mehr nicht: Eine Fläche, auf der sich nie
+ * etwas regt, liest sich als Bild — eine, auf der sich etwas regt, als
+ * etwas, das läuft. Auf hellem Grund muss das viel leiser sein als auf
+ * dunklem, sonst wirkt es billig. */
 .tafel .kopf::before {
   content: ""; position: absolute; inset: -30% -10% auto -10%; height: 90%;
-  background: radial-gradient(closest-side, rgb(77 134 255 / .22), transparent);
+  background: radial-gradient(closest-side, rgb(63 167 163 / .12), transparent);
   animation: tafel-atem 14s ease-in-out infinite alternate;
   pointer-events: none;
 }
@@ -141,44 +149,44 @@
 .tafel .kopfraster { max-width: 62ch; }
 .tafel .marke {
   margin: 0 0 14px; font-size: .78rem; letter-spacing: .13em;
-  text-transform: uppercase; color: #93b4f0;
+  text-transform: uppercase; color: var(--marke);
 }
 .tafel .kopf h1 {
   margin: 0 0 16px; font-size: clamp(2.3rem, 4vw, 3.15rem);
   font-weight: 700; line-height: 1.1; letter-spacing: -.032em;
-  color: #fff;
+  color: var(--tinte);
 }
 /* Der Befund ist die Unterzeile: ein Satz über seinen Engpass, in seiner
  * Sache. Vorher stand hier die Beschreibung des Zielbilds — eine Erklärung,
  * bevor irgendetwas gezeigt wurde. */
 .tafel .befund {
   margin: 0; font-size: 1.16rem; font-weight: 500; line-height: 1.45;
-  color: #dbe7fb; max-width: 54ch;
+  color: var(--tinte-schwach); max-width: 54ch;
 }
 .tafel .zitat {
   margin: 22px 0 0; padding-left: 16px;
-  border-left: 2px solid rgb(255 255 255 / .28);
+  border-left: 2px solid var(--marke);
 }
 .tafel .zitat blockquote {
   margin: 0; font-size: 1rem; line-height: 1.5; font-style: italic;
-  color: #eaf1fd;
+  color: var(--tinte);
 }
 .tafel .zitat figcaption {
   margin-top: 7px; font-size: .74rem; letter-spacing: .12em;
-  text-transform: uppercase; color: #93b4f0;
+  text-transform: uppercase; color: var(--tinte-leise);
 }
 
 /* **Seine Zahlen, gross.** Das Gegenstück zum Punktestand anderer
  * Auswertungen — nur geraten die ihren, und diese hier hat er gesagt.
  * Zwei mal zwei, damit der Kopf ein Schirm bleibt und nicht scrollt. */
 .tafel .kennzahlen {
-  background: rgb(255 255 255 / .07);
-  border: 1px solid rgb(255 255 255 / .14);
+  background: #fff;
+  border: 1px solid var(--linie);
   border-radius: 18px; padding: 22px 24px 24px;
 }
 .tafel .kennzahlenkopf {
   margin: 0 0 16px; font-size: .74rem; font-weight: 700; letter-spacing: .12em;
-  text-transform: uppercase; color: #93b4f0;
+  text-transform: uppercase; color: var(--tinte-leise);
 }
 .tafel .kennzahlen ul {
   list-style: none; margin: 0; padding: 0;
@@ -189,10 +197,10 @@
  * Kennzahl mehr, sondern ein Wort mit Ziffern. */
 .tafel .kennzahlen b {
   display: block; font-size: clamp(1.7rem, 2.4vw, 2.15rem); font-weight: 700;
-  line-height: 1.05; letter-spacing: -.03em; color: #fff;
+  line-height: 1.05; letter-spacing: -.03em; color: var(--tinte);
 }
 .tafel .kennzahlen span {
-  display: block; margin-top: 3px; font-size: .82rem; color: #bcd2f7;
+  display: block; margin-top: 3px; font-size: .82rem; color: var(--tinte-leise);
   line-height: 1.3;
 }
 
@@ -246,17 +254,17 @@
 }
 .tafel .knoten li {
   font-size: .82rem; color: var(--tinte-schwach);
-  background: rgb(255 255 255 / .05); border-radius: 8px; padding: 5px 9px;
+  background: var(--grund); border-radius: 8px; padding: 5px 9px;
 }
 /* Die Schluesselstelle traegt die Lösung — sie darf man sehen. */
 /* Hier passiert das Neue. Der Rest des Bandes ist Bestand oder
  * Folge — diese eine Stelle traegt die Loesung, also sieht man sie. */
 .tafel .bandstufe--schluessel {
-  background: linear-gradient(165deg, #1d4ed8 0%, #123a86 100%);
+  background: linear-gradient(165deg, var(--ki) 0%, var(--ki-tief) 100%);
   color: #fff;
   /* Ein farbiger Schein, kein grauer Schatten. Das ist es, was diese
    * eine Stelle energetisch macht statt nur erhaben. */
-  box-shadow: var(--heben-3), 0 0 44px -10px rgb(37 99 235 / .5);
+  box-shadow: var(--heben-3), 0 0 46px -12px rgb(63 167 163 / .6);
   transform: translateY(-8px); padding-bottom: 24px;
 }
 .tafel .bandstufe--schluessel .bandsymbol {
@@ -266,14 +274,14 @@
   background: #fff; color: var(--marke-tief);
 }
 .tafel .bandstufe--schluessel .knoten li {
-  background: rgb(255 255 255 / .16); color: #e8f0fe;
+  background: rgb(255 255 255 / .18); color: #eafaf9;
 }
 /* Was hinten herauskommt, ist das Ergebnis — gruen, nicht blau. */
 .tafel .bandstufe--ausgang {
-  background: linear-gradient(165deg, rgb(52 211 153 / .16), rgb(52 211 153 / .05));
+  background: linear-gradient(165deg, #e8f0ec, #f6f9f7);
 }
 .tafel .bandstufe--ausgang .bandsymbol {
-  background: rgb(52 211 153 / .2); color: var(--gut);
+  background: #d7e8e0; color: var(--marke);
 }
 .tafel .bandstufe--ausgang .bandnummer { background: var(--gut); }
 .tafel .bandstufe--ausgang .knoten li { background: #fff; }
@@ -306,12 +314,12 @@
 .tafel .kanal {
   display: grid; grid-template-columns: 32px 1fr; gap: 10px;
   align-items: center; font-size: .85rem; color: var(--tinte);
-  background: rgb(255 255 255 / .04); border-radius: 10px;
+  background: var(--grund); border-radius: 10px;
   padding: 6px 10px 6px 6px;
 }
 .tafel .kanalzeichen {
   display: grid; place-items: center; width: 32px; height: 32px;
-  border-radius: 9px; background: rgb(255 255 255 / .07);
+  border-radius: 9px; background: #fff; box-shadow: var(--heben-1);
   color: var(--marke);
 }
 .tafel .kanalzeichen svg { width: 17px; height: 17px; }
@@ -359,7 +367,7 @@
 }
 .tafel .zweige li {
   position: relative; font-size: .82rem; color: var(--tinte-schwach);
-  background: rgb(255 255 255 / .05); border-radius: 8px; padding: 5px 9px;
+  background: var(--grund); border-radius: 8px; padding: 5px 9px;
 }
 .tafel .zweige li::before {
   content: ""; position: absolute; left: -11px; top: 50%;
@@ -368,7 +376,7 @@
 
 /* Der Ausgang ist ein Ergebnis, kein weiterer Schritt. */
 .tafel .bandstufe--ausgang .knoten li {
-  background: rgb(52 211 153 / .16); font-weight: 600; color: #a7f3d0;
+  background: #d7e8e0; font-weight: 600; color: var(--marke-tief);
 }
 
 
@@ -393,7 +401,7 @@
 .tafel .faktzahl { margin: 0 0 12px; }
 .tafel .faktzahl b {
   display: block; font-size: clamp(1.9rem, 2.7vw, 2.5rem); font-weight: 700;
-  line-height: 1; letter-spacing: -.035em; color: #fff;
+  line-height: 1; letter-spacing: -.035em; color: var(--tinte);
 }
 .tafel .faktzahl span {
   display: block; margin-top: 4px; font-size: .84rem; color: var(--marke);
@@ -408,7 +416,7 @@
    Kennzeichnung als Zitat läse es sich, als hätten wir es behauptet. */
 .tafel .fakt blockquote {
   margin: 13px 0 0; padding-left: 13px;
-  border-left: 2px solid rgb(255 255 255 / .16);
+  border-left: 2px solid var(--linie);
   font-size: .84rem; font-style: italic; line-height: 1.5;
   color: var(--tinte-leise);
 }
@@ -418,12 +426,12 @@
 .tafel .uebergang {
   display: inline-grid; grid-template-columns: auto 18px; gap: 11px;
   align-items: center; margin: 24px 0 0; padding: 10px 16px 10px 20px;
-  border-radius: 999px; background: var(--marke-hell); color: #cfe0ff;
+  border-radius: 999px; background: var(--marke-hell); color: var(--marke-tief);
   font-size: .95rem; font-weight: 600; text-decoration: none;
   transition: background .25s ease, transform .25s ease;
 }
 .tafel .uebergang:hover {
-  background: rgb(77 134 255 / .24); transform: translateY(2px);
+  background: #dbe8e2; transform: translateY(2px);
 }
 .tafel .uebergang svg { width: 18px; height: 18px; color: var(--marke); }
 /* Der Pfeil zeigt nach unten, weil der Sprung nach unten geht. */
@@ -446,9 +454,9 @@
 .tafel .nutzenreihe li {
   display: grid; grid-template-columns: 22px 1fr; gap: 11px;
   align-items: center; padding: 15px 18px; border-radius: var(--rund);
-  background: var(--gut-hell); color: #d7fbec;
+  background: var(--gut-hell); color: var(--marke-tief);
   font-size: 1.02rem; font-weight: 620; line-height: 1.3;
-  box-shadow: inset 0 0 0 1px rgb(52 211 153 / .25);
+  box-shadow: inset 0 0 0 1px #cfe0d8;
 }
 .tafel .nutzenreihe svg { width: 19px; height: 19px; color: var(--gut); }
 
@@ -470,14 +478,14 @@
 /* Das Heute ist leise: Es ist der Ausgangspunkt, nicht die Botschaft.
  * Durchgestrichen wäre zu viel — es stimmt ja noch. */
 .tafel .heute {
-  font-size: .82rem; color: #93a4bd; padding-bottom: 11px;
+  font-size: .82rem; color: var(--tinte-leise); padding-bottom: 11px;
   margin-bottom: 11px !important;
-  border-bottom: 1px solid rgb(255 255 255 / .08);
+  border-bottom: 1px solid var(--linie);
 }
-.tafel .heute svg { color: #f87171; }
+.tafel .heute svg { color: var(--heute); }
 /* Die Zukunft ist die laute Hälfte — das ist der ganze Sinn der Karte. */
 .tafel .kuenftig {
-  font-size: 1rem; font-weight: 600; line-height: 1.4; color: #e6f6ef;
+  font-size: 1rem; font-weight: 600; line-height: 1.4; color: var(--tinte);
 }
 .tafel .kuenftig svg { color: var(--gut); }
 
@@ -550,11 +558,11 @@
  * Monitor in einem dunklen Raum, und genau das macht aus einer Abbildung
  * einen Beweis.
  *
- * Damit muss die Schriftfarbe hier zurückgedreht werden: Rundherum ist
- * die Tinte hell, im Fenster wäre sie unsichtbar. */
-.tafel .ansichtsplatz .screen { color: #16202f; }
+ * Auf hellem Grund heben sie sich über den Schatten ab, nicht über die
+ * Helligkeit — deshalb liegen sie am höchsten von allem auf der Tafel. */
+.tafel .ansichtsplatz .screen { color: var(--tinte); }
 .tafel .ansichtsplatz .screen b,
-.tafel .ansichtsplatz .screen strong { color: #0b1220; }
+.tafel .ansichtsplatz .screen strong { color: var(--tinte); }
 /* Titel und Unterzeile stehen ausserhalb des Fensters, auf der dunklen
  * Fläche — die bleiben hell. */
 .tafel .ansichtsplatz .mock > h3 { color: var(--tinte); }
@@ -588,7 +596,7 @@
   display: grid; grid-template-columns: 20px 1fr; gap: 12px;
   align-items: start; padding: 15px 17px; border-radius: var(--rund);
   background: var(--gut-hell);
-  box-shadow: inset 0 0 0 1px rgb(52 211 153 / .22);
+  box-shadow: inset 0 0 0 1px #cfe0d8;
 }
 .tafel .systemliste svg {
   width: 17px; height: 17px; color: var(--gut); margin-top: 3px;
@@ -664,10 +672,10 @@
   padding: 26px; background: var(--flaeche);
 }
 .tafel .spalte--system {
-  background: linear-gradient(165deg, rgb(52 211 153 / .13), rgb(52 211 153 / .04));
+  background: linear-gradient(165deg, #eaf2ee, #f8fbf9);
 }
 .tafel .spalte--mensch {
-  background: linear-gradient(165deg, rgb(77 134 255 / .15), rgb(77 134 255 / .04));
+  background: linear-gradient(165deg, #e9f4f3, #f8fcfb);
 }
 .tafel .spalte h3 { margin-bottom: 14px; font-size: 1.05rem; }
 .tafel .spalte ul { list-style: none; margin: 0; padding: 0;
@@ -729,7 +737,7 @@
 .tafel .schrittnummer {
   display: grid; place-items: center; width: 40px; height: 40px;
   border-radius: 13px;
-  background: linear-gradient(160deg, #1d4ed8 0%, #123a86 100%);
+  background: linear-gradient(160deg, var(--marke) 0%, var(--marke-tief) 100%);
   color: #fff; font-size: 1.1rem; font-weight: 680; margin-bottom: 15px;
   box-shadow: 0 6px 16px -6px rgb(29 78 216 / .6);
 }
@@ -773,7 +781,7 @@
 .tafel .bandstufe--schluessel .bandsymbol { position: relative; }
 .tafel .bandstufe--schluessel .bandsymbol::after {
   content: ""; position: absolute; inset: -6px; border-radius: 16px;
-  border: 1.5px solid rgb(255 255 255 / .3);
+  border: 1.5px solid rgb(255 255 255 / .6);
   animation: tafel-puls 2.8s ease-out infinite;
 }
 @keyframes tafel-puls {
