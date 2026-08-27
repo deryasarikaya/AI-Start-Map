@@ -260,25 +260,29 @@
   font-size: .82rem; color: var(--tinte-schwach);
   background: var(--grund); border-radius: 8px; padding: 5px 9px;
 }
-/* Die Schluesselstelle traegt die Lösung — sie darf man sehen. */
-/* Hier passiert das Neue. Der Rest des Bandes ist Bestand oder
- * Folge — diese eine Stelle traegt die Loesung, also sieht man sie. */
+/* Hier passiert das Neue — **eine Stufe kräftiger, nicht eine andere Welt.**
+ *
+ * Vorher war diese Station ein gesättigter Türkisblock mit weisser Schrift.
+ * Der zog so stark, dass die Stationen daneben fast verschwanden: Man las
+ * dann nicht mehr einen Weg, sondern vier verschieden gestaltete Objekte,
+ * von denen eines schreit.
+ *
+ * Die Farbe soll den Weg erzählen — Eingang weiss, Verarbeitung leicht
+ * Teal, Ergebnis sehr helles Grün. Die Steigerung liegt in der Sättigung
+ * und in der Höhe, nicht im Kontrast. */
 .tafel .bandstufe--schluessel {
-  background: linear-gradient(165deg, var(--ki) 0%, var(--ki-tief) 100%);
-  color: #fff;
-  /* Ein farbiger Schein, kein grauer Schatten. Das ist es, was diese
-   * eine Stelle energetisch macht statt nur erhaben. */
-  box-shadow: var(--heben-3), 0 0 46px -12px rgb(63 167 163 / .6);
+  background: linear-gradient(165deg, #dcf0ee 0%, #f0f8f7 100%);
+  box-shadow: var(--heben-2), 0 0 40px -14px rgb(31 122 114 / .4);
   transform: translateY(-8px); padding-bottom: 24px;
 }
 .tafel .bandstufe--schluessel .bandsymbol {
-  background: rgb(255 255 255 / .17); color: #fff;
+  background: #fff; color: var(--ki-tief); box-shadow: var(--heben-1);
 }
 .tafel .bandstufe--schluessel .bandnummer {
-  background: #fff; color: var(--marke-tief);
+  background: var(--ki-tief); color: #fff;
 }
 .tafel .bandstufe--schluessel .knoten li {
-  background: rgb(255 255 255 / .18); color: #eafaf9;
+  background: #fff; color: var(--ki-tief); font-weight: 600;
 }
 /* Was hinten herauskommt, ist das Ergebnis — gruen, nicht blau. */
 /* **Die Geschichte endet mit Ordnung.** Der Ausgang ist nicht die
@@ -287,7 +291,7 @@
 .tafel .bandstufe--ausgang {
   flex: 1.1 1 0;
   background: linear-gradient(165deg, #e4efe9, #f7faf8);
-  box-shadow: var(--heben-2), 0 0 38px -14px rgb(47 107 87 / .45);
+  box-shadow: var(--heben-2), 0 0 34px -14px rgb(47 107 87 / .35);
   transform: translateY(-4px); padding-bottom: 24px;
 }
 .tafel .bandstufe--ausgang .bandsymbol {
@@ -805,7 +809,7 @@
 .tafel .bandstufe--schluessel .bandsymbol { position: relative; }
 .tafel .bandstufe--schluessel .bandsymbol::after {
   content: ""; position: absolute; inset: -6px; border-radius: 16px;
-  border: 1.5px solid rgb(255 255 255 / .6);
+  border: 1.5px solid rgb(31 122 114 / .45);
   animation: tafel-puls 2.8s ease-out infinite;
 }
 @keyframes tafel-puls {
