@@ -464,5 +464,62 @@ def test_the_third_stage_may_name_what_he_does_not_know() -> None:
 
     assert 'Das ist die Ambitionsebene, kein Bauplan' in fliess
     assert 'was er noch nicht kennt' in fliess
-    assert 'gehört mindestens eines auf `spaeter`' in fliess
-    assert 'bleibt die Stufe leer; erfunden wird nichts' in fliess
+    assert 'Zu jeder Lösung gehört ein Modul auf `spaeter`' in fliess
+    assert 'bleibt die Stufe leer — erfunden wird nichts' in fliess
+def test_the_bottleneck_may_lie_outside_the_business() -> None:
+    """Nicht jeder Engpass ist ein Ablageproblem.
+
+    Alle drei Beispiele für den Engpasssatz waren Innensicht — Information
+    am falschen Ort, Stand in Köpfen, Unterlagen zu spät. Das Modell lernt
+    die Form aus den Beispielen, und drei gleichförmige Beispiele ergeben
+    eine gleichförmige Diagnose: Wer jeden Fall als Ablageproblem fasst,
+    findet auch nur Lösungen für Ablageprobleme.
+    """
+
+    fliess = _fliesstext(DIAGNOSE)
+
+    assert 'Der Engpass muss nicht im Inneren liegen' in fliess
+    assert 'Jede Terminfrage unterbricht eine laufende Behandlung' in fliess
+
+
+def test_what_the_business_calls_its_biggest_burden_counts() -> None:
+    """Das Thema darf nicht gewechselt werden.
+
+    Eine Werkstatt sagte wörtlich, die Telefonate seien der grösste
+    Zeitfresser. Die Diagnose machte daraus, der Stand stecke in Zurufen und
+    Zetteln — wahr, und eine Antwort auf eine Frage, die niemand gestellt
+    hat. Die Ursache benennen ist erlaubt; das Thema wechseln nicht.
+    """
+
+    fliess = _fliesstext(DIAGNOSE)
+
+    assert 'Was der Betrieb selbst als grösste Last benennt' in fliess
+    assert 'du darfst das Thema nicht wechseln' in fliess
+def test_one_module_is_the_exception() -> None:
+    """Wer eine Stunde erzählt hat, bekommt keinen einzelnen Baustein.
+
+    Der Prompt segnete eine Ein-Modul-Antwort ausdrücklich ab. Für einen
+    Betrieb, der über Statusanrufe, Zettel, Freigaben in Nachrichten und
+    Teilebestellungen erzählt, ist das kein Zielbild, sondern ein
+    Bruchstück — und es liest sich nicht als Sorgfalt, sondern als
+    Desinteresse.
+    """
+
+    fliess = _fliesstext(AUSWAHL)
+
+    assert 'Ein einzelnes Modul ist die Ausnahme' in fliess
+    assert 'Ende zu Ende heisst: der ganze Weg' in fliess
+
+
+def test_the_outlook_does_not_depend_on_how_many_modules() -> None:
+    """Gerade die kleine Lösung braucht den Ausblick.
+
+    Die Regel hing an der Modulzahl — bei vier oder mehr. Bei einer
+    minimalen Lösung griff sie nie, und ausgerechnet dort fehlt der
+    Ausblick am meisten.
+    """
+
+    fliess = _fliesstext(AUSWAHL)
+
+    assert 'unabhängig davon, wie viele es insgesamt sind' in fliess
+    assert 'bleibt die Stufe leer — erfunden wird nichts' in fliess

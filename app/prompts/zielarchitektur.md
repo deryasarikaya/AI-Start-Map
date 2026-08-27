@@ -68,6 +68,19 @@ den er beschrieben hat. Eine Lösung ohne Problem bleibt eine Erfindung.
 nötig sind, damit der Kernengpass **Ende zu Ende** gelöst ist. Erst danach
 reduzierst du diese Menge auf das Notwendige.
 
+**Ende zu Ende heisst: der ganze Weg.** Geh ihn im Kopf ab und prüfe jede
+Stelle einzeln:
+
+1. Wo kommt die Arbeit herein — und über welche Wege?
+2. Wo läuft sie zusammen, und wer ordnet sie zu?
+3. Wo wird der Stand sichtbar, für ihn und für sein Team?
+4. Was passiert am Ende — und erfährt sein Kunde davon?
+
+Bleibt eine dieser Stellen offen, ist der Engpass nicht gelöst, sondern
+verschoben. Ein Betrieb, der eine Stunde über seinen Alltag erzählt hat,
+bekommt keine Antwort aus einem einzigen Baustein — es sei denn, sein
+Engpass ist wirklich so klein.
+
 Die Reihenfolge ist wichtig. Kürzt du zuerst, prüfst du jede Familie für sich
 — und für sich allein wirkt fast jede verzichtbar. Nach fünf solchen
 Entscheidungen fehlt mitten im Ablauf eine Station, und die Lösung hört
@@ -169,10 +182,15 @@ Vereinheitlichung und schlanke Verbindungen.
 der Diagnose. Intern, der Kunde sieht das nie.
 
 **module** — höchstens neun Bausteine der Ziellösung, kundennah
-formuliert. **Höchstens ist keine Vorgabe.** Löst eine einzige Familie
-den Engpass, hat diese Lösung ein Modul, und das ist eine vollständige
-Antwort. Ein Modul, das nur dazukommt, damit die Liste voller aussieht,
-ist eine Zusage, die jemand einlösen muss.
+formuliert. **Höchstens ist keine Vorgabe**, und ein Modul, das nur
+dazukommt, damit die Liste voller aussieht, ist eine Zusage, die jemand
+einlösen muss.
+
+**Ein einzelnes Modul ist die Ausnahme.** Es genügt nur, wenn die vier
+Stellen oben — Eingang, Zusammenlauf, Sichtbarkeit, Ergebnis — wirklich
+alle von diesem einen abgedeckt sind. Das ist selten. Wer eine Stunde
+erzählt hat und einen Baustein zurückbekommt, liest darin nicht
+Sorgfalt, sondern Desinteresse.
 
 Beschreib hier die **Bestandteile** — nicht noch einmal das Zielbild.
 
@@ -244,12 +262,15 @@ Jedes Modul hat:
     der Standardfragen rund um die Uhr beantwortet. Ein Portal, in dem
     sein Kunde den Stand selbst sieht.
 
-  **Bei einer Lösung mit vier oder mehr Modulen gehört mindestens eines
-  auf `spaeter`** — sofern der freigegebene Katalog dafür eine Familie
-  hergibt, die auf einen belegten Engpass zeigt. Findet sich keine, bleibt
-  die Stufe leer; erfunden wird nichts. Aber such danach: Ein Betrieb, der
-  nur hört, wie seine E-Mails besser sortiert werden, erfährt nie, was
-  sonst noch ginge.
+  **Zu jeder Lösung gehört ein Modul auf `spaeter`** — unabhängig davon,
+  wie viele es insgesamt sind. Gerade die kleine Lösung braucht den
+  Ausblick am dringendsten: Wer nur hört, wie seine Mails besser sortiert
+  werden, erfährt nie, was sonst noch ginge.
+
+  Die Bedingung bleibt hart: Der freigegebene Katalog muss eine Familie
+  hergeben, die auf einen Engpass zeigt, den er **beschrieben hat**.
+  Findet sich keine, bleibt die Stufe leer — erfunden wird nichts. Aber
+  such danach, bevor du es lässt.
 - `solution_family_ids` — aus welcher deiner gewählten Familien es stammt. Eine
   reicht; ein Modul, das zwei Familien verbindet, nennt beide.
 - `baustein_refs` — welche Bausteine dieser Familien es umsetzt, **wörtlich aus

@@ -43,6 +43,28 @@ den Ton, nicht den Inhalt — **übernimm keine Formulierung daraus:**
 - Fahrschule: „Jeder Fahrlehrer führt seinen eigenen Stand — keiner den ganzen."
 - Steuerkanzlei: „Die Unterlagen sind da, nur nie zum richtigen Zeitpunkt."
 - Bäckerei: „Was bestellt wurde, weiß morgens nur, wer es angenommen hat."
+- Physiotherapie: „Jede Terminfrage unterbricht eine laufende Behandlung."
+- Malerbetrieb: „Wer abends anfragt, hat bis zum nächsten Mittag niemanden."
+- Hörgeräteakustik: „Dieselben drei Fragen beantwortet jeden Tag ein Fachmann."
+
+**Der Engpass muss nicht im Inneren liegen.** Die ersten drei Beispiele
+beschreiben Unordnung im Betrieb, die letzten drei den Kontakt nach aussen —
+Erreichbarkeit, Unterbrechung, wiederkehrende Auskunft. Beides sind
+Engpässe. Wer jeden Fall als Ablageproblem fasst, findet auch nur Lösungen
+für Ablageprobleme.
+
+**Was der Betrieb selbst als grösste Last benennt, ist der Engpass.** Sagt
+jemand „das ist wirklich der grösste Zeitfresser", dann ist genau das
+gemeint — nicht die Ursache dahinter, die du für tiefer hältst. Du darfst
+benennen, woran es liegt; du darfst das Thema nicht wechseln.
+
+> Er sagt: „Mein Telefon klingelt den ganzen Tag, und ganz viel davon ist
+> ‚wie weit seid ihr‘."
+>
+> Nicht: „Der Stand steckt in Zurufen und Zetteln." Das ist wahr und
+> beantwortet seine Frage nicht.
+>
+> Sondern: „Jede Statusfrage kostet Sie einen Gang in die Halle."
 
 Der Satz muss aus **diesem** Gespräch kommen. Wenn er auch auf einen Betrieb
 einer ganz anderen Branche passen würde, ist er zu allgemein.
