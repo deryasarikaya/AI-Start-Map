@@ -84,6 +84,64 @@ TIME_UNIT_PATTERN = re.compile(
     re.IGNORECASE,
 )
 
+
+# Die Einheiten, in denen jemand seinen Aufwand nennt. Als Wortstamm, damit
+# „Minute" und „Minuten" derselbe Fall sind.
+ANGABE_STAEMME = (
+    "sekund",
+    "minut",
+    "stund",
+    "tag",
+    "woch",
+    "monat",
+    "jahr",
+    "prozent",
+)
+
+#: Eine Zahl mit ihrer Einheit, so wie ein Mensch sie schreibt.
+ANGABE_PATTERN = re.compile(
+    r"(\d[\d.,]*)\s*(" + "|".join(ANGABE_STAEMME) + r")\w*",
+    re.IGNORECASE,
+)
+
+
+def _angabe_steht_in_der_erzaehlung(text: str, erzaehlung: str) -> bool:
+    """Prüft, ob jede Angabe im Text aus der Erzählung stammt.
+
+    Dieselbe Strenge wie bei einem Zitat: Zahl **und** Einheit müssen
+    beieinander in seinen eigenen Worten vorkommen. „70 Minuten" besteht,
+    wenn er „ungefähr 70 Minuten" gesagt hat. Eine Zahl, die er nie genannt
+    hat, besteht nicht — auch dann nicht, wenn sie plausibel klingt.
+
+    Eine Zeitangabe ohne Zahl („spart Stunden", „täglich weniger Aufwand")
+    besteht nie: Sie behauptet einen Aufwand, ohne einen zu benennen.
+    """
+
+    gefunden = ANGABE_PATTERN.findall(text)
+    if not gefunden:
+        return False
+
+    klein = erzaehlung.casefold()
+    for zahl, stamm in gefunden:
+        stamm = stamm.casefold()
+        if not any(
+            stamm in klein[treffer.end() : treffer.end() + 24]
+            for treffer in re.finditer(re.escape(zahl), klein)
+        ):
+            return False
+
+    # Was neben den geprüften Angaben noch übrig ist, muss ebenfalls ihm
+    # gehören. Eine weitere Zahl ohne Einheit ist immer ungedeckt; ein
+    # blosses „pro Woche" ist es nicht, wenn er selbst von einer Woche
+    # gesprochen hat.
+    rest = ANGABE_PATTERN.sub(" ", text)
+    if NUMBER_PATTERN.search(rest):
+        return False
+    return all(
+        einheit.casefold()[:4] in klein for einheit in TIME_UNIT_PATTERN.findall(rest)
+    )
+
+
 # Wörter, mit denen jemand etwas ausschließt. Ohne eines davon in der
 # Erzählung darf keine selbst genannte Grenze behauptet werden.
 EXCLUSION_PATTERN = re.compile(
@@ -477,11 +535,26 @@ class Module(StrictResultModel):
     baustein_refs: list[str] = []
 
     @model_validator(mode="after")
-    def the_benefit_promises_no_saving(self) -> Module:
-        """Ein Nutzen mit Zahl oder Zeitangabe fällt weg.
+    def the_benefit_promises_no_saving(
+        self, info: ValidationInfo | None = None
+    ) -> Module:
+        """Ein Nutzen mit einer Zahl fällt weg — ausser sie gehört ihm.
 
         „Spart drei Stunden pro Woche" ist keine Zusage, die jemand
-        halten kann — niemand hat den Betrieb des Kunden gemessen.
+        halten kann: Niemand hat den Betrieb des Kunden gemessen, und
+        ein Sprachmodell erfindet eine überzeugend aussehende Ersparnis,
+        wenn man es lässt.
+
+        **Seine eigene Angabe ist etwas anderes.** Sagt er „ungefähr 70
+        Minuten in einer normalen Woche", dann ist „70 Minuten pro Woche"
+        kein Versprechen von uns, sondern sein Satz — und er überzeugt
+        mehr als eine fremde Zahl, weil er mit sich selbst nicht streiten
+        kann. Deshalb keine Lockerung, sondern eine Ausnahme mit
+        Beweispflicht: Zahl und Einheit müssen wörtlich in der Erzählung
+        stehen, genau wie bei einem Zitat.
+
+        Ohne Erzählung im Kontext bleibt es beim Wegwerfen. Was sich
+        nicht prüfen lässt, wird nicht geglaubt.
 
         Weggeworfen wird die Zeile, nicht das Ergebnis: Der Baustein
         bleibt mit Name und Beschreibung stehen, nur ohne die
@@ -491,15 +564,31 @@ class Module(StrictResultModel):
 
         if not self.nutzen:
             return self
-        if NUMBER_PATTERN.search(self.nutzen) or TIME_UNIT_PATTERN.search(
-            self.nutzen
+        if not (
+            NUMBER_PATTERN.search(self.nutzen)
+            or TIME_UNIT_PATTERN.search(self.nutzen)
         ):
-            logger.warning(
-                "result.benefit_dropped modul=%r nutzen=%r",
+            return self
+
+        erzaehlung = _current_narrative(info) if info is not None else None
+        if erzaehlung is None:
+            erzaehlung = _narrative.get()
+        if erzaehlung and _angabe_steht_in_der_erzaehlung(
+            self.nutzen, str(erzaehlung)
+        ):
+            logger.info(
+                "result.benefit_kept_own_figure modul=%r nutzen=%r",
                 self.name,
                 self.nutzen,
             )
-            self.nutzen = ""
+            return self
+
+        logger.warning(
+            "result.benefit_dropped modul=%r nutzen=%r",
+            self.name,
+            self.nutzen,
+        )
+        self.nutzen = ""
         return self
 
 

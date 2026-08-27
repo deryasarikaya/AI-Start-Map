@@ -324,13 +324,31 @@ def test_every_module_says_what_the_business_gets_out_of_it() -> None:
 
 
 def test_the_benefit_may_not_become_an_invented_saving() -> None:
-    """**Kein Betrag, keine Stunde.**
+    """**Keine ausgedachte Ersparnis — und auch keine ausgerechnete.**
 
-    Der Nutzen ist die Stelle, an der eine erfundene Ersparnis am
-    leichtesten hineinrutscht — genau dort steht das Verbot.
+    Der Nutzen ist die Stelle, an der eine erfundene Zahl am leichtesten
+    hineinrutscht: Sie sieht genauso überzeugend aus wie eine gemessene.
+    Das Rechnen steht ausdrücklich mit dabei, weil aus „80 Mails am Tag"
+    sonst eine Stundenzahl wird, die niemand genannt hat.
     """
 
     fliess = _fliesstext(AUSWAHL)
 
-    assert "Keine Zahl, keine Zeitangabe, kein Betrag" in fliess
+    assert "Keine ausgedachte Ersparnis" in fliess
+    assert "Rechne auch nichts aus" in fliess
     assert "eine leere Zeile ist besser als eine Floskel" in fliess
+
+
+def test_his_own_figure_is_allowed_with_proof() -> None:
+    """Seine eigene Angabe darf zurückkommen — mit Beweispflicht.
+
+    Der Unterschied zur erfundenen Zahl ist die Herkunft, nicht die Form.
+    Deshalb muss im Prompt beides stehen: dass er sie nennen darf, und
+    dass Zahl und Einheit wörtlich bei ihm vorkommen müssen.
+    """
+
+    fliess = _fliesstext(AUSWAHL)
+
+    assert "Seine eigene Angabe darfst du nennen" in fliess
+    assert "Zahl **und** Einheit müssen wörtlich bei ihm vorkommen" in fliess
+    assert "Im Zweifel ohne Zahl" in fliess

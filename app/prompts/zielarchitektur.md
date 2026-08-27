@@ -180,9 +180,28 @@ Jedes Modul hat:
 - `nutzen` — zwei bis fünf Wörter, was er davon hat. Nicht was der
   Baustein tut, sondern warum ihn das interessiert: „Weniger
   Nachfragen", „Nichts geht mehr verloren", „Abends früher fertig".
-  Keine Zahl, keine Zeitangabe, kein Betrag — eine Ersparnis über
-  seinen Betrieb kann niemand belegen. Fällt dir nichts Konkretes
-  ein, lass es leer; eine leere Zeile ist besser als eine Floskel.
+  Fällt dir nichts Konkretes ein, lass es leer; eine leere Zeile ist
+  besser als eine Floskel.
+
+  **Keine ausgedachte Ersparnis.** „Spart drei Stunden pro Woche" ist
+  eine Zusage, die niemand halten kann — du hast seinen Betrieb nicht
+  gemessen, und eine geschätzte Zahl sieht genauso überzeugend aus wie
+  eine gemessene. Rechne auch nichts aus: aus „80 Mails am Tag" folgt
+  keine Stundenzahl, solange niemand gesagt hat, wie lange eine Mail
+  dauert.
+
+  **Seine eigene Angabe darfst du nennen.** Hat er einen Aufwand selbst
+  beziffert, ist das keine Behauptung von uns, sondern sein Satz — und
+  er überzeugt stärker als jede fremde Zahl, weil er mit sich selbst
+  nicht streiten kann.
+
+  > Er sagt: „Sie hat in einer normalen Woche ungefähr 70 Minuten nur
+  > mit Erinnerungen verbracht."
+  > Dann darf dort stehen: „70 Minuten pro Woche".
+
+  Zahl **und** Einheit müssen wörtlich bei ihm vorkommen, so wie bei
+  einem Zitat. Der Server prüft das und wirft die Zeile sonst weg — du
+  verlierst den Nutzen, nicht nur die Zahl. Im Zweifel ohne Zahl.
 - `gruppe` — höchstens drei verschiedene Gruppen in der ganzen Liste. Mehrere
   Module teilen sich eine Gruppe; das ist ihr Sinn.
 - `stufe` — `jetzt`, `danach` oder `spaeter`.
