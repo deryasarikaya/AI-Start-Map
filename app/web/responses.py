@@ -21,35 +21,50 @@ from app.schemas import customer_plain_text
 templates = Jinja2Templates(directory=Path(__file__).resolve().parents[1] / "templates")
 templates.env.filters["customer_text"] = customer_plain_text
 
-GESPRAECHS_BETREFF = 'AI Start Map – Gespräch zu meiner Auswertung'
+GESPRAECHS_BETREFF = 'AI Start Map – Interesse an meiner Auswertung'
+#: Die vorbereitete Nachricht. **Sie bittet ausdrücklich um die PDF**, weil
+#: die Anwendung sie nicht anhängen kann: Ein `mailto:` trägt nur Empfänger,
+#: Betreff und Text. Ohne diese Bitte kommt eine Anfrage an, zu der niemand
+#: die Auswertung findet.
 GESPRAECHS_TEXT = (
     'Guten Tag,\n'
     '\n'
-    'ich habe meine Auswertung gesehen und möchte über die Umsetzung\n'
-    'sprechen.\n'
+    'ich habe meine AI Start Map Auswertung angesehen und möchte gerne über\n'
+    'eine mögliche Umsetzung sprechen.\n'
+    '\n'
+    'Bitte prüfen Sie meine Auswertung. Ich hänge die PDF dieser E-Mail an.\n'
     '\n'
     'Mein Betrieb:\n'
-    'Womit ich anfangen möchte:\n'
+    'Womit ich gerne anfangen würde:\n'
     'So bin ich erreichbar:\n'
     '\n'
-    'Freundliche Grüße\n'
+    'Viele Grüße\n'
 )
 
 
 def gespraechs_adresse() -> str:
-    """Der Knopf „Genau so möchte ich arbeiten" als fertige mailto-Adresse.
+    """Der Knopf „Ja, ich möchte das umsetzen" als fertige mailto-Adresse.
 
     Betreff und ein vorgeschriebener Text hängen mit dran: Wer auf den
     Knopf drückt, hat gerade seine eigene Auswertung gelesen und soll
     nicht vor einem leeren Fenster sitzen.
 
-    Die Empfängeradresse steht in der Umgebungsvariable
-    `KONTAKT_ADRESSE` und **nicht** im Code — eine erfundene Adresse
-    würde die Anfragen ins Leere schicken. Fehlt sie, öffnet sich das
-    Mailprogramm trotzdem, nur mit leerem Empfängerfeld.
+    Die Empfängeradresse steht in der Umgebungsvariable `KONTAKT_ADRESSE`
+    und **nicht** im Code — eine erfundene Adresse würde die Anfragen ins
+    Leere schicken.
+
+    **Fehlt sie, gibt es keine Adresse.** Vorher entstand dann ein
+    `mailto:` ohne Empfänger: Das Mailfenster ging auf, das Adressfeld
+    blieb leer, und die Anfrage landete nirgends. Auf dem wichtigsten
+    Knopf der Seite ist das der teuerste denkbare Fehler, weil ihn
+    niemand meldet — der Kunde denkt, er habe geschrieben. Die Vorlage
+    zeigt bei leerem Rückgabewert einen Hinweis statt eines Knopfes: Ein
+    fehlender Knopf fällt auf, ein Knopf ins Leere nicht.
     """
 
     empfaenger = os.getenv('KONTAKT_ADRESSE', '').strip()
+    if not empfaenger:
+        return ''
     return (
         f'mailto:{quote(empfaenger, safe="@")}'
         f'?subject={quote(GESPRAECHS_BETREFF)}'

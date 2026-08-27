@@ -103,7 +103,11 @@ def test_the_result_page_links_to_the_report(client: TestClient) -> None:
 
     seite = client.get("/results").text
 
-    assert "Vollständige Auswertung als PDF" in seite
+    assert "Auswertung als PDF ansehen" in seite
+    # „Enthält mehr Details als diese Zusammenfassung" ist gestrichen:
+    # Seit das PDF dieselbe Auswertung mit Deckblatt ist, war der Satz ein
+    # Versprechen, das die Datei nicht einlöst.
+    assert "mehr Details als diese Zusammenfassung" not in seite
     assert "/report" in seite
 
 
@@ -214,7 +218,11 @@ def test_the_conversation_button_carries_subject_and_text(
 
     assert 'href="mailto:hallo@example.org?subject=' in seite
     assert "AI%20Start%20Map" in seite
-    assert "Gespr%C3%A4ch%20zu%20meiner%20Auswertung" in seite
+    assert "Interesse%20an%20meiner%20Auswertung" in seite
+    # Die Nachricht bittet um die PDF: Ein `mailto:` kann nichts anhängen,
+    # und ohne diese Bitte kommt eine Anfrage an, zu der niemand die
+    # Auswertung findet.
+    assert "h%C3%A4nge%20die%20PDF" in seite
     # Kaufmännisches Und als `&amp;`: So gehört es im HTML, der Browser
     # macht daraus wieder ein einfaches Zeichen.
     assert "&amp;body=" in seite
@@ -222,14 +230,17 @@ def test_the_conversation_button_carries_subject_and_text(
     assert 'href="mailto:"' not in seite
 
 
-def test_the_conversation_button_holds_without_a_configured_address(
+def test_without_an_address_there_is_no_button(
     client: TestClient, monkeypatch
 ) -> None:
-    """Ohne hinterlegte Adresse bleibt der Knopf brauchbar.
+    """**Ohne hinterlegte Adresse gibt es keinen Knopf.**
 
-    Erfunden wird nichts — eine ausgedachte Adresse schickte die Anfragen
-    des Kunden ins Leere. Das Mailprogramm öffnet sich trotzdem, mit
-    Betreff und Text und leerem Empfängerfeld.
+    Vorher öffnete sich das Mailprogramm trotzdem — mit Betreff, Text und
+    leerem Empfängerfeld. Das ist auf dem wichtigsten Knopf der Seite der
+    teuerste denkbare Fehler, weil ihn niemand meldet: Der Kunde schreibt,
+    schickt ab, und die Anfrage landet nirgends.
+
+    Ein fehlender Knopf fällt auf. Ein Knopf ins Leere nicht.
     """
 
     monkeypatch.delenv("KONTAKT_ADRESSE", raising=False)
@@ -237,7 +248,6 @@ def test_the_conversation_button_holds_without_a_configured_address(
 
     seite = client.get("/results").text
 
-    assert 'href="mailto:?subject=' in seite
-    # Kaufmännisches Und als `&amp;`: So gehört es im HTML, der Browser
-    # macht daraus wieder ein einfaches Zeichen.
-    assert "&amp;body=" in seite
+    assert "mailto:" not in seite
+    assert "Ja, ich möchte das umsetzen" not in seite
+    assert "Die Kontaktadresse ist auf diesem Server nicht hinterlegt." in seite

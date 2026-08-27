@@ -517,7 +517,9 @@
 {% if e.module %}
 <section class="bausteine" data-auftritt>
   <div class="flaeche">
-    <h2>Das würden wir für Sie umsetzen</h2>
+    <h2>Damit würden wir anfangen</h2>
+    <p class="lauftext">Diese Bausteine schaffen die Grundlage. Danach kann die
+    Lösung Schritt für Schritt erweitert werden.</p>
     <div class="bausteinraster">
       {# **Höchstens vier.** Neun Karten sind ein Katalog, und ein
          Katalog verkauft nichts. Die vollständige Liste steht im
@@ -718,13 +720,21 @@
 <section class="abschluss" data-auftritt>
   <div class="flaeche">
     <h2>Möchten Sie so arbeiten?</h2>
-    <p class="bruecke">Wir setzen genau diese Lösung für Ihren Betrieb um —
-    passend zu Ihren Abläufen und Ihren bestehenden Systemen.</p>
+    <p class="bruecke">Diese Auswertung zeigt, wo Sie sinnvoll anfangen können und
+    welche Möglichkeiten daraus entstehen. Im Gespräch klären wir, was für Ihren
+    Betrieb wirklich Sinn ergibt.</p>
+    {# **Kein Knopf ohne Empfaenger.** Steht `KONTAKT_ADRESSE` nicht in der
+       Umgebung, gibt `gespraechs_adresse()` nichts zurueck — dann erscheint
+       hier ein Hinweis statt eines Knopfes, der ein leeres Mailfenster
+       oeffnet. #}
+    {%- set kontakt = gespraechs_adresse() -%}
     <div class="knoepfe">
-      <a class="knopf knopf--haupt" href="{{ gespraechs_adresse() }}">
-        <span>Genau so möchte ich arbeiten</span>
+      {% if kontakt %}
+      <a class="knopf knopf--haupt" href="{{ kontakt }}">
+        <span>Ja, ich möchte das umsetzen</span>
         <svg aria-hidden="true"><use href="#i-pfeil"/></svg>
       </a>
+      {% endif %}
       {# Ohne Sitzungskennung in der Adresse: Der oeffentliche Weg
          kennt die Sitzung aus dem Cookie, und eine Kennung im
          ausgelieferten Text waere eine, die jemand weitergibt. #}
@@ -732,14 +742,25 @@
          Zusatz bleibt dieselbe Adresse eine Seite zum Lesen. #}
       <a class="knopf knopf--neben" href="/report?drucken=1">
         <svg aria-hidden="true"><use href="#i-pdf"/></svg>
-        <span>Vollständige Auswertung als PDF</span>
+        <span>Auswertung als PDF ansehen</span>
       </a>
     </div>
     {# Der zweite Knopf ist kein zweiter Ausgang. Er stand gleichberechtigt
        neben dem Gesprächswunsch, und von zwei Wegen gewinnt immer der
        bequemere. Der nächste Schritt ist das Gespräch; der Ausdruck ist
-       das, was er mitnimmt und intern weitergibt. #}
-    <p class="knopfnotiz">Enthält mehr Details als diese Zusammenfassung.</p>
+       das, was er mitnimmt und intern weitergibt.
+
+       **„Enthält mehr Details als diese Zusammenfassung" ist gestrichen.**
+       Seit das PDF dieselbe Auswertung mit Deckblatt ist, war der Satz
+       ein Versprechen, das die Datei nicht einlöst. Stattdessen sagt die
+       Zeile, was beim Klick auf den ersten Knopf passiert — ein Mail-
+       fenster, das sich unangekündigt öffnet, erschreckt mehr, als es
+       hilft. #}
+    {% if kontakt %}
+    <p class="knopfnotiz">Öffnet eine vorbereitete E-Mail für das Umsetzungsgespräch.</p>
+    {% else %}
+    <p class="knopfnotiz">Die Kontaktadresse ist auf diesem Server nicht hinterlegt.</p>
+    {% endif %}
 
     {# Der letzte Satz der Seite. Er steht **nach** den Knöpfen: davor
        hätte er zum Abwägen eingeladen, danach nimmt er die letzte
