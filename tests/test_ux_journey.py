@@ -13,10 +13,10 @@ def test_landing_voice_fallback_and_mobile_assets(client: TestClient) -> None:
     assert landing.status_code == 200
     for text in (
         "FÜR SELBSTSTÄNDIGE UND KLEINE BETRIEBE",
-        "Wo könnte KI dir im Alltag wirklich Arbeit abnehmen?",
-        "Informationen kommen über mehrere digitale Kanäle.",
+        "Was könnte KI in deinem Betrieb wirklich übernehmen?",
+        "Kunden erreichen euch ständig über Telefon, E-Mail, WhatsApp oder Website.",
         "Drei einfache Schritte",
-        "Meinen Ablauf beschreiben",
+        "Mein KI-Potenzial entdecken",
     ):
         assert text in landing.text
     assert "RAG" not in landing.text

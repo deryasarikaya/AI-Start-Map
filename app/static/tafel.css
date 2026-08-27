@@ -23,8 +23,8 @@
   --linie: #e0e3dc;
   --flaeche: #ffffff;
   --flaeche-hoch: #ffffff;
-  --grund: #f6f7f4;
-  --grund-tief: #eeefe9;
+  /*  und  stehen in  und gelten hier
+   * mit. Eine zweite Definition waere eine zweite Palette. */
   /* Grün ist das Signal für Kontrolle, Klarheit, Lösung. */
   --marke: #2f6b57;
   --marke-hell: #e8f0ec;
@@ -34,8 +34,8 @@
   /* **Der KI-Ton, und nur dort.** Ein kühleres Blaugrün, das ausschliesslich
    * an der Stelle erscheint, an der Verarbeitung passiert. Ein einziger
    * starker Moment ist mehr wert als zehn Roboter-Symbole. */
-  --ki: #3fa7a3;
-  --ki-tief: #1f7a72;
+  --ki: var(--teal, #2f7d70);
+  --ki-tief: var(--teal-tief, #1f6d62);
   /* Sehr sparsam: Fristen und Aufmerksamkeit. */
   --warm: #d9a441;
   /* Kein aggressives Rot. Das Heute ist der Ausgangspunkt, nicht der Alarm. */

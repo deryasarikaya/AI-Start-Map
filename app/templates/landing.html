@@ -6,23 +6,33 @@
 <section class="landing-section landing-hero">
     <div class="hero-copy">
         <p class="eyebrow">FÜR SELBSTSTÄNDIGE UND KLEINE BETRIEBE</p>
-        <h1>Wo könnte KI dir im Alltag wirklich Arbeit abnehmen?</h1>
-        <p class="lead">Erzähl kurz, welche Aufgaben dich Zeit kosten, wo Informationen verstreut sind oder was du immer wieder manuell nacharbeiten musst. AI Start Map schaut sich deinen Ablauf an und zeigt dir einen konkreten, realistischen KI-Schritt.</p>
+        <h1>Was könnte KI in deinem Betrieb wirklich übernehmen?</h1>
+        {# Der Text nennt bewusst Kundenkontakt zuerst. Die alte Fassung
+           sprach nur von verstreuten Informationen und manueller
+           Nacharbeit — wer das liest, erzählt danach auch nur davon,
+           und alles, was mit Telefon, wiederkehrenden Fragen oder
+           Nachfassen zu tun hat, kommt nie zur Sprache. #}
+        <p class="lead">Erzähl kurz, was dich im Alltag Zeit kostet, wo Kundenkontakt hängen bleibt oder was du immer wieder selbst erledigen musst. AI Start Map zeigt dir einen realistischen ersten Automatisierungsschritt – und welche größeren KI-Lösungen für deinen Betrieb darüber hinaus sinnvoll sein könnten.</p>
         <p class="micro-copy">Per Sprache oder Text · dauert wenige Minuten</p>
         <form action="{{ url_for('begin_journey') }}" method="post" data-disable-on-submit data-submitting-label="Einen Moment …">
-            <button class="primary-button hero-button" type="submit">Meinen Ablauf beschreiben <span aria-hidden="true">→</span></button>
+            <button class="primary-button hero-button" type="submit">Mein KI-Potenzial entdecken <span aria-hidden="true">→</span></button>
         </form>
     </div>
 </section>
 
 <section class="landing-section recognition-section" id="wiedererkennen" aria-labelledby="recognition-title">
     <p class="section-kicker">KOMMT DIR DAS BEKANNT VOR?</p>
-    <h2 id="recognition-title" class="section-title">Vier typische Zeitfresser im Alltag</h2>
+    <h2 id="recognition-title" class="section-title">Wo KI im Betrieb wirklich entlasten kann</h2>
+    {# Alle vier Punkte beschrieben vorher dasselbe: Information liegt
+       falsch. Damit war der Besucher auf Ablage geeicht, bevor er ein
+       Wort gesagt hatte. Jetzt steht Kundenkontakt an erster Stelle,
+       und der Rest bleibt offen genug für Telefon, Termine,
+       Nachfassen, Wissen und alles andere. #}
     <ul class="recognition-list">
-        <li>Informationen kommen über mehrere digitale Kanäle.</li>
-        <li>Du musst Dinge immer wieder zusammensuchen.</li>
-        <li>Status oder nächste Schritte sind nicht überall sichtbar.</li>
-        <li>Vieles wird manuell übertragen oder nachbearbeitet.</li>
+        <li>Kunden erreichen euch ständig über Telefon, E-Mail, WhatsApp oder Website.</li>
+        <li>Wiederkehrende Fragen, Termine und Nachfassen kosten jeden Tag Zeit.</li>
+        <li>Informationen, Aufgaben und Dokumente müssen manuell zusammengesucht oder übertragen werden.</li>
+        <li>Wichtige Abläufe hängen noch stark an einzelnen Personen und deren Wissen.</li>
     </ul>
 </section>
 
@@ -31,15 +41,19 @@
     <h2 id="steps-title" class="section-title">Drei einfache Schritte</h2>
     <div class="simple-steps">
         <article><span>1</span><div><h3>Du erzählst</h3><p>Sprich oder schreib kurz, was dich im Alltag aufhält.</p></div></article>
-        <article><span>2</span><div><h3>Ich frage gezielt nach</h3><p>Nur wenn eine Antwort den passenden nächsten Schritt verändert.</p></div></article>
-        <article><span>3</span><div><h3>Du bekommst eine klare Empfehlung</h3><p>Mit einem verständlichen Ablauf und einem kleinen ersten Schritt.</p></div></article>
+        <article><span>2</span><div><h3>Ich frage gezielt nach</h3><p>Nur wenn eine Antwort den passenden nächsten Schritt wirklich verändert.</p></div></article>
+        <article><span>3</span><div><h3>Du siehst, was bei dir möglich ist</h3><p>Von einem sinnvollen ersten Automatisierungsschritt bis zu größeren KI-Lösungen für deinen Betrieb.</p></div></article>
     </div>
 </section>
 
 <section class="landing-section comparison-section" aria-label="Vergleich">
     <div class="comparison-grid">
-        <article class="comparison-card muted-card"><p class="card-kicker">Allgemeiner KI-Tipp</p><blockquote>„Nutze neue Programme und automatisiere möglichst viel.“</blockquote></article>
-        <article class="comparison-card"><p class="card-kicker">AI Start Map</p><blockquote>„Schick Sprache, Fotos und Bon nach dem Einsatz. Die KI schreibt daraus eine Notiz, die du nur noch prüfst.“</blockquote></article>
+        {# Die rechte Karte zeigte vorher einen einzelnen Ablauf — und legte
+           damit fest, dass am Ende immer so etwas herauskommt. Jetzt zeigt
+           sie, was AI Start Map wirklich anders macht: priorisieren und
+           trotzdem grösser denken. #}
+        <article class="comparison-card muted-card"><p class="card-kicker">Allgemeiner KI-Tipp</p><blockquote>„Nutze einen Chatbot, automatisiere mehr und probiere neue KI-Tools aus.“</blockquote></article>
+        <article class="comparison-card"><p class="card-kicker">AI Start Map</p><blockquote>„Wir zeigen dir, womit du sinnvoll startest – und was mit KI darüber hinaus für deinen Betrieb möglich ist.“</blockquote></article>
     </div>
 </section>
 {% endblock %}

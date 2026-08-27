@@ -110,7 +110,7 @@ def test_unsubstantiated_benefit_claims_do_not_reach_the_customer() -> None:
 
 def test_landing_processing_and_mobile_contract(client: TestClient) -> None:
     landing = client.get("/").text
-    assert "Wo könnte KI dir im Alltag wirklich Arbeit abnehmen?" in landing
+    assert "Was könnte KI in deinem Betrieb wirklich übernehmen?" in landing
     assert "Per Sprache oder Text · dauert wenige Minuten" in landing
     assert landing.count('<section class="landing-section') <= 5
     base = (ROOT / "app/templates/base.html").read_text(encoding="utf-8")
