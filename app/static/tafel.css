@@ -271,10 +271,12 @@
  * Teal, Ergebnis sehr helles Grün. Die Steigerung liegt in der Sättigung
  * und in der Höhe, nicht im Kontrast. */
 .tafel .bandstufe--schluessel {
-  background: linear-gradient(165deg, #dcf0ee 0%, #f0f8f7 100%);
-  box-shadow: var(--heben-2), 0 0 40px -14px rgb(31 122 114 / .4);
-  transform: translateY(-8px); padding-bottom: 24px;
+  flex: 1.18 1 0;
+  background: linear-gradient(165deg, #cfeae7 0%, #ebf6f5 100%);
+  box-shadow: var(--heben-3), 0 0 46px -12px rgb(31 122 114 / .5);
+  transform: translateY(-10px); padding: 30px 18px 26px;
 }
+.tafel .bandstufe--schluessel h3 { font-size: 1.08rem; }
 .tafel .bandstufe--schluessel .bandsymbol {
   background: #fff; color: var(--ki-tief); box-shadow: var(--heben-1);
 }
@@ -305,7 +307,15 @@
   flex: 0 0 34px; display: flex; justify-content: center;
   align-items: center; color: var(--marke);
 }
-.tafel .pfeil svg { width: 20px; height: 20px; opacity: .6; }
+.tafel .pfeil svg { width: 22px; height: 22px; opacity: .9; }
+/* **Die Pfeile laufen von Teal nach Grün.** Sie dekorieren nicht, sie
+ * führen: Der Weg beginnt bei der Verarbeitung und endet im Ergebnis,
+ * und die Farbe geht denselben Weg mit. Die Pfeile sind das zweite,
+ * vierte und sechste Kind der Reihe. */
+.tafel .pfeil:nth-of-type(2) { color: var(--ki-tief); }
+.tafel .pfeil:nth-of-type(4) { color: #2b8272; }
+.tafel .pfeil:nth-of-type(6) { color: var(--marke); }
+.tafel .pfeil:nth-of-type(8) { color: var(--marke); }
 
 
 /* ── Die Gestalten der Stationen ──────────────────────────────────────
@@ -357,7 +367,7 @@
 }
 .tafel .zusammenlauf svg {
   width: 100%; height: 78%; overflow: visible;
-  stroke: var(--marke); stroke-width: 1.6; fill: none; opacity: .5;
+  stroke: var(--ki-tief); stroke-width: 1.7; fill: none; opacity: .75;
 }
 
 /* Die Schlüsselstelle trägt die Lösung und ist deshalb grösser als der
@@ -389,8 +399,12 @@
 }
 
 /* Der Ausgang ist ein Ergebnis, kein weiterer Schritt. */
+/* Die Unterpunkte sind hier klarer und grösser als in den mittleren
+   Schritten: Sie sind das Erreichte, nicht ein weiterer Zwischenstand. */
 .tafel .bandstufe--ausgang .knoten li {
-  background: #d7e8e0; font-weight: 600; color: var(--marke-tief);
+  background: #fff; font-weight: 620; color: var(--marke-tief);
+  font-size: .86rem; padding: 7px 11px;
+  box-shadow: inset 0 0 0 1px #cfe0d8;
 }
 
 
@@ -478,9 +492,12 @@
   display: grid; gap: 16px; margin-top: 22px;
   grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
 }
+/* Die Karte gibt dem Heute wenig Raum und der Zukunft viel. Der Blick
+ * soll in jeder Karte unten landen — dort steht der bessere Zustand. */
 .tafel .wandelkarte {
-  background: var(--flaeche); border-radius: var(--rund); padding: 20px 22px;
-  box-shadow: var(--heben-2);
+  background: var(--flaeche); border-radius: var(--rund);
+  padding: 16px 16px 18px;
+  box-shadow: var(--heben-1);
   transition: transform .5s cubic-bezier(.22, .61, .36, 1) var(--verzug, 0ms),
               opacity .5s ease var(--verzug, 0ms);
 }
@@ -491,31 +508,45 @@
 .tafel .wandelkarte svg { width: 16px; height: 16px; margin-top: 4px; }
 /* Das Heute ist leise: der Ausgangspunkt, nicht die Botschaft.
  * Durchgestrichen wäre zu viel — es stimmt ja noch. */
+/* Das Heute: klein, blass, sachlich. Es muss den Kunden nur kurz
+ * wiedererkennen lassen — nicht überzeugen. */
 .tafel .heute {
-  font-size: .8rem; color: var(--tinte-leise); padding-bottom: 13px;
-  margin-bottom: 15px !important;
+  font-size: .78rem; line-height: 1.45; color: var(--tinte-leise);
+  padding: 0 6px 12px; margin-bottom: 14px !important;
   border-bottom: 1px solid var(--linie);
 }
-.tafel .heute svg { color: var(--heute); opacity: .75; }
+.tafel .heute svg { color: var(--heute); opacity: .6; }
 /* **Die Zukunft übernimmt die Karte.** Vorher lebten beide Hälften auf
  * derselben Fläche mit fast demselben Gewicht — dann ist es eine
  * Aufzählung und kein Wandel. Jetzt: eigenes Zeichen, grössere Schrift,
  * grüner Grund. Das Alte wird kleiner, das Neue nimmt den Platz ein. */
+/* **Die Zukunft zieht den Blick.** Grösser, mehr Luft, eigener Grund,
+ * leicht angehoben — sie liegt sichtbar über der Karte statt darin. */
 .tafel .kuenftig {
-  display: grid; grid-template-columns: 38px 1fr; gap: 13px;
-  align-items: start; margin: 0 -6px -4px; padding: 13px 14px 14px 12px;
-  border-radius: 12px; background: var(--gut-hell);
+  display: grid; grid-template-columns: 42px 1fr; gap: 14px;
+  align-items: start; padding: 16px 16px 17px 14px;
+  border-radius: 13px; background: var(--gut-hell);
+  box-shadow: var(--heben-1); transform: translateY(2px);
 }
 .tafel .kuenftig p {
-  display: block; margin: 0; font-size: 1.04rem; font-weight: 620;
-  line-height: 1.38; color: var(--marke-tief); letter-spacing: -.012em;
+  display: block; margin: 0; font-size: 1.08rem; font-weight: 640;
+  line-height: 1.36; color: var(--marke-tief); letter-spacing: -.014em;
 }
 .tafel .wandelzeichen {
-  display: grid; place-items: center; width: 38px; height: 38px;
-  border-radius: 11px; background: #fff; color: var(--marke);
+  display: grid; place-items: center; width: 42px; height: 42px;
+  border-radius: 12px; background: #fff; color: var(--marke);
   box-shadow: var(--heben-1);
 }
-.tafel .wandelzeichen svg { width: 19px; height: 19px; }
+.tafel .wandelzeichen svg { width: 21px; height: 21px; }
+
+/* ── 2 · Eine leise Staffelung über die vier Karten ─────────────────
+ * Nicht bunt, nur eine Richtung: von neutral nach grünlich. Schon
+ * bevor jemand ein Wort liest, entsteht der Eindruck, dass sich etwas
+ * zum Besseren entwickelt. */
+.tafel .wandelkarte:nth-child(2) .kuenftig { background: #e6f2f0; }
+.tafel .wandelkarte:nth-child(3) .kuenftig { background: #e6f1ec; }
+.tafel .wandelkarte:nth-child(4) .kuenftig { background: #e2efe7; }
+.tafel .wandelkarte:nth-child(2) .wandelzeichen { color: var(--ki-tief); }
 
 /* ── Beispielansichten ────────────────────────────────────────────────
  * Die Vorschauen sind der Beweis, dass hier etwas Gebautes entsteht —
