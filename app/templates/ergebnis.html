@@ -519,7 +519,10 @@
   <div class="flaeche">
     <h2>Das würden wir für Sie umsetzen</h2>
     <div class="bausteinraster">
-      {% for modul in e.module %}
+      {# **Höchstens vier.** Neun Karten sind ein Katalog, und ein
+         Katalog verkauft nichts. Die vollständige Liste steht im
+         Ausdruck. #}
+      {% for modul in e.module[:4] %}
       <article class="baustein">
         <span class="bausteinsymbol">
           <svg aria-hidden="true"><use href="#i-baustein"/></svg>
@@ -537,11 +540,11 @@
       </article>
       {% endfor %}
     </div>
-    <p class="lauftext">Diese Bausteine gehören zu einer gemeinsamen Lösung.
-    Es sind keine Produkte, die Sie einzeln kaufen müssen — und es ist keine
-    Liste, die jeder Betrieb bekommt.</p>
-    {# Die Reihenfolge, in der wir das aufbauen würden, steht im Ausdruck.
-       Auf dieser Seite entscheidet er, ob er das überhaupt will. #}
+    {# Ein Satz. Der lange Vorgänger erklärte, was die Bausteine **nicht**
+       sind — das klingt nach Verteidigung, und verteidigt wird nur, was
+       angegriffen wurde. #}
+    <p class="lauftext">Die Bausteine greifen als eine gemeinsame Lösung
+    ineinander.</p>
   </div>
 </section>
 {% endif %}
@@ -561,12 +564,21 @@
     {# Der Satz gehört in die Überschrift, nicht in einen Absatz darunter.
        Ein erklärender Vorspann klingt hier wie eine Rechtfertigung. #}
     <h2>Das läuft künftig automatisch — das entscheiden Sie</h2>
+    {# Die Verkaufsbotschaft dieses Blocks in einer Zeile: Links
+       verschwindet Arbeit, rechts bleibt Kontrolle. #}
+    <p class="lauftext">Wiederkehrende Arbeit läuft automatisch.
+    Entscheidungen bleiben bei Ihnen.</p>
     <div class="spalten">
       {% if e.aufgabenteilung.system %}
       <div class="spalte spalte--system">
-        <h3>Das übernimmt das System</h3>
+        <h3>
+          <svg aria-hidden="true"><use href="#i-funke"/></svg>
+          <span>Das übernimmt das System</span>
+        </h3>
+        {# Höchstens vier je Seite. Fünf gegen fünf liest niemand mehr
+           als Gegenüberstellung, sondern als zwei Listen. #}
         <ul>
-          {% for zeile in e.aufgabenteilung.system %}
+          {% for zeile in e.aufgabenteilung.system[:4] %}
           <li><svg aria-hidden="true"><use href="#i-haken"/></svg><span>{{ zeile }}</span></li>
           {% endfor %}
         </ul>
@@ -575,9 +587,12 @@
 
       {% if e.aufgabenteilung.mensch %}
       <div class="spalte spalte--mensch">
-        <h3>Das entscheiden weiterhin Sie</h3>
+        <h3>
+          <svg aria-hidden="true"><use href="#i-person"/></svg>
+          <span>Das entscheiden weiterhin Sie</span>
+        </h3>
         <ul>
-          {% for zeile in e.aufgabenteilung.mensch %}
+          {% for zeile in e.aufgabenteilung.mensch[:4] %}
           <li><svg aria-hidden="true"><use href="#i-person"/></svg><span>{{ zeile }}</span></li>
           {% endfor %}
         </ul>
@@ -592,17 +607,20 @@
        Ohne Überschrift stand hier eine Liste von Zusagen, die aus dem
        Nichts kam. Sie kommt nicht aus dem Nichts: Das sind seine Sätze,
        und wir halten uns daran. Genau das muss dabeistehen. #}
+    {# **Ein eigener Block, keine Fussnote.** Was der Kunde ausgeschlossen
+       hat, ist das Stärkste auf dieser Seite: Es zeigt, dass wir nicht
+       nur seine Probleme gehört haben, sondern auch, was er nicht will.
+
+       Der Titel führt, sein Satz steht klein als Beleg darunter — ohne
+       Kennzeichnung als Zitat läse er sich wie eine Zusage von uns. #}
     {% if e.aufgabenteilung.grenzen %}
     <div class="grenzen">
-      <p class="grenzenkopf">Das haben Sie gesagt — daran halten wir uns</p>
-      {% for grenze in e.aufgabenteilung.grenzen %}
+      <p class="grenzenkopf">Ihre Grenzen bleiben Teil der Lösung</p>
+      {% for grenze in e.aufgabenteilung.grenzen[:3] %}
       <p class="grenze">
         <svg aria-hidden="true"><use href="#i-schutz"/></svg>
         <span>
           <b>{{ grenze.titel }}</b>
-          {# Als Zitat gesetzt: Der Satz ist seiner, nicht unserer.
-             Ohne Kennzeichnung liest er sich wie eine Zusage von uns —
-             mit Kennzeichnung liest er sich als „die haben zugehört". #}
           <q>{{ grenze.erlaeuterung }}</q>
         </span>
       </p>
@@ -622,8 +640,8 @@
 <section class="abschluss" data-auftritt>
   <div class="flaeche">
     <h2>Möchten Sie so arbeiten?</h2>
-    <p class="bruecke">Wir können genau diese Lösung für Ihren Betrieb
-    umsetzen.</p>
+    <p class="bruecke">Wir setzen genau diese Lösung für Ihren Betrieb um —
+    passend zu Ihren Abläufen und Ihren bestehenden Systemen.</p>
     {# Nicht noch einmal daran erinnern, was er schon hat — an dieser
        Stelle soll er wollen, nicht abwägen. #}
     <p class="versprechen">
@@ -642,9 +660,14 @@
          Zusatz bleibt dieselbe Adresse eine Seite zum Lesen. #}
       <a class="knopf knopf--neben" href="/report?drucken=1">
         <svg aria-hidden="true"><use href="#i-pdf"/></svg>
-        <span>Vollständige Auswertung als PDF</span>
+        <span>Vollständige Auswertung ansehen</span>
       </a>
     </div>
+    {# Der zweite Knopf ist kein zweiter Ausgang. Er stand gleichberechtigt
+       neben dem Gesprächswunsch, und von zwei Wegen gewinnt immer der
+       bequemere. Der nächste Schritt ist das Gespräch; der Ausdruck ist
+       das, was er mitnimmt und intern weitergibt. #}
+    <p class="knopfnotiz">Enthält mehr Details als diese Zusammenfassung.</p>
     <p class="kleingedruckt">Diese Auswertung basiert auf Ihrer eigenen
     Beschreibung.</p>
   </div>
