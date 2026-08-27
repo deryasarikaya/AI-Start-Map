@@ -230,7 +230,7 @@ def test_the_stored_example_carries_a_full_result(client: TestClient) -> None:
 
     for abschnitt in (
         "Das haben wir verstanden",
-        "Was bei Ihnen gerade den Aufwand erzeugt",
+        "Was heute unnötig Aufwand erzeugt",
         "Das würde sich für Sie verändern",
         "Das hätten Sie künftig vor sich",
         "Das würden wir für Sie umsetzen",

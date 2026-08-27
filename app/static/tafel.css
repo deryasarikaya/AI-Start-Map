@@ -72,9 +72,12 @@
 }
 /* Sehr gross neben sehr klein. Alles mittelgross heisst: nichts sticht
  * heraus, und die Seite liest sich als gleichmässiger Brei. */
+/* Abschnittsüberschriften ordnen sich der Hauptzeile unter. Zwei
+ * Überschriften, die gleich laut sind, streiten sich — und die
+ * Hauptbotschaft dieser Seite ist die Zukunft, nicht das Problem. */
 .tafel h2 {
-  font-size: clamp(1.6rem, 2.2vw, 2rem); font-weight: 680;
-  letter-spacing: -.028em; margin: 0 0 6px; line-height: 1.2;
+  font-size: clamp(1.4rem, 1.8vw, 1.72rem); font-weight: 680;
+  letter-spacing: -.025em; margin: 0 0 6px; line-height: 1.25;
 }
 .tafel h3 { font-size: 1rem; font-weight: 620; margin: 0; }
 /* Keine Lesebreite: Diese Zeilen sind Hinweise, keine Absätze. Mit
@@ -108,8 +111,11 @@
 /* Kein eigener Kasten mehr, sondern zwei weiche Lichter im selben Raum.
  * Der Übergang zur Seite darunter verschwindet — die Tafel wird eine
  * Fläche statt eines Kopfes mit angehängtem Rest. */
+/* Weniger Luft nach unten. Mit 66px sah der Übergang zur Diagnose aus
+ * wie der Anfang einer zweiten Seite — dabei gehören Zukunft,
+ * heutiger Engpass und Lösung zu einem Gedanken. */
 .tafel .kopf {
-  position: relative; padding: 60px 0 66px; overflow: hidden;
+  position: relative; padding: 58px 0 34px; overflow: hidden;
   background:
     radial-gradient(120% 140% at 12% -10%, rgb(77 134 255 / .3) 0%,
                     transparent 58%),
@@ -138,8 +144,8 @@
   text-transform: uppercase; color: #93b4f0;
 }
 .tafel .kopf h1 {
-  margin: 0 0 14px; font-size: clamp(1.9rem, 3.4vw, 2.7rem);
-  font-weight: 680; line-height: 1.15; letter-spacing: -.025em;
+  margin: 0 0 16px; font-size: clamp(2.3rem, 4vw, 3.15rem);
+  font-weight: 700; line-height: 1.1; letter-spacing: -.032em;
   color: #fff;
 }
 /* Der Befund ist die Unterzeile: ein Satz über seinen Engpass, in seiner
@@ -373,7 +379,7 @@
  * „450 Einheiten" hängt da und erklärt nichts. Eine Zahl braucht eine
  * Aufgabe — hier ist es die Zeile darunter, die sagt, warum sie Arbeit
  * macht. Zahl, Beleg, Bedeutung: erst zusammen führen sie irgendwohin. */
-.tafel .aufwand { padding-top: 12px; }
+.tafel .aufwand { padding-top: 6px; }
 .tafel .fakten {
   display: grid; gap: 16px; margin-top: 22px;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -393,24 +399,35 @@
   display: block; margin-top: 4px; font-size: .84rem; color: var(--marke);
   font-weight: 600;
 }
-/* Sein Satz, als Zitat erkennbar — sonst liest es sich, als hätten wir es
-   behauptet. */
-.tafel .fakt blockquote {
-  margin: 0; padding-left: 13px; border-left: 2px solid rgb(255 255 255 / .16);
-  font-size: .9rem; font-style: italic; line-height: 1.5;
-  color: var(--tinte-schwach);
-}
+/* Die Erkenntnis ist die Botschaft der Karte. */
 .tafel .bedeutung {
-  margin: 12px 0 0; font-size: .88rem; line-height: 1.5; color: var(--tinte);
+  margin: 0; font-size: 1.02rem; font-weight: 600; line-height: 1.4;
+  color: var(--tinte); letter-spacing: -.012em;
 }
-/* Der Übergang. Ohne ihn wären es drei Feststellungen ohne Folge. */
+/* Sein Satz darunter, klein: der Nachweis, nicht die Botschaft. Ohne
+   Kennzeichnung als Zitat läse es sich, als hätten wir es behauptet. */
+.tafel .fakt blockquote {
+  margin: 13px 0 0; padding-left: 13px;
+  border-left: 2px solid rgb(255 255 255 / .16);
+  font-size: .84rem; font-style: italic; line-height: 1.5;
+  color: var(--tinte-leise);
+}
+/* Der Übergang. Ohne ihn wären es drei Feststellungen ohne Folge —
+ * und als Zeile, die nur aussieht wie ein Knopf, kostet er Vertrauen.
+ * Also ein echter Sprung in den Lösungsteil. */
 .tafel .uebergang {
-  display: inline-grid; grid-template-columns: 20px auto; gap: 11px;
-  align-items: center; margin: 26px 0 0; padding: 11px 20px 11px 16px;
+  display: inline-grid; grid-template-columns: auto 18px; gap: 11px;
+  align-items: center; margin: 24px 0 0; padding: 10px 16px 10px 20px;
   border-radius: 999px; background: var(--marke-hell); color: #cfe0ff;
-  font-size: .98rem; font-weight: 600;
+  font-size: .95rem; font-weight: 600; text-decoration: none;
+  transition: background .25s ease, transform .25s ease;
+}
+.tafel .uebergang:hover {
+  background: rgb(77 134 255 / .24); transform: translateY(2px);
 }
 .tafel .uebergang svg { width: 18px; height: 18px; color: var(--marke); }
+/* Der Pfeil zeigt nach unten, weil der Sprung nach unten geht. */
+.tafel .runter { transform: rotate(90deg); }
 
 /* ── Auf einen Blick ──────────────────────────────────────────────────
  * Der erste Abschnitt nach dem Kopf und der wichtigste: Was ändert sich

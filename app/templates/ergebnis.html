@@ -166,28 +166,35 @@
 <section class="aufwand" data-auftritt>
   <div class="flaeche">
     <p class="marke">Das haben wir verstanden</p>
-    <h2>Was bei Ihnen gerade den Aufwand erzeugt</h2>
+    <h2>Was heute unnötig Aufwand erzeugt</h2>
     <p class="lauftext">{{ e.kurzfassung.engpass_satz }}</p>
 
     <div class="fakten">
       {% for beleg in e.verstanden.belege[:3] %}
       {%- set menge = beleg.zitat | zahl_im_satz -%}
+      {# Zuerst die Zahl, dann die Erkenntnis, dann sein Satz als
+         Beleg. Vorher führte das Zitat und die Deutung hing als
+         Fliesstext daran — dann liest man wieder einen Bericht.
+         Der Beleg ist der Nachweis, nicht die Botschaft. #}
       <article class="fakt" style="--verzug: {{ loop.index0 * 90 }}ms">
         {% if menge %}
         <p class="faktzahl">
           <b>{{ menge.zahl }}</b><span>{{ menge.wort }}</span>
         </p>
         {% endif %}
-        <blockquote>„{{ beleg.zitat }}“</blockquote>
         <p class="bedeutung">{{ beleg.bedeutung }}</p>
+        <blockquote>„{{ beleg.zitat }}“</blockquote>
       </article>
       {% endfor %}
     </div>
 
-    <p class="uebergang">
-      <svg aria-hidden="true"><use href="#i-pfeil"/></svg>
-      <span>Genau hier würden wir ansetzen.</span>
-    </p>
+    {# Ein Sprung, kein Knopf-Imitat. Vorher stand hier eine Zeile,
+       die aussah wie eine Schaltfläche und nirgends hinführte —
+       das ist die Art von Element, die Vertrauen kostet. #}
+    <a class="uebergang" href="#loesung">
+      <span>So lösen wir genau das</span>
+      <svg aria-hidden="true" class="runter"><use href="#i-pfeil"/></svg>
+    </a>
   </div>
 </section>
 {% endif %}
@@ -213,7 +220,7 @@
    davon hat. Fehlt es, fällt die Reihe weg; erfunden wird hier nichts. #}
 {%- set nutzen = e.module | map(attribute='nutzen') | select | list -%}
 {% if e.vergleich.heute and e.vergleich.kuenftig %}
-<section class="blick" data-auftritt>
+<section class="blick" id="loesung" data-auftritt>
   <div class="flaeche">
     <p class="marke">Auf einen Blick</p>
     <h2>Das würde sich für Sie verändern</h2>

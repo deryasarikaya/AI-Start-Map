@@ -71,7 +71,23 @@ Stand der Fahrschule."
 **verstanden.belege** — zwei bis drei Zitate. **Jedes Zitat muss wörtlich in der
 Erzählung stehen.** Kopiere es Zeichen für Zeichen. Formuliere nicht um, kürze
 nicht, glätte nicht. Wenn du keine drei wörtlichen Stellen findest, nimm zwei.
-`bedeutung` sagt in einem Satz, was diese Stelle über den Ablauf verrät.
+
+**Wähl einen kurzen Satz.** Ein Beleg trifft den Punkt; er bringt nicht den
+ganzen Absatz mit. Ein bis zwei Sätze aus seiner Erzählung, nicht sechs Zeilen.
+Wörtlich heisst nicht vollständig — du darfst an einer Satzgrenze anfangen und
+an einer aufhören, nur innerhalb nichts verändern.
+
+`bedeutung` — **eine Schlagzeile, kein Kommentar.** Auf der Seite steht sie
+gross über dem Zitat und trägt die Karte. Ein Hauptsatz, höchstens acht Wörter,
+ohne Einleitung.
+
+> Nicht: „Zeigt, dass Informationen über viele Kanäle hereinkommen und
+> nicht an einem gemeinsamen Ort verfügbar sind.“
+>
+> Sondern: „Informationen kommen über mehrere Kanäle herein.“
+
+Keine Einleitung wie „Zeigt, dass“ oder „Belegt, dass“. Das Zitat
+steht direkt darunter — dass der Satz daraus folgt, sieht der Leser selbst.
 
 **verstanden.eckdaten** — drei bis fünf sehr kurze Angaben aus der Erzählung,
 zwei bis vier Wörter, zum Beispiel „Drei Personen" oder „Vier Eingangswege".

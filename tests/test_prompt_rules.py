@@ -31,6 +31,7 @@ def _fliesstext(name: str) -> str:
     return " ".join(ohne_zitatzeichen.split())
 
 
+DIAGNOSE = "diagnose"
 AUSWAHL = "zielarchitektur"
 ANSICHTEN = "ergebnis_teil2a"
 REST = "ergebnis_teil2b"
@@ -352,3 +353,32 @@ def test_his_own_figure_is_allowed_with_proof() -> None:
     assert "Seine eigene Angabe darfst du nennen" in fliess
     assert "Zahl **und** Einheit müssen wörtlich bei ihm vorkommen" in fliess
     assert "Im Zweifel ohne Zahl" in fliess
+def test_the_meaning_is_a_headline_not_a_comment() -> None:
+    """**Ein Hauptsatz, keine Einleitung.**
+
+    Auf der Ergebnisseite steht die Bedeutung gross über dem Zitat und trägt
+    die Karte. Ein Kommentar über den Beleg, mit dem Verb am Satzende, liest
+    sich gross gesetzt wieder wie ein Bericht — und die Seite soll eine
+    Geschichte erzählen, die man versteht, ohne viel zu lesen.
+    """
+
+    fliess = _fliesstext(DIAGNOSE)
+
+    assert 'eine Schlagzeile, kein Kommentar' in fliess
+    assert 'höchstens acht Wörter' in fliess
+    assert 'Keine Einleitung wie' in fliess
+
+
+def test_a_quotation_is_short_enough_to_read() -> None:
+    """Ein Beleg trifft den Punkt, statt den Absatz mitzubringen.
+
+    Wörtlich heisst nicht vollständig: Anfang und Ende dürfen an Satzgrenzen
+    liegen, verändert werden darf innerhalb nichts. Ohne diese Erlaubnis
+    nimmt das Modell lieber zu viel als zu wenig — eine Karte trug sechs
+    Zeilen Zitat.
+    """
+
+    fliess = _fliesstext(DIAGNOSE)
+
+    assert 'Wähl einen kurzen Satz' in fliess
+    assert 'Wörtlich heisst nicht vollständig' in fliess
