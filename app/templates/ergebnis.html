@@ -154,7 +154,7 @@
     </div>
 
     {% if kennzahlen %}
-    <aside class="kennzahlen">
+    <aside class="kennzahlen" data-auftritt>
       <p class="kennzahlenkopf">Das haben Sie uns gesagt</p>
       <ul>
         {% for kennzahl in kennzahlen[:4] %}
@@ -185,7 +185,7 @@
    darüber. Er ist eine Einordnung für uns, kein Verkaufsargument — „Zentraler
    Aufnahme- und Zuordnungsworkflow" ist kein Satz, für den jemand zahlt. #}
 {% if e.zielbild.ablauf %}
-<section class="band">
+<section class="band" data-auftritt>
   <div class="flaeche">
     <div class="bandkopf">
       {% if e.zielbild.name %}
@@ -291,7 +291,7 @@
    verstehen. Der vollständige Vergleich steht im Ausdruck; hier steht
    das, was verkauft. #}
 {% if e.vergleich.heute and e.vergleich.kuenftig %}
-<section class="vergleich">
+<section class="vergleich" data-auftritt>
   <div class="flaeche">
     <h2>Was sich dadurch ändert</h2>
     <div class="gegenueber">
@@ -352,7 +352,7 @@
    anderen stehen darunter nebeneinander. Drei gleich breite Spalten
    wären dreimal zu schmal für eine Tabelle. #}
 {% if gezeigte %}
-<section class="konkret">
+<section class="konkret" data-auftritt>
   <div class="flaeche">
     <h2>Das hätten Sie künftig vor sich</h2>
     <p class="lauftext">Die Oberflächen, auf die Sie und Ihr Team schauen
@@ -384,7 +384,7 @@
    sich als das, was er davon hat — und das ist es, was verkauft. Fehlt
    der Nutzen, führt der Name; erfunden wird nichts. #}
 {% if e.module %}
-<section class="bausteine">
+<section class="bausteine" data-auftritt>
   <div class="flaeche">
     <h2>Das würden wir für Sie umsetzen</h2>
     <div class="bausteinraster">
@@ -422,7 +422,7 @@
    liefe es schon — und dann ist unklar, ob wir seinen Betrieb beschreiben
    oder unser Angebot. Es läuft noch nicht; es würde laufen. #}
 {% if e.aufgabenteilung.system or e.aufgabenteilung.mensch %}
-<section class="teilung">
+<section class="teilung" data-auftritt>
   <div class="flaeche">
     {# Der Satz gehört in die Überschrift, nicht in einen Absatz darunter.
        Ein erklärender Vorspann klingt hier wie eine Rechtfertigung. #}
@@ -485,7 +485,7 @@
    Eine Frage, keine Ansage. Der Startplan stand früher hier und hat
    erklärt, wie wir vorgehen — das interessiert an dieser Stelle noch
    niemanden. Erst muss er denken „das will ich". #}
-<section class="abschluss">
+<section class="abschluss" data-auftritt>
   <div class="flaeche">
     <h2>Möchten Sie so arbeiten?</h2>
     <p class="bruecke">Wir können genau diese Lösung für Ihren Betrieb
@@ -515,6 +515,11 @@
     Beschreibung.</p>
   </div>
 </section>
+
+{# Am Ende und mit `defer`: Die Seite ist vollständig lesbar, bevor das
+   Skript überhaupt läuft. Bewegung ist Zugabe, nie Voraussetzung — ohne
+   JavaScript stehen alle Abschnitte sofort da. #}
+<script src="{{ url_for('static', path='/tafel.js') }}" defer></script>
 
 </body>
 </html>

@@ -10,32 +10,40 @@
  */
 
 .tafel {
-  --tinte: #0f172a;
-  --tinte-schwach: #475569;
-  /* Dunkler als es aussieht: Dieser Ton war für weissen Grund gewählt.
-   * Auf dem getönten Grund steht er als Grau auf Grau — und er trägt
-   * jede Unterzeile der Seite. */
-  --tinte-leise: #4c5a70;
-  --linie: #e2e8f0;
-  --flaeche: #ffffff;
-  /* Der Grund ist **nie** weiss. Auf weissem Grund braucht eine weisse
-   * Karte einen Rahmen, um überhaupt zu existieren — und ein Rahmen sagt
-   * dem Auge: das liegt in der Fläche. Getönter Grund, kein Rahmen,
-   * weicher Schatten: das Auge liest „liegt darüber". */
-  --grund: #eef2f8;
-  --grund-tief: #e4eaf3;
-  --marke: #1d4ed8;
-  --marke-hell: #eff6ff;
+  /* **Durchgehend dunkel.** Vorher war nur der Kopf dunkel und der Rest
+   * hellgrau — das Muster von 2019, und der Grund, warum diese Seite neben
+   * den Referenzseiten alt aussah.
+   *
+   * Es geht dabei nicht um Mode: Die hellen Produktansichten leuchten auf
+   * dunklem Grund wie Bildschirme in einem dunklen Raum. Genau das macht
+   * aus einer Abbildung einen Beweis. */
+  --tinte: #f1f5fb;
+  --tinte-schwach: #b6c4da;
+  --tinte-leise: #8ea1bd;
+  --linie: rgb(255 255 255 / .1);
+  /* Karten sind nicht weiss, sondern eine Spur heller als der Grund. Auf
+   * Dunkel ist Helligkeit das, was Rahmen auf Hell waren. */
+  --flaeche: #131c2e;
+  --flaeche-hoch: #18233a;
+  --grund: #0a1120;
+  --grund-tief: #060b16;
+  --marke: #4d86ff;
+  --marke-hell: rgb(77 134 255 / .14);
   --marke-tief: #0b2a63;
-  --gut: #059669;
-  --gut-hell: #ecfdf5;
+  --gut: #34d399;
+  --gut-hell: rgb(52 211 153 / .13);
   /* Drei Höhen, nicht mehr. Vier wären Unruhe, eine wäre wieder flach.
    * Gross, sehr weich, sehr durchsichtig und immer aus derselben
    * Richtung — daran hängt der Unterschied zwischen Tiefe und einem
    * Schlagschatten von 2005. */
-  --heben-1: 0 1px 2px rgb(15 23 42 / .04), 0 4px 12px -2px rgb(15 23 42 / .07);
-  --heben-2: 0 2px 5px rgb(15 23 42 / .05), 0 16px 34px -12px rgb(15 23 42 / .17);
-  --heben-3: 0 4px 9px rgb(15 23 42 / .06), 0 30px 62px -20px rgb(15 23 42 / .3);
+  /* Auf Dunkel hebt nicht der Schatten, sondern die Kante: eine hauchdünne
+   * helle Linie oben, als fiele Licht darauf. Der Schatten bleibt, aber er
+   * trennt jetzt vom Grund statt Höhe zu behaupten. */
+  --heben-1: inset 0 1px 0 rgb(255 255 255 / .05), 0 2px 8px rgb(0 0 0 / .3);
+  --heben-2: inset 0 1px 0 rgb(255 255 255 / .07),
+             0 16px 34px -12px rgb(0 0 0 / .55);
+  --heben-3: inset 0 1px 0 rgb(255 255 255 / .09),
+             0 30px 62px -20px rgb(0 0 0 / .7);
   --schatten: var(--heben-1);
   --rund: 14px;
 
@@ -90,16 +98,36 @@
 .tafel .kachel svg { width: 21px; height: 21px; }
 
 .tafel .hinweisband {
-  background: #fef3c7; color: #78350f; text-align: center;
+  background: rgb(251 191 36 / .16); color: #fde68a; text-align: center;
   padding: 12px 24px; font-size: .92rem;
 }
 
 /* ── Kopf ─────────────────────────────────────────────────────────────
  * Dunkel, damit die Tafel darunter hell wirkt. Der Kunde soll den
  * Uebergang als "hier faengt meine Auswertung an" lesen. */
+/* Kein eigener Kasten mehr, sondern zwei weiche Lichter im selben Raum.
+ * Der Übergang zur Seite darunter verschwindet — die Tafel wird eine
+ * Fläche statt eines Kopfes mit angehängtem Rest. */
 .tafel .kopf {
-  background: linear-gradient(160deg, #0b2a63 0%, #123a86 55%, #0f2f6e 100%);
-  color: #fff; padding: 44px 0 56px;
+  position: relative; padding: 60px 0 66px; overflow: hidden;
+  background:
+    radial-gradient(120% 140% at 12% -10%, rgb(77 134 255 / .3) 0%,
+                    transparent 58%),
+    radial-gradient(90% 120% at 88% 0%, rgb(52 211 153 / .13) 0%,
+                    transparent 55%);
+}
+/* Das Leuchten wandert langsam. Nicht als Spielerei: Eine Fläche, auf der
+ * sich nie etwas bewegt, liest sich als Bild — eine, auf der sich etwas
+ * regt, als etwas, das läuft. */
+.tafel .kopf::before {
+  content: ""; position: absolute; inset: -30% -10% auto -10%; height: 90%;
+  background: radial-gradient(closest-side, rgb(77 134 255 / .22), transparent);
+  animation: tafel-atem 14s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+@keyframes tafel-atem {
+  from { transform: translate3d(-6%, 0, 0) scale(1); }
+  to   { transform: translate3d(8%, 4%, 0) scale(1.12); }
 }
 .tafel .kopfraster {
   display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
@@ -212,7 +240,7 @@
 }
 .tafel .knoten li {
   font-size: .82rem; color: var(--tinte-schwach);
-  background: var(--grund); border-radius: 8px; padding: 5px 9px;
+  background: rgb(255 255 255 / .05); border-radius: 8px; padding: 5px 9px;
 }
 /* Die Schluesselstelle traegt die Lösung — sie darf man sehen. */
 /* Hier passiert das Neue. Der Rest des Bandes ist Bestand oder
@@ -235,9 +263,11 @@
   background: rgb(255 255 255 / .16); color: #e8f0fe;
 }
 /* Was hinten herauskommt, ist das Ergebnis — gruen, nicht blau. */
-.tafel .bandstufe--ausgang { background: var(--gut-hell); }
+.tafel .bandstufe--ausgang {
+  background: linear-gradient(165deg, rgb(52 211 153 / .16), rgb(52 211 153 / .05));
+}
 .tafel .bandstufe--ausgang .bandsymbol {
-  background: #d3f6e5; color: var(--gut);
+  background: rgb(52 211 153 / .2); color: var(--gut);
 }
 .tafel .bandstufe--ausgang .bandnummer { background: var(--gut); }
 .tafel .bandstufe--ausgang .knoten li { background: #fff; }
@@ -270,12 +300,13 @@
 .tafel .kanal {
   display: grid; grid-template-columns: 32px 1fr; gap: 10px;
   align-items: center; font-size: .85rem; color: var(--tinte);
-  background: var(--grund); border-radius: 10px; padding: 6px 10px 6px 6px;
+  background: rgb(255 255 255 / .04); border-radius: 10px;
+  padding: 6px 10px 6px 6px;
 }
 .tafel .kanalzeichen {
   display: grid; place-items: center; width: 32px; height: 32px;
-  border-radius: 9px; background: #fff; color: var(--marke);
-  box-shadow: var(--heben-1);
+  border-radius: 9px; background: rgb(255 255 255 / .07);
+  color: var(--marke);
 }
 .tafel .kanalzeichen svg { width: 17px; height: 17px; }
 /* Jeder Kanal in seiner eigenen Farbe. Ein Laie erkennt WhatsApp am Grün,
@@ -322,7 +353,7 @@
 }
 .tafel .zweige li {
   position: relative; font-size: .82rem; color: var(--tinte-schwach);
-  background: var(--grund); border-radius: 8px; padding: 5px 9px;
+  background: rgb(255 255 255 / .05); border-radius: 8px; padding: 5px 9px;
 }
 .tafel .zweige li::before {
   content: ""; position: absolute; left: -11px; top: 50%;
@@ -331,7 +362,7 @@
 
 /* Der Ausgang ist ein Ergebnis, kein weiterer Schritt. */
 .tafel .bandstufe--ausgang .knoten li {
-  background: #fff; font-weight: 600; color: #065f46;
+  background: rgb(52 211 153 / .16); font-weight: 600; color: #a7f3d0;
 }
 
 /* ── Heute und kuenftig ───────────────────────────────────────────────
@@ -345,7 +376,7 @@
   font-size: .78rem; font-weight: 700; letter-spacing: .1em;
   text-transform: uppercase; padding-bottom: 4px;
 }
-.tafel .spaltenkopf--heute { color: #b91c1c; }
+.tafel .spaltenkopf--heute { color: #f87171; }
 .tafel .spaltenkopf--kuenftig { color: var(--gut); }
 .tafel .vzeile {
   display: grid; grid-template-columns: 20px 1fr; gap: 11px;
@@ -354,11 +385,13 @@
 }
 .tafel .vzeile svg { width: 18px; height: 18px; margin-top: 2px; }
 .tafel .vzeile--heute {
-  background: #fef2f2; color: #7f1d1d; box-shadow: var(--heben-1);
+  background: rgb(248 113 113 / .1); color: #fecaca;
+  box-shadow: inset 0 0 0 1px rgb(248 113 113 / .22);
 }
-.tafel .vzeile--heute svg { color: #dc2626; }
+.tafel .vzeile--heute svg { color: #f87171; }
 .tafel .vzeile--kuenftig {
-  background: var(--gut-hell); color: #064e3b; box-shadow: var(--heben-1);
+  background: var(--gut-hell); color: #a7f3d0;
+  box-shadow: inset 0 0 0 1px rgb(52 211 153 / .25);
 }
 .tafel .vzeile--kuenftig svg { color: var(--gut); }
 /* Sind die Listen ungleich lang, haelt eine leere Zelle die Paarung. */
@@ -428,14 +461,26 @@
  * oben überschrieben. Das Ergebnis war ein weisser Block hinter Titel,
  * Unterzeile und Fensterrand — mitten auf dem getönten Grund. Die Farbe
  * bringt das Fenster selbst mit; sein Platz braucht keine. */
-.tafel .ansichtsplatz { color: var(--tinte); }
+/* **Die Bildschirme bleiben hell.** Sie sind der Grund für den dunklen
+ * Grund: eine helle Oberfläche auf dunkler Fläche liest sich wie ein
+ * Monitor in einem dunklen Raum, und genau das macht aus einer Abbildung
+ * einen Beweis.
+ *
+ * Damit muss die Schriftfarbe hier zurückgedreht werden: Rundherum ist
+ * die Tinte hell, im Fenster wäre sie unsichtbar. */
+.tafel .ansichtsplatz .screen { color: #16202f; }
+.tafel .ansichtsplatz .screen b,
+.tafel .ansichtsplatz .screen strong { color: #0b1220; }
+/* Titel und Unterzeile stehen ausserhalb des Fensters, auf der dunklen
+ * Fläche — die bleiben hell. */
+.tafel .ansichtsplatz .mock > h3 { color: var(--tinte); }
+.tafel .ansichtsplatz .mock > .mdesc { color: var(--tinte-leise); }
 .tafel .ansichtsplatz .bar { background: #eef2f7; }
 .tafel .ansichtsplatz .dot { background: #c3cedb; }
 .tafel .ansichtsplatz .screen { border: 0; }
 /* Die Fensterleiste dunkler als der Inhalt — sonst löst sich das
    Fenster oben in die weisse Fläche auf, und genau dieser Rand
    war das, was auf dem Schirm wie ein Fehler aussah. */
-.tafel .ansichtsplatz .bar { background: #e8eef6; }
 /* Der Klammerzusatz an einer Kennzahl: da, aber leise. */
 .tafel .ansichtsplatz .stat .zusatz {
   display: block; font-size: .68rem; color: var(--tinte-leise);
@@ -458,7 +503,8 @@
 .tafel .systemliste li {
   display: grid; grid-template-columns: 20px 1fr; gap: 12px;
   align-items: start; padding: 15px 17px; border-radius: var(--rund);
-  background: var(--gut-hell); box-shadow: var(--heben-1);
+  background: var(--gut-hell);
+  box-shadow: inset 0 0 0 1px rgb(52 211 153 / .22);
 }
 .tafel .systemliste svg {
   width: 17px; height: 17px; color: var(--gut); margin-top: 3px;
@@ -533,8 +579,12 @@
   border-radius: var(--rund); box-shadow: var(--heben-2);
   padding: 26px; background: var(--flaeche);
 }
-.tafel .spalte--system { background: var(--gut-hell); }
-.tafel .spalte--mensch { background: var(--marke-hell); }
+.tafel .spalte--system {
+  background: linear-gradient(165deg, rgb(52 211 153 / .13), rgb(52 211 153 / .04));
+}
+.tafel .spalte--mensch {
+  background: linear-gradient(165deg, rgb(77 134 255 / .15), rgb(77 134 255 / .04));
+}
 .tafel .spalte h3 { margin-bottom: 14px; font-size: 1.05rem; }
 .tafel .spalte ul { list-style: none; margin: 0; padding: 0;
   display: flex; flex-direction: column; gap: 11px; }
@@ -601,6 +651,77 @@
 }
 .tafel .schritte p { margin: 0; font-size: .92rem; line-height: 1.55;
   color: var(--tinte-schwach); }
+
+
+/* ── Dass sich etwas regt ──────────────────────────────────────────────
+ * Eine Fläche, auf der nie etwas passiert, liest sich als Bild. Eine, auf
+ * der sich beim Scrollen etwas regt, liest sich als etwas, das läuft — und
+ * die Seite verkauft genau das.
+ *
+ * Alles hier ist zurückhaltend und einmalig: Ein Abschnitt kommt herein und
+ * bleibt dann liegen. Dauerbewegung wäre Zirkus und lenkt vom Inhalt ab. */
+.tafel [data-auftritt] {
+  opacity: 0; transform: translateY(18px);
+  transition: opacity .6s cubic-bezier(.22, .61, .36, 1),
+              transform .6s cubic-bezier(.22, .61, .36, 1);
+}
+.tafel [data-auftritt].da { opacity: 1; transform: none; }
+
+/* Versetzt, nicht alle zugleich. Gleichzeitig wirkt wie ein Schaltvorgang,
+ * versetzt wirkt wie etwas, das sich aufbaut. */
+.tafel [data-auftritt] > * { transition-delay: inherit; }
+.tafel .bandstufe, .tafel .baustein, .tafel .schritte li,
+.tafel .kennzahlen li, .tafel .kanal, .tafel .vzeile {
+  --verzug: 0ms;
+}
+
+/* Karten heben sich unter der Maus. Kein Sprung: die Bewegung ist so klein,
+ * dass man sie eher spürt als sieht. */
+.tafel .baustein, .tafel .ansichtsplatz .screen, .tafel .bandstufe {
+  transition: transform .3s cubic-bezier(.22, .61, .36, 1),
+              box-shadow .3s cubic-bezier(.22, .61, .36, 1);
+}
+.tafel .baustein:hover { transform: translateY(-3px); box-shadow: var(--heben-3); }
+.tafel .ansichtsplatz .screen:hover { transform: translateY(-4px); }
+
+/* Der Schlüsselknoten atmet. Er ist die Stelle, an der das Neue passiert —
+ * und die einzige, die dauerhaft in Bewegung bleiben darf. */
+.tafel .bandstufe--schluessel .bandsymbol { position: relative; }
+.tafel .bandstufe--schluessel .bandsymbol::after {
+  content: ""; position: absolute; inset: -6px; border-radius: 16px;
+  border: 1.5px solid rgb(255 255 255 / .3);
+  animation: tafel-puls 2.8s ease-out infinite;
+}
+@keyframes tafel-puls {
+  0%   { opacity: .8; transform: scale(.9); }
+  70%  { opacity: 0;  transform: scale(1.35); }
+  100% { opacity: 0;  transform: scale(1.35); }
+}
+
+/* Die zusammenlaufenden Wege zeichnen sich, wenn das Band ins Bild kommt.
+ * Erst dadurch wird aus einer Linie eine Bewegung von links nach rechts. */
+.tafel .zusammenlauf path {
+  stroke-dasharray: 120; stroke-dashoffset: 120;
+}
+.tafel .band.da .zusammenlauf path {
+  animation: tafel-zeichnen 1.1s cubic-bezier(.4, 0, .2, 1) forwards;
+}
+.tafel .zusammenlauf path:nth-child(2) { animation-delay: .12s; }
+.tafel .zusammenlauf path:nth-child(3) { animation-delay: .24s; }
+.tafel .zusammenlauf path:nth-child(4) { animation-delay: .36s; }
+@keyframes tafel-zeichnen { to { stroke-dashoffset: 0; } }
+
+/* **Wer keine Bewegung will, bekommt keine.** Für manche Menschen ist
+ * bewegte Oberfläche nicht Beiwerk, sondern Übelkeit. Die Einstellung dafür
+ * steht im Betriebssystem, und sie gilt hier ohne Rückfrage. */
+@media (prefers-reduced-motion: reduce) {
+  .tafel [data-auftritt] { opacity: 1; transform: none; transition: none; }
+  .tafel .kopf::before,
+  .tafel .bandstufe--schluessel .bandsymbol::after { animation: none; }
+  .tafel .zusammenlauf path { stroke-dashoffset: 0; }
+  .tafel .baustein:hover,
+  .tafel .ansichtsplatz .screen:hover { transform: none; }
+}
 
 /* ── Abschluss ────────────────────────────────────────────────────────*/
 /* Eine Frage, gross gesetzt, und ein Satz darunter. Hier stand früher
