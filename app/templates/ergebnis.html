@@ -434,18 +434,22 @@
 {% if gezeigte %}
 <section class="konkret" data-auftritt>
   <div class="flaeche">
-    {# Überschrift und Unterzeile sind fest. Sie müssen für jeden Betrieb
-       stimmen und verkaufen Klarheit im Alltag, nicht Bildschirme. #}
-    <h2>So hätten Sie Ihren Betrieb künftig im Blick</h2>
-    <p class="lauftext">Eine klare Oberfläche für das, was heute wichtig
-    ist — mit Status, Zuständigkeit und nächstem Schritt.</p>
+    {# Überschrift und Unterzeile sind fest, aber **nicht auf eine
+       Oberfläche festgelegt.** „So hätten Sie Ihren Betrieb künftig im
+       Blick" setzte voraus, dass am Ende ein Bildschirm steht. Für einen
+       Betrieb, dessen beste Lösung ein Telefonassistent oder eine
+       Nachfass-Automatik ist, stimmt das nicht — der hätte womöglich gar
+       nichts „vor sich". Was hier steht, entscheidet die Diagnose. #}
+    <h2>So könnte Ihre Lösung konkret aussehen</h2>
+    <p class="lauftext">Je nach Ihrem Ablauf besteht sie aus
+    Automatisierungen, Assistenten und passenden Arbeitsoberflächen.</p>
 
     {# Drei feste Mikro-Nutzen. Keine Beschriftungen am Bildschirm, die
        auf einzelne Stellen zeigen — die wären pro Fall erfunden. Diese
        drei gelten für jede Oberfläche, die wir bauen würden. #}
     <ul class="mikronutzen">
-      <li><svg aria-hidden="true"><use href="#i-schluessel"/></svg>Überblick</li>
-      <li><svg aria-hidden="true"><use href="#i-haken"/></svg>Status</li>
+      <li><svg aria-hidden="true"><use href="#i-schluessel"/></svg>Läuft von selbst</li>
+      <li><svg aria-hidden="true"><use href="#i-haken"/></svg>Stand sichtbar</li>
       <li><svg aria-hidden="true"><use href="#i-pfeil"/></svg>Nächster Schritt</li>
     </ul>
 
@@ -459,14 +463,17 @@
       <div class="ansichtsplatz ergebnis">
         {% if loop.first %}
         {# **Ein einziger Hinweis, wo Arbeit wegfällt** — an der
-           Hauptansicht und sonst nirgends. Welche Zeile im Bildschirm
-           genau automatisch entstanden ist, wüssten wir nur, wenn das
-           Modell es sagt, und das tut es nicht. Also ein fester Satz,
-           der für jede Lösung gilt, die wir bauen würden. Zehn solcher
-           Marken wären Dekoration; eine ist eine Aussage. #}
+           Hauptansicht und sonst nirgends. Zehn solcher Marken wären
+           Dekoration; eine ist eine Aussage.
+
+           Der Satz hing vorher nicht am Lösungstyp und behauptete für
+           alle dasselbe: „Vom System vorbereitet". Aus Kundensicht wirft
+           das mehr Fragen auf, als es beantwortet — welches System, habe
+           ich das schon, verkauft ihr mir Software? Jetzt sagt er, was
+           **diese** Art von Lösung tut, und nichts darüber hinaus. #}
         <p class="kiband">
           <svg aria-hidden="true"><use href="#i-funke"/></svg>
-          <span>Vom System vorbereitet</span>
+          <span>{{ v.typ | automatisiert }}</span>
         </p>
         {% endif %}
         {{ ansichten.ansicht(v) }}
@@ -477,8 +484,8 @@
     {# Der Satz, der das Produkt zurück in seinen Alltag übersetzt. Fest
        für alle: Bis hierher hat er Bildschirme gesehen, und Bildschirme
        kauft niemand. #}
-    <p class="entlastung">Weniger suchen. Weniger nachfassen.
-    Mehr sofort sehen.</p>
+    <p class="entlastung">Weniger manuell erledigen. Weniger nachhalten.
+    Mehr automatisch im richtigen Moment.</p>
 
     {# Der Hinweis gehört dazu und bleibt: Die Namen und Zahlen in den
        Fenstern sind erfunden. Klein, aber nicht weg. #}

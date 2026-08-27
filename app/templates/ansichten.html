@@ -122,6 +122,41 @@
 {% endmacro %}
 
 
+{% macro telefonassistent(v) %}
+{# Ein eingehender Anruf, den der Assistent annimmt: wer anruft, was gesagt
+   wurde, was daraus erkannt wurde und was am Ende entstanden ist.
+
+   Es ist bewusst kein Bildschirm mit Tabellen. Für einen Betrieb, dessen
+   Engpass das Telefon ist, ist genau das der Unterschied zwischen „ich sehe
+   meine Lösung" und „ich sehe schon wieder ein Dashboard". #}
+{% call rahmen(v.titel, v.beschreibung, 'Anruf') %}
+  <div class="anrufkopf">
+    <span class="anrufpunkt" aria-hidden="true"></span>
+    <b>{{ v.daten.name or 'Eingehender Anruf' }}</b>
+  </div>
+  <div class="mitschnitt">
+    {% for b in v.daten.blasen %}
+    <div class="mailrow">
+      <div class="from">{{ 'Anrufer' if b.seite == 'kunde' else 'Assistent' }} · {{ b.zeit }}</div>
+      <div class="txt">{{ b.text }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% if v.daten.felder %}
+  <p class="erkannthead">Daraus erkannt</p>
+  <div class="kv">
+    {% for f in v.daten.felder %}
+    <div><span>{{ f.label }}</span><b>{{ f.wert }}</b></div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% if v.daten.statussatz %}
+  <p class="anrufergebnis">{{ v.daten.statussatz }}</p>
+  {% endif %}
+{% endcall %}
+{% endmacro %}
+
+
 {% macro kundenakte(v) %}
 {% call rahmen(v.titel, v.beschreibung, 'Kunde') %}
   <div class="akte-head">
@@ -199,5 +234,6 @@
 {% elif v.typ == 'terminuebersicht' %}{{ terminuebersicht(v) }}
 {% elif v.typ == 'aussenansicht' %}{{ aussenansicht(v) }}
 {% elif v.typ == 'dokumentenablage' %}{{ dokumentenablage(v) }}
+{% elif v.typ == 'telefonassistent' %}{{ telefonassistent(v) }}
 {% endif %}
 {% endmacro %}

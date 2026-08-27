@@ -66,6 +66,7 @@ echt aussehen.
 | `terminuebersicht` | Kalender und Auslastung | `tag`; `eintraege`: 5–8 × {`zeit`, `person`, `leistung`, `status`} |
 | `aussenansicht` | was der Kunde des Kunden sieht | `schritte`: 4 × {`text`, `erreicht`: true/false}; `statussatz` |
 | `dokumentenablage` | Dateien mit Zuordnung | `eintraege`: 4–6 × {`typ`, `name`, `datum`, `zuordnung`} |
+| `telefonassistent` | ein Anruf, den der Assistent annimmt | `name`: wer anruft; `blasen`: 3–5 × {`seite`: `kunde` für den Anrufer oder `betrieb` für den Assistenten, `text`, `zeit`}; `felder`: 3–4 × {`label`, `wert`} — was aus dem Gespräch erkannt wurde; `statussatz`: was daraus entstanden ist |
 
 `status` ist immer eines von `rot`, `gelb`, `gruen`, `grau`. Du wählst den
 Status, nie eine Farbe.
@@ -98,6 +99,8 @@ Die Frage dafür ist der Engpass aus der Diagnose:
   Vorgangs- oder Kundenakte.
 - Ist der **Eingang und die Zuordnung** der Engpass, ist es die
   Eingangsprüfung.
+- Klingelt ständig das **Telefon** und niemand kann rangehen, ist es
+  der Telefonassistent.
 - Geht es darum, was **sein Kunde** sieht, ist es die Aussenansicht.
 
 Die beiden folgenden Ansichten erklären, **wie dieses Ergebnis zustande
@@ -109,6 +112,12 @@ wenn ihre Engpässe verschieden sind. Ein Handwerker, der einen Auftrag aus
 fünf Stellen zusammensucht, braucht oben die Auftragsakte; eine Verwaltung,
 die den Tagesstand nicht sieht, die Tagesübersicht. Wähl nach seinem
 Problem, nicht nach Gewohnheit.
+
+**Nicht jede Lösung ist ein Bildschirm.** Ein Betrieb, dessen Engpass
+das Telefon ist, hat künftig womöglich gar nichts „vor sich" — bei ihm
+nimmt ein Assistent das Gespräch an, und der Beweis dafür ist ein Anruf,
+kein Dashboard. Wähl nach dem, was seine Arbeit übernimmt, nicht nach
+dem, was am ehesten nach Software aussieht.
 
 Namen, Objekte und Zahlen in den Ansichten sind Beispiele. Sie dürfen erfunden
 sein — die Vorlage kennzeichnet sie als Beispiel. Verwende dabei nur Kanäle,

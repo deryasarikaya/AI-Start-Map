@@ -234,6 +234,36 @@ def wandelsymbol(text: str) -> str:
 
 templates.env.filters["wandelsymbol"] = wandelsymbol
 
+# Was eine Lösung dieser Art dem Betrieb abnimmt. Der Hinweis an der
+# Hauptansicht sagt genau das und nichts darüber hinaus — ein Satz für alle
+# Typen behauptete für den Telefonassistenten dasselbe wie für die
+# Dokumentenablage.
+AUTOMATISIERT: dict[str, str] = {
+    "uebersicht": "Automatisch zusammengeführt",
+    "vorgangsakte": "Automatisch zusammengetragen",
+    "eingangspruefung": "Automatisch erkannt und eingeordnet",
+    "nachrichtenverlauf": "Standardanfragen automatisch beantwortet",
+    "kundenakte": "Verlauf automatisch mitgeführt",
+    "terminuebersicht": "Automatisch geplant und erinnert",
+    "aussenansicht": "Stand automatisch aktuell",
+    "dokumentenablage": "Automatisch erkannt und zugeordnet",
+    "telefonassistent": "Der Assistent nimmt den Anruf auf",
+}
+
+
+def automatisiert(typ: str) -> str:
+    """Der Hinweis zu einem Ansichtstyp.
+
+    Unbekannter Typ — etwa weil ein neuer dazugekommen ist und hier vergessen
+    wurde — bekommt den allgemeinen Satz. Lieber unspezifisch als falsch.
+    """
+
+    return AUTOMATISIERT.get(typ, "Automatisch vorbereitet")
+
+
+templates.env.filters["automatisiert"] = automatisiert
+
+
 
 
 

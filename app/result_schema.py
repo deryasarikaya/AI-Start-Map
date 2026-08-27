@@ -60,6 +60,7 @@ ViewType = Literal[
     "terminuebersicht",
     "aussenansicht",
     "dokumentenablage",
+    "telefonassistent",
 ]
 
 # Die Ebenen des Ablaufdiagramms. Mehr Arten gibt es nicht, damit die Vorlage
@@ -710,6 +711,10 @@ REQUIRED_VIEW_FIELDS: dict[str, tuple[str, ...]] = {
     "terminuebersicht": ("eintraege_termine",),
     "aussenansicht": ("schritte",),
     "dokumentenablage": ("eintraege_dokumente",),
+    # Der Telefonassistent braucht kein eigenes Feld: Der Mitschnitt
+    # steckt in denselben Sprechblasen wie ein Chatverlauf, das Erkannte
+    # in denselben Feldern wie eine Akte.
+    "telefonassistent": ("blasen",),
 }
 
 

@@ -101,7 +101,7 @@ def test_the_page_hides_what_is_empty(client) -> None:  # type: ignore[no-untype
     finally:
         example_service.example_result = echt
 
-    assert "So hätten Sie Ihren Betrieb künftig im Blick" not in seite
+    assert "So könnte Ihre Lösung konkret aussehen" not in seite
     assert "Was dazugehört" not in seite
     # Die Diagnose steht weiterhin da: Engpass-Satz und Belege.
     assert 'class="befund"' in seite

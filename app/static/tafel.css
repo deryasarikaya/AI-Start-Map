@@ -757,6 +757,43 @@
 }
 .tafel .kiband svg { width: 14px; height: 14px; }
 
+
+/* ── Der Telefonassistent ──────────────────────────────────────────────
+ * Kein Bildschirm mit Tabellen, sondern ein laufender Anruf: wer anruft,
+ * was gesagt wurde, was daraus erkannt wurde, was daraus entstanden ist. */
+.tafel .ansichtsplatz .anrufkopf {
+  display: grid; grid-template-columns: 12px 1fr; gap: 10px;
+  align-items: center; margin-bottom: 16px; font-size: .95rem;
+}
+/* Der Punkt pulst, solange der Anruf läuft — das ist der einzige Ort in
+ * einer Ansicht, an dem sich etwas bewegt, und er sagt: das passiert
+ * gerade, während Sie etwas anderes tun. */
+.tafel .ansichtsplatz .anrufpunkt {
+  width: 10px; height: 10px; border-radius: 50%; background: var(--marke);
+  box-shadow: 0 0 0 0 rgb(47 107 87 / .5);
+  animation: tafel-anruf 2s ease-out infinite;
+}
+@keyframes tafel-anruf {
+  70%  { box-shadow: 0 0 0 9px rgb(47 107 87 / 0); }
+  100% { box-shadow: 0 0 0 0 rgb(47 107 87 / 0); }
+}
+.tafel .ansichtsplatz .mitschnitt { margin-bottom: 18px; }
+.tafel .ansichtsplatz .erkannthead {
+  margin: 0 0 9px; font-size: .7rem; font-weight: 700; letter-spacing: .11em;
+  text-transform: uppercase; color: var(--tinte-leise);
+}
+/* Was am Ende entstanden ist — der Grund, warum der Anruf niemanden
+ * mehr aufhält. */
+.tafel .ansichtsplatz .anrufergebnis {
+  display: block; margin: 16px 0 0; padding: 11px 14px; border-radius: 10px;
+  background: var(--gut-hell); color: var(--marke-tief);
+  font-size: .9rem; font-weight: 620;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tafel .ansichtsplatz .anrufpunkt { animation: none; }
+}
+
 /* ── Was schon da ist ─────────────────────────────────────────────────
  * Bewusst ruhig gesetzt: Diese Liste beruhigt, sie verkauft nicht. */
 .tafel .systemliste {
