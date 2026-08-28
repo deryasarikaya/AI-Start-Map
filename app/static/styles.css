@@ -288,11 +288,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 }
 .comparison-card blockquote { margin: 0; font: 650 1.08rem/1.55 Georgia, serif; }
 .final-cta h2, .final-cta .section-kicker { margin-inline: auto; color: #fff; }
-
-.journey-progress { display: grid; grid-template-columns: repeat(3, 1fr); gap: .35rem; margin-bottom: 1.8rem; padding: .55rem; border: 1px solid var(--border); border-radius: 1rem; background: #fff; color: var(--muted); font-size: .78rem; }
-.journey-progress span { padding: .55rem .35rem; border-radius: .65rem; text-align: center; }
-.journey-progress .current { color: var(--ink); background: var(--sun); font-weight: 850; }
-.journey-progress .done { color: var(--green); background: var(--green-soft); font-weight: 780; }
 .privacy-banner { margin-bottom: 1rem; padding: .75rem 1rem; border-left: 4px solid #91b7c5; border-radius: .4rem .8rem .8rem .4rem; color: var(--muted); background: var(--sky); font-size: .88rem; }
 .narration-form, .summary-form, .single-question-form { max-width: 62rem; }
 .voice-card, .text-entry-card, .correction-panel { margin-bottom: 1rem; padding: clamp(1rem, 2.5vw, 1.4rem); border: 1px solid var(--linie); border-radius: var(--radius); background: var(--flaeche); box-shadow: var(--heben-1); }
@@ -549,13 +544,6 @@ input:focus, textarea:focus { border-color: var(--green); }
     margin: 0 0 1rem; padding: .6rem .85rem; border: 0;
     border-radius: var(--radius-sm); background: var(--teal-soft);
     color: var(--teal-tief); font-size: .84rem; line-height: 1.45;
-}
-
-/* Der aktive Schritt trägt Teal statt Gelb — Gelb war der lauteste Ton der
- * Seite und stand auf einer Wegmarke. */
-.journey-progress .current {
-    color: #fff; background: var(--teal); font-weight: 800;
-    box-shadow: 0 6px 16px -6px rgb(47 125 112 / 55%);
 }
 
 @media (min-width: 43rem) {
