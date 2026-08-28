@@ -269,6 +269,24 @@ Jedes Modul hat:
   Fällt dir nichts Konkretes ein, lass es leer; eine leere Zeile ist
   besser als eine Floskel.
 
+  **Und jede Zeile beantwortet eine andere Frage.** Die ersten drei
+  stehen auf der Ergebnisseite direkt untereinander. Sagen zwei davon
+  dasselbe mit anderen Wörtern, liest sich die Lösung kleiner, als sie
+  ist — der Kunde zählt zwei Vorteile, nicht drei.
+
+  > Zu ähnlich:
+  > „Sie müssen den Fahrzeugstand nicht mehr zusammensuchen."
+  > „Sie müssen einfache Statusantworten nicht mehr selbst zusammensuchen."
+  >
+  > Unterschieden:
+  > „Sie müssen den Fahrzeugstand nicht mehr zusammensuchen." *(Information)*
+  > „Ihre Monteure werden nicht mehr für jede Rückfrage unterbrochen." *(Unterbrechung)*
+  > „Kunden erfahren den Stand, ohne dass jemand zurückruft." *(Kommunikation)*
+
+  Drei verschiedene Arten von Entlastung: **Information · Unterbrechung ·
+  Kommunikation.** Prüf die Zeilen gegeneinander, bevor du sie stehen
+  lässt — zwei mit demselben Verb am Ende sind fast immer dieselbe Zeile.
+
   **Keine ausgedachte Ersparnis.** „Spart drei Stunden pro Woche" ist
   eine Zusage, die niemand halten kann — du hast seinen Betrieb nicht
   gemessen, und eine geschätzte Zahl sieht genauso überzeugend aus wie

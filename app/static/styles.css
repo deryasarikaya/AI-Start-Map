@@ -125,48 +125,59 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .landing-section { margin-bottom: clamp(3.5rem, 5vw, 5rem); }
 .landing-hero { margin-bottom: clamp(3.5rem, 4vw, 4.5rem); }
 
-/* -- Die Mini-Karte im Hero ------------------------------------------
- * Sechs Felder um eine Mitte - dasselbe Bild wie spaeter in der
- * Auswertung, nur ohne Inhalt. Sie soll andeuten, nicht erklaeren:
- * Wer sie sieht, erkennt die Karte auf der Ergebnisseite wieder.
+/* -- Die Vorschau im Hero --------------------------------------------
+ * Erst stand hier eine verkleinerte Karte - sechs Kreise um eine Mitte,
+ * ohne Beschriftung. Sie las sich wie ein Ladesymbol. Wer fragen muss,
+ * was er sieht, hat es nicht verstanden.
  *
- * Auf schmalen Schirmen faellt sie weg. Dort zaehlt der Text. */
+ * Drei Zeilen sagen dasselbe in einer Sekunde. Die richtige Karte kommt
+ * in der Auswertung; hier reicht die Geschichte. */
 .landing-hero { position: relative; }
-.herokarte { display: none; }
+.herovorschau { display: none; }
 
-@media (min-width: 60rem) {
-    .landing-hero { display: grid; grid-template-columns: 1fr 15rem; gap: 3rem; align-items: center; }
-    .herokarte {
-        display: grid; place-items: center; position: relative;
-        width: 14rem; height: 14rem;
+@media (min-width: 62rem) {
+    .landing-hero {
+        display: grid; grid-template-columns: 1fr 17rem; gap: 3.5rem;
+        align-items: center;
     }
-    .herokarte-mitte {
-        position: absolute; width: 3.2rem; height: 3.2rem;
-        border-radius: 50%; background: var(--flaeche);
-        border: 1px solid var(--linie); box-shadow: var(--heben-1);
+    .herovorschau { display: grid; justify-items: start; gap: .3rem; }
+    .vorschauzeile {
+        display: grid; grid-template-columns: .85rem 1fr; gap: .7rem;
+        align-items: start; width: 100%;
+        padding: .8rem .95rem; border-radius: var(--radius);
+        background: var(--flaeche); border: 1px solid var(--linie);
+        box-shadow: var(--heben-1);
     }
-    .herofeld {
-        position: absolute; width: 2.2rem; height: 2.2rem;
-        border-radius: 50%; background: rgb(255 255 255 / .7);
-        border: 1px solid var(--linie);
+    .vorschaupunkt {
+        width: .65rem; height: .65rem; margin-top: .3rem;
+        border-radius: 50%; border: 1.5px solid var(--linie);
     }
-    /* Sechs Felder im Kreis, von Hand gesetzt: Eine Berechnung waere hier
-       mehr Aufwand als sechs Zeilen. */
-    .herofeld:nth-of-type(2) { transform: translate(0, -5.4rem); }
-    .herofeld:nth-of-type(3) { transform: translate(4.7rem, -2.7rem); }
-    .herofeld:nth-of-type(4) { transform: translate(4.7rem, 2.7rem); }
-    .herofeld:nth-of-type(5) { transform: translate(0, 5.4rem); }
-    .herofeld:nth-of-type(6) { transform: translate(-4.7rem, 2.7rem); }
-    .herofeld:nth-of-type(7) { transform: translate(-4.7rem, -2.7rem); }
-    /* Einer leuchtet: der Startpunkt. Nur einer - sonst ist es Dekoration. */
-    .herofeld--start {
-        background: var(--teal); border-color: var(--teal);
-        animation: herokartenpuls 3s ease-in-out infinite;
+    .vorschauzeile b {
+        display: block; font-size: .92rem; font-weight: 680; color: var(--tinte);
     }
-    .herofeld--nah { border-color: var(--teal); }
-    @keyframes herokartenpuls {
-        0%, 100% { box-shadow: 0 0 0 0 rgb(47 125 112 / 30%); }
-        50% { box-shadow: 0 0 0 .7rem rgb(47 125 112 / 0%); }
+    .vorschauzeile span:not(.vorschaupunkt) {
+        display: block; margin-top: .1rem;
+        font-size: .8rem; line-height: 1.4; color: var(--tinte-leise);
+    }
+    .vorschaupfeil {
+        margin-left: 1.15rem; color: var(--tinte-leise);
+        font-size: .95rem; line-height: 1;
+    }
+
+    /* Heute: warm und ruhig. Der Start: der einzige, der leuchtet und
+       atmet. Das Ziel: gruen, aber noch nicht erreicht. */
+    .vorschauzeile--heute { background: var(--grund-tief); box-shadow: none; }
+    .vorschauzeile--start { border-color: var(--teal); box-shadow: var(--heben-2); }
+    .vorschauzeile--start .vorschaupunkt {
+        border-color: var(--teal); background: var(--teal);
+        animation: vorschaupuls 3s ease-in-out infinite;
+    }
+    .vorschauzeile--start b { color: var(--teal-tief); }
+    .vorschauzeile--weiter { background: var(--erledigt-soft); border-color: #cfe3d7; }
+    .vorschauzeile--weiter .vorschaupunkt { border-color: var(--marke); }
+    @keyframes vorschaupuls {
+        0%, 100% { box-shadow: 0 0 0 0 rgb(47 125 112 / 32%); }
+        50% { box-shadow: 0 0 0 .45rem rgb(47 125 112 / 0%); }
     }
 }
 

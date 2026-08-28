@@ -602,6 +602,25 @@ def test_two_views_may_not_answer_the_same_question() -> None:
     assert 'Nimm den Anruf, der wirklich bleibt' in fliess
 
 
+def test_the_three_benefit_lines_answer_different_questions() -> None:
+    """**Zwei gleiche Zeilen machen die Lösung kleiner, als sie ist.**
+
+    Die ersten drei Nutzenzeilen stehen auf der Ergebnisseite direkt
+    untereinander. Beim Werkstattfall hiessen zwei davon „nicht mehr
+    zusammensuchen" — der Kunde zählt dann zwei Vorteile, nicht drei,
+    obwohl drei Bausteine gebaut werden.
+
+    Drei Arten von Entlastung, die sich nicht überschneiden:
+    Information, Unterbrechung, Kommunikation.
+    """
+
+    fliess = _fliesstext(AUSWAHL)
+
+    assert "jede Zeile beantwortet eine andere Frage" in fliess
+    assert "Information · Unterbrechung · Kommunikation" in fliess
+    assert "zwei mit demselben Verb am Ende" in fliess
+
+
 def test_one_family_is_the_signal_to_check_again() -> None:
     """**Eine einzige Familie ist fast immer eine übersprungene Stelle.**
 

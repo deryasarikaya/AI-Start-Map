@@ -29,22 +29,29 @@
         <p class="micro-copy">Kostenlos · per Sprache oder Text · keine KI-Vorkenntnisse nötig</p>
     </div>
 
-    {# **Eine sehr kleine Vorschau der Karte.**
+    {# **Die Vorschau zeigt die Geschichte, nicht die Form.**
 
-       Dieselben sechs Gebiete wie später in der Auswertung, nur ohne
-       Beschriftung und ohne Inhalt — sie soll neugierig machen, nicht die
-       Hauptkarte vorwegnehmen. Ein Punkt leuchtet: der Startpunkt.
+       Hier stand erst eine verkleinerte Karte: sechs Kreise um eine Mitte,
+       ohne Beschriftung. Sie las sich wie ein Ladesymbol — wer fragen
+       muss, was er sieht, hat es nicht verstanden.
 
-       Rein dekorativ und deshalb `aria-hidden`; wer sie nicht sieht,
-       verliert nichts. #}
-    <div class="herokarte" aria-hidden="true">
-        <span class="herokarte-mitte"></span>
-        <span class="herofeld herofeld--start"></span>
-        <span class="herofeld herofeld--nah"></span>
-        <span class="herofeld"></span>
-        <span class="herofeld"></span>
-        <span class="herofeld"></span>
-        <span class="herofeld"></span>
+       Drei Zeilen sagen dasselbe in einer Sekunde: wo er steht, wo wir
+       anfangen, wohin es geht. Die richtige Karte kommt in der Auswertung. #}
+    <div class="herovorschau" aria-hidden="true">
+        <div class="vorschauzeile vorschauzeile--heute">
+            <span class="vorschaupunkt"></span>
+            <div><b>Ihr Betrieb heute</b><span>Wo Arbeit hängen bleibt</span></div>
+        </div>
+        <div class="vorschaupfeil">↓</div>
+        <div class="vorschauzeile vorschauzeile--start">
+            <span class="vorschaupunkt"></span>
+            <div><b>Ihr Startpunkt</b><span>Womit wir anfangen würden</span></div>
+        </div>
+        <div class="vorschaupfeil">↓</div>
+        <div class="vorschauzeile vorschauzeile--weiter">
+            <span class="vorschaupunkt"></span>
+            <div><b>Ihre AI Start Map</b><span>Wohin Ihr Betrieb wachsen kann</span></div>
+        </div>
     </div>
 </section>
 
