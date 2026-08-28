@@ -4,59 +4,51 @@
   "ergebnis": {
     "wert": {
       "zeit_fuer": [
-        "Eigentümerberatung und schwierige fachliche Fälle.",
-        "Nachprüfung unklarer Objekt- oder Adresszuordnungen.",
-        "Proaktive Kommunikation mit Mietern und Handwerkern.",
-        "Tägliche Priorisierung und Planung anhand der morgendlichen Übersicht."
+        "Sie können Eigentümer bei schwierigen Fragen besser beraten.",
+        "Sie können unklare Schäden und Sonderfälle prüfen.",
+        "Sie können offene Rückmeldungen gezielt klären.",
+        "Sie können Rechnungen und Termine bewusst entscheiden."
       ],
       "faellt_weg": [
-        "Suchen in mehreren Programmen nach relevanten E‑Mails und Dateien.",
-        "Mehrfaches Abtippen derselben Angaben in verschiedene Listen.",
-        "Zusammenklauben von Dokumenten aus Laufwerk, E‑Mail und SharePoint.",
-        "Wiederholtes Nachfragen, weil der aktuelle Stand nicht auf einen Blick sichtbar ist."
+        "E-Mails zum passenden Objekt und Schaden zusammensuchen.",
+        "Den Verlauf eines Schadens in mehreren Programmen suchen.",
+        "Handwerkerantworten dem ursprünglichen Schaden zuordnen.",
+        "Rechnungen herunterladen, ablegen und erneut zuordnen.",
+        "Aufgaben zwischen Markierungen, Notizen und Zetteln abgleichen.",
+        "Angaben in mehreren Programmen nachtragen."
       ]
     },
     "hebel": [
       {
-        "idee": "Machen Sie die Hausverwaltungssoftware zur verbindlichen Stammdatenquelle.",
-        "warum": "Wenn alle Namen und Objekte konsequent aus der vorhandenen Software genutzt werden, reduziert das Suche und Doppelpflege und macht Zuordnungen verlässlicher.",
-        "woraus": "Die funktioniert grundsätzlich. Ich möchte die auch nicht ersetzen.",
-        "ohne_technik": true
-      },
-      {
-        "idee": "Leiten Sie alle eingehenden Nachrichten an einen gemeinsamen Eingang weiter.",
-        "warum": "Sammeln an einer Stelle macht sofort sichtbar, welche Nachrichten noch ungeklärt sind und verhindert, dass Mitarbeitende lokal im eigenen Postfach suchen.",
-        "woraus": "Eigentlich müsste das, was wir schon haben, besser zusammenarbeiten.",
-        "ohne_technik": true
-      },
-      {
-        "idee": "Nutzen Sie eine einfache morgendliche Routineliste mit drei Prioritäten.",
-        "warum": "Eine verbindliche Prioritätenliste fokussiert das Team auf dringende Vorgänge und reduziert ad‑hoc Nachfragen während des Tages.",
-        "woraus": "Was braucht heute Aufmerksamkeit?",
+        "idee": "Sie weisen Eigentümer bei WhatsApp-Nachrichten einheitlich auf die E-Mail-Adresse hin.",
+        "warum": "Anliegen kommen dadurch verlässlicher über den vorgesehenen Weg herein. Ihr Team muss weniger zwischen zusätzlichen Nachrichtenwegen wechseln.",
+        "woraus": "Und dann gibt es Eigentümer, die WhatsApp benutzen wollen, obwohl wir eigentlich sagen, bitte schreiben Sie eine E-Mail.",
         "ohne_technik": true
       }
     ],
     "module": [
       {
-        "name": "Zentraler Eingang für E‑Mail und Dateien",
+        "name": "Gemeinsamer Eingang für Nachrichten und Unterlagen",
         "stufe": "jetzt",
         "gruppe": "Eingang",
-        "beschreibung": "Sammelt eingehende E‑Mails und Anhänge an einer Stelle, erkennt Mieter oder Objekt und schlägt Ihnen eine zuständige Person vor, damit Sie Zuordnungen schneller treffen.",
+        "nutzen": "Sie müssen neue Nachrichten nicht mehr einzeln weiterleiten.",
+        "beschreibung": "E-Mails und Anhänge werden einheitlich aufgenommen und an den passenden Schaden weitergegeben. Neue Anliegen erhalten die nötigen Grunddaten.",
         "baustein_refs": [
           "gemeinsamer Eingang",
           "Erkennung von Anliegen und Grunddaten",
           "Anhang- und Fotozuordnung",
-          "Zuständigkeitsvorschlag"
+          "Übergabe an Vorgang oder Fachsystem"
         ],
         "solution_family_ids": [
           "SF-01"
         ]
       },
       {
-        "name": "Auftragssystem mit Status und Zuständigkeit",
-        "stufe": "danach",
-        "gruppe": "Fallführung",
-        "beschreibung": "Legt für jede neue Anfrage eine sichtbare Akte an, zeigt Status, Verlauf und wer verantwortlich ist, damit Sie Transparenz bei Übergaben haben.",
+        "name": "Gemeinsamer Schadenstand mit Zuständigkeit",
+        "stufe": "jetzt",
+        "gruppe": "Fallbearbeitung",
+        "nutzen": "Sie müssen den Stand eines Schadens nicht mehr zusammensuchen.",
+        "beschreibung": "Zu jedem Schaden stehen Verlauf, Zuständigkeit und nächster Schritt zusammen. Das Team sieht auch später eintreffende Informationen am selben Schaden.",
         "baustein_refs": [
           "Vorgangsakte",
           "Statusmodell",
@@ -68,29 +60,31 @@
         ]
       },
       {
-        "name": "Dokumentenverarbeitung und Ablage",
-        "stufe": "danach",
-        "gruppe": "Fallführung",
-        "beschreibung": "Erkennt PDF‑ und Foto-Inhalte, liest relevante Angaben aus und macht einen Zuordnungsvorschlag an die passende Akte, damit Sie Belege nicht mehr suchen müssen.",
+        "name": "Rechnungen und Unterlagen beim Schaden",
+        "stufe": "jetzt",
+        "gruppe": "Fallbearbeitung",
+        "nutzen": "Sie müssen Rechnungen nicht mehr separat dem Schaden zuordnen.",
+        "beschreibung": "Rechnungen und weitere Unterlagen werden dem passenden Schaden vorgeschlagen und prüfbar abgelegt. Ihr Team bestätigt die Zuordnung.",
         "baustein_refs": [
           "Dokumenteingang",
-          "Texterkennung und Felderfassung",
           "Dokumenttyp bestimmen",
-          "Zuordnungsvorschlag"
+          "Zuordnungsvorschlag",
+          "prüfbare Ablage"
         ],
         "solution_family_ids": [
           "SF-03"
         ]
       },
       {
-        "name": "Abgleich mit der Hausverwaltungssoftware",
-        "stufe": "danach",
-        "gruppe": "Integration",
-        "beschreibung": "Vergleicht Namen und Stammdaten mit der vorhandenen Hausverwaltungssoftware, übergibt Dokumentverknüpfungen und meldet Konflikte, damit Sie doppelte Pflege vermeiden.",
+        "name": "Verbindungen zwischen Ihren vorhandenen Programmen",
+        "stufe": "jetzt",
+        "gruppe": "Verbindung",
+        "nutzen": "Sie müssen Angaben nicht mehr in mehreren Programmen nachtragen.",
+        "beschreibung": "Wichtige Angaben und Unterlagen werden zwischen den bestehenden Programmen übergeben. Unstimmigkeiten bleiben für Ihr Team sichtbar.",
         "baustein_refs": [
           "Stammdatenabgleich",
-          "Dokumentübergabe",
           "Status-Synchronisation",
+          "Dokumentübergabe",
           "Fehler- und Konfliktprotokoll"
         ],
         "solution_family_ids": [
@@ -100,117 +94,103 @@
     ],
     "systeme": [
       {
-        "name": "Outlook (E‑Mail)",
-        "umgang": "Bleibt Eingangskanal; Nachrichten werden in den gemeinsamen Eingang überführt und verknüpft.",
+        "name": "Outlook",
+        "umgang": "E-Mails und Anhänge werden aus Outlook in den gemeinsamen Eingang übernommen und beim passenden Schaden weitergeführt.",
         "module_refs": [
-          "Zentraler Eingang für E‑Mail und Dateien",
-          "Dokumentenverarbeitung und Ablage"
+          "Gemeinsamer Eingang für Nachrichten und Unterlagen",
+          "Verbindungen zwischen Ihren vorhandenen Programmen"
         ]
       },
       {
         "name": "Hausverwaltungssoftware",
-        "umgang": "Bleibt führende Stammdatenquelle und wird mit der Akte abgeglichen.",
+        "umgang": "Stammdaten und bestehende Angaben aus der Hausverwaltungssoftware werden für Schäden und Zuordnungen weiter genutzt.",
         "module_refs": [
-          "Abgleich mit der Hausverwaltungssoftware",
-          "Auftragssystem mit Status und Zuständigkeit"
+          "Gemeinsamer Schadenstand mit Zuständigkeit",
+          "Verbindungen zwischen Ihren vorhandenen Programmen"
         ]
       },
       {
-        "name": "Laufwerk / SharePoint",
-        "umgang": "Bleibt Archivort für Dateien; erkannte Belege werden automatisch vorgeschlagen und verknüpft.",
+        "name": "Laufwerk mit Dokumenten",
+        "umgang": "Vorhandene Unterlagen werden mit dem passenden Schaden verbunden, damit sie nicht getrennt gesucht werden müssen.",
         "module_refs": [
-          "Dokumentenverarbeitung und Ablage"
+          "Rechnungen und Unterlagen beim Schaden",
+          "Verbindungen zwischen Ihren vorhandenen Programmen"
         ]
       },
       {
-        "name": "Kalender",
-        "umgang": "Bleibt Terminquelle; Termine werden in der Akte sichtbar gemacht.",
+        "name": "SharePoint",
+        "umgang": "Dort abgelegte Unterlagen werden beim passenden Schaden verknüpft.",
         "module_refs": [
-          "Auftragssystem mit Status und Zuständigkeit"
-        ]
-      },
-      {
-        "name": "Handwerkerportale und E‑Mail-Kontakte der Dienstleister",
-        "umgang": "Bleiben Kommunikationskanäle; Nachrichten werden der Akte zugeordnet und Vorlagen vorgeschlagen.",
-        "module_refs": [
-          "Zentraler Eingang für E‑Mail und Dateien",
-          "Auftragssystem mit Status und Zuständigkeit"
-        ]
-      },
-      {
-        "name": "Excel-Listen",
-        "umgang": "Bleiben vorhanden; relevante Angaben werden mit der Akte abgeglichen statt manuell kopiert.",
-        "module_refs": [
-          "Abgleich mit der Hausverwaltungssoftware",
-          "Auftragssystem mit Status und Zuständigkeit"
+          "Rechnungen und Unterlagen beim Schaden",
+          "Verbindungen zwischen Ihren vorhandenen Programmen"
         ]
       }
     ],
     "zielbild": {
-      "name": "Zentraler Aufnahme- und Zuordnungsworkflow",
+      "name": "Schäden und Rechnungen je Einheit verbunden",
       "ablauf": [
         {
           "art": "eingang",
-          "label": "Nachrichten sammeln",
+          "label": "Neue Informationen",
           "knoten": [
             {
-              "text": "E‑Mails und Anhänge",
-              "kategorie": "eingang"
+              "text": "E-Mails und Anhänge",
+              "kategorie": "Nachricht"
             },
             {
-              "text": "Scans und Fotos",
-              "kategorie": "eingang"
+              "text": "Rechnungen und Unterlagen",
+              "kategorie": "Dokument"
             }
           ]
         },
         {
           "art": "schluessel",
-          "label": "Automatische Zuordnung",
+          "label": "Schaden je Einheit",
           "knoten": [
             {
-              "text": "Mieter- / Objektvorschlag",
-              "kategorie": "stamm"
+              "text": "Schaden mit Verlauf",
+              "kategorie": "Fall"
             },
             {
-              "text": "Zuständige Person",
-              "kategorie": "person"
+              "text": "Zuständigkeit und nächster Schritt",
+              "kategorie": "Arbeit"
+            },
+            {
+              "text": "Unterlagen beim Schaden",
+              "kategorie": "Dokument"
             }
           ]
         },
         {
           "art": "verzweigung",
-          "label": "Behandlung entscheiden",
+          "label": "Bearbeitung abstimmen",
           "knoten": [
             {
-              "text": "Neuer Auftrag anlegen",
-              "kategorie": "auftrag"
+              "text": "Handwerker anfragen",
+              "kategorie": "Abstimmung"
             },
             {
-              "text": "Antwort nötig",
-              "kategorie": "aktion"
-            },
-            {
-              "text": "Nur Ablage",
-              "kategorie": "dokument"
+              "text": "Termin festhalten",
+              "kategorie": "Termin"
             }
           ]
         },
         {
           "art": "ausgang",
-          "label": "Abgleich und Ablage",
+          "label": "Nachvollziehbarer Abschluss",
           "knoten": [
             {
-              "text": "Infos an Hausverwaltung",
-              "kategorie": "sync"
+              "text": "Termininformation",
+              "kategorie": "Nachricht"
             },
             {
-              "text": "Belege geprüft abgelegt",
-              "kategorie": "archiv"
+              "text": "Rechnung zugeordnet",
+              "kategorie": "Abrechnung"
             }
           ]
         }
       ],
-      "beschreibung": "Nachrichten und Belege landen zuerst im gemeinsamen Eingang, werden automatisch einem Mieter oder Objekt vorgeschlagen und einer sichtbaren Akte zugeordnet. Sie sehen sofort die zuständige Person und den aktuellen Stand."
+      "beschreibung": "Jede Nachricht, Handwerkerantwort und Rechnung bleibt beim passenden Schaden und der zugehörigen Einheit. Zuständigkeit, Termin und nächster Schritt sind für das Team an derselben Stelle sichtbar."
     },
     "ansichten": [
       {
@@ -223,53 +203,49 @@
           "felder": null,
           "zeilen": [
             {
-              "text": "Wasserschaden Objekt B, Handwerker ausstehend",
+              "text": "Wasserschaden: Handwerkerantwort steht aus",
               "status": "rot"
             },
             {
-              "text": "Rechnung 2026-04-18: Zuordnungsprüfung nötig",
+              "text": "Heizung im zweiten Stock: Objekt noch unklar",
               "status": "gelb"
             },
             {
-              "text": "Anfrage Eigentümer Müller: Abrechnung",
+              "text": "Rechnung zum Wasserschaden liegt vor",
               "status": "gelb"
             },
             {
-              "text": "Terminbestätigung Handwerker Haus A",
+              "text": "Terminbestätigung vom Handwerker eingegangen",
               "status": "gruen"
             },
             {
-              "text": "Unklare Objektangabe in E‑Mail von Mieter",
+              "text": "Eigentümer wartet seit vier Tagen auf Antwort",
               "status": "rot"
-            },
-            {
-              "text": "Neue Nachrichten aus mehreren E‑Mail-Adressen",
-              "status": "gelb"
             }
           ],
           "dateien": null,
-          "hinweis": "Bei unsicherer Objektzuordnung wird die Meldung zur Prüfung gelegt.",
+          "hinweis": "Neue Nachrichten und Unterlagen erscheinen beim passenden Schaden.",
           "verlauf": null,
           "schritte": null,
           "abzeichen": null,
-          "haupttext": "Kurzüberblick für morgen: Priorisieren Sie offene Schäden und wartende Handwerker.",
-          "untertext": "Dokumente mit fehlender Zuordnung bitte zuerst prüfen.",
+          "haupttext": "Heute im Blick: Schäden, wartende Handwerker, Rechnungen und Fristen.",
+          "untertext": "Der gemeinsame Stand je Schaden zeigt, wo etwas offen ist.",
           "vorgaenge": null,
           "kennzahlen": [
             {
-              "wert": "18",
-              "label": "Offene Meldungen"
+              "wert": "3",
+              "label": "Dringende Schäden"
             },
             {
               "wert": "5",
-              "label": "Wartende Handwerkerantworten"
+              "label": "Warten auf Handwerker"
             },
             {
-              "wert": "7",
+              "wert": "4",
               "label": "Rechnungen zur Prüfung"
             },
             {
-              "wert": "3",
+              "wert": "6",
               "label": "Fristen diese Woche"
             }
           ],
@@ -278,13 +254,92 @@
           "eintraege_termine": null,
           "eintraege_dokumente": null
         },
-        "titel": "Morgendliche Übersicht",
+        "titel": "Heute im Blick",
         "module_refs": [
-          "Auftragssystem mit Status und Zuständigkeit",
-          "Abgleich mit der Hausverwaltungssoftware",
-          "Zentraler Eingang für E‑Mail und Dateien"
+          "Gemeinsamer Schadenstand mit Zuständigkeit"
         ],
-        "beschreibung": "Was heute Aufmerksamkeit braucht"
+        "beschreibung": "Dringende Schäden, ausstehende Antworten, Rechnungen und Fristen."
+      },
+      {
+        "typ": "vorgangsakte",
+        "daten": {
+          "tag": null,
+          "name": null,
+          "notiz": null,
+          "blasen": null,
+          "felder": [
+            {
+              "wert": "Wohnung 2. OG links",
+              "label": "Einheit"
+            },
+            {
+              "wert": "Anna Becker",
+              "label": "Mieter"
+            },
+            {
+              "wert": "Frau König",
+              "label": "Zuständig"
+            },
+            {
+              "wert": "Müller Sanitär",
+              "label": "Handwerker"
+            },
+            {
+              "wert": "Terminbestätigung abwarten",
+              "label": "Nächster Schritt"
+            },
+            {
+              "wert": "Noch offen",
+              "label": "Termin"
+            }
+          ],
+          "zeilen": null,
+          "dateien": [
+            "Foto Bad.jpg",
+            "Handwerkeranfrage.pdf",
+            "Rechnung Sanitär.pdf"
+          ],
+          "hinweis": null,
+          "verlauf": [
+            {
+              "text": "E-Mail des Mieters zum Wasser im Bad eingegangen",
+              "zeit": "08:14"
+            },
+            {
+              "text": "Dem Schaden und der Einheit zugeordnet",
+              "zeit": "08:20"
+            },
+            {
+              "text": "Anfrage an Müller Sanitär vorbereitet",
+              "zeit": "08:35"
+            },
+            {
+              "text": "Anfrage an den Handwerker versendet",
+              "zeit": "09:02"
+            }
+          ],
+          "schritte": null,
+          "abzeichen": {
+            "text": "Warten auf Handwerker",
+            "status": "gelb"
+          },
+          "haupttext": null,
+          "untertext": null,
+          "vorgaenge": null,
+          "kennzahlen": null,
+          "statussatz": null,
+          "nachrichten": null,
+          "eintraege_termine": null,
+          "eintraege_dokumente": null
+        },
+        "titel": "Wasserschaden im Bad",
+        "module_refs": [
+          "Gemeinsamer Eingang für Nachrichten und Unterlagen",
+          "Gemeinsamer Schadenstand mit Zuständigkeit",
+          "Rechnungen und Unterlagen beim Schaden",
+          "Verbindungen zwischen Ihren vorhandenen Programmen"
+        ],
+        "beschreibung": "Wohnung 2. OG links"
       },
       {
         "typ": "eingangspruefung",
@@ -307,283 +362,278 @@
           "statussatz": null,
           "nachrichten": [
             {
-              "text": "In der Wohnung im zweiten Stock funktioniert die Heizung nicht.",
+              "text": "Im Bad kommt Wasser von der Decke. In der Wohnung im zweiten Stock.",
               "zeit": "08:14",
               "marken": [
                 "Schaden",
-                "Heizung",
+                "Wasser",
                 "Objekt unklar"
               ],
-              "absender": "mieter@example.de"
+              "absender": "Anna Becker"
             },
             {
-              "text": "Rechnung für Reparatur anbei (PDF). Bitte zuordnen.",
-              "zeit": "07:55",
+              "text": "Bitte bestätigen Sie den Termin für die Heizung.",
+              "zeit": "09:18",
+              "marken": [
+                "Handwerker",
+                "Termin",
+                "Heizung"
+              ],
+              "absender": "Müller Sanitär"
+            },
+            {
+              "text": "Ist die Rechnung für die Reparatur schon bezahlt?",
+              "zeit": "09:41",
               "marken": [
                 "Rechnung",
-                "Beleg",
-                "Prüfung nötig"
+                "Eigentümer",
+                "Rückfrage"
               ],
-              "absender": "eigentümer@domain.de"
+              "absender": "Eigentümerin"
             }
           ],
           "eintraege_termine": null,
           "eintraege_dokumente": null
         },
-        "titel": "Neue Nachricht öffnen",
+        "titel": "Neue Nachrichten prüfen",
         "module_refs": [
-          "Zentraler Eingang für E‑Mail und Dateien",
-          "Dokumentenverarbeitung und Ablage",
-          "Abgleich mit der Hausverwaltungssoftware"
+          "Gemeinsamer Eingang für Nachrichten und Unterlagen"
         ],
-        "beschreibung": "Eingangsnachrichten mit erkannter Einordnung"
-      },
-      {
-        "typ": "dokumentenablage",
-        "daten": {
-          "tag": null,
-          "name": null,
-          "notiz": null,
-          "blasen": null,
-          "felder": null,
-          "zeilen": null,
-          "dateien": null,
-          "hinweis": null,
-          "verlauf": null,
-          "schritte": null,
-          "abzeichen": null,
-          "haupttext": null,
-          "untertext": null,
-          "vorgaenge": null,
-          "kennzahlen": null,
-          "statussatz": null,
-          "nachrichten": null,
-          "eintraege_termine": null,
-          "eintraege_dokumente": [
-            {
-              "typ": "Foto",
-              "name": "Feuchtigkeit_Wohnung_2OG_2026-04-18.jpg",
-              "datum": "2026-04-18",
-              "zuordnung": "Vorschlag: Objekt B, Mieter Muster"
-            },
-            {
-              "typ": "Rechnung",
-              "name": "Rechnung_Sanitär_2026-04-18.pdf",
-              "datum": "2026-04-18",
-              "zuordnung": "Vorschlag: Wasserschaden Objekt B"
-            },
-            {
-              "typ": "Scan",
-              "name": "Scan_2026_04_10_Mietvertrag.pdf",
-              "datum": "2026-04-10",
-              "zuordnung": "Vorschlag: Mietvertrag Müller, Wohnung 12"
-            },
-            {
-              "typ": "Bericht",
-              "name": "Handwerkerbericht_0426.pdf",
-              "datum": "2026-04-20",
-              "zuordnung": "Vorschlag: Termin Haus A"
-            }
-          ]
-        },
-        "titel": "Belege und Fotos zu Vorgängen",
-        "module_refs": [
-          "Dokumentenverarbeitung und Ablage",
-          "Auftragssystem mit Status und Zuständigkeit",
-          "Abgleich mit der Hausverwaltungssoftware"
-        ],
-        "beschreibung": "Gefundene Dateien mit vorgeschlagener Zuordnung"
+        "beschreibung": "Eingänge mit noch unklarem Objekt oder Schaden."
       }
     ],
     "umsetzung": [
       {
-        "text": "Wir erfassen, welche E‑Mail‑Adressen, Formulare und Ablageorte Sie aktuell nutzen.",
+        "text": "Wir nehmen gemeinsam auf, wie E-Mails, Schäden und Unterlagen heute weitergegeben werden.",
         "module_refs": [
-          "Zentraler Eingang für E‑Mail und Dateien"
+          "Gemeinsamer Eingang für Nachrichten und Unterlagen",
+          "Gemeinsamer Schadenstand mit Zuständigkeit",
+          "Rechnungen und Unterlagen beim Schaden"
         ]
       },
       {
-        "text": "Wir richten den gemeinsamen Eingang so ein, dass eingehende Nachrichten dort zusammenlaufen und erste Vorschläge erscheinen.",
+        "text": "Wir klären mit Ihnen, welche Angaben für die Zuordnung zu Einheit und Schaden reichen.",
         "module_refs": [
-          "Zentraler Eingang für E‑Mail und Dateien"
+          "Gemeinsamer Eingang für Nachrichten und Unterlagen",
+          "Gemeinsamer Schadenstand mit Zuständigkeit"
         ]
       },
       {
-        "text": "Wir stellen Regeln für die Erkennung von Objekt, Mieter und Dokumenttyp bereit und prüfen Beispiele mit Ihnen.",
+        "text": "Wir richten den gemeinsamen Eingang für E-Mails und Anhänge ein.",
         "module_refs": [
-          "Zentraler Eingang für E‑Mail und Dateien",
-          "Dokumentenverarbeitung und Ablage"
+          "Gemeinsamer Eingang für Nachrichten und Unterlagen"
         ]
       },
       {
-        "text": "Wir legen die Aktenstruktur und Statusbegriffe im Auftragssystem an und verknüpfen sie mit dem Eingang.",
+        "text": "Wir bauen den gemeinsamen Schadenstand mit Zuständigkeit und nächstem Schritt auf.",
         "module_refs": [
-          "Auftragssystem mit Status und Zuständigkeit"
+          "Gemeinsamer Schadenstand mit Zuständigkeit"
         ]
       },
       {
-        "text": "Wir konfigurieren die Dokumentverarbeitung, damit Belege und Fotos vorgeschlagen und der passenden Akte zugewiesen werden.",
+        "text": "Wir verbinden Rechnungen und Unterlagen mit dem passenden Schaden.",
         "module_refs": [
-          "Dokumentenverarbeitung und Ablage"
+          "Rechnungen und Unterlagen beim Schaden"
         ]
       },
       {
-        "text": "Wir verbinden den Abgleich zur Hausverwaltungssoftware, damit Stammdaten und Verknüpfungen synchronisiert werden.",
+        "text": "Wir verbinden die benötigten Angaben mit Ihren vorhandenen Programmen.",
         "module_refs": [
-          "Abgleich mit der Hausverwaltungssoftware"
+          "Verbindungen zwischen Ihren vorhandenen Programmen"
         ]
       },
       {
-        "text": "Wir bauen die morgendliche Übersichtsansicht, die die heute relevanten Vorgänge zusammenfasst.",
+        "text": "Wir testen die Zuordnung gemeinsam an Ihren echten Fällen und legen unklare Fälle zur Prüfung vor.",
         "module_refs": [
-          "Auftragssystem mit Status und Zuständigkeit",
-          "Abgleich mit der Hausverwaltungssoftware",
-          "Zentraler Eingang für E‑Mail und Dateien"
+          "Gemeinsamer Eingang für Nachrichten und Unterlagen",
+          "Gemeinsamer Schadenstand mit Zuständigkeit",
+          "Rechnungen und Unterlagen beim Schaden"
         ]
       },
       {
-        "text": "Wir prüfen den Ablauf an echten Fällen und passen Zuordnungen und Prüfstellungen an.",
+        "text": "Wir prüfen den Ablauf mit Ihrem Team, bevor er für neue Schäden genutzt wird.",
         "module_refs": [
-          "Zentraler Eingang für E‑Mail und Dateien",
-          "Auftragssystem mit Status und Zuständigkeit",
-          "Dokumentenverarbeitung und Ablage",
-          "Abgleich mit der Hausverwaltungssoftware"
-        ]
-      },
-      {
-        "text": "Wir begleiten die Einführungswoche und schulen Ihre Mitarbeitenden im Umgang mit den Prüf- und Bestätigungspunkten.",
-        "module_refs": [
-          "Auftragssystem mit Status und Zuständigkeit",
-          "Zentraler Eingang für E‑Mail und Dateien",
-          "Dokumentenverarbeitung und Ablage"
+          "Gemeinsamer Eingang für Nachrichten und Unterlagen",
+          "Gemeinsamer Schadenstand mit Zuständigkeit",
+          "Rechnungen und Unterlagen beim Schaden",
+          "Verbindungen zwischen Ihren vorhandenen Programmen"
         ]
       }
     ],
     "vergleich": {
       "heute": [
-        "Eine E-Mail kommt rein und jemand liest sie",
-        "Es wird geprüft, zu welchem Objekt die Nachricht gehört",
-        "In der Hausverwaltungssoftware wird nach dem Mieter gesucht",
-        "Der zuständige Handwerker wird per E-Mail informiert",
-        "Antworten und Termine landen in separaten Nachrichten",
-        "Rechnungen kommen als PDF und werden im Laufwerk gespeichert",
-        "Mitarbeiter nutzen OneNote, persönliche Notizen oder Zettel"
+        "E-Mail einem Objekt zuordnen",
+        "Mieter in der Software suchen",
+        "Zuständigen Handwerker herausfinden",
+        "Auf Handwerkerantwort warten",
+        "Ursprünglichen Vorgang wiederfinden",
+        "Mieter über Termin informieren",
+        "Rechnung dem Schaden zuordnen"
       ],
       "kuenftig": [
-        "E‑Mail wird im gemeinsamen Eingang erfasst statt nur gelesen.",
-        "Das System schlägt Mieter oder Objekt automatisch vor statt manuellem Suchen.",
-        "Gefundene Treffer werden direkt verknüpft statt separat in der Hausverwaltungssoftware gesucht.",
-        "Die zuständige Person erscheint in der Akte statt per Einzel‑E‑Mail benachrichtigt zu werden.",
-        "Antworten und Termine werden der Akte zugeordnet statt in separaten Nachrichten zu liegen.",
-        "Rechnungen und PDFs werden erkannt und der passenden Akte zugewiesen statt im Laufwerk verstreut zu liegen.",
-        "Notizen werden in der Akte abgelegt statt in OneNote, persönlichen Notizen oder Zetteln."
+        "E-Mail wird Schaden und Einheit zugeordnet",
+        "Mieter und Einheit sind direkt sichtbar",
+        "Zuständiger Handwerker ist beim Schaden sichtbar",
+        "Handwerkerantwort bleibt beim Schaden sichtbar",
+        "Der bisherige Verlauf bleibt sichtbar",
+        "Termininformation bleibt beim Schaden nachvollziehbar",
+        "Rechnung bleibt dem Schaden zugeordnet"
       ]
     },
+    "ausbaupfad": [
+      {
+        "name": "Schäden gemeinsam bearbeiten",
+        "stufe": "jetzt",
+        "nutzen": "Sie müssen Fallinformationen nicht mehr über mehrere Orte zusammensuchen.",
+        "bausteine": [
+          "Nachrichten beim Schaden",
+          "Unterlagen beim Schaden",
+          "sichtbare Zuständigkeit",
+          "Abgleich vorhandener Programme"
+        ],
+        "solution_family_ids": [
+          "SF-01",
+          "SF-02",
+          "SF-03"
+        ]
+      },
+      {
+        "name": "Einheiten langfristig überblicken",
+        "stufe": "danach",
+        "nutzen": "Sie müssen frühere Schäden nicht mehr je Einheit zusammensuchen.",
+        "bausteine": [
+          "Einheitenhistorie",
+          "frühere Schäden",
+          "verknüpfte Unterlagen",
+          "wiederkehrende Ansprechpartner"
+        ],
+        "solution_family_ids": [
+          "SF-24"
+        ]
+      },
+      {
+        "name": "Ausstehende Antworten nachhalten",
+        "stufe": "danach",
+        "nutzen": "Sie müssen ausstehende Handwerkerantworten nicht mehr selbst nachhalten.",
+        "bausteine": [
+          "nächste Aufgabe",
+          "Antwortfrist",
+          "zuständige Person",
+          "Erinnerung bei Stillstand"
+        ],
+        "solution_family_ids": [
+          "SF-12"
+        ]
+      },
+      {
+        "name": "Mietern Einsicht ermöglichen",
+        "stufe": "spaeter",
+        "nutzen": "Sie müssen Unterlagen nicht mehr einzeln an Mieter versenden.",
+        "bausteine": [
+          "Stand des Schadens",
+          "bereitgestellte Unterlagen",
+          "Nachrichten zum Schaden",
+          "geschützter Zugang"
+        ],
+        "solution_family_ids": [
+          "SF-10"
+        ]
+      }
+    ],
     "rueckfrage": null,
     "verstanden": {
       "belege": [
         {
-          "zitat": "Wenn morgens jemand sein Outlook öffnet, sind da teilweise 70 oder 80 neue E-Mails.",
-          "bedeutung": "Zeigt das hohe Volumen an Eingängen, die zuerst eingeordnet werden müssen"
+          "zitat": "Und diese Sachen sprechen kaum miteinander.",
+          "bedeutung": "Die Systeme sind kaum verbunden"
         },
         {
-          "zitat": "Und genau diese Kette macht mich wahnsinnig.",
-          "bedeutung": "Beschreibt, dass die wiederholte Abfolge von Schritten und Suchen die tägliche Arbeit belastet"
+          "zitat": "Aber jemand muss sie zusammensuchen.",
+          "bedeutung": "Vorhandene Antworten müssen gesucht werden"
         },
         {
-          "zitat": "Was braucht heute Aufmerksamkeit?",
-          "bedeutung": "Verlangt eine klare Priorisierung, die aktuell nicht ohne Rückfragen erkennbar ist"
+          "zitat": "Teilweise öffnen wir drei Programme, nur um eine E-Mail zu beantworten.",
+          "bedeutung": "Antworten erfordern mehrere Programme"
         }
       ],
       "eckdaten": [
         "450 Einheiten",
         "Acht Leute",
-        "Mehrere E-Mail-Adressen",
-        "Outlook, Excel, Laufwerk",
-        "70 oder 80 E-Mails"
+        "Mehrere Eingangswege",
+        "70 oder 80 E-Mails",
+        "Drei Programme pro Antwort"
       ],
-      "engpass_absatz": "Der Engpass ist, dass eingehende Nachrichten, Dateien und Aufgaben nicht verlässlich einem Objekt und einer verantwortlichen Person zugeordnet sind. Dadurch entsteht bei jedem Eingang Such- und Abgleicharbeit, weil Mitarbeitende unterschiedlich persönliche Ablagen und Arbeitsweisen nutzen. Sie haben so keinen verlässlichen Gesamtstand und müssen vor Entscheidungen Informationen immer wieder zusammensuchen."
+      "engpass_absatz": "Für Schäden, Rechnungen und Rückfragen entsteht kein gemeinsamer Stand. Zuständigkeit, nächster Schritt und der Zusammenhang zwischen Nachricht, Dokument und Antwort bleiben über verschiedene Orte und persönliche Notizen verteilt."
     },
     "architektur": [
       {
         "ebene": "Gemeinsamer Eingang",
         "module_refs": [
-          "Zentraler Eingang für E‑Mail und Dateien"
+          "Gemeinsamer Eingang für Nachrichten und Unterlagen"
         ],
-        "beschreibung": "Zentrale Sammelstelle für E‑Mails, Formulare und eingescannte Briefe, die erste Zuordnungs‑Vorschläge liefert."
+        "beschreibung": "E-Mails und Anhänge werden aufgenommen und auf Schaden, Rechnung oder anderes Anliegen geprüft."
       },
       {
-        "ebene": "Erkennung und Zuordnung",
+        "ebene": "Schaden je Einheit",
         "module_refs": [
-          "Zentraler Eingang für E‑Mail und Dateien",
-          "Dokumentenverarbeitung und Ablage"
+          "Gemeinsamer Schadenstand mit Zuständigkeit"
         ],
-        "beschreibung": "Automatische Erkennung von Anliegen, Objekt und Mieter sowie Vorschlag zur Weiterverteilung."
+        "beschreibung": "Zu jedem Schaden stehen Verlauf, Zuständigkeit und nächster Schritt zusammen."
       },
       {
-        "ebene": "Akte und Auftragssystem",
+        "ebene": "Unterlagen beim Schaden",
         "module_refs": [
-          "Auftragssystem mit Status und Zuständigkeit"
+          "Rechnungen und Unterlagen beim Schaden"
         ],
-        "beschreibung": "Sichtbare Akte mit Status, Verlauf, Verantwortlicher und offenen nächsten Schritten."
+        "beschreibung": "Rechnungen, Fotos und weitere Unterlagen werden dem passenden Schaden zugeordnet."
       },
       {
-        "ebene": "Dokumentenverarbeitung",
+        "ebene": "Vorhandene Programme",
         "module_refs": [
-          "Dokumentenverarbeitung und Ablage"
+          "Verbindungen zwischen Ihren vorhandenen Programmen"
         ],
-        "beschreibung": "Einlesen von PDFs, Fotos und Belegen und vorgeschlagene Ablage bei der passenden Akte."
-      },
-      {
-        "ebene": "Abgleich mit Hausverwaltungssoftware",
-        "module_refs": [
-          "Abgleich mit der Hausverwaltungssoftware"
-        ],
-        "beschreibung": "Abgleich von Namen, Objekten und Dokumentverknüpfungen zur Vermeidung doppelter Pflege."
+        "beschreibung": "Wichtige Angaben und Unterlagen werden zwischen Outlook, Hausverwaltungssoftware und Ablagen übergeben."
       }
     ],
     "kurzfassung": {
-      "engpass_satz": "Informationen und Dokumente liegen verteilt und haben keinen gemeinsamen Bezug",
-      "loesungsname": "Zentraler Aufnahme- und Zuordnungsworkflow",
+      "engpass_satz": "Informationen zu einem Fall liegen verstreut, und Ihr Team setzt sie ständig neu zusammen.",
+      "loesungsname": "Schäden und Rechnungen je Einheit verbunden",
       "relevante_module": [
-        "Zentraler Eingang",
-        "Auftragssystem",
-        "Dokumentenverarbeitung",
-        "Datenabgleich"
+        "Gemeinsamer Eingang",
+        "Schadenstand",
+        "Unterlagen zuordnen",
+        "Programme verbinden"
       ]
     },
     "aufgabenteilung": {
       "mensch": [
-        "Bestätigen Sie bei unklarer Objektzuordnung die richtige Zuordnung.",
-        "Entscheiden Sie, ob ein Eingang einen neuen Auftrag bekommt.",
-        "Senden und final prüfen Sie Nachrichten an Handwerker und Mieter.",
-        "Prüfen und geben Sie Rechnungen oder Kostenfreigaben frei.",
-        "Übernehmen Sie Sonderfälle und fachliche Entscheidungen."
+        "Sie prüfen unklare Zuordnungen zu Einheit oder Schaden.",
+        "Sie entscheiden über Dringlichkeit und Zuständigkeit.",
+        "Sie prüfen und versenden Nachrichten an Handwerker.",
+        "Sie entscheiden über Terminzusagen an Mieter.",
+        "Sie prüfen Rechnungen und geben sie frei.",
+        "Sie entscheiden über Sonderfälle und den Abschluss eines Schadens."
       ],
       "system": [
-        "Sammelt eingehende E‑Mails und Anhänge an einer gemeinsamen Stelle.",
-        "Schlägt zu jedem Eingang ein Objekt und einen Mieter vor.",
-        "Bereitet eine neue Akte mit Status und zuständiger Person vor.",
-        "Ordnet erkannte Dokumente der passenden Akte zu.",
-        "Bereitet Antwortentwürfe an Handwerker und Mieter vor.",
-        "Führt einen morgendlichen Überblick über Prioritäten zusammen."
+        "Das System nimmt E-Mails und Anhänge gemeinsam auf.",
+        "Das System erkennt Schäden, Rechnungen und andere Anliegen.",
+        "Das System schlägt die passende Einheit und den passenden Schaden vor.",
+        "Das System hält Verlauf, Zuständigkeit und nächsten Schritt beim Schaden zusammen.",
+        "Das System ordnet Unterlagen dem passenden Schaden zu.",
+        "Das System übergibt wichtige Angaben an die vorhandenen Programme."
       ],
       "grenzen": [
         {
-          "titel": "Kein zusätzliches großes Programm",
-          "erlaeuterung": "Was ich aber auch nicht will, ist noch ein weiteres riesiges Programm."
+          "titel": "Kein weiteres riesiges Programm",
+          "erlaeuterung": "Sie wollen nicht noch ein Portal, Tool oder eine App zusätzlich, sondern dass die vorhandenen Programme besser zusammenarbeiten."
         },
         {
-          "titel": "Hausverwaltungssoftware bleibt erhalten",
-          "erlaeuterung": "Die funktioniert grundsätzlich. Ich möchte die auch nicht ersetzen."
-        },
-        {
-          "titel": "Keine eigenständigen Versprechen an Mieter",
-          "erlaeuterung": "Ich will nicht, dass irgendeine KI einem Mieter eigenständig verspricht, dass morgen jemand kommt, wenn das gar nicht stimmt."
+          "titel": "Keine Zusagen ohne Kontrolle",
+          "erlaeuterung": "Eine KI soll Mietern nicht eigenständig versprechen, dass morgen jemand kommt, wenn das nicht stimmt."
         }
       ]
     },
     "contract_version": "ergebnis-v6",
-    "warum_diese_loesung": "Weil eingehende E‑Mails, PDFs und persönliche Notizen heute an verschiedenen Orten liegen, müssen Sie einen ersten gemeinsamen Aufnahmepunkt, automatische Dokumentzuordnung, eine sichtbare Akte mit klarer Verantwortlichkeit und einen Abgleich mit der Hausverwaltungssoftware haben. Zusammen verhindern diese Schritte, dass Mitarbeitende wiederholt suchen und Informationen neu zusammensetzen."
+    "warum_diese_loesung": "Der Engpass entsteht, weil Ihr Team für eine Antwort Informationen aus mehreren Orten zusammensuchen muss. Die Zusammenstellung verbindet neue Nachrichten, Schäden, Unterlagen und die vorhandenen Programme zu einem nachvollziehbaren Zusammenhang."
   }
 }
