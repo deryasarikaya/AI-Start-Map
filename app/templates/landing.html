@@ -28,6 +28,24 @@
         </form>
         <p class="micro-copy">Kostenlos · per Sprache oder Text · keine KI-Vorkenntnisse nötig</p>
     </div>
+
+    {# **Eine sehr kleine Vorschau der Karte.**
+
+       Dieselben sechs Gebiete wie später in der Auswertung, nur ohne
+       Beschriftung und ohne Inhalt — sie soll neugierig machen, nicht die
+       Hauptkarte vorwegnehmen. Ein Punkt leuchtet: der Startpunkt.
+
+       Rein dekorativ und deshalb `aria-hidden`; wer sie nicht sieht,
+       verliert nichts. #}
+    <div class="herokarte" aria-hidden="true">
+        <span class="herokarte-mitte"></span>
+        <span class="herofeld herofeld--start"></span>
+        <span class="herofeld herofeld--nah"></span>
+        <span class="herofeld"></span>
+        <span class="herofeld"></span>
+        <span class="herofeld"></span>
+        <span class="herofeld"></span>
+    </div>
 </section>
 
 {# **Was bekomme ich?** — der Abschnitt, der die Minuten rechtfertigt.

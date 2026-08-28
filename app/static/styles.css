@@ -125,6 +125,51 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .landing-section { margin-bottom: clamp(3.5rem, 5vw, 5rem); }
 .landing-hero { margin-bottom: clamp(3.5rem, 4vw, 4.5rem); }
 
+/* -- Die Mini-Karte im Hero ------------------------------------------
+ * Sechs Felder um eine Mitte - dasselbe Bild wie spaeter in der
+ * Auswertung, nur ohne Inhalt. Sie soll andeuten, nicht erklaeren:
+ * Wer sie sieht, erkennt die Karte auf der Ergebnisseite wieder.
+ *
+ * Auf schmalen Schirmen faellt sie weg. Dort zaehlt der Text. */
+.landing-hero { position: relative; }
+.herokarte { display: none; }
+
+@media (min-width: 60rem) {
+    .landing-hero { display: grid; grid-template-columns: 1fr 15rem; gap: 3rem; align-items: center; }
+    .herokarte {
+        display: grid; place-items: center; position: relative;
+        width: 14rem; height: 14rem;
+    }
+    .herokarte-mitte {
+        position: absolute; width: 3.2rem; height: 3.2rem;
+        border-radius: 50%; background: var(--flaeche);
+        border: 1px solid var(--linie); box-shadow: var(--heben-1);
+    }
+    .herofeld {
+        position: absolute; width: 2.2rem; height: 2.2rem;
+        border-radius: 50%; background: rgb(255 255 255 / .7);
+        border: 1px solid var(--linie);
+    }
+    /* Sechs Felder im Kreis, von Hand gesetzt: Eine Berechnung waere hier
+       mehr Aufwand als sechs Zeilen. */
+    .herofeld:nth-of-type(2) { transform: translate(0, -5.4rem); }
+    .herofeld:nth-of-type(3) { transform: translate(4.7rem, -2.7rem); }
+    .herofeld:nth-of-type(4) { transform: translate(4.7rem, 2.7rem); }
+    .herofeld:nth-of-type(5) { transform: translate(0, 5.4rem); }
+    .herofeld:nth-of-type(6) { transform: translate(-4.7rem, 2.7rem); }
+    .herofeld:nth-of-type(7) { transform: translate(-4.7rem, -2.7rem); }
+    /* Einer leuchtet: der Startpunkt. Nur einer - sonst ist es Dekoration. */
+    .herofeld--start {
+        background: var(--teal); border-color: var(--teal);
+        animation: herokartenpuls 3s ease-in-out infinite;
+    }
+    .herofeld--nah { border-color: var(--teal); }
+    @keyframes herokartenpuls {
+        0%, 100% { box-shadow: 0 0 0 0 rgb(47 125 112 / 30%); }
+        50% { box-shadow: 0 0 0 .7rem rgb(47 125 112 / 0%); }
+    }
+}
+
 /* -- Was bekomme ich? -------------------------------------------------
  * Der Abschnitt, der die investierten Minuten rechtfertigt. Drei
  * Bausteine, die den Bogen der Auswertung vorwegnehmen. Sie sind
