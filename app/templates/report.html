@@ -39,6 +39,13 @@
      ist dahin. */
   .deckblatt { break-after: page; }
 
+  /* **Jede Berichtsseite faengt oben an.** Ohne diese Regel laeuft alles
+     als ein Strom durch, und ein Bericht ohne Seiten ist ein Ausdruck.
+     `break-before` statt `break-after`: So entsteht kein leeres Blatt am
+     Ende. */
+  .berichtseite { break-before: page; }
+  .berichtseite:first-of-type { break-before: auto; }
+
   /* Browser drucken Hintergruende standardmaessig nicht. Ohne diese Zeile
      bliebe das Deckblatt weiss - was es aushaelt, weil es helles Mint ist
      und kein tiefes Gruen. Aber gewollt ist die Farbe. */
@@ -113,9 +120,9 @@
   </div>
 </div>
 
-<div class="wrap top reportkopf">
-  <p class="eyebrow">AI Start Map · Ihre Auswertung</p>
-  <h1>{{ e.kurzfassung.engpass_satz }}</h1>
+<div class="wrap top reportkopf berichtseite">
+  <p class="eyebrow">Das haben wir verstanden</p>
+  <h1 class="engpasssatz">{{ e.kurzfassung.engpass_satz }}</h1>
   <div class="chipline">
     {% for eckdatum in e.verstanden.eckdaten %}
     <span class="chip">{{ eckdatum }}</span>
@@ -134,11 +141,22 @@
   <p class="sub noprint">Zum Speichern als PDF: Strg+P und „Als PDF sichern“.</p>
 </div>
 
-{# Die Ansichten stehen im Ausdruck an derselben Stelle wie auf der Seite —
-   sie sind der Teil, den der Kunde jemandem zeigt. #}
-<section>
+{# **Seite 3 — Was sich veraendert.** Heute gegen kuenftig, und darunter
+   der Ablauf, wie er dann liefe. Das gehoert zusammen: Erst der Wandel,
+   dann der Weg. #}
+<section class="berichtseite">
 <div class="wrap">
-  <p class="eyebrow">4 · So könnte das bei Ihnen aussehen</p>
+  <p class="eyebrow">Das würde sich für Sie verändern</p>
+  {{ teile.heute_kuenftig(e) }}
+  {{ teile.ablaufdiagramm(e) }}
+</div>
+</section>
+
+{# **Seite 4 — die Ansichten.** Der Teil, den der Kunde jemandem zeigt.
+   Deshalb steht er im Bericht an derselben Stelle wie auf der Seite. #}
+<section class="berichtseite">
+<div class="wrap">
+  <p class="eyebrow">So könnte Ihre Lösung konkret aussehen</p>
   <h2>So könnte Ihr Alltag aussehen</h2>
   <p class="sub">Beispielhafte Darstellung mit erfundenen Objekten und Namen.
   Der Aufbau ist gemeint, nicht die Inhalte.</p>
@@ -151,7 +169,7 @@
 {# Die Karte, statisch. Sie steht ohne JavaScript vollstaendig richtig -
    genau dafuer wurde sie so gebaut. #}
 {% if karte %}
-<section class="kartenteil">
+<section class="kartenteil berichtseite">
 <div class="wrap">
   <p class="eyebrow">Ihre AI Start Map</p>
   <h2>Sie sind hier. Und das ist das Gelände dahinter.</h2>
@@ -162,12 +180,76 @@
 </section>
 {% endif %}
 
-{{ teile.alle_teile(e) }}
+{# **Seite 6 — Damit wuerden wir anfangen.** Hier darf es konkret werden;
+   das ist die eigentliche Empfehlung. #}
+<section class="berichtseite">
+<div class="wrap">
+  <p class="eyebrow">Damit würden wir anfangen</p>
+  {{ teile.modulkarten(e) }}
+  <p class="sub">Diese Bausteine lösen den aktuellen Engpass und schaffen die
+  Grundlage für spätere Automatisierung.</p>
+</div>
+</section>
+
+{# **Seite 7 — Kontrolle und Grenzen.** Was das System uebernimmt, was bei
+   ihm bleibt, und die Einschraenkungen, die er selbst genannt hat. Das ist
+   der Abschnitt, der Vertrauen erzeugt. #}
+<section class="berichtseite">
+<div class="wrap">
+  <p class="eyebrow">Kontrolle und Grenzen</p>
+  {{ teile.aufgabenteilung(e) }}
+</div>
+</section>
+
+{# **Seite 8 — der Ausblick.** Zwei bis vier Moeglichkeitsfelder, ohne
+   Schrittnummern, ohne technische Einzelheiten. Die Reihenfolge klaert das
+   Gespraech, nicht dieser Bericht. #}
+{%- set weitere = (e.ausbaupfad or []) | rejectattr('stufe', 'equalto', 'jetzt') | list -%}
+{% if weitere %}
+<section class="berichtseite">
+<div class="wrap">
+  <p class="eyebrow">Was darüber hinaus möglich wäre</p>
+  <h2>Welche Möglichkeiten wir danach gemeinsam prüfen würden</h2>
+  <div class="moeglichkeiten">
+    {% for schritt in weitere[:4] %}
+    <article class="moeglichkeit">
+      <p class="moeglichkeitsmarke">
+        {%- if schritt.stufe == 'spaeter' -%}Das könnte später sinnvoll werden
+        {%- else -%}Das liegt in der Nähe{%- endif -%}
+      </p>
+      <h3>{{ schritt.name }}</h3>
+      <p class="moeglichkeitsnutzen">{{ schritt.nutzen }}</p>
+    </article>
+    {% endfor %}
+  </div>
+  <p class="sub">Welche dieser Möglichkeiten für Ihren Betrieb wirklich
+  sinnvoll sind und in welcher Form sie umgesetzt werden sollten, klären wir
+  gemeinsam.</p>
+</div>
+</section>
+{% endif %}
+
+{# **Der Anhang.** Was nicht in die acht Seiten gehoert, faellt nicht weg -
+   es folgt dahinter. Der Bericht erzaehlt in acht Seiten; wer mehr will,
+   liest weiter. #}
+<section class="berichtseite anhang">
+<div class="wrap">
+  <p class="eyebrow">Anhang</p>
+  {{ teile.kurzfassung(e) }}
+  {{ teile.reihenfolge(e) }}
+  {{ teile.warum_diese_loesung(e) }}
+  {{ teile.hebel(e) }}
+  {{ teile.wert(e) }}
+  {{ teile.systeme(e) }}
+  {{ teile.architektur(e) }}
+  {{ teile.umsetzungsschritte(e) }}
+</div>
+</section>
 
 {# Der Abschluss: Was als Naechstes passiert, und die Bitte, die PDF
    anzuhaengen. Ohne sie kommt eine Anfrage an, zu der niemand die
    Auswertung findet - ein `mailto:` kann nichts anhaengen. #}
-<section>
+<section class="berichtseite">
 <div class="wrap">
   {%- set kontakt = gespraechs_adresse() -%}
   <div class="schlusskontakt">

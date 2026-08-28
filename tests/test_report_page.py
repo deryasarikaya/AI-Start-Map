@@ -49,7 +49,20 @@ def test_the_report_reads_the_stored_result(client: TestClient) -> None:
     bericht = client.get("/report").text
 
     # Der Engpass-Satz steht auf beiden und stammt aus derselben Quelle.
-    assert "AI Start Map · Ihre Auswertung" in bericht
+    # Der Bericht erzählt in acht Seiten, jede mit einem eigenen Umbruch.
+    for ueberschrift in (
+        "Das haben wir verstanden",
+        "Das würde sich für Sie verändern",
+        "So könnte Ihre Lösung konkret aussehen",
+        "Ihre AI Start Map",
+        "Damit würden wir anfangen",
+        "Kontrolle und Grenzen",
+    ):
+        assert ueberschrift in bericht, ueberschrift
+    # Was nicht in die acht Seiten gehört, fällt nicht weg — es folgt
+    # als Anhang dahinter.
+    assert "Anhang" in bericht
+    assert bericht.count('class="berichtseite') >= 6
     # Das Deckblatt: die eine Seite, die aus einem Ausdruck einen
     # Bericht macht.
     assert "Ihre persönliche KI-Auswertung" in bericht
@@ -60,9 +73,13 @@ def test_the_report_reads_the_stored_result(client: TestClient) -> None:
     # Die Überschrift taugt nicht als Anker: Auf der Tafel steht dort
     # eine feste Zeile, kein Kundenwort. Der Engpass-Satz ist beides —
     # Kundenwort, und er steht auf beiden Seiten.
-    engpass = seite.split('class="befund">')[1].split("</p>")[0].strip()
+    #
+    # Aus dem Bericht gelesen: Dort trägt der Satz eine eigene Klasse.
+    # Ein Anker auf „das erste h1" wäre falsch — das ist seit dem
+    # Deckblatt der Titel des Berichts, nicht sein Befund.
+    engpass = bericht.split('class="engpasssatz">')[1].split("</h1>")[0].strip()
     assert engpass
-    assert engpass in bericht
+    assert engpass in seite
 
 
 def test_the_print_hint_is_hidden_when_printing(client: TestClient) -> None:
