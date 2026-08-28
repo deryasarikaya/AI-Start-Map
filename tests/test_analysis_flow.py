@@ -21,14 +21,16 @@ from app.schemas import (
     ProcessSuggestion,
 )
 from app import repository
-from tests.conftest import spec_payload
+from tests.conftest import spec_payload, the_current_session
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def _start_and_answer_intro(client: TestClient) -> int:
-    response = client.post("/start", follow_redirects=False)
-    session_id = int(response.headers["location"].split("/")[2])
+    # Über `/begin`, nicht über `/start`: Die Adresse gab es nur noch für
+    # Tests. Die Sitzungsnummer kommt jetzt aus dem Cookie.
+    client.post("/begin", follow_redirects=False)
+    session_id = the_current_session(client)
     response = client.post(
         f"/sessions/{session_id}/interview",
         data={

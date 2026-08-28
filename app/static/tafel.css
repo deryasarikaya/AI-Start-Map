@@ -1023,112 +1023,140 @@
  * Ruhiger gesetzt als die Bausteine davor - es ist ein Weg, kein
  * Angebot, und es soll nicht mit dem ersten Schritt konkurrieren. */
 /* -- Die AI Start Map -------------------------------------------------
- * Gelaende, kein Organigramm. Deshalb: keine Kaesten, keine Pfeilspitzen,
- * kein Raster. Weiche Zonen ohne harten Rand, Punkte statt Knoten, viel
- * Leere. Die Mitte ist die einzige volle Flaeche - alles andere ordnet
- * sich um sie.
+ * **Gelaende, kein Dashboard.** Die erste Fassung war ein Raster aus
+ * sechs gleich grossen Kaesten mit Punktlisten darin - alles gleich weit
+ * weg, keine Mitte, keine Wege. Man sah darauf nicht, wo man steht.
  *
- * Drei Zustaende, mehr nicht. Wer mehr Abstufungen einbaut, braucht eine
- * Legende - und eine Legende ist der Beweis, dass das Bild allein nicht
- * spricht. */
+ * Jetzt weiche Zonen mit ungleichen Formen, ein voller Kern, geschwungene
+ * Wege dorthin und drei Punktgroessen. Der Startpunkt ist das einzige,
+ * was sich bewegt. */
 .tafel .kartenteil .flaeche {
-  padding: 40px 38px 34px; border-radius: 20px;
-  background: linear-gradient(168deg, var(--teal-soft) 0%, var(--grund) 100%);
-  border: 1px solid var(--linie);
+  padding: 40px 38px 34px; border-radius: 22px;
+  background: var(--flaeche-mint); border: 1px solid var(--rand-mint);
+  box-shadow: var(--heben-1);
 }
 
-.tafel .karte { margin-top: 26px; }
+.tafel .karte { margin: 26px 0 0; }
 
-/* Die Mitte: der Ort, an dem alles zusammenlaeuft. Sie steht oben und
-   nicht im geometrischen Zentrum - auf einem Bildschirm liest man von
-   oben, nicht von innen. */
-.tafel .kartenmitte {
-  display: grid; justify-items: center; gap: 3px;
-  padding: 18px 20px; margin-bottom: 26px;
-  border-radius: 16px; background: var(--flaeche);
-  border: 1px solid var(--linie); box-shadow: var(--heben-1);
-  text-align: center;
-}
-.tafel .mittenpunkt {
-  width: 12px; height: 12px; border-radius: 50%;
-  background: var(--ki); margin-bottom: 4px;
-}
-.tafel .kartenmitte b { font-size: 1.06rem; font-weight: 680; }
-.tafel .mittennotiz { font-size: .84rem; color: var(--tinte-leise); }
+/* **Kein Rand um die Schrift.** Ein Diagramm weiter oben setzt fuer seine
+   Linien stroke auf den Tintenton; SVG vererbt das an jeden Text darunter.
+   Mit 1,7px dunklem Rand sah jede Beschriftung gepraegt aus, und die
+   weisse Schrift im Kern wurde matschig. */
+.tafel .kartenflaeche text { stroke: none; }
+.tafel .kartenflaeche { display: block; width: 100%; height: auto; }
 
-.tafel .gebiete {
-  display: grid; gap: 14px;
-  grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
+/* Die Zonen: sehr leise Flaechen ohne harten Rand. Sie sollen die
+   Zugehoerigkeit zeigen, nicht selbst auffallen. */
+.tafel .kartenzone path {
+  fill: rgb(255 255 255 / .55);
+  stroke: var(--rand-mint); stroke-width: 1.1;
 }
-/* Ohne Rand: Ein Gebiet ist eine Zone, kein Kasten. Die Flaeche ist so
-   leise, dass sie nur die Zugehoerigkeit zeigt. */
-.tafel .gebiet {
-  padding: 16px 18px 14px; border-radius: 14px;
-  background: rgb(255 255 255 / .5);
-}
-.tafel .gebiet--lebt { background: rgb(255 255 255 / .85); }
-.tafel .gebiet h3 {
-  margin: 0 0 10px; font-size: .82rem; font-weight: 700;
-  letter-spacing: .04em; color: var(--tinte-schwach);
+.tafel .kartenzone text {
+  fill: var(--tinte-schwach); font-size: 17px; font-weight: 660;
+  letter-spacing: -.01em;
 }
 
-.tafel .punkte { margin: 0; padding: 0; list-style: none; display: grid; gap: 9px; }
-.tafel .punkt {
-  display: grid; grid-template-columns: 11px 1fr; gap: 10px;
-  align-items: start;
+/* Der Kern ist die einzige volle Flaeche - alles ordnet sich um ihn. */
+.tafel .kartenkern circle {
+  fill: var(--marke);
+  filter: drop-shadow(0 14px 30px rgb(35 93 75 / .28));
 }
-.tafel .punktzeichen {
-  width: 9px; height: 9px; margin-top: 6px; border-radius: 50%;
-  border: 1.5px solid var(--linie); background: transparent;
-}
-.tafel .punkt b {
-  display: block; font-size: .9rem; font-weight: 640; line-height: 1.35;
-  color: var(--tinte);
-}
-.tafel .punkt span {
-  display: block; margin-top: 2px; font-size: .8rem; line-height: 1.45;
-  color: var(--tinte-leise);
+.tafel .kartenkern text { fill: #fff; font-size: 19px; font-weight: 700; }
+.tafel .kernnotiz { font-size: 12px !important; font-weight: 400 !important; opacity: .8; }
+
+/* Wege statt Speichen: geschwungen und ohne Spitzen. Gerade Linien mit
+   Pfeilspitzen lesen sich als Organigramm. */
+.tafel .kartenweg { fill: none; stroke-linecap: round; }
+.tafel .kartenweg--start { stroke: var(--ki); stroke-width: 3.5; }
+.tafel .kartenweg--nah {
+  stroke: var(--ki); stroke-width: 2; stroke-dasharray: 6 9; opacity: .5;
 }
 
-/* Hier fangen wir an: der einzige gefuellte Punkt, und der einzige, der
-   atmet. */
-.tafel .punkt--start .punktzeichen {
-  border-color: var(--ki); background: var(--ki);
-  animation: kartenpuls 2.2s ease-in-out infinite;
+.tafel .kartenpunkt text {
+  fill: var(--tinte); font-size: 13px; font-weight: 620;
 }
-.tafel .punkt--start b { color: var(--ki-tief, #1f6d62); font-weight: 720; }
+
+/* Hier fangen wir an: gefuellt, groesser, und das einzige, was atmet. */
+.tafel .kartenpunkt--start > circle:not(.punktpuls) { fill: var(--ki); }
+.tafel .kartenpunkt--start text { fill: var(--ki-tief); font-size: 14px; font-weight: 730; }
+.tafel .punktpuls {
+  fill: none; stroke: var(--ki); stroke-width: 2; opacity: .25;
+  transform-box: fill-box; transform-origin: center;
+  animation: kartenpuls 2.8s ease-out infinite;
+}
 @keyframes kartenpuls {
-  0%, 100% { box-shadow: 0 0 0 0 rgb(47 125 112 / 35%); }
-  50% { box-shadow: 0 0 0 6px rgb(47 125 112 / 0%); }
+  0%   { transform: scale(.55); opacity: .38; }
+  70%  { transform: scale(1.25); opacity: 0; }
+  100% { opacity: 0; }
 }
 
 /* In der Naehe: umrandet, nicht gefuellt. */
-.tafel .punkt--nah .punktzeichen { border-color: var(--ki); }
-
-/* Gibt es auch: still, aber lesbar. Nicht ausgegraut - wer entdeckt, was
-   hier noch liegt, ruft an, und genau das soll er. */
-.tafel .punkt--still b { color: var(--tinte-schwach); font-weight: 560; }
-
-.tafel .stille { margin-top: 10px; }
-.tafel .stille > summary {
-  font-size: .8rem; color: var(--tinte-leise); cursor: pointer;
-  list-style: none; padding: 2px 0;
+.tafel .kartenpunkt--nah circle {
+  fill: var(--flaeche); stroke: var(--ki); stroke-width: 3;
 }
-.tafel .stille > summary::-webkit-details-marker { display: none; }
-.tafel .stille > summary:hover { color: var(--ki); }
-.tafel .stille[open] > summary { margin-bottom: 9px; }
+
+/* Gibt es darueber hinaus: still, aber lesbar. Nicht ausgegraut - wer
+   entdeckt, was hier noch liegt, ruft an, und genau das soll er. */
+.tafel .kartenpunkt--still circle {
+  fill: var(--flaeche); stroke: var(--tinte-leise); stroke-width: 1.4;
+}
+.tafel .kartenpunkt--still { opacity: .5; }
+.tafel .kartenpunkt--still text { font-size: 12px; font-weight: 550; }
 
 .tafel .kartenlegende {
-  display: flex; flex-wrap: wrap; gap: 16px;
-  margin: 24px 0 0; font-size: .8rem; color: var(--tinte-leise);
+  display: flex; flex-wrap: wrap; gap: 18px;
+  margin: 20px 0 0; font-size: .82rem; color: var(--tinte-leise);
 }
-.tafel .legende { display: inline-flex; align-items: center; gap: 7px; }
+.tafel .legende { display: inline-flex; align-items: center; gap: 8px; }
 .tafel .legende::before {
-  width: 9px; height: 9px; border-radius: 50%;
-  border: 1.5px solid var(--linie); content: "";
+  width: 10px; height: 10px; border-radius: 50%;
+  border: 1.5px solid var(--tinte-leise); content: "";
 }
 .tafel .legende--start::before { border-color: var(--ki); background: var(--ki); }
-.tafel .legende--nah::before { border-color: var(--ki); }
+.tafel .legende--nah::before { border-color: var(--ki); border-width: 2.5px; }
+
+/* **Die Liste traegt auf dem Handy.** Fuenfundzwanzig Beschriftungen auf
+ * einer Landkarte sind auf einem Telefon unlesbar. Am Bildschirm ist die
+ * Liste nur fuer Vorlesesoftware da. */
+.tafel .kartenliste {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}
+
+@media (max-width: 860px) {
+  .tafel .kartenflaeche, .tafel .kartenlegende { display: none; }
+  .tafel .kartenliste {
+    position: static; width: auto; height: auto; overflow: visible;
+    clip-path: none; white-space: normal;
+    display: grid; gap: 18px; margin-top: 24px;
+  }
+  .tafel .listengebiet h3 {
+    margin: 0 0 8px; font-size: .8rem; font-weight: 700;
+    letter-spacing: .05em; color: var(--tinte-schwach);
+  }
+  .tafel .listengebiet ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 7px; }
+  .tafel .listenpunkt {
+    position: relative; padding-left: 18px;
+    font-size: .9rem; color: var(--tinte-schwach);
+  }
+  .tafel .listenpunkt::before {
+    position: absolute; left: 0; top: .45em;
+    width: 8px; height: 8px; border-radius: 50%;
+    border: 1.4px solid var(--tinte-leise); content: "";
+  }
+  .tafel .listenpunkt b { font-weight: 620; color: var(--tinte); }
+  .tafel .listenpunkt span {
+    display: block; margin-top: 2px; font-size: .82rem; color: var(--tinte-leise);
+  }
+  .tafel .listenpunkt--start::before { border-color: var(--ki); background: var(--ki); }
+  .tafel .listenpunkt--start b { color: var(--ki-tief); font-weight: 720; }
+  .tafel .listenpunkt--nah::before { border-color: var(--ki); border-width: 2.4px; }
+  .tafel .listenpunkt--still { opacity: .6; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tafel .punktpuls { animation: none; }
+}
 
 .tafel .wachstum .flaeche {
   padding: 40px 38px 36px; border-radius: 20px;

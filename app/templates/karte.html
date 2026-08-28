@@ -1,66 +1,111 @@
-{# **Die AI Start Map** — für jeden Betrieb dieselbe Landschaft.
+{# **Die AI Start Map** — eine Landkarte, für jeden Betrieb dieselbe.
 
-   Sie wird nicht erzeugt. Markiert werden nur drei Dinge: wo wir anfangen
-   würden, was von dort erreichbar ist, und was es sonst noch gibt. Damit
-   kann die Vision nicht zu klein ausfallen, weil sie nicht erzeugt wird —
-   und nichts halluziniert werden, weil nichts geschrieben wird.
+   Sechs Gebiete als weiche Flächen um einen gemeinsamen Kern, und jede
+   Lösungsfamilie an ihrem festen Platz. Erzeugt wird nichts: Markiert
+   werden nur der Startpunkt, die erreichbaren Nachbarn und das übrige
+   Gelände.
 
-   **Ohne JavaScript vollständig richtig.** Zustände, Nähe und Beschriftung
-   stehen im Markup; das Aufklappen der stillen Punkte macht `<details>`
-   selbst. Deshalb steht dieselbe Karte auch im PDF, ohne dass sie ein
-   zweites Mal gebaut werden müsste. #}
+   **Reines SVG, kein Skript.** Zustände, Wege und Beschriftungen stehen im
+   Markup. Deshalb steht dieselbe Karte im PDF, ohne zweite Fassung — und
+   zwei Karten laufen nicht auseinander.
 
-<div class="karte">
-  <div class="kartenmitte">
-    <span class="mittenpunkt" aria-hidden="true"></span>
-    <b>{{ mitte }}</b>
-    <span class="mittennotiz">Hier läuft alles zusammen</span>
-  </div>
+   Unter der Karte dieselben Punkte als Liste. Auf dem Handy ist eine
+   Landkarte unlesbar; dort trägt die Liste, und die Karte tritt zurück. #}
 
-  <div class="gebiete">
-    {% for gebiet in gebiete %}
-    <section class="gebiet{% if gebiet.hat_markierung %} gebiet--lebt{% endif %}">
-      <h3>{{ gebiet.name }}</h3>
+<figure class="karte">
+  <svg class="kartenflaeche" viewBox="0 0 {{ k.breite }} {{ k.hoehe }}"
+       role="img" aria-labelledby="karte-titel karte-text" preserveAspectRatio="xMidYMid meet">
+    <title id="karte-titel">Ihre AI Start Map</title>
+    <desc id="karte-text">Der Lösungsraum Ihres Betriebs mit hervorgehobenem
+    Startpunkt und den davon erreichbaren Bereichen.</desc>
 
-      {# Sofort sichtbar nur, was markiert ist. Fünfundzwanzig gleich laute
-         Punkte wären wieder „viel Zeug" statt „das ist mein Betrieb". #}
-      <ul class="punkte">
-        {% for punkt in gebiet.punkte if punkt.zustand != 'still' %}
-        <li class="punkt punkt--{{ punkt.zustand }}">
-          <span class="punktzeichen" aria-hidden="true"></span>
-          <div>
-            <b>{{ punkt.name }}</b>
-            {% if punkt.nutzen %}<span>{{ punkt.nutzen }}</span>{% endif %}
-          </div>
-        </li>
-        {% endfor %}
-      </ul>
-
-      {# Der Rest bleibt erreichbar, aber still. Wer entdeckt, dass hier
-         noch fünf Gebiete liegen, ruft an — genau das soll er. #}
-      {% if gebiet.stille %}
-      <details class="stille">
-        <summary>+{{ gebiet.stille }} weitere Möglichkeiten</summary>
-        <ul class="punkte">
-          {% for punkt in gebiet.punkte if punkt.zustand == 'still' %}
-          <li class="punkt punkt--still">
-            <span class="punktzeichen" aria-hidden="true"></span>
-            <div>
-              <b>{{ punkt.name }}</b>
-              {% if punkt.nutzen %}<span>{{ punkt.nutzen }}</span>{% endif %}
-            </div>
-          </li>
-          {% endfor %}
-        </ul>
-      </details>
-      {% endif %}
-    </section>
+    {# Die Gebiete zuerst: Sie liegen unter allem und tragen. #}
+    {% for zone in k.zonen %}
+    <g class="kartenzone kartenzone--{{ zone.kennung }}">
+      <path d="{{ zone.pfad }}"/>
+      <text x="{{ zone.text_x }}" y="{{ zone.text_y }}">{{ zone.name }}</text>
+    </g>
     {% endfor %}
-  </div>
 
-  <p class="kartenlegende">
+    {# Die Wege wachsen vom Kern nach aussen — erst die Grundlage, dann
+       alles andere. Geschwungen und ohne Pfeilspitzen: Gerade Linien mit
+       Spitzen lesen sich als Organigramm. #}
+    {% for weg in k.wege %}
+    <path class="kartenweg kartenweg--{{ weg.art }}" d="{{ weg.pfad }}"/>
+    {% endfor %}
+
+    {# Der Kern: die einzige volle Fläche der Karte. #}
+    <g class="kartenkern">
+      <circle cx="{{ k.mitte_x }}" cy="{{ k.mitte_y }}" r="{{ k.mitte_r }}"/>
+      <text x="{{ k.mitte_x }}" y="{{ k.mitte_y - 8 }}" text-anchor="middle">Ihr gemeinsamer</text>
+      <text x="{{ k.mitte_x }}" y="{{ k.mitte_y + 18 }}" text-anchor="middle">Arbeitsstand</text>
+      <text class="kernnotiz" x="{{ k.mitte_x }}" y="{{ k.mitte_y + 44 }}" text-anchor="middle">Hier läuft alles zusammen</text>
+    </g>
+
+    {# Die Punkte. Stille zuerst, damit die markierten darueber liegen.
+
+       **Die Beschriftung steht mittig unter dem Punkt.** Seitlich lief sie
+       bei fuenfundzwanzig Punkten ineinander — nachgemessen 23 sich
+       ueberlappende Texte —, weil die Breite vom Wort abhing. Mittig ist
+       sie symmetrisch, und der Abstand zum Nachbarn ist der, den die
+       Koordinaten vorgeben.
+
+       Auf der Karte steht nur der kurze Name. Der ganze Satz des Katalogs
+       steht in der Liste darunter: Eine Landkarte traegt Ortsnamen, keine
+       Saetze. #}
+    {% macro beschriftung(punkt) -%}
+      {% for zeile in punkt.zeilen %}
+      <text x="{{ punkt.x }}" y="{{ punkt.y + punkt.hoch + loop.index0 * 15 }}" text-anchor="middle">{{ zeile }}</text>
+      {% endfor %}
+    {%- endmacro %}
+
+    {% for punkt in k.punkte if punkt.zustand == 'still' %}
+    <g class="kartenpunkt kartenpunkt--still">
+      <circle cx="{{ punkt.x }}" cy="{{ punkt.y }}" r="6"/>
+      {{ beschriftung(punkt) }}
+    </g>
+    {% endfor %}
+
+    {% for punkt in k.punkte if punkt.zustand == 'nah' %}
+    <g class="kartenpunkt kartenpunkt--nah">
+      <circle cx="{{ punkt.x }}" cy="{{ punkt.y }}" r="11"/>
+      {{ beschriftung(punkt) }}
+    </g>
+    {% endfor %}
+
+    {# Der Startpunkt zuletzt und als einziger mit Puls. #}
+    {% for punkt in k.punkte if punkt.zustand == 'start' %}
+    <g class="kartenpunkt kartenpunkt--start">
+      <circle class="punktpuls" cx="{{ punkt.x }}" cy="{{ punkt.y }}" r="26"/>
+      <circle cx="{{ punkt.x }}" cy="{{ punkt.y }}" r="15"/>
+      {{ beschriftung(punkt) }}
+    </g>
+    {% endfor %}
+  </svg>
+
+  <figcaption class="kartenlegende">
     <span class="legende legende--start">Hier würden wir anfangen</span>
     <span class="legende legende--nah">Das liegt in der Nähe</span>
-    <span class="legende legende--still">Das gibt es auch</span>
-  </p>
+    <span class="legende legende--still">Das gibt es darüber hinaus</span>
+  </figcaption>
+</figure>
+
+{# Dieselben Punkte als Liste. Auf dem Handy ist eine Landkarte mit
+   fünfundzwanzig Beschriftungen unlesbar — dort trägt diese Liste, und
+   die Karte oben tritt zurück. Am Bildschirm ist sie nur für
+   Vorlesesoftware da. #}
+<div class="kartenliste">
+  {% for zone, punkte in k.gebiete %}
+  <section class="listengebiet">
+    <h3>{{ zone.name }}</h3>
+    <ul>
+      {% for punkt in punkte %}
+      <li class="listenpunkt listenpunkt--{{ punkt.zustand }}">
+        <b>{{ punkt.name }}</b>
+        {% if punkt.zustand != 'still' and punkt.nutzen %}<span>{{ punkt.nutzen }}</span>{% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endfor %}
 </div>

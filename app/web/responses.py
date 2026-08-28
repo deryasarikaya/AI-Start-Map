@@ -16,6 +16,7 @@ from fastapi import Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
+from app import bericht_pdf
 from app.schemas import customer_plain_text
 
 templates = Jinja2Templates(directory=Path(__file__).resolve().parents[1] / "templates")
@@ -123,6 +124,21 @@ def mit_stand(pfad: str) -> str:
 
 
 templates.env.globals["statisch"] = mit_stand
+
+
+def stil(name: str) -> str:
+    """Eine Stilvorlage als Text — zum Hineinschreiben ins PDF.
+
+    Der PDF-Renderer bekommt eine Zeichenkette und laedt nichts nach: Ein
+    `<link href="/styles.css">` bliebe darin stumm, und der Bericht kaeme
+    unformatiert heraus. Am Bildschirm bleibt es beim Verweis, damit der
+    Browser weiter zwischenspeichern kann.
+    """
+
+    return bericht_pdf.stilvorlage(name)
+
+
+templates.env.globals["stil"] = stil
 
 
 # Wonach ein Kanalzeichen gesucht wird. Die Reihenfolge entscheidet: Das

@@ -8,12 +8,25 @@ from sqlalchemy.orm import Session
 
 from app.models import AnalysisSession, InterviewQuestion, ProcessOption
 from app.questions import INTRO_QUESTIONS
+from tests.conftest import the_current_session
 
 
 def start_session(client: TestClient) -> int:
-    response = client.post("/start", follow_redirects=False)
+    """Legt eine Sitzung an — über den Weg, den der Kunde nimmt.
+
+    Vorher lief das über `POST /start`. Diese Adresse gab es nur noch für
+    diese Tests: kein Formular, kein Link, keine Weiterleitung führte
+    hin. Jetzt über `/begin` — dieselbe Sitzungsanlage, aber die Prüfung
+    hängt nicht mehr an einer Adresse, die sonst niemand benutzt.
+
+    Die Sitzungsnummer steht dabei nicht mehr in der Weiterleitung, sondern
+    im Cookie: Ab `/begin` taucht sie in keiner Adresse mehr auf.
+    """
+
+    response = client.post("/begin", follow_redirects=False)
     assert response.status_code == 303
-    return int(response.headers["location"].split("/")[2])
+    assert response.headers["location"] == "/interview"
+    return the_current_session(client)
 
 
 def test_start_creates_exactly_one_session(

@@ -7,38 +7,57 @@ Kürzung der Seite ein Verlust statt einer Verlagerung.
 
 from __future__ import annotations
 
+import io
+
+import pytest
+
 from pathlib import Path
 
 from fastapi.testclient import TestClient
 
+from app import bericht_pdf, routes
 from tests.conftest import walk_to_the_result
 
 ERZAEHLT = "Wir sind zu dritt und suchen ständig Unterlagen zusammen."
 
 
-def test_the_report_carries_all_eleven_sections(client: TestClient) -> None:
-    """Alles, was von der Seite gewandert ist, steht im Ausdruck."""
+def test_the_report_opens_the_solution_space_but_does_not_plan_it(client: TestClient) -> None:
+    """**Der Bericht stellt fest. Die Route entscheidet das Gespräch.**
+
+    Vorher trug er hinten einen Anhang: Kurzfassung, Reihenfolge,
+    Begründung, Hebel, Wert, Systeme, Architektur, Umsetzungsschritte.
+    Fünf zusätzliche Seiten, die eine Umsetzung durchplanten, die noch
+    niemand besprochen hatte — und damit dem Gespräch den Anlass nahmen.
+
+    Was bleibt, ist die Feststellung und der geöffnete Lösungsraum. Was
+    geht, ist die Planung. Der Test hält beide Seiten fest, denn ohne die
+    zweite wächst der Anhang wieder nach.
+    """
 
     walk_to_the_result(client, ERZAEHLT)
 
     bericht = client.get("/report")
 
     assert bericht.status_code == 200
+    # Der Befund und der Lösungsraum — das gehört hinein.
     for ueberschrift in (
-        "Warum diese Lösung zu Ihnen passt",
-        "So arbeitet das System zusammen",
         "Derselbe Vorgang, heute und künftig",
+        "So könnte Ihr Alltag aussehen",
         "Aus diesen Modulen besteht Ihre Lösung",
         "Was das System übernimmt",
-        "Was dadurch wegfällt und wofür Zeit entsteht",
-        "Welche Ihrer Systeme verbunden würden",
-        "So wäre die Technik dahinter ungefähr aufgebaut",
-        "Was daraus gebaut werden kann",
-        "So könnte Ihr Alltag aussehen",
-        "Kurzfassung",
     ):
         assert ueberschrift in bericht.text, ueberschrift
 
+    # Die Planung — das gehört ins Gespräch, nicht auf Papier.
+    for anhang in (
+        "Anhang",
+        "Kurzfassung",
+        "Warum diese Lösung zu Ihnen passt",
+        "Welche Ihrer Systeme verbunden würden",
+        "So wäre die Technik dahinter ungefähr aufgebaut",
+        "Was dadurch wegfällt und wofür Zeit entsteht",
+    ):
+        assert anhang not in bericht.text, anhang
 
 def test_the_report_reads_the_stored_result(client: TestClient) -> None:
     """Gelesen wird dasselbe Ergebnis wie auf der Seite, nichts Neues."""
@@ -52,24 +71,26 @@ def test_the_report_reads_the_stored_result(client: TestClient) -> None:
     # Der Bericht erzählt in acht Seiten, jede mit einem eigenen Umbruch.
     for ueberschrift in (
         "Das haben wir verstanden",
-        "Das würde sich für Sie verändern",
+        # Die Gegenüberstellung steht auf derselben Seite wie der Befund —
+        # sie ist die Antwort darauf.
+        "Derselbe Vorgang, heute und künftig",
+        "So liefe derselbe Vorgang künftig",
         "So könnte Ihre Lösung konkret aussehen",
         "Ihre AI Start Map",
         "Damit würden wir anfangen",
         "Kontrolle und Grenzen",
     ):
         assert ueberschrift in bericht, ueberschrift
-    # Was nicht in die acht Seiten gehört, fällt nicht weg — es folgt
-    # als Anhang dahinter.
-    assert "Anhang" in bericht
-    assert bericht.count('class="berichtseite') >= 6
+    # Der Anhang ist weg: Der Bericht stellt fest, das Gespräch plant.
+    assert "Anhang" not in bericht
+    assert bericht.count("berichtseite") >= 6
     # Das Deckblatt: die eine Seite, die aus einem Ausdruck einen
     # Bericht macht.
     assert "Ihre persönliche KI-Auswertung" in bericht
     assert "Erstellt auf Grundlage Ihrer eigenen Beschreibung" in bericht
     # Und die Karte, statisch — sie steht ohne Skript vollständig richtig.
     assert "Sie sind hier. Und das ist das Gelände dahinter." in bericht
-    assert "Ihr gemeinsamer Arbeitsstand" in bericht
+    assert "Ihr gemeinsamer" in bericht
     # Die Überschrift taugt nicht als Anker: Auf der Tafel steht dort
     # eine feste Zeile, kein Kundenwort. Der Engpass-Satz ist beides —
     # Kundenwort, und er steht auf beiden Seiten.
@@ -82,17 +103,28 @@ def test_the_report_reads_the_stored_result(client: TestClient) -> None:
     assert engpass in seite
 
 
-def test_the_print_hint_is_hidden_when_printing(client: TestClient) -> None:
-    """Der Hinweis „Strg+P" gehört auf den Bildschirm, nicht ins Papier."""
+def test_the_document_is_measured_here_not_in_a_print_dialog(client: TestClient) -> None:
+    """**Das Format steht in der Vorlage, nicht in fremden Einstellungen.**
+
+    Vorher rief die Seite `window.print()` auf und bat um „Strg+P". Was
+    dabei herauskam, hing vom Dialog des Kunden ab: Kopfzeilen mit der
+    `localhost`-Adresse, ein Skalierungsfaktor, abgeschaltete
+    Hintergrundfarben. Drei Kunden bekamen drei Dokumente — und dieses
+    Dokument ist das, was er an uns zurückschickt.
+
+    Jetzt entsteht es auf dem Server, und A4 samt Rändern steht hier.
+    """
 
     walk_to_the_result(client, ERZAEHLT)
 
     bericht = client.get("/report").text
 
-    assert "Strg+P" in bericht
-    assert "noprint" in bericht
-    assert ".noprint { display: none; }" in bericht
-
+    assert "@page { size: A4; margin: 14mm 16mm 16mm 16mm; }" in bericht
+    # Das Deckblatt trägt seine Farbe bis an den Blattrand.
+    assert "@page cover { margin: 0; }" in bericht
+    # Niemand wird mehr um einen Tastendruck gebeten.
+    assert "window.print()" not in bericht
+    assert "Strg+P" not in bericht
 
 def test_views_are_not_torn_across_pages(client: TestClient) -> None:
     """Eine halbe Ansicht über zwei Seiten wäre unlesbar."""
@@ -165,16 +197,22 @@ def test_the_module_card_leads_with_the_benefit(client: TestClient) -> None:
 
 
 
-def test_the_order_is_also_in_the_report(client: TestClient) -> None:
-    """Was auf der Seite steht, steht auch im Ausdruck."""
+def test_the_report_leaves_the_order_to_the_conversation(client: TestClient) -> None:
+    """Kein Fahrplan auf Papier.
+
+    „Womit wir anfangen" und „Wo das hinführt" waren eine Reihenfolge,
+    die der Bericht allein festlegte. Welche Möglichkeit für diesen
+    Betrieb zuerst Sinn ergibt, entscheidet sich im Gespräch — und dazu
+    lädt der Schluss ausdrücklich ein.
+    """
 
     walk_to_the_result(client, ERZAEHLT)
 
     bericht = client.get("/report").text
 
-    assert "Womit wir anfangen" in bericht
-    assert "Wo das hinführt" in bericht
-
+    assert "Womit wir anfangen" not in bericht
+    assert "Wo das hinführt" not in bericht
+    assert "Möchten Sie den nächsten Schritt besprechen?" in bericht
 
 def test_the_page_holds_without_an_order(client: TestClient, monkeypatch) -> None:
     """Ein älteres Ergebnis ohne Reihenfolge zeigt die Seite trotzdem.
@@ -189,41 +227,90 @@ def test_the_page_holds_without_an_order(client: TestClient, monkeypatch) -> Non
     assert antwort.status_code == 200
     assert "Womit wir anfangen" not in antwort.text
     assert "So könnte Ihre Lösung konkret aussehen" in antwort.text
-def test_the_pdf_button_opens_the_print_dialog(client: TestClient) -> None:
-    """Der Knopf führt zu einer Seite, die von selbst zu drucken beginnt.
+def test_the_pdf_button_returns_a_real_document(client: TestClient) -> None:
+    """**Der Knopf verspricht ein PDF — also kommt eines zurück.**
 
-    Vorher lag der Weg beim Kunden: Er musste die Druckansicht sehen und
-    von allein an Strg+P denken. Der Knopf verspricht ein PDF — also muss
-    der Dialog kommen, ohne dass jemand nachhilft.
+    Vorher führte er auf eine Seite, die den Druckdialog öffnete. Der
+    Kunde bekam damit kein Dokument, sondern eine Aufgabe.
+
+    Steht der Browser für die Erzeugung nicht zur Verfügung, läuft
+    niemand ins Leere: Dann führt der Weg zurück auf die Seite mit
+    denselben Inhalten. Auch das wird hier geprüft.
     """
 
     walk_to_the_result(client, ERZAEHLT)
 
     seite = client.get("/results").text
-    assert '/report?drucken=1' in seite
+    assert "/report.pdf" in seite
+    assert "?drucken=1" not in seite
 
-    druckansicht = client.get("/report?drucken=1")
+    antwort = client.get("/report.pdf", follow_redirects=False)
 
-    assert druckansicht.status_code == 200
-    assert "window.print()" in druckansicht.text
+    if antwort.status_code in (302, 303, 307):
+        # Kein Browser zur Hand — dann aber auf die lesbare Seite.
+        assert "/report" in antwort.headers["location"]
+        return
+
+    assert antwort.status_code == 200
+    assert antwort.headers["content-type"].startswith("application/pdf")
+    assert antwort.content.startswith(b"%PDF")
+    assert "AI-Start-Map-Auswertung" in antwort.headers["content-disposition"]
 
 
-def test_the_report_without_the_flag_stays_a_page_to_read(
-    client: TestClient,
-) -> None:
-    """Dieselbe Adresse ohne `?drucken=1` druckt nicht von selbst.
+def test_the_document_stays_within_eight_pages(client: TestClient) -> None:
+    """**Acht Seiten, nicht dreizehn.**
 
-    Wer den Link weitergibt oder ihn aus dem Verlauf wieder aufruft, will
-    lesen. Ein Druckdialog vor der Nase wäre dort ein Fehler.
+    Mit dem Anhang war der Bericht dreizehn Seiten lang, und die letzten
+    fünf las niemand. Acht Seiten sind das, was jemand in einer Sitzung
+    durchsieht und weiterleitet.
+
+    Gezählt wird am fertigen Dokument, nicht an den Abschnitten der
+    Vorlage: Ob ein Abschnitt auf ein Blatt passt, entscheidet der Umbruch
+    und nicht die Absicht.
     """
 
+    pypdf = pytest.importorskip("pypdf")
+
+    walk_to_the_result(client, ERZAEHLT)
+    antwort = client.get("/report.pdf", follow_redirects=False)
+    if antwort.status_code != 200:
+        pytest.skip("kein Browser fuer die PDF-Erzeugung vorhanden")
+
+    seiten = len(pypdf.PdfReader(io.BytesIO(antwort.content)).pages)
+
+    assert 0 < seiten <= 8, f"{seiten} Seiten"
+
+def test_the_page_to_read_survives_a_missing_browser(
+    client: TestClient, monkeypatch
+) -> None:
+    """**Fällt die Erzeugung aus, läuft niemand ins Leere.**
+
+    Vorher prüfte hier ein Test, dass `/report` ohne `?drucken=1` nicht von
+    selbst druckt. Den Schalter gibt es nicht mehr — aber die Seite gibt es,
+    und sie ist jetzt der Rückfall, wenn kein Browser für das PDF da ist.
+
+    Dabei darf die Sitzungsnummer nicht sichtbar werden. Sie stand es
+    einmal: Der Rückfall baute die Adresse mit `url_for` und damit
+    vollständig samt Rechnernamen, und `publicize_redirect` erkennt nur die
+    relative Form. Ab `/begin` soll sie in keiner Adresse mehr auftauchen.
+    """
+
+    async def kein_browser(html: str) -> bytes:
+        raise bericht_pdf.PdfNichtVerfuegbar("kein Browser vorhanden")
+
+    monkeypatch.setattr(routes.bericht_pdf, "aus_html", kein_browser)
     walk_to_the_result(client, ERZAEHLT)
 
-    druckansicht = client.get("/report")
+    ausweich = client.get("/report.pdf", follow_redirects=False)
 
-    assert druckansicht.status_code == 200
-    assert "window.print()" not in druckansicht.text
-
+    assert ausweich.status_code in (302, 303, 307)
+    ziel = ausweich.headers["location"]
+    assert "/sessions/" not in ziel, f"Sitzungsnummer in der Adresse: {ziel}"
+    assert ziel.endswith("/report")
+    # Und dort steht die vollstaendige Auswertung zum Lesen.
+    seite = client.get("/report")
+    assert seite.status_code == 200
+    assert "window.print()" not in seite.text
 
 def test_the_conversation_button_carries_subject_and_text(
     client: TestClient, monkeypatch

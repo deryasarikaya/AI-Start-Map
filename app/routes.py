@@ -18,14 +18,13 @@ geschrieben werden muss.
 
 import json
 import logging
-import re
 from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
+from fastapi.responses import HTMLResponse, JSONResponse, Response
 from sqlalchemy.orm import Session
 
-from app import repository
+from app import bericht_pdf, repository
 from app.hintergrund import auswertung_erzeugen
 from app.database import get_db_session
 from app.models import AnalysisSession, InterviewQuestion
@@ -63,12 +62,17 @@ def show_landing(request: Request) -> HTMLResponse:
     return templates.TemplateResponse(request=request, name="landing.html")
 
 
-@router.post("/start", name="start_session")
-def start_session(database_session: Session = Depends(get_db_session)) -> RedirectResponse:
-    """Legt eine neue Sitzung mit den Einstiegsfragen an.
+def start_session(database_session: Session) -> int:
+    """Legt eine neue Sitzung mit den Einstiegsfragen an und gibt ihre Nummer.
 
-    Aufgerufen wird sie von `begin_journey`. Die Adresse POST /start selbst
-    ruft im Betrieb nichts auf — nur die Tests benutzen sie direkt.
+    **Keine Route mehr.** Unter `POST /start` stand hier einmal eine eigene
+    Adresse, die im Betrieb niemand aufrief — kein Formular, kein Link,
+    keine Weiterleitung. Am Leben hielten sie nur ihre eigenen Tests. Die
+    gehen jetzt über `/begin`, also über den Weg, den es wirklich gibt.
+
+    Ohne Route gibt sie auch keine Weiterleitung mehr zurück: `begin_journey`
+    musste die Sitzungsnummer vorher aus der Adresse in `location` wieder
+    herausschneiden, um sie ins Cookie zu legen. Die Nummer direkt.
     """
 
     analysis_session = AnalysisSession()
@@ -91,7 +95,7 @@ def start_session(database_session: Session = Depends(get_db_session)) -> Redire
     except Exception:
         database_session.rollback()
         raise
-    return redirect_response(f"/sessions/{analysis_session.session_id}/interview")
+    return analysis_session.session_id
 
 
 @router.post("/begin", name="begin_journey")
@@ -106,8 +110,7 @@ def begin_journey(
     steht die Sitzungsnummer in keiner Adresse mehr.
     """
 
-    response = start_session(database_session)
-    session_id = int(response.headers["location"].split("/")[2])
+    session_id = start_session(database_session)
     public_response = redirect_response("/interview")
     set_session_cookie(public_response, request, session_id)
     return public_response
@@ -420,11 +423,7 @@ def kartenkontext(ergebnis: object) -> dict[str, object]:
 
     beginnt = kennungen(getattr(ergebnis, "module", None))
     daneben = kennungen(getattr(ergebnis, "ausbaupfad", None))
-    return {
-        "karte": True,
-        "mitte": kartenmodul.MITTE,
-        "gebiete": kartenmodul.landschaft(beginnt, daneben),
-    }
+    return {"k": kartenmodul.landschaft(beginnt, daneben), "karte": True}
 
 
 @router.get(
@@ -467,15 +466,14 @@ def show_report(
     session_id: int,
     database_session: Session = Depends(get_db_session),
 ) -> Response:
-    """Zeigt die vollständige Auswertung zum Ausdrucken.
+    """Die vollständige Auswertung als Seite zum Lesen.
 
-    Aufgerufen über „Vollständige Auswertung als PDF" auf der Ergebnisseite;
-    gedruckt wird im Browser. Dieselben Daten wie die Ergebnisseite, nur alle
-    elf Abschnitte statt vier — es wird nichts nachgeladen und nichts neu
-    gerechnet.
+    Dieselben Daten wie die Ergebnisseite, in der Reihenfolge des Berichts.
+    Es wird nichts nachgeladen und nichts neu gerechnet.
 
-    Mit `?drucken=1` öffnet die Seite den Druckdialog von selbst; das ist
-    der Weg vom Knopf. Ohne den Zusatz bleibt sie eine Seite zum Lesen.
+    Der Knopf auf der Ergebnisseite führt nicht mehr hierher, sondern auf
+    `report.pdf`: Was der Kunde weiterleitet, soll ein Dokument sein und
+    nicht das, was ein fremder Druckdialog daraus macht.
     """
 
     repository.get_session_or_404(database_session, session_id)
@@ -489,8 +487,76 @@ def show_report(
             "e": ergebnis,
             **kartenkontext(ergebnis),
             "auswertungsdatum": date.today().strftime("%d.%m.%Y"),
-            "sofort_drucken": request.query_params.get("drucken") == "1",
         },
+    )
+
+
+def _berichtsdaten(database_session: Session, session_id: int) -> dict[str, object] | None:
+    """Der Zusammenhang, aus dem der Bericht entsteht — Seite wie Dokument.
+
+    Beide bauen auf demselben Stand auf. Stünde er zweimal da, liefen die
+    gedruckte und die gelesene Fassung irgendwann auseinander.
+    """
+
+    repository.get_session_or_404(database_session, session_id)
+    ergebnis = analysis_service.stored_result(database_session, session_id)
+    if ergebnis is None:
+        return None
+    return {
+        "e": ergebnis,
+        **kartenkontext(ergebnis),
+        "auswertungsdatum": date.today().strftime("%d.%m.%Y"),
+    }
+
+
+@router.get(
+    "/sessions/{session_id}/report.pdf",
+    name="show_report_pdf",
+)
+async def show_report_pdf(
+    request: Request,
+    session_id: int,
+    database_session: Session = Depends(get_db_session),
+) -> Response:
+    """Die Auswertung als fertiges PDF.
+
+    **Warum das hier entsteht und nicht im Browser des Kunden.** Vorher
+    öffnete der Knopf den Druckdialog. Was dabei herauskam, hing von den
+    Einstellungen des Kunden ab: Kopfzeilen mit `localhost`, ein
+    Skalierungsfaktor, abgeschaltete Hintergrundfarben. Drei Kunden
+    bekamen drei verschiedene Dokumente — und dieses Dokument ist das,
+    was er an uns zurückschickt.
+
+    Fehlt der Browser für die Erzeugung, ist das kein Grund, den Kunden
+    ins Leere laufen zu lassen: Dann führt der Weg zurück auf die Seite,
+    die dieselben Inhalte trägt.
+    """
+
+    daten = _berichtsdaten(database_session, session_id)
+    if daten is None:
+        return redirect_response(next_valid_path(database_session, session_id))
+
+    html = templates.get_template("report.html").render(
+        request=request, pdf=True, **daten
+    )
+    try:
+        dokument = await bericht_pdf.aus_html(html)
+    except bericht_pdf.PdfNichtVerfuegbar:
+        logger.exception("PDF konnte nicht erzeugt werden, Sitzung %s", session_id)
+        # **Relativ, nicht über `url_for`.** Das lieferte eine vollständige
+        # Adresse samt Rechnernamen, und `publicize_redirect` erkennt nur
+        # die relative Form — die Sitzungsnummer stand danach im Browser
+        # des Kunden, obwohl sie ab `/begin` in keiner Adresse mehr
+        # auftauchen soll.
+        return redirect_response(f"/sessions/{session_id}/report")
+
+    name = bericht_pdf.dateiname(str(daten["auswertungsdatum"]))
+    return Response(
+        content=dokument,
+        media_type="application/pdf",
+        # `inline`: Der Kunde soll es zuerst sehen. Speichern kann er es
+        # aus der Ansicht heraus immer noch.
+        headers={"Content-Disposition": f'inline; filename="{name}"'},
     )
 
 
@@ -606,7 +672,9 @@ PUBLIC_ROUTES = (
     ("GET", "/results", "show_results_public", show_results, HTMLResponse),
     # Das fertige Ergebnis
     ("GET", "/report", "show_report_public", show_report, HTMLResponse),
-    # Die Druckansicht
+    # Die vollstaendige Auswertung als Seite
+    ("GET", "/report.pdf", "show_report_pdf_public", show_report_pdf, Response),
+    # Dieselbe Auswertung als Dokument
 )
 
 for _method, _path, _name, _session_route, _response_class in PUBLIC_ROUTES:

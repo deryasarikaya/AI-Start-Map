@@ -1,6 +1,6 @@
 """Die Tabellen der Datenbank.
 
-Vier Tabellen bilden einen Durchlauf ab:
+Fünf Tabellen bilden einen Durchlauf ab:
 
 - `AnalysisSession` — ein Besuch eines Betriebs, alles andere hängt daran
 - `InterviewQuestion` — die Erzählung des Kunden, aufgeteilt auf die
@@ -8,6 +8,7 @@ Vier Tabellen bilden einen Durchlauf ab:
 - `PartialResult` — der halbe Lauf, während der Kunde auf der Seite
   „Das habe ich verstanden" steht
 - `Result` — das fertige Ergebnis nach dem Vertrag `ergebnis-v6`
+- `ProcessOption` — die Prozessvorschläge zur Auswahl
 
 Wer wissen will, was von einem Gespräch übrig bleibt, liest diese Datei.
 """

@@ -41,16 +41,6 @@ logger = logging.getLogger(__name__)
 
 # Die Ansichtstypen aus ANSICHTSBIBLIOTHEK.md. Das Modell wählt aus dieser
 # Liste; für jeden Typ gibt es ein Jinja-Makro.
-VIEW_TYPES = (
-    "uebersicht",
-    "vorgangsakte",
-    "eingangspruefung",
-    "nachrichtenverlauf",
-    "kundenakte",
-    "terminuebersicht",
-    "aussenansicht",
-    "dokumentenablage",
-)
 ViewType = Literal[
     "uebersicht",
     "vorgangsakte",

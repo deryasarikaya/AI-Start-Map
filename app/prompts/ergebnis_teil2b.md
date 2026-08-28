@@ -195,18 +195,18 @@ zurückführen lassen.
 
 ## Jede Zusage nennt ihr Modul
 
-Neben dem sichtbaren Text trägt jeder Bestandteil intern `module_refs` — den
-Namen des Moduls aus dem oberen Teil, aus dem er folgt. Der Kunde sieht das
-nie; der Server prüft es.
+Neben dem sichtbaren Text trägt jeder Bestandteil intern `module_refs` — die
+**Nummer** des Moduls aus `MODULE_DIESER_LOESUNG`, aus dem er folgt. Der Kunde
+sieht das nie; der Server prüft es.
 
 ```
-Ansicht            → module_refs: ["Ihr Eingang für Telefon und WhatsApp"]
-System             → module_refs: [...]
-Architekturebene   → module_refs: [...]
-Umsetzungsschritt  → module_refs: [...]
+Ansicht            → module_refs: ["1"]
+System             → module_refs: ["1", "3"]
+Architekturebene   → module_refs: ["2"]
+Umsetzungsschritt  → module_refs: ["1"]
 ```
 
-Ein Name, der zu keinem Modul dieser Lösung gehört, führt zur Zurückweisung.
+Eine Nummer, die zu keinem Modul dieser Lösung gehört, führt zur Zurückweisung.
 Das ist Herkunftskontrolle, kein Textverständnis: **Formuliert wird frei, nur
 die zugrunde liegende Funktion muss schon freigegeben sein.**
 ## Regeln, die über allem stehen

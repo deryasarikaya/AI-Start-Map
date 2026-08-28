@@ -763,9 +763,11 @@
       {# Ohne Sitzungskennung in der Adresse: Der oeffentliche Weg
          kennt die Sitzung aus dem Cookie, und eine Kennung im
          ausgelieferten Text waere eine, die jemand weitergibt. #}
-      {# `?drucken=1` öffnet drüben gleich den Druckdialog. Ohne den
-         Zusatz bleibt dieselbe Adresse eine Seite zum Lesen. #}
-      <a class="knopf knopf--neben" href="/report?drucken=1">
+      {# **Ein Dokument, kein Druckdialog.** Vorher führte der Knopf auf
+         eine Seite, die `window.print()` aufrief — und was dabei
+         herauskam, hing von den Einstellungen des Kunden ab. Jetzt kommt
+         hier ein fertiges PDF zurück. #}
+      <a class="knopf knopf--neben" href="/report.pdf">
         <svg aria-hidden="true"><use href="#i-pdf"/></svg>
         <span>Auswertung als PDF ansehen</span>
       </a>

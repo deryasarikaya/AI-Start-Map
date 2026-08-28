@@ -1,13 +1,21 @@
-{# Die Druckansicht: alle elf Abschnitte, in der Reihenfolge des Entwurfs.
+{# **Die Auswertung als Dokument.** Acht Seiten, feste Reihenfolge.
 
-   Die Ergebnisseite zeigt vier davon. Die anderen sieben sind in Schritt 1
-   nach `ergebnis_teile.html` gewandert — nicht gelöscht, sondern für genau
-   diese Seite aufgehoben. `alle_teile(e)` ruft sie in der Reihenfolge des
-   Entwurfs für die Druckansicht auf.
+   Das hier ist keine Druckansicht der Ergebnisseite mehr. Es wird auf dem
+   Server zu einem PDF gerendert (`app/bericht_pdf.py`), und die
+   Seitenaufteilung steht deshalb hier unten unter `@page` — nicht in den
+   Einstellungen eines fremden Druckdialogs.
 
-   Gedruckt wird im Browser über Strg+P. Die Kopf- und Fusszeilen, die der
-   Browser dabei selbst setzt — Datum, Adresse —, lassen sich von hier aus
-   nicht abschalten. Das ist bekannt und kein Fehler dieser Vorlage. #}
+   **Was hier nicht mehr steht.** Der Anhang trug Kurzfassung, Reihenfolge,
+   Begründung, Hebel, Wert, Systeme, Architektur und Umsetzungsschritte.
+   Zusammen waren das fünf weitere Seiten, und sie beantworteten Fragen,
+   die der Kunde an dieser Stelle nicht hat. Die Auswertung stellt fest und
+   öffnet den Lösungsraum; über Reihenfolge und Umsetzung entscheidet das
+   Gespräch. Ein Bericht, der die Umsetzung schon durchplant, nimmt dem
+   Gespräch den Anlass.
+
+   `pdf` ist wahr, wenn hier ein Dokument entsteht: Dann werden die
+   Stilvorlagen hineingeschrieben statt verlinkt, denn der Renderer lädt
+   nichts nach. #}
 {% import "ergebnis_teile.html" as teile %}
 {% import "ansichten.html" as ansichten %}<!doctype html>
 <html lang="de">
@@ -15,76 +23,89 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Ihre persönliche KI-Auswertung · AI Start Map</title>
+{% if pdf %}
+<style>{{ stil('styles.css') }}</style>
+<style>{{ stil('tafel.css') }}</style>
+{% else %}
 <link rel="stylesheet" href="{{ statisch('/styles.css') }}">
+<link rel="stylesheet" href="{{ statisch('/tafel.css') }}">
+{% endif %}
 <style>
-/* Nur fürs Drucken. Die Bildschirmdarstellung erbt alles aus `.ergebnis`. */
-@media print {
-  /* **Kein Umbruch pro Abschnitt.** `break-before: page` auf jedem
-     `section` zwang elf Abschnitte auf elf Seiten — die meisten davon zu
-     zwei Dritteln leer. Ein Abschnitt darf die Seite auffüllen, auf der er
-     anfängt.
+/* -- Das Blatt --------------------------------------------------------
+ * **Hier steht das Format, nicht im Druckdialog.** Chromium übernimmt
+ * diese Angaben, weil der Renderer `prefer_css_page_size` mitgibt.
+ *
+ * Der Rand ist oben schmaler als unten: Gleich viel Weiss wirkt unter der
+ * letzten Zeile immer knapper als über der ersten. */
+@page { size: A4; margin: 14mm 16mm 16mm 16mm; }
 
-     `break-inside` hält zusammen, was zusammengehört: eine halbe Ansicht
-     über zwei Seiten wäre unlesbar. Das ist die Regel, die wirklich
-     gebraucht wird. */
-  section { break-inside: auto; }
-  .mock, .card, .layer, .limit, .q, .sys, .modgroup, .doing { break-inside: avoid; }
-  .two, .flow, .frow { break-inside: avoid; }
-  h1, h2, h3 { break-after: avoid; }
+/* Das Deckblatt trägt seine Farbe bis an den Blattrand. Mit einem Rand
+   sähe es aus wie ein Bild auf einer Seite, nicht wie ein Umschlag. */
+@page cover { margin: 0; }
+
+/* **Jede Berichtsseite fängt oben an.** `break-before` statt
+   `break-after`: So entsteht kein leeres Blatt am Ende.
+
+   **Keine Ausnahme für die erste.** Hier stand `:first-of-type`, damit
+   nach dem Deckblatt kein leeres Blatt entsteht. `:first-of-type` zählt
+   aber je Elementart: Die Verstanden-Seite ist ein `div`, die nächste
+   ein `section` — und so war *beide* Male „die erste", womit der Ablauf
+   unten auf der Verstanden-Seite weiterlief statt oben auf der eigenen.
+   Die Ausnahme braucht es gar nicht: Ein Umbruch nach dem Deckblatt und
+   einer vor der nächsten Seite fallen zu einem zusammen. */
+.berichtseite { break-before: page; }
+
+/* `break-inside` hält zusammen, was zusammengehört — eine halbe Ansicht
+   über zwei Seiten wäre unlesbar. */
+.mock, .card, .layer, .limit, .q, .sys, .modgroup, .doing,
+.two, .flow, .frow, .moeglichkeit, .schlusskontakt, figure.karte {
+  break-inside: avoid;
+}
+h1, h2, h3 { break-after: avoid; }
+
+@media print {
   .noprint { display: none; }
   body { background: #fff; }
-
-  /* **Das Deckblatt bekommt eine eigene Seite.** Ohne diese Regel laeuft
-     der Befund direkt darunter weiter, und der Eindruck einer Titelseite
-     ist dahin. */
-  .deckblatt { break-after: page; }
-
-  /* **Jede Berichtsseite faengt oben an.** Ohne diese Regel laeuft alles
-     als ein Strom durch, und ein Bericht ohne Seiten ist ein Ausdruck.
-     `break-before` statt `break-after`: So entsteht kein leeres Blatt am
-     Ende. */
-  .berichtseite { break-before: page; }
-  .berichtseite:first-of-type { break-before: auto; }
-
-  /* Browser drucken Hintergruende standardmaessig nicht. Ohne diese Zeile
-     bliebe das Deckblatt weiss - was es aushaelt, weil es helles Mint ist
-     und kein tiefes Gruen. Aber gewollt ist die Farbe. */
+  /* Browser drucken Hintergründe sonst nicht mit. */
   .deckblatt, .kartenteil .flaeche, .schlusskontakt {
     print-color-adjust: exact; -webkit-print-color-adjust: exact;
   }
 }
 
 /* -- Das Deckblatt ----------------------------------------------------
- * Sehr ruhig: ein Name, ein Versprechen, ein Datum. Kein Dashboard, keine
- * Karten, keine Aufzaehlung. Es soll aussehen wie der Anfang eines
- * Berichts, nicht wie die erste Bildschirmseite. */
+ * Sehr ruhig: ein Name, ein Versprechen, ein Datum. Es entscheidet
+ * allein darüber, ob jemand denkt „ich habe eine Auswertung bekommen"
+ * oder „ich habe eine Webseite ausgedruckt". */
 .deckblatt {
+  page: cover;
+  break-after: page;
+  box-sizing: border-box;
   display: grid; align-content: center; gap: 14px;
-  min-height: 78vh; padding: 60px 8px;
+  min-height: 297mm; padding: 46mm 22mm;
   background: linear-gradient(168deg, #EAF4F0 0%, #F6F7F4 100%);
   text-align: left;
 }
 .deckblatt .marke {
-  margin: 0; font-size: 13px; font-weight: 800; letter-spacing: .16em;
-  text-transform: uppercase; color: var(--accent);
+  margin: 0 0 14px; font-size: 13px; font-weight: 800; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--marke);
 }
 .deckblatt h1 {
-  margin: 0; max-width: 18ch;
+  margin: 0 0 20px; max-width: 18ch;
   font-size: 44px; line-height: 1.08; letter-spacing: -.02em;
   color: #18332C;
 }
 .deckblatt .deckzeile {
   margin: 0; max-width: 54ch; font-size: 16px; line-height: 1.6;
-  color: var(--ink-2);
+  color: var(--tinte-schwach);
 }
 .deckblatt .deckfuss {
   margin: 26px 0 0; padding-top: 16px;
   border-top: 1px solid #C9D8D1;
-  font-size: 13.5px; color: var(--ink-3);
+  font-size: 13.5px; color: var(--tinte-leise);
 }
 .deckblatt .deckfuss b { display: block; color: #18332C; font-weight: 700; }
 
-/* Der Kontaktblock am Ende - dieselbe helle Flaeche wie das Deckblatt,
+/* Der Kontaktblock am Ende — dieselbe helle Fläche wie das Deckblatt,
    damit der Bericht sichtbar geschlossen wird. */
 .schlusskontakt {
   margin-top: 34px; padding: 28px 30px;
@@ -94,18 +115,105 @@
 .schlusskontakt h2 { margin: 0 0 8px; }
 .schlusskontakt p { margin: 0 0 10px; max-width: 62ch; }
 .schlusskontakt .kontaktzeile { font-size: 16px; font-weight: 700; color: #18332C; }
-.schlusskontakt .anhangbitte { font-size: 14px; color: var(--ink-3); }
+.schlusskontakt .anhangbitte { font-size: 14px; color: var(--tinte-leise); }
 .reportkopf { border-bottom: 1px solid rgba(0,0,0,.12); }
+
+/* -- Der Massstab ----------------------------------------------------
+ * **Ein Bildschirmentwurf ist kein Blatt.** Die Abschnitte sind fuer eine
+ * Flaeche von rund 1240px gebaut; auf A4 bleiben nach den Raendern 178mm.
+ * Ungestaucht brauchte der Bericht vierzehn Seiten, und sechs Abschnitte
+ * liefen mitten im Satz auf das naechste Blatt.
+ *
+ * `zoom` verkleinert nicht nur die Schrift, sondern den Aufbau: Die Seite
+ * rechnet mit mehr Platz und bricht deshalb an denselben Stellen um wie
+ * am Bildschirm. Nachgemessen — damit passt jeder Abschnitt auf sein
+ * Blatt. */
+:root { --massstab: .70; }
+html { zoom: var(--massstab); }
+
+/* **Das Deckblatt bleibt unmassstaeblich.** Der Massstab oben gilt den
+   Inhaltsseiten; auf dem Umschlag machte er aus `min-height: 297mm`
+   flugs 208mm, und die Farbe endete zwei Drittel unterhalb der
+   Blattmitte. Ein zweites `zoom` hebt das erste genau auf. */
+.deckblatt { zoom: calc(1 / var(--massstab)); }
+
+/* **Zwei Ansichten nebeneinander.** Untereinander brauchten drei
+ * Bildschirmentwuerfe anderthalb Seiten. Nebeneinander ist es eine — und
+ * gezeigt wird der Aufbau, nicht die Groesse. */
+/* **Spalten statt Raster — sie packen, statt Reihen auszurichten.**
+ * Im Raster stand jede Ansicht in einer Reihe neben der anderen, und die
+ * Reihe war so hoch wie ihre höchste Ansicht. Beim Heizungsfall (46%,
+ * 32%, 52% einer Seite) blieb die höchste allein in der zweiten Reihe:
+ * zusammen 114% und damit eine Seite zu viel.
+ *
+ * Spalten füllen sich der Reihe nach und gleichen sich aus — aus
+ * denselben drei Ansichten werden rund 65%. Das gilt für drei Ansichten
+ * wie für fünf; es ist keine Zahl, die zu einem Fall passt. */
+.ansichtenraster { column-count: 2; column-gap: 14px; }
+.ansichtenraster > * { break-inside: avoid; margin: 0 0 14px; }
+/* Die Bildschirmentwuerfe sind fuer eine halbe Bildschirmbreite gebaut.
+   Auf einem halben Blatt tragen sie dieselbe Aussage mit weniger Luft —
+   gezeigt wird der Aufbau, und der bleibt derselbe. */
+.ansichtenraster .mock { padding: 10px 11px; zoom: .90; }
+/* Die Innenraeume der Bildschirmentwuerfe sind fuer eine halbe
+   Bildschirmbreite gemacht. Auf einem halben Blatt ist derselbe Aufbau
+   in weniger Luft zu sehen — die Schriftgroessen bleiben, damit es
+   lesbar bleibt. */
+.ansichtenraster .body { padding: 11px; }
+.ansichtenraster .stats { gap: 6px; margin-bottom: 11px; }
+.ansichtenraster .stat { padding: 7px 8px; }
+.ansichtenraster .stat b { font-size: 17px; }
+.ansichtenraster .dhead { margin-bottom: 9px; gap: 6px; }
+.ansichtenraster .bar { padding: 6px 11px; }
+
+/* Der Kartenteil bringt sein eigenes System mit (`.tafel`). Im Bericht
+   darf es keine Bildschirmhöhe beanspruchen — das Blatt ist die Grenze. */
+/* Ein `.tafel`-Abschnitt im Bericht bringt sonst seinen eigenen
+   Seitengrund mit — auf einem Blatt ist der Grund das Papier. */
+.berichtseite.tafel, .kartenteil.tafel { background: none; }
+.kartenteil .flaeche { width: 100%; }
+
+/* **Im Dokument immer die gezeichnete Karte.** Auf dem Handy tritt sie
+   zurück und die Liste trägt — das ist am Bildschirm richtig. Ein
+   A4-Blatt ist aber nach Abzug der Ränder 178mm breit, und damit fiel der
+   Bericht unter dieselbe Schwelle: Auf Seite fünf stand die Liste, nicht
+   die Karte. Auf Papier gibt es kein Scrollen und keine schmale Spalte —
+   hier gehört die Karte hin. */
+.kartenteil .kartenflaeche { display: block; }
+.kartenteil .kartenlegende { display: flex; }
+.kartenteil .kartenliste {
+  position: absolute; width: 1px; height: 1px;
+  overflow: hidden; clip-path: inset(50%);
+}
+
+/* Der Schlüssel unter der Karte: zwei Spalten, damit er die untere
+   Blatthälfte füllt statt sie als Liste hinunterzulaufen. */
+.kartenschluessel {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+  margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--rand-mint);
+}
+.kartenschluessel h3 {
+  margin: 0 0 10px; font-size: 13px; font-weight: 700;
+  letter-spacing: .05em; text-transform: uppercase; color: var(--tinte-schwach);
+}
+.kartenschluessel ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 11px; }
+.kartenschluessel li { position: relative; padding-left: 20px; }
+.kartenschluessel li::before {
+  position: absolute; left: 0; top: .42em;
+  width: 9px; height: 9px; border-radius: 50%; content: "";
+  border: 2px solid var(--teal);
+}
+.kartenschluessel .schluessel--start::before { background: var(--teal); }
+.kartenschluessel b { display: block; font-size: 14px; color: var(--teal-tief); }
+.kartenschluessel span {
+  display: block; margin-top: 2px; font-size: 13px; line-height: 1.45;
+  color: var(--tinte-schwach);
+}
 </style>
 </head>
 <body class="ergebnis">
 
-{# **Seite 1 — das Deckblatt.**
-
-   Es entscheidet allein darueber, ob jemand denkt „ich habe eine
-   Auswertung bekommen" oder „ich habe eine Webseite ausgedruckt", und ist
-   deshalb der billigste Hebel im ganzen Bericht. Sehr ruhig gehalten: ein
-   Name, ein Versprechen, ein Datum. #}
+{# ── Seite 1 — das Deckblatt ─────────────────────────────────────────── #}
 <div class="deckblatt">
   <div class="wrap">
     <p class="marke">AI Start Map</p>
@@ -120,6 +228,7 @@
   </div>
 </div>
 
+{# ── Seite 2 — das haben wir verstanden ──────────────────────────────── #}
 <div class="wrap top reportkopf berichtseite">
   <p class="eyebrow">Das haben wir verstanden</p>
   <h1 class="engpasssatz">{{ e.kurzfassung.engpass_satz }}</h1>
@@ -132,56 +241,97 @@
     <p class="big">{{ e.verstanden.engpass_absatz }}</p>
   </div>
   {# Hier alle Belege, nicht nur zwei: Auf der Seite ist Platz knapp, im
-     Ausdruck nicht. #}
+     Dokument nicht. #}
   <div class="quotes">
     {% for beleg in e.verstanden.belege %}
     <div class="q"><em>„{{ beleg.zitat }}“</em><span>{{ beleg.bedeutung }}</span></div>
     {% endfor %}
   </div>
-  <p class="sub noprint">Zum Speichern als PDF: Strg+P und „Als PDF sichern“.</p>
+
+  {# Der Befund und das, was sich daran ändert, gehören auf ein Blatt:
+     Die Gegenüberstellung ist die Antwort auf den Absatz darüber.
+
+     Ohne eigene Zeile darüber — der Abschnitt bringt seine eigene
+     Überschrift mit, und zwei gestapelte waren eine zu viel. #}
+  {{ teile.heute_kuenftig(e) }}
 </div>
 
-{# **Seite 3 — Was sich veraendert.** Heute gegen kuenftig, und darunter
-   der Ablauf, wie er dann liefe. Das gehoert zusammen: Erst der Wandel,
-   dann der Weg. #}
+{# ── Seite 3 — was sich verändert ────────────────────────────────────── #}
 <section class="berichtseite">
 <div class="wrap">
-  <p class="eyebrow">Das würde sich für Sie verändern</p>
-  {{ teile.heute_kuenftig(e) }}
+  <p class="eyebrow">So liefe derselbe Vorgang künftig</p>
+  {# Das Diagramm füllt ein Blatt fast allein. Zusammen mit „heute gegen
+     künftig" lief es auf anderthalb Seiten und brach mitten im Ablauf um
+     — und ein Ablauf, der auf der nächsten Seite weitergeht, ist keiner. #}
   {{ teile.ablaufdiagramm(e) }}
 </div>
 </section>
 
-{# **Seite 4 — die Ansichten.** Der Teil, den der Kunde jemandem zeigt.
-   Deshalb steht er im Bericht an derselben Stelle wie auf der Seite. #}
+{# ── Seite 4 — die Ansichten ─────────────────────────────────────────── #}
 <section class="berichtseite">
 <div class="wrap">
   <p class="eyebrow">So könnte Ihre Lösung konkret aussehen</p>
   <h2>So könnte Ihr Alltag aussehen</h2>
   <p class="sub">Beispielhafte Darstellung mit erfundenen Objekten und Namen.
   Der Aufbau ist gemeint, nicht die Inhalte.</p>
-  {% for v in e.ansichten %}
-  {{ ansichten.ansicht(v) }}
-  {% endfor %}
+  <div class="ansichtenraster">
+    {% for v in e.ansichten %}
+    {{ ansichten.ansicht(v) }}
+    {% endfor %}
+  </div>
 </div>
 </section>
 
-{# Die Karte, statisch. Sie steht ohne JavaScript vollstaendig richtig -
-   genau dafuer wurde sie so gebaut. #}
+{# ── Seite 5 — die Karte ─────────────────────────────────────────────────
+   **`class="tafel"` gehört hierher.** Die Karte hängt an diesem
+   Farbsystem; ohne die Klasse kam im Bericht ein nacktes SVG heraus —
+   schwarze Kreise ohne Zonen, ohne Wege. Sie steht nur an dieser einen
+   Stelle, damit der übrige Bericht davon nichts abbekommt.
+
+   Ohne JavaScript vollständig richtig — genau dafür wurde sie so gebaut. #}
 {% if karte %}
-<section class="kartenteil berichtseite">
+<section class="kartenteil berichtseite tafel">
 <div class="wrap">
   <p class="eyebrow">Ihre AI Start Map</p>
   <h2>Sie sind hier. Und das ist das Gelände dahinter.</h2>
   <p class="sub">Die Karte zeigt den möglichen Lösungsraum für Ihren Betrieb.
   Hervorgehoben ist, wo ein sinnvoller Startpunkt liegt.</p>
   <div class="flaeche">{% include "karte.html" %}</div>
+
+  {# **Was die hervorgehobenen Punkte bedeuten.** Auf der Karte steht nur
+     der kurze Name — mehr passt an einen Punkt nicht. Der Satz dazu steht
+     hier, in den Worten des Katalogs. Und er füllt die untere Hälfte des
+     Blattes, die eine Karte im Seitenverhältnis 1200:780 sonst leer
+     lässt. #}
+  {%- set beginnt = k.punkte | selectattr('zustand', 'equalto', 'start') | list -%}
+  {%- set daneben = k.punkte | selectattr('zustand', 'equalto', 'nah') | list -%}
+  <div class="kartenschluessel">
+    {% if beginnt %}
+    <section>
+      <h3>Hier würden wir anfangen</h3>
+      <ul>
+        {% for punkt in beginnt %}
+        <li class="schluessel--start"><b>{{ punkt.name }}</b><span>{{ punkt.nutzen }}</span></li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+    {% if daneben %}
+    <section>
+      <h3>Das liegt in der Nähe</h3>
+      <ul>
+        {% for punkt in daneben %}
+        <li class="schluessel--nah"><b>{{ punkt.name }}</b><span>{{ punkt.nutzen }}</span></li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+  </div>
 </div>
 </section>
 {% endif %}
 
-{# **Seite 6 — Damit wuerden wir anfangen.** Hier darf es konkret werden;
-   das ist die eigentliche Empfehlung. #}
+{# ── Seite 6 — damit würden wir anfangen ─────────────────────────────── #}
 <section class="berichtseite">
 <div class="wrap">
   <p class="eyebrow">Damit würden wir anfangen</p>
@@ -191,9 +341,10 @@
 </div>
 </section>
 
-{# **Seite 7 — Kontrolle und Grenzen.** Was das System uebernimmt, was bei
-   ihm bleibt, und die Einschraenkungen, die er selbst genannt hat. Das ist
-   der Abschnitt, der Vertrauen erzeugt. #}
+{# ── Seite 7 — Kontrolle und Grenzen ─────────────────────────────────────
+   Was das System übernimmt, was beim Menschen bleibt, und die
+   Einschränkungen, die der Kunde selbst genannt hat. Der Abschnitt, der
+   Vertrauen erzeugt. #}
 <section class="berichtseite">
 <div class="wrap">
   <p class="eyebrow">Kontrolle und Grenzen</p>
@@ -201,13 +352,17 @@
 </div>
 </section>
 
-{# **Seite 8 — der Ausblick.** Zwei bis vier Moeglichkeitsfelder, ohne
-   Schrittnummern, ohne technische Einzelheiten. Die Reihenfolge klaert das
-   Gespraech, nicht dieser Bericht. #}
+{# ── Seite 8 — der Ausblick und der Abschluss ────────────────────────────
+   Möglichkeitsfelder ohne Schrittnummern und ohne technische
+   Einzelheiten. Die Reihenfolge klärt das Gespräch, nicht dieser Bericht.
+   Deshalb steht die Einladung dazu auf derselben Seite. #}
 {%- set weitere = (e.ausbaupfad or []) | rejectattr('stufe', 'equalto', 'jetzt') | list -%}
-{% if weitere %}
-<section class="berichtseite">
+{# `tafel` auch hier: Die Möglichkeitskarten hängen an diesem Farbsystem.
+   Ohne die Klasse standen sie als flacher Fließtext untereinander —
+   dieselbe Ursache wie bei der Karte eine Seite vorher. #}
+<section class="berichtseite tafel">
 <div class="wrap">
+  {% if weitere %}
   <p class="eyebrow">Was darüber hinaus möglich wäre</p>
   <h2>Welche Möglichkeiten wir danach gemeinsam prüfen würden</h2>
   <div class="moeglichkeiten">
@@ -225,32 +380,8 @@
   <p class="sub">Welche dieser Möglichkeiten für Ihren Betrieb wirklich
   sinnvoll sind und in welcher Form sie umgesetzt werden sollten, klären wir
   gemeinsam.</p>
-</div>
-</section>
-{% endif %}
+  {% endif %}
 
-{# **Der Anhang.** Was nicht in die acht Seiten gehoert, faellt nicht weg -
-   es folgt dahinter. Der Bericht erzaehlt in acht Seiten; wer mehr will,
-   liest weiter. #}
-<section class="berichtseite anhang">
-<div class="wrap">
-  <p class="eyebrow">Anhang</p>
-  {{ teile.kurzfassung(e) }}
-  {{ teile.reihenfolge(e) }}
-  {{ teile.warum_diese_loesung(e) }}
-  {{ teile.hebel(e) }}
-  {{ teile.wert(e) }}
-  {{ teile.systeme(e) }}
-  {{ teile.architektur(e) }}
-  {{ teile.umsetzungsschritte(e) }}
-</div>
-</section>
-
-{# Der Abschluss: Was als Naechstes passiert, und die Bitte, die PDF
-   anzuhaengen. Ohne sie kommt eine Anfrage an, zu der niemand die
-   Auswertung findet - ein `mailto:` kann nichts anhaengen. #}
-<section class="berichtseite">
-<div class="wrap">
   {%- set kontakt = gespraechs_adresse() -%}
   <div class="schlusskontakt">
     <h2>Möchten Sie den nächsten Schritt besprechen?</h2>
@@ -263,21 +394,11 @@
     PDF bitte an. So können wir direkt an Ihrer Auswertung anknüpfen.</p>
     {% endif %}
   </div>
+
+  <p class="foot">AI Start Map · Auswertung vom {{ auswertungsdatum }} auf
+  Grundlage Ihrer eigenen Beschreibung</p>
 </div>
 </section>
-
-<div class="wrap foot">AI Start Map · Auswertung vom {{ auswertungsdatum }} auf
-Grundlage Ihrer eigenen Beschreibung</div>
-
-{% if sofort_drucken %}
-{# Nur wenn der Knopf „Vollständige Auswertung als PDF" hierher geführt
-   hat. Wer die Adresse ohne `?drucken=1` aufruft, bekommt eine Seite zum
-   Lesen und keinen Dialog vor die Nase. Nach `load`, damit im Ausdruck
-   nichts fehlt, was noch am Laden war. #}
-<script>
-  window.addEventListener('load', function () { window.print(); });
-</script>
-{% endif %}
 
 </body>
 </html>
