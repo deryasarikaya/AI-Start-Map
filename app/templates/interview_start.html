@@ -1,22 +1,23 @@
 {% extends "base.html" %}
 
-{# **Keine Formularstrecke, sondern der Beginn einer Betriebsanalyse.**
+{# **Eine Betriebsaufnahme, keine Seelsorge und kein Fragebogen.**
 
    Die Seite hiess einmal „Erzähl mir, was in deinem Betrieb gerade Zeit,
    Nerven oder Aufmerksamkeit kostet." Das fragt nach der Gefuehlslage. Wir
    wollen den Betrieb verstehen — und wer verstanden werden will, muss
    wissen, was hilft.
 
-   Deshalb steht der Leitfaden **vor** dem Eingabefeld: sechs Bereiche als
-   Orientierung, keine Pflichtfragen. Er sagt „hier ist unser
-   Analyse-Rahmen", nicht „fuellen Sie das aus". Wer einfach losschreibt,
-   darf das; was entscheidend fehlt, klaert spaeter die Rueckfrage. #}
+   **Zwei Spalten statt untereinander.** Eingabe und Leitfaden standen als
+   zwei breite Bloecke uebereinander; damit wurde die Seite lang, schwer
+   und wirkte trotz vieler Flaeche leer. Nebeneinander ist der Leitfaden
+   das, was er sein soll: Orientierung am Rand, waehrend man erzaehlt.
+
+   Die Quellreihenfolge ist Eingabe zuerst — auf dem Handy fallen die
+   Spalten untereinander, und dort gehoert der Leitfaden ans Ende. #}
 
 {% block title %}Ihre Betriebsbeschreibung · AI Start Map{% endblock %}
 
 {% block content %}
-{# **Kein Fortschrittsbalken.** Er nahm Platz, sah nach Formularstrecke aus
-   und half an dieser Stelle niemandem. #}
 <section class="content-intro erhebung-kopf">
     <p class="eyebrow">Ihre Betriebsbeschreibung</p>
     <h1 class="page-title">Beschreiben Sie, wie Ihr Betrieb heute wirklich läuft.</h1>
@@ -27,99 +28,80 @@
     Startpunkt und weitere Möglichkeiten für KI und Automatisierung.</p>
 </section>
 
-{# Der Leitfaden. **Keine Kaestchen, keine Auswahlfelder, keine
-   Pflichtangaben** — sonst ist es wieder ein Fragebogen, und der Kunde
-   beantwortet sechs Fragen statt zu erzaehlen. #}
-<section class="leitfaden" aria-labelledby="leitfaden-title">
-    <h2 id="leitfaden-title">Was uns hilft, Ihren Betrieb wirklich zu verstehen</h2>
-    <p class="leitfaden-hinweis">Sie müssen diese Punkte nicht einzeln beantworten. Nutzen
-    Sie sie einfach als Orientierung und erzählen Sie frei.</p>
-    <div class="leitfaden-raster">
-        <div class="leitfaden-thema">
-            <b>Ihr Betrieb</b>
-            <span>Was machen Sie, in welcher Branche und für welche Kunden?</span>
-        </div>
-        <div class="leitfaden-thema">
-            <b>Ihr Team</b>
-            <span>Wie viele Personen arbeiten mit – und wer übernimmt ungefähr welche Aufgaben?</span>
-        </div>
-        <div class="leitfaden-thema">
-            <b>Ein typischer Ablauf</b>
-            <span>Wie läuft eine Anfrage oder ein Auftrag vom ersten Kontakt bis zum Abschluss?</span>
-        </div>
-        <div class="leitfaden-thema">
-            <b>Kanäle &amp; Systeme</b>
-            <span>Wo kommen Informationen rein und womit arbeiten Sie heute? Telefon, E-Mail,
-            WhatsApp, Kalender, Branchenlösung, Excel, Buchhaltung …</span>
-        </div>
-        <div class="leitfaden-thema">
-            <b>Aufwand &amp; Häufigkeit</b>
-            <span>Wo wird gesucht, nachgefragt, übertragen oder nachgehalten – und wie oft
-            passiert das ungefähr?</span>
-        </div>
-        <div class="leitfaden-thema">
-            <b>Wünsche &amp; Grenzen</b>
-            <span>Was würden Sie gerne abgeben – und welche Entscheidungen sollen bewusst bei
-            Ihnen oder Ihrem Team bleiben?</span>
-        </div>
-    </div>
-    {# **Kein „30 Sekunden" mehr.** Das passte zu einer Seite, die schnell
-       fertig sein wollte — nicht zu einer, die eine belastbare Analyse
-       verspricht. #}
-    <p class="erhebung-laenge">Nehmen Sie sich ein paar Minuten und beschreiben Sie Ihren
-    Betrieb so konkret, wie es für Sie möglich ist. Je mehr relevanten Kontext wir haben,
-    desto genauer kann die Auswertung werden.<span>Sie müssen keine KI-Lösung kennen und
-    nichts vorbereiten.</span></p>
-</section>
-
-<form class="narration-form" action="{{ url_for('save_interview_public') }}" method="post" data-disable-on-submit data-submitting-label="Ich lese Ihre Beschreibung …" data-processing-title="Ich lese Ihre Beschreibung." data-processing-copy="Gleich sehen Sie, was ich verstanden habe." data-voice-input data-voice-target="free_description">
+<form class="erhebung" action="{{ url_for('save_interview_public') }}" method="post" data-disable-on-submit data-submitting-label="Ich lese Ihre Beschreibung …" data-processing-title="Ich lese Ihre Beschreibung." data-processing-copy="Gleich sehen Sie, was ich verstanden habe." data-voice-input data-voice-target="free_description">
     {% if error_message %}<div class="error-message" role="alert">{{ error_message }}</div>{% endif %}
 
-    <p class="privacy-banner"><span aria-hidden="true">🛡</span> Bitte nennen Sie keine vollständigen Namen oder vertraulichen Daten von Kunden und Mitarbeitenden.</p>
+    <div class="erhebung-spalten">
+        {# ── Links: die Eingabe ───────────────────────────────────────── #}
+        <div class="eingabespalte">
+            <h2 class="spaltentitel">So können Sie Ihren Betrieb beschreiben</h2>
+            <p class="spaltenhinweis">Wählen Sie einfach den Weg, der für Sie angenehmer
+            ist: sprechen oder schreiben.</p>
 
-    {# **Ein gemeinsamer Eingabebereich.** Sprache und Text waren zwei
-       getrennte Kaesten und sahen aus wie zwei Wege. Es ist einer: Beides
-       landet in derselben Beschreibung. #}
-    <div class="eingabe">
-        <section class="voice-card" aria-labelledby="voice-title">
-            <div class="voice-orb" aria-hidden="true"><span>●</span></div>
-            <div>
-                <h2 id="voice-title">Per Sprache beschreiben</h2>
-                <p class="voice-status" data-voice-status aria-live="polite">Erzählen Sie Ihren
-                Arbeitsalltag so, wie Sie ihn einem Berater erklären würden, der Ihren Betrieb
-                noch nicht kennt.</p>
-                <p class="voice-hint">Sie können jederzeit pausieren und anschließend weiter aufnehmen.</p>
-                <p class="voice-support" data-voice-support></p>
+            {# Kompakt gehalten: Die Karte war so hoch, dass darunter nichts
+               mehr sichtbar war — und eine Aufnahmeschaltflaeche braucht
+               keine halbe Bildschirmhoehe. #}
+            <section class="sprachkarte" aria-labelledby="voice-title">
+                <div class="sprachkopf">
+                    <span class="sprachzeichen" aria-hidden="true">●</span>
+                    <div>
+                        <h3 id="voice-title">Per Sprache erzählen</h3>
+                        <p class="voice-status" data-voice-status aria-live="polite">Beschreiben
+                        Sie Ihren Arbeitsalltag so, wie Sie ihn einem Berater erklären würden,
+                        der Ihren Betrieb noch nicht kennt.</p>
+                        <p class="sprachnotiz">Sie können jederzeit pausieren und weiter aufnehmen.</p>
+                        <p class="voice-support" data-voice-support></p>
+                    </div>
+                </div>
+                <div class="voice-actions">
+                    <button class="microphone-button" type="button" data-voice-start><span aria-hidden="true">●</span> Aufnahme starten</button>
+                    <button class="secondary-button" type="button" data-voice-stop hidden>Aufnahme beenden</button>
+                    <button class="secondary-button" type="button" data-voice-retry hidden>Weiter erzählen</button>
+                    <button class="text-button" type="button" data-voice-write>Stattdessen schreiben</button>
+                </div>
+            </section>
+
+            <div class="schreibfeld">
+                <label for="free_description">Oder schriftlich beschreiben</label>
+                <p class="feldnotiz">Schreiben Sie frei und so ausführlich, wie es für Ihren
+                Betrieb sinnvoll ist.</p>
+                {# Kein `maxlength`: Zehn Minuten Sprechen sind rund 28.000
+                   Zeichen, und die kommen vollstaendig an — nachgemessen.
+
+                   Der Platzhalter nennt bewusst **keine Branche**. Der alte
+                   erzaehlte eine ganze Handwerksgeschichte, und danach
+                   erzaehlte auch jeder eine aehnliche. Er gibt nur noch die
+                   Struktur vor. #}
+                <textarea id="free_description" name="free_description" rows="8" required placeholder="Beispiel: Was machen Sie, wie kommen Kunden auf Sie zu, wie läuft ein typischer Auftrag ab, welche Systeme nutzen Sie heute und wo entsteht besonders viel Aufwand?">{{ answers.get('problem_overview', '')|customer_text }}</textarea>
+
+
             </div>
-            <div class="voice-actions">
-                <button class="microphone-button" type="button" data-voice-start><span aria-hidden="true">●</span> Aufnahme starten</button>
-                <button class="secondary-button" type="button" data-voice-stop hidden>Aufnahme beenden</button>
-                <button class="secondary-button" type="button" data-voice-retry hidden>Weiter erzählen</button>
-                <button class="text-button" type="button" data-voice-write>Stattdessen schreiben</button>
+
+            <div class="erhebung-abschluss">
+                <button class="primary-button" type="submit">Individuelle Auswertung erstellen <span aria-hidden="true">→</span></button>
+                {# Nimmt die Angst vor der unvollstaendigen Erzaehlung — und
+                   beschreibt, was der Agent wirklich tut. Er fragt selten,
+                   weil die Latte hoch ist, nicht weil er nicht zuhoert. #}
+                <p class="ctahinweis">AI Start Map fragt nur nach, wenn eine fehlende
+                Information Ihre Empfehlung wirklich verändern würde.</p>
             </div>
-        </section>
-
-        <div class="text-entry-card">
-            <label for="free_description">Oder schriftlich beschreiben</label>
-            <p class="feldnotiz">Schreiben Sie frei und so ausführlich, wie es für Ihren Betrieb nötig ist.</p>
-            {# Kein `maxlength`: Eine Erzaehlung von zehn Minuten sind rund
-               28.000 Zeichen, und die kommen vollstaendig an — nachgemessen.
-
-               **Der Platzhalter zeigt beilaeufig, was hilft:** Branche, Team,
-               Kundenkontakt, Ablauf, Systeme, Engpass. Der alte primte zu
-               stark auf Telefon und verstreute Information — und danach
-               erzaehlte auch jeder nur davon. #}
-            <textarea id="free_description" name="free_description" rows="14" required placeholder="Beispiel: Wir sind ein kleiner Handwerksbetrieb mit vier Mitarbeitern. Kunden erreichen uns hauptsächlich telefonisch und über WhatsApp. Nach einer Anfrage wird ein Termin abgestimmt, anschließend arbeiten die Mitarbeiter vor Ort und schicken Fotos und Informationen zurück. Angebote und Rechnungen laufen über unsere Software. Besonders viel Zeit kostet uns derzeit …">{{ answers.get('problem_overview', '')|customer_text }}</textarea>
         </div>
-    </div>
 
-    <div class="sticky-action">
-        <button class="primary-button" type="submit">Individuelle Auswertung erstellen <span aria-hidden="true">→</span></button>
-        {# Nimmt die Angst vor der unvollstaendigen Erzaehlung — und
-           beschreibt, was der Agent wirklich tut. Er fragt selten, weil die
-           Latte hoch ist, nicht weil er nicht zuhoert. #}
-        <p class="ctahinweis">AI Start Map prüft Ihre Beschreibung und fragt nur nach, wenn
-        eine fehlende Information Ihre Empfehlung wesentlich verändern könnte.</p>
+        {# ── Rechts: der Leitfaden ────────────────────────────────────── #}
+        <aside class="leitfaden" aria-labelledby="leitfaden-title">
+            <h2 id="leitfaden-title">Damit wir Ihren Betrieb wirklich verstehen</h2>
+            <p class="leitfaden-hinweis">Sie müssen diese Punkte nicht einzeln beantworten.
+            Nutzen Sie sie einfach als Orientierung beim Sprechen oder Schreiben.</p>
+            <ul class="leitfaden-liste">
+                <li><b>Ihr Betrieb</b><span>Branche, Leistungen, Kunden</span></li>
+                <li><b>Ihr Team</b><span>Größe, Rollen, Zuständigkeiten</span></li>
+                <li><b>Typischer Ablauf</b><span>Vom ersten Kontakt bis zum Abschluss</span></li>
+                <li><b>Kanäle &amp; Systeme</b><span>Telefon, E-Mail, WhatsApp, Kalender, Software</span></li>
+                <li><b>Aufwand &amp; Häufigkeit</b><span>Wo entsteht Arbeit – und wie oft?</span></li>
+                <li><b>Wünsche &amp; Grenzen</b><span>Was soll automatisiert werden – und was bewusst bei Ihnen bleiben?</span></li>
+            </ul>
+            <p class="leitfaden-schluss">Je konkreter Ihr Einblick, desto passender wird Ihre Auswertung.</p>
+        </aside>
     </div>
 </form>
 {% endblock %}

@@ -89,11 +89,15 @@ def test_the_page_does_not_ask_for_brevity(client: TestClient) -> None:
     client.post("/begin", follow_redirects=False)
 
     seite = client.get("/interview").text
+    # Zeilenumbrüche in der Vorlage zerreissen sonst jeden Satz, den dieser
+    # Test sucht — geprüft wird der Wortlaut, nicht die Formatierung.
+    fliess = " ".join(seite.split())
 
     for auffordernd in ("kurz,", "in wenigen Sätzen", "maximal", "30 Sekunden"):
-        assert auffordernd not in seite, auffordernd
-    assert "so ausführlich, wie es für Ihren Betrieb nötig ist" in seite
-    assert "Nehmen Sie sich ein paar Minuten" in seite
+        assert auffordernd not in fliess, auffordernd
+    assert "so ausführlich, wie es für Ihren Betrieb sinnvoll ist" in fliess
+    # Statt einer Zeitangabe die Zusage, dass sich Ausführlichkeit lohnt.
+    assert "Je konkreter Ihr Einblick, desto passender wird Ihre" in fliess
 
 
 @pytest.mark.parametrize(

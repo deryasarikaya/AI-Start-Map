@@ -40,7 +40,17 @@ def test_landing_voice_fallback_and_mobile_assets(client: TestClient) -> None:
     assert "Stattdessen schreiben" in interview.text
     # Der Leitfaden steht vor dem Feld und ist keine Auswahl: keine
     # Kästchen, keine Pflichtangaben — nur Orientierung beim Erzählen.
-    assert "Was uns hilft, Ihren Betrieb wirklich zu verstehen" in interview.text
+    assert "Damit wir Ihren Betrieb wirklich verstehen" in interview.text
+    # Eingabe und Leitfaden stehen nebeneinander, nicht übereinander:
+    # zwei breite Blöcke machten die Seite lang und trotz Fläche leer.
+    assert 'class="erhebung-spalten"' in interview.text
+    # **Nur ein Leitfaden.** Chips unter dem Textfeld waren eine zweite
+    # Orientierung — erst sechs Themen, dann sechs Fragen, und aus der
+    # freien Erzählung wird ein Fragebogen.
+    assert 'aria-label="Gedankenstützen"' not in interview.text
+    # Der Datenschutzhinweis ist raus — er unterbrach den Erzählfluss,
+    # bevor er begann.
+    assert "privacy-banner" not in interview.text
     assert 'type="checkbox"' not in interview.text
     assert 'type="radio"' not in interview.text
     assert "contenteditable" not in interview.text

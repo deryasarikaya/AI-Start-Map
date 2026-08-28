@@ -29,6 +29,28 @@
     --erledigt-soft: #E7F1EB;
     --linie: #DDE3DC;
     --flaeche: #FFFFFF;
+    /* ── Die vier Flaechenarten ─────────────────────────────────
+       Aus `/results` herausgezogen, weil diese Seite die Wirkung trifft:
+       Nicht alles liegt auf demselben Ton wie der Grund. Vier Arten,
+       jede mit eigenem Verlauf und eigenem Rand, und jede sagt etwas.
+
+       **Ohne sie wirkt eine Seite flach.** Genau das war der Zustand der
+       uebrigen Seiten: eine Grundfarbe, weisse Kaesten darauf, fertig. */
+
+    /* Hervorhebung, Abschluss, Aufforderung. */
+    --flaeche-mint: linear-gradient(168deg, #E6F2EE 0%, #F3F9F6 100%);
+    --rand-mint: #D6E6DF;
+    /* Was das System uebernimmt — dieselbe Familie wie der KI-Ton. */
+    --flaeche-teal: linear-gradient(165deg, #DDEFEC 0%, #F4FAF9 100%);
+    --rand-teal: #CCE4DE;
+    /* Was beim Menschen bleibt, und die Grenzen. **Deutlich waermer als
+       der Grund** — die alte Fassung (#faf7f0) war auf dem Pfirsich fast
+       derselbe Ton, und die Kaesten verschwanden darin. */
+    --flaeche-sand: linear-gradient(165deg, #FBF1DE 0%, #FFFBF3 100%);
+    --rand-sand: #EFE0C2;
+    /* Die gewoehnliche Karte: Weiss, das nach oben hin heller wirkt. */
+    --flaeche-karte: linear-gradient(178deg, #FFFFFF 0%, #FFFCF8 100%);
+
     /* Warnung und Aufmerksamkeit — wirklich nur punktuell. */
     --warm: #E6C35D;
     --heute: #D97863;
@@ -371,7 +393,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 }
 .comparison-card blockquote { margin: 0; font: 650 1.08rem/1.55 Georgia, serif; }
 .final-cta h2, .final-cta .section-kicker { margin-inline: auto; color: #fff; }
-.privacy-banner { margin-bottom: 1rem; padding: .75rem 1rem; border-left: 4px solid #91b7c5; border-radius: .4rem .8rem .8rem .4rem; color: var(--muted); background: var(--sky); font-size: .88rem; }
 .narration-form, .summary-form, .single-question-form { max-width: 62rem; }
 .voice-card, .text-entry-card, .correction-panel { margin-bottom: 1rem; padding: clamp(1rem, 2.5vw, 1.4rem); border: 1px solid var(--linie); border-radius: var(--radius); background: var(--flaeche); box-shadow: var(--heben-1); }
 .voice-card { display: grid; gap: .8rem; align-items: center; border-color: var(--green); background: linear-gradient(145deg, #fff, var(--green-soft)); }
@@ -499,10 +520,25 @@ input:focus, textarea:focus { border-color: var(--green); }
 
 /* Laufend: derselbe Punkt, aber er atmet. Kein zweites Symbol, keine
  * Prozentzahl - nur der Hinweis, dass hier gerade etwas geschieht. */
+/* **Nur die aktive Station bewegt sich.** Ein Puls an mehreren Stellen
+ * waere Dekoration; einer an genau der Stelle, an der gerade gerechnet
+ * wird, ist eine Aussage. */
 .phase--aktiv .phasenpunkt {
-    border-color: var(--teal); background: var(--teal-soft);
-    animation: phasenpuls 1.8s ease-in-out infinite;
+    border-color: var(--teal); background: var(--teal);
+    animation: phasenpuls 2.2s ease-in-out infinite;
 }
+.phase--aktiv > div {
+    position: relative;
+}
+/* Ein sehr leiser Schein hinter der aktiven Zeile - man sieht ihn nicht,
+   man merkt ihn. */
+.phase--aktiv::after {
+    content: ""; position: absolute; z-index: -1;
+    inset: -.4rem -.8rem; border-radius: var(--radius);
+    background: radial-gradient(60% 100% at 6% 50%, rgb(47 133 120 / .1), transparent 70%);
+    pointer-events: none;
+}
+.phase { position: relative; }
 .phase--aktiv b { color: var(--teal-tief); font-weight: 800; }
 @keyframes phasenpuls {
     0%, 100% { box-shadow: 0 0 0 0 rgb(47 125 112 / 35%); }
@@ -536,98 +572,124 @@ input:focus, textarea:focus { border-color: var(--green); }
 /* ── Der Erzählbereich ────────────────────────────────────────────────
  * Sprache und Text sind ein Eingabebereich, keine zwei Wege. Beides landet
  * in derselben Beschreibung, und das muss man sehen. */
-/* -- Die Betriebsbeschreibung -----------------------------------------
- * Der Kopf sagt, was die Seite will, und was der Kunde dafuer bekommt.
- * Die Nutzenzeile steht bewusst darunter und nicht daneben: erst der
- * Auftrag, dann der Lohn. */
-.erhebung-kopf { margin-bottom: 2.2rem; }
+/* -- Die Betriebsaufnahme ---------------------------------------------
+ * Der Kopf sagt, was die Seite will und was der Kunde dafuer bekommt.
+ * Die Nutzenzeile steht darunter und nicht daneben: erst der Auftrag,
+ * dann der Lohn. */
+.erhebung-kopf { margin-bottom: 2rem; max-width: 46rem; }
 .erhebung-nutzen {
-    max-width: 60ch; margin: .8rem 0 0; padding-left: .9rem;
+    max-width: 58ch; margin: .8rem 0 0; padding-left: .9rem;
     border-left: 3px solid var(--teal);
     color: var(--teal-tief); font-size: .95rem; line-height: 1.55;
 }
 
-/* **Der Leitfaden ist keine Checkliste.** Kaestchen, Rahmen und gleich
- * grosse Kacheln wuerden nach Auswahl aussehen, und dann beantwortet der
- * Kunde sechs Fragen, statt zu erzaehlen. Zwei Spalten, ruhige Zeilen,
- * eine gemeinsame Flaeche. */
-.leitfaden {
-    margin-bottom: 2rem; padding: 1.5rem 1.6rem;
-    border: 1px solid var(--linie); border-radius: var(--radius-lg);
-    background: var(--teal-soft);
+/* **Zwei Spalten statt untereinander.** Beide Bloecke liefen vorher ueber
+ * die volle Breite; dadurch wurde die Seite lang und wirkte trotz viel
+ * Flaeche leer. Sechzig zu vierzig, weil die Eingabe die Hauptsache ist. */
+.erhebung { max-width: 62rem; }
+.erhebung-spalten { display: grid; gap: 2rem; }
+
+@media (min-width: 60rem) {
+    .erhebung-spalten {
+        grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+        gap: 2.6rem; align-items: start;
+    }
 }
-.leitfaden h2 { margin: 0 0 .35rem; font-size: 1.2rem; font-weight: 700; }
-.leitfaden-hinweis {
-    margin: 0 0 1.3rem; max-width: 62ch;
-    color: var(--tinte-schwach); font-size: .92rem;
+
+.spaltentitel { margin: 0 0 .3rem; font-size: 1.25rem; font-weight: 700; }
+.spaltenhinweis {
+    margin: 0 0 1.2rem; max-width: 52ch;
+    color: var(--tinte-schwach); font-size: .93rem;
 }
-.leitfaden-raster {
-    display: grid; gap: 1rem 2rem;
-    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+
+/* Die Sprachkarte war so hoch, dass darunter nichts mehr sichtbar war.
+ * Eine Aufnahmeschaltflaeche braucht keine halbe Bildschirmhoehe. */
+.sprachkarte {
+    padding: 1.15rem 1.25rem; margin-bottom: 1.1rem;
+    border: 1px solid var(--linie); border-radius: var(--radius);
+    background: var(--teal-soft); box-shadow: var(--heben-1);
 }
-.leitfaden-thema b {
+.sprachkopf { display: grid; grid-template-columns: 2.1rem 1fr; gap: .85rem; }
+.sprachzeichen {
+    display: grid; place-items: center; width: 2.1rem; height: 2.1rem;
+    border-radius: 50%; background: var(--flaeche);
+    color: var(--teal); font-size: .7rem;
+    box-shadow: 0 0 0 1px var(--linie) inset;
+}
+.sprachkarte h3 { margin: 0 0 .3rem; font-size: 1.05rem; font-weight: 680; }
+.sprachkarte .voice-status {
+    margin: 0; color: var(--tinte-schwach); font-size: .9rem; line-height: 1.5;
+}
+.sprachnotiz { margin: .35rem 0 0; color: var(--tinte-leise); font-size: .82rem; }
+.sprachkarte .voice-actions {
+    display: flex; flex-wrap: wrap; gap: .55rem; margin-top: .9rem;
+}
+
+/* Das Schreibfeld gehoert sichtbar zum selben Eingabebereich - deshalb
+ * keine zweite Karte, sondern nur eine feine Trennlinie darueber. */
+.schreibfeld { padding-top: .3rem; }
+.schreibfeld label {
     display: block; margin-bottom: .15rem;
-    color: var(--tinte); font-size: .97rem; font-weight: 700;
+    color: var(--tinte); font-size: 1.02rem; font-weight: 680;
 }
-.leitfaden-thema span {
-    display: block; color: var(--tinte-schwach);
-    font-size: .88rem; line-height: 1.55;
-}
-.erhebung-laenge {
-    max-width: 64ch; margin: 1.5rem 0 0; padding-top: 1.1rem;
-    border-top: 1px solid rgb(24 51 44 / 10%);
-    color: var(--tinte); font-size: .95rem; line-height: 1.6;
-}
-.erhebung-laenge span {
-    display: block; margin-top: .3rem;
-    color: var(--tinte-leise); font-size: .87rem;
-}
-
-/* Der Hinweis unter dem Knopf: Er nimmt die Angst vor der unvollstaendigen
-   Erzaehlung, ohne etwas zu versprechen, das selten eintritt. */
-.ctahinweis {
-    max-width: 58ch; margin: .7rem auto 0;
-    color: var(--tinte-leise); font-size: .84rem; line-height: 1.5;
-    text-align: center;
-}
-
-.eingabe {
-    display: grid; gap: 0;
-    padding: 1.4rem 1.5rem 1.6rem; border: 1px solid var(--border);
-    border-radius: var(--radius-lg); background: var(--surface);
+.feldnotiz { margin: 0 0 .7rem; color: var(--tinte-leise); font-size: .87rem; }
+.schreibfeld textarea {
+    width: 100%; padding: .95rem 1.05rem;
+    border: 1px solid var(--linie); border-radius: var(--radius);
+    background: var(--flaeche); color: var(--tinte);
+    font: inherit; line-height: 1.6; resize: vertical;
     box-shadow: var(--heben-1);
 }
-/* Der Satz, der die Zeitangst nimmt. Er steht vor allem anderen, weil die
- * erste Sorge nicht das Mikrofon ist, sondern „wie lange muss das sein". */
-/* `.freiraum` stand ueber dem Eingabebereich und sagte „30 Sekunden oder 10 Minuten“.
-   Der Satz ist in den Leitfaden gewandert und dort ausfuehrlicher;
-   die Regel bleibt dieselbe. */
-.eingabe .voice-card { margin: 0; box-shadow: none; }
-.eingabe .text-entry-card {
-    margin: 1.3rem 0 0; padding: 1.3rem 0 0; border: 0;
-    border-top: 1px solid var(--linie); border-radius: 0; background: none;
-    box-shadow: none;
+.schreibfeld textarea:focus-visible {
+    border-color: var(--teal); outline: 2px solid var(--teal); outline-offset: 1px;
 }
-/* Das Mikrofon gehoert zur Verarbeitung, nicht zur Warnung - deshalb
-   Teal und nicht Coral. */
-.eingabe .voice-orb { background: var(--teal-soft); color: var(--teal-tief); }
-.eingabe .voice-card h2 { font-size: 1.08rem; }
-.voice-hint { margin: .35rem 0 0; color: var(--muted); font-size: .85rem; }
-.feldnotiz { margin: -.25rem 0 .6rem; color: var(--muted); font-size: .85rem; }
 
-/* Das Feld darf nicht wie ein Formularfeld aussehen. Wer ein kleines
- * Kästchen sieht, schreibt einen kleinen Satz. */
-.eingabe textarea { min-height: 15rem; line-height: 1.6; resize: vertical; }
-
-/* **Der Datenschutzhinweis tritt zurück.** Er war der zweite laute Block
- * der Seite und stand zwischen dem Kunden und seiner Erzählung. Er soll
- * beruhigen, nicht unterbrechen. */
-.privacy-banner {
-    display: flex; gap: .55rem; align-items: flex-start;
-    margin: 0 0 1rem; padding: .6rem .85rem; border: 0;
-    border-radius: var(--radius-sm); background: var(--teal-soft);
-    color: var(--teal-tief); font-size: .84rem; line-height: 1.45;
+/* Gedankenstuetzen, keine Auswahl: sehr hell, ohne Rahmen, klein. Mit
+ * Kaestchen sahen sie aus wie Pflichtfelder. */
+.stuetzen { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .85rem; }
+.stuetzen span {
+    padding: .3rem .7rem; border-radius: 999px;
+    background: var(--grund-tief); color: var(--tinte-leise); font-size: .8rem;
 }
+
+.erhebung-abschluss { margin-top: 1.5rem; }
+.ctahinweis {
+    max-width: 54ch; margin: .7rem 0 0;
+    color: var(--tinte-leise); font-size: .84rem; line-height: 1.5;
+}
+
+/* **Der Leitfaden ist eine Randspalte, kein Block.** Als Vollbreite stand
+ * er dem Erzaehlen im Weg: erst lesen, dann anfangen. Hier begleitet er.
+ *
+ * Keine Kaestchen, keine Auswahlfelder - sonst beantwortet der Kunde sechs
+ * Fragen, statt zu erzaehlen. */
+.leitfaden {
+    padding: 1.4rem 1.5rem;
+    border: 1px solid var(--linie); border-radius: var(--radius-lg);
+    background: var(--grund-tief);
+}
+.leitfaden h2 { margin: 0 0 .35rem; font-size: 1.08rem; font-weight: 700; }
+.leitfaden-hinweis {
+    margin: 0 0 1.2rem; color: var(--tinte-schwach);
+    font-size: .87rem; line-height: 1.55;
+}
+.leitfaden-liste { margin: 0; padding: 0; list-style: none; display: grid; gap: .9rem; }
+.leitfaden-liste li { padding-left: .85rem; border-left: 2px solid var(--teal-soft); }
+.leitfaden-liste b {
+    display: block; margin-bottom: .1rem;
+    color: var(--tinte); font-size: .93rem; font-weight: 700;
+}
+.leitfaden-liste span {
+    display: block; color: var(--tinte-schwach);
+    font-size: .84rem; line-height: 1.5;
+}
+.leitfaden-schluss {
+    margin: 1.3rem 0 0; padding-top: 1rem;
+    border-top: 1px solid var(--linie);
+    color: var(--tinte-leise); font-size: .84rem; line-height: 1.55;
+}
+
+
 
 @media (min-width: 43rem) {
     .page-shell { width: min(calc(100% - 3rem), 72rem); }
@@ -1186,24 +1248,24 @@ details.arch{margin:0}
  * Ganz am Ende der Datei, weil `background:` in den Regeln darueber die
  * Kurzform ist und ein frueher gesetztes `background-image` mit
  * zuruecksetzt. */
-.voice-card, .text-entry-card, .correction-panel,
-.ausbeute-teil, .koennen-fall, .comparison-card, .analysepfad,
-.processing-layer-card, .leitfaden, .vorschauzeile {
-    background-image: linear-gradient(178deg, #FFFFFF 0%, #FFFCF8 100%);
+.sprachkarte, .schreibfeld textarea, .correction-panel,
+.koennen-fall, .comparison-card, .analysepfad,
+.processing-layer-card, .vorschauzeile {
+    background-image: var(--flaeche-karte);
 }
 /* Die eingefaerbten Flaechen behalten ihre Farbe und bekommen den
    Verlauf trotzdem — nur aus ihrer eigenen Familie heraus. */
-.ausbeute-teil--start, .leitfaden {
-    background-image: linear-gradient(178deg, #E9F5F1 0%, var(--teal-soft) 100%);
-}
-.ausbeute-teil--karte {
-    background-image: linear-gradient(178deg, #EEF6F1 0%, var(--erledigt-soft) 100%);
-}
+/* Die drei Bausteine der Startseite erzaehlen den Bogen der Auswertung:
+   heute warm, der Start in Teal, das Gelaende in Mint. Dieselben drei
+   Flaechen wie auf der Ergebnisseite. */
 .ausbeute-teil--heute, .vorschauzeile--heute {
-    background-image: linear-gradient(178deg, #FFFAF4 0%, var(--grund-tief) 100%);
+    background-image: var(--flaeche-sand); border-color: var(--rand-sand);
 }
-.vorschauzeile--weiter {
-    background-image: linear-gradient(178deg, #EEF6F1 0%, var(--erledigt-soft) 100%);
+.ausbeute-teil--start, .leitfaden, .sprachkarte {
+    background-image: var(--flaeche-teal); border-color: var(--rand-teal);
+}
+.ausbeute-teil--karte, .vorschauzeile--weiter {
+    background-image: var(--flaeche-mint); border-color: var(--rand-mint);
 }
 
 /* Leichter Hub beim Ueberfahren. Zwei bis vier Pixel, nicht mehr — alles
@@ -1218,4 +1280,40 @@ details.arch{margin:0}
 
 @media (prefers-reduced-motion: reduce) {
     .koennen-fall:hover, .ausbeute-teil:hover { transform: none; }
+}
+
+
+/* ── Die Abschnitte setzen sich ab ────────────────────────────────────
+ * **Nicht jeder Bereich darf denselben Ton wie der Grund haben.** Sonst
+ * laufen sie ineinander, und die Seite liest sich als eine lange Flaeche
+ * mit Text darauf. Auf der Ergebnisseite funktioniert genau das: der
+ * Grund traegt, und die wichtigen Bereiche liegen sichtbar darauf. */
+.koennen, .vertiefung, .vertrauen {
+    padding: clamp(1.8rem, 3.5vw, 2.6rem) clamp(1.4rem, 3vw, 2.2rem);
+    border-radius: var(--radius-lg);
+}
+.koennen {
+    background: var(--flaeche-mint); border: 1px solid var(--rand-mint);
+}
+.vertiefung-block {
+    background: var(--flaeche-sand); border-color: var(--rand-sand);
+}
+.vertrauen {
+    background: var(--flaeche-teal); border: 1px solid var(--rand-teal);
+}
+
+/* Der Hauptknopf bekommt mehr Praesenz: eigener Verlauf, tiefer Schatten
+ * aus der Markenfarbe, und beim Ueberfahren hebt er sich. */
+.primary-button, .hero-button {
+    background-image: linear-gradient(168deg, var(--marke) 0%, var(--marke-tief) 100%);
+    box-shadow: 0 10px 24px -10px rgb(47 118 95 / .55);
+    transition: transform .3s cubic-bezier(.22,.61,.36,1), box-shadow .3s ease;
+}
+.primary-button:hover, .hero-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 32px -12px rgb(47 118 95 / .6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .primary-button:hover, .hero-button:hover { transform: none; }
 }

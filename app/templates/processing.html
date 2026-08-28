@@ -51,9 +51,11 @@
     {# **Keine Dauerangabe, die nicht stimmt.** Die Laufzeit schwankt mit der
        Laenge der Beschreibung; eine Minute zu versprechen waere eine Zusage,
        die niemand halten kann. #}
-    <p class="wartehinweis">Sie müssen nichts weiter tun. Die Dauer hängt davon ab, wie
-    umfangreich Ihre Beschreibung und die Analyse sind.<span>Diese Seite aktualisiert sich
-    automatisch, sobald Ihre Auswertung bereit ist.</span></p>
+    {# Ein Satz statt zweier. Die Dauerangabe stand daneben und sagte nichts,
+       was der Kunde tun koennte — die Zusage, dass sich die Seite selbst
+       meldet, sagt alles Noetige. #}
+    <p class="wartehinweis">Sie müssen nichts weiter tun. Diese Seite aktualisiert sich
+    automatisch, sobald Ihre Auswertung bereit ist.</p>
     <p class="processing-delay" data-processing-delay hidden>Das dauert diesmal etwas länger.</p>
     <a class="processing-cancel" data-processing-cancel href="{{ url_for('show_interview_public') }}" hidden>Abbrechen und zurück zu meiner Beschreibung</a>
 
