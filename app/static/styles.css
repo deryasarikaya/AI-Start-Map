@@ -1,26 +1,37 @@
 :root {
     color-scheme: light;
 
-    /* ── Die eingefrorene Farbwelt ─────────────────────────────────
+    /* ── Die Farbwelt, warm ────────────────────────────────────────
        Am 28.08. festgelegt und fuer jede Seite verbindlich: Landing,
        Interview, Zwischenschirme, Warteschirm, Bestaetigung, Ergebnis
        und PDF. Keine Seite bringt mehr eine eigene Palette mit.
 
-       Die Regel dahinter ist wichtiger als die Werte: **Die Farbe macht
-       keine KI-Seite.** Der Charakter kommt aus dem Verhalten - Daten
-       laufen sichtbar zusammen, die Analyse arbeitet, Systemzustaende
-       aendern sich. Nicht aus Neonblau und nicht aus Robotersymbolen. */
-    --tinte: #18332c;
-    --tinte-schwach: #45605a;
-    --tinte-leise: #6b8079;
-    --marke: #2f6b57;
-    --marke-tief: #143d31;
-    --marke-hell: #e8f0ec;
-    --linie: #e0e3dc;
-    --flaeche: #ffffff;
-    /* Warnung und Aufmerksamkeit - wirklich nur punktuell. */
-    --warm: #d9a441;
-    --heute: #d86a5a;
+       **Der Grund ist Pfirsich, nicht Weiss und nicht Grau.** Eine erste
+       Fassung stand auf `#f6f7f4` — kuehl, sauber, und damit war die
+       Waerme aus allen Seiten weg ausser dem Ergebniskopf, wo ein
+       eigener Verlauf lag. Das war genau verkehrt herum.
+
+       Und die Regel ueber den Werten: **Die Farbe macht keine KI-Seite.**
+       Der Charakter kommt aus dem Verhalten — der Grund bewegt sich
+       langsam, Flaechen liegen auf dem Grund statt darin, aktive Stellen
+       atmen. Nicht aus Neonblau und nicht aus Robotersymbolen. */
+    --grund: #FFF8F0;
+    --grund-tief: #F7F3EB;
+    --tinte: #173D35;
+    --tinte-schwach: #526B64;
+    --tinte-leise: #7C918B;
+    --marke: #2F765F;
+    --marke-tief: #235D4B;
+    --marke-hell: #E7F1EB;
+    --teal: #2F8578;
+    --teal-tief: #235F55;
+    --teal-soft: #DFF1EC;
+    --erledigt-soft: #E7F1EB;
+    --linie: #DDE3DC;
+    --flaeche: #FFFFFF;
+    /* Warnung und Aufmerksamkeit — wirklich nur punktuell. */
+    --warm: #E6C35D;
+    --heute: #D97863;
 
     /* ── Die alten Namen zeigen auf die neuen ──────────────────────
        Der Bestand trug drei Paletten nebeneinander, und jede Seite hat
@@ -34,8 +45,6 @@
     --surface: var(--flaeche);
     --sun: var(--warm);
     --coral: var(--heute);
-    /* War ein Hellblau (#ddecf2) - das einzige Blau der Seite, und es sass
-       ausgerechnet auf dem Datenschutzhinweis. */
     --sky: var(--teal-soft);
     --text: var(--tinte);
     --muted: var(--tinte-leise);
@@ -56,38 +65,56 @@
     --text-warning: #7d5a12;
     --bg-warning: #fbf1d8;
 
-    /* ── Die gemeinsame Farbwelt aller Seiten ──────────────────────
-       Diese Werte standen bis hierher nur in `tafel.css`, weil die
-       Ergebnisseite als einzige neu gebaut wurde. Damit lagen zwei
-       Paletten nebeneinander, und jede weitere Seite haette eine dritte
-       bekommen. Wer die Farbe aendern will, aendert sie hier. */
-
-    /* Der Grund ist nie weiss: Reines Weiss wirkt klinisch, ein warmer
-       heller Ton mit gruenlichem Unterton wirkt ruhig und hochwertig. */
-    --grund: #f6f7f4;
-    --grund-tief: #eeefe9;
-
-    /* Das kuehle Blaugruen steht fuer die Stelle, an der etwas
-       automatisch passiert — und nur dort. Ein einziger starker Moment
-       ist mehr wert als zehn Roboter-Symbole. */
-    --teal: #2f7d70;
-    --teal-tief: #1f6d62;
-    --teal-soft: #e3f2ef;
-
-    /* Der erreichte Zustand. */
-    --erledigt-soft: #dfeee6;
-
     /* Drei Hoehen, nicht mehr. Gross, sehr weich, sehr durchsichtig und
        immer aus derselben Richtung — daran haengt der Unterschied
        zwischen Tiefe und einem Schlagschatten von 2005. */
-    --heben-1: 0 1px 2px rgb(24 51 44 / .05), 0 4px 12px -3px rgb(24 51 44 / .07);
-    --heben-2: 0 2px 5px rgb(24 51 44 / .05), 0 18px 36px -14px rgb(24 51 44 / .16);
-    --heben-3: 0 4px 9px rgb(24 51 44 / .06), 0 34px 66px -22px rgb(24 51 44 / .26);
+    /* Drei Hoehen, nicht mehr. Gross, sehr weich, sehr durchsichtig und
+       immer aus derselben Richtung.
+
+       **Warm eingefaerbt.** Ein grauer Schatten auf pfirsichfarbenem
+       Grund wirkt schmutzig — er muss aus derselben Familie kommen wie
+       die Tinte, sonst sieht die Karte aus wie aufgeklebt. */
+    --heben-1: 0 1px 2px rgb(23 61 53 / .05), 0 4px 12px -3px rgb(23 61 53 / .08);
+    --heben-2: 0 2px 5px rgb(23 61 53 / .05), 0 18px 36px -14px rgb(23 61 53 / .17);
+    --heben-3: 0 4px 9px rgb(23 61 53 / .07), 0 34px 66px -22px rgb(23 61 53 / .27);
 }
 
 * { box-sizing: border-box; }
 html { overflow-x: hidden; scroll-behavior: smooth; background: var(--cream); }
-body { margin: 0; min-height: 100vh; overflow-x: hidden; color: var(--text); background: var(--grund); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 1rem; line-height: 1.58; }
+/* **Der Grund lebt.** Ein zartes Pfirsich mit einem sehr leisen Schein
+ * aus Gruen ueber Teal nach kaum sichtbarem Cyan - und der bewegt sich.
+ *
+ * Eine Flaeche, auf der sich nie etwas regt, liest sich als Bild. Eine,
+ * auf der sich etwas regt, als etwas, das laeuft. Das ist der Unterschied
+ * zwischen „nett und beratend" und „hier arbeitet eine Automatisierung" -
+ * und Farbe allein stellt ihn nicht her. */
+body {
+    position: relative; margin: 0; min-height: 100vh; overflow-x: hidden;
+    color: var(--text); background: var(--grund);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 1rem; line-height: 1.58;
+}
+body::before {
+    content: ""; position: fixed; z-index: -2; inset: 0;
+    background:
+        radial-gradient(75% 55% at 82% -8%, rgb(47 133 120 / .13) 0%, transparent 62%),
+        radial-gradient(60% 45% at 8% 4%, rgb(47 118 95 / .09) 0%, transparent 58%),
+        radial-gradient(70% 50% at 50% 104%, rgb(63 167 163 / .08) 0%, transparent 60%);
+    pointer-events: none;
+}
+/* Der Schein wandert sehr langsam. Vierzig Sekunden fuer einen Weg: Man
+ * sieht die Bewegung nicht, man merkt sie. */
+body::after {
+    content: ""; position: fixed; z-index: -1; inset: -25% -15% auto -15%;
+    height: 75%;
+    background: radial-gradient(closest-side, rgb(47 133 120 / .1), transparent);
+    animation: grund-atem 40s ease-in-out infinite alternate;
+    pointer-events: none;
+}
+@keyframes grund-atem {
+    from { transform: translate3d(-5%, 0, 0) scale(1); }
+    to   { transform: translate3d(7%, 6%, 0) scale(1.18); }
+}
 button, input, textarea { font: inherit; }
 button, a, summary { -webkit-tap-highlight-color: transparent; }
 a { color: inherit; }
@@ -1147,4 +1174,48 @@ details.arch{margin:0}
      schmalen Fenstern rutscht sie unter den Dateinamen. */
   .ergebnis .file{flex-wrap:wrap}
   .ergebnis .file .fx{margin-left:37px;white-space:normal}
+}
+
+
+/* ── Tiefe ────────────────────────────────────────────────────────────
+ * **Karten liegen auf dem Grund, nicht darin.** Ein sehr leiser eigener
+ * Verlauf — oben Weiss, unten ein Hauch Richtung Pfirsich — plus ein
+ * Schatten aus einer Richtung. Ohne das wirkt eine weisse Flaeche auf
+ * warmem Grund wie ein Loch im Papier.
+ *
+ * Ganz am Ende der Datei, weil `background:` in den Regeln darueber die
+ * Kurzform ist und ein frueher gesetztes `background-image` mit
+ * zuruecksetzt. */
+.voice-card, .text-entry-card, .correction-panel,
+.ausbeute-teil, .koennen-fall, .comparison-card, .analysepfad,
+.processing-layer-card, .leitfaden, .vorschauzeile {
+    background-image: linear-gradient(178deg, #FFFFFF 0%, #FFFCF8 100%);
+}
+/* Die eingefaerbten Flaechen behalten ihre Farbe und bekommen den
+   Verlauf trotzdem — nur aus ihrer eigenen Familie heraus. */
+.ausbeute-teil--start, .leitfaden {
+    background-image: linear-gradient(178deg, #E9F5F1 0%, var(--teal-soft) 100%);
+}
+.ausbeute-teil--karte {
+    background-image: linear-gradient(178deg, #EEF6F1 0%, var(--erledigt-soft) 100%);
+}
+.ausbeute-teil--heute, .vorschauzeile--heute {
+    background-image: linear-gradient(178deg, #FFFAF4 0%, var(--grund-tief) 100%);
+}
+.vorschauzeile--weiter {
+    background-image: linear-gradient(178deg, #EEF6F1 0%, var(--erledigt-soft) 100%);
+}
+
+/* Leichter Hub beim Ueberfahren. Zwei bis vier Pixel, nicht mehr — alles
+ * darueber wirkt wie ein Spielzeug. */
+.koennen-fall, .ausbeute-teil, .comparison-card {
+    transition: transform .35s cubic-bezier(.22, .61, .36, 1),
+                box-shadow .35s ease;
+}
+.koennen-fall:hover, .ausbeute-teil:hover {
+    transform: translateY(-3px); box-shadow: var(--heben-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .koennen-fall:hover, .ausbeute-teil:hover { transform: none; }
 }

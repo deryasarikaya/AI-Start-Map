@@ -55,10 +55,18 @@ def test_landing_voice_fallback_and_mobile_assets(client: TestClient) -> None:
         assert state in script
 
     styles = client.get("/static/styles.css").text
-    # Die eingefrorene Palette (28.08.) ist die eine Quelle. `--ink` zeigt
-    # nur noch darauf, damit die alten Regeln sich von selbst umfärben.
-    assert "--tinte: #18332c" in styles
+    # Die eine Palette ist die Quelle. `--ink` zeigt nur noch darauf, damit
+    # die alten Regeln sich von selbst umfärben.
+    #
+    # Und der Grund ist **warm**: Pfirsich, nicht Weiss und nicht Grau. Eine
+    # erste Fassung stand auf einem kühlen Off-White und nahm damit jeder
+    # Seite ausser dem Ergebniskopf die Wärme.
+    assert "--grund: #FFF8F0" in styles
+    assert "--tinte: #173D35" in styles
     assert "--ink: var(--tinte)" in styles
+    # Der Grund bewegt sich. Eine Fläche, auf der sich nie etwas regt,
+    # liest sich als Bild — nicht als etwas, das läuft.
+    assert "grund-atem" in styles
     assert "@media (max-width: 42.99rem)" in styles
     assert "min-height: 3.35rem" in styles
     assert "overflow-x: hidden" in styles
