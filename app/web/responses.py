@@ -72,7 +72,19 @@ def gespraechs_adresse() -> str:
     )
 
 
+def kontakt_adresse() -> str:
+    """Die Kontaktadresse zum **Lesen** — für den Ausdruck.
+
+    Im PDF nützt ein `mailto:` nichts: Auf Papier klickt niemand. Dort
+    steht die Adresse als Text, damit jemand sie abtippen oder in sein
+    Mailprogramm übernehmen kann.
+    """
+
+    return os.getenv('KONTAKT_ADRESSE', '').strip()
+
+
 templates.env.globals['gespraechs_adresse'] = gespraechs_adresse
+templates.env.globals['kontakt_adresse'] = kontakt_adresse
 
 #: Wo die ausgelieferten Dateien liegen. Einmal berechnet, nicht je Aufruf.
 STATISCHER_ORDNER = Path(__file__).resolve().parents[1] / "static"

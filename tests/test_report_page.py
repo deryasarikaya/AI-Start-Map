@@ -49,7 +49,14 @@ def test_the_report_reads_the_stored_result(client: TestClient) -> None:
     bericht = client.get("/report").text
 
     # Der Engpass-Satz steht auf beiden und stammt aus derselben Quelle.
-    assert "AI Start Map · Vollständige Auswertung" in bericht
+    assert "AI Start Map · Ihre Auswertung" in bericht
+    # Das Deckblatt: die eine Seite, die aus einem Ausdruck einen
+    # Bericht macht.
+    assert "Ihre persönliche KI-Auswertung" in bericht
+    assert "Erstellt auf Grundlage Ihrer eigenen Beschreibung" in bericht
+    # Und die Karte, statisch — sie steht ohne Skript vollständig richtig.
+    assert "Sie sind hier. Und das ist das Gelände dahinter." in bericht
+    assert "Ihr gemeinsamer Arbeitsstand" in bericht
     # Die Überschrift taugt nicht als Anker: Auf der Tafel steht dort
     # eine feste Zeile, kein Kundenwort. Der Engpass-Satz ist beides —
     # Kundenwort, und er steht auf beiden Seiten.

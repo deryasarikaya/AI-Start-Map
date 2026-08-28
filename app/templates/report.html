@@ -14,7 +14,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ihre vollständige Auswertung · AI Start Map</title>
+<title>Ihre persönliche KI-Auswertung · AI Start Map</title>
 <link rel="stylesheet" href="{{ statisch('/styles.css') }}">
 <style>
 /* Nur fürs Drucken. Die Bildschirmdarstellung erbt alles aus `.ergebnis`. */
@@ -33,14 +33,88 @@
   h1, h2, h3 { break-after: avoid; }
   .noprint { display: none; }
   body { background: #fff; }
+
+  /* **Das Deckblatt bekommt eine eigene Seite.** Ohne diese Regel laeuft
+     der Befund direkt darunter weiter, und der Eindruck einer Titelseite
+     ist dahin. */
+  .deckblatt { break-after: page; }
+
+  /* Browser drucken Hintergruende standardmaessig nicht. Ohne diese Zeile
+     bliebe das Deckblatt weiss - was es aushaelt, weil es helles Mint ist
+     und kein tiefes Gruen. Aber gewollt ist die Farbe. */
+  .deckblatt, .kartenteil .flaeche, .schlusskontakt {
+    print-color-adjust: exact; -webkit-print-color-adjust: exact;
+  }
 }
+
+/* -- Das Deckblatt ----------------------------------------------------
+ * Sehr ruhig: ein Name, ein Versprechen, ein Datum. Kein Dashboard, keine
+ * Karten, keine Aufzaehlung. Es soll aussehen wie der Anfang eines
+ * Berichts, nicht wie die erste Bildschirmseite. */
+.deckblatt {
+  display: grid; align-content: center; gap: 14px;
+  min-height: 78vh; padding: 60px 8px;
+  background: linear-gradient(168deg, #EAF4F0 0%, #F6F7F4 100%);
+  text-align: left;
+}
+.deckblatt .marke {
+  margin: 0; font-size: 13px; font-weight: 800; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--accent);
+}
+.deckblatt h1 {
+  margin: 0; max-width: 18ch;
+  font-size: 44px; line-height: 1.08; letter-spacing: -.02em;
+  color: #18332C;
+}
+.deckblatt .deckzeile {
+  margin: 0; max-width: 54ch; font-size: 16px; line-height: 1.6;
+  color: var(--ink-2);
+}
+.deckblatt .deckfuss {
+  margin: 26px 0 0; padding-top: 16px;
+  border-top: 1px solid #C9D8D1;
+  font-size: 13.5px; color: var(--ink-3);
+}
+.deckblatt .deckfuss b { display: block; color: #18332C; font-weight: 700; }
+
+/* Der Kontaktblock am Ende - dieselbe helle Flaeche wie das Deckblatt,
+   damit der Bericht sichtbar geschlossen wird. */
+.schlusskontakt {
+  margin-top: 34px; padding: 28px 30px;
+  border: 1px solid #C9D8D1; border-radius: 12px;
+  background: linear-gradient(168deg, #EAF4F0 0%, #F6F7F4 100%);
+}
+.schlusskontakt h2 { margin: 0 0 8px; }
+.schlusskontakt p { margin: 0 0 10px; max-width: 62ch; }
+.schlusskontakt .kontaktzeile { font-size: 16px; font-weight: 700; color: #18332C; }
+.schlusskontakt .anhangbitte { font-size: 14px; color: var(--ink-3); }
 .reportkopf { border-bottom: 1px solid rgba(0,0,0,.12); }
 </style>
 </head>
 <body class="ergebnis">
 
+{# **Seite 1 — das Deckblatt.**
+
+   Es entscheidet allein darueber, ob jemand denkt „ich habe eine
+   Auswertung bekommen" oder „ich habe eine Webseite ausgedruckt", und ist
+   deshalb der billigste Hebel im ganzen Bericht. Sehr ruhig gehalten: ein
+   Name, ein Versprechen, ein Datum. #}
+<div class="deckblatt">
+  <div class="wrap">
+    <p class="marke">AI Start Map</p>
+    <h1>Ihre persönliche KI-Auswertung</h1>
+    <p class="deckzeile">Wo Ihr Betrieb heute steht, womit wir sinnvoll anfangen
+    würden und welche Möglichkeiten KI und Automatisierung darüber hinaus
+    eröffnen.</p>
+    <p class="deckfuss">
+      <b>Erstellt auf Grundlage Ihrer eigenen Beschreibung</b>
+      {{ auswertungsdatum }} · AI Start Map · Derya Sarikaya
+    </p>
+  </div>
+</div>
+
 <div class="wrap top reportkopf">
-  <p class="eyebrow">AI Start Map · Vollständige Auswertung</p>
+  <p class="eyebrow">AI Start Map · Ihre Auswertung</p>
   <h1>{{ e.kurzfassung.engpass_satz }}</h1>
   <div class="chipline">
     {% for eckdatum in e.verstanden.eckdaten %}
@@ -74,7 +148,41 @@
 </div>
 </section>
 
+{# Die Karte, statisch. Sie steht ohne JavaScript vollstaendig richtig -
+   genau dafuer wurde sie so gebaut. #}
+{% if karte %}
+<section class="kartenteil">
+<div class="wrap">
+  <p class="eyebrow">Ihre AI Start Map</p>
+  <h2>Sie sind hier. Und das ist das Gelände dahinter.</h2>
+  <p class="sub">Die Karte zeigt den möglichen Lösungsraum für Ihren Betrieb.
+  Hervorgehoben ist, wo ein sinnvoller Startpunkt liegt.</p>
+  <div class="flaeche">{% include "karte.html" %}</div>
+</div>
+</section>
+{% endif %}
+
 {{ teile.alle_teile(e) }}
+
+{# Der Abschluss: Was als Naechstes passiert, und die Bitte, die PDF
+   anzuhaengen. Ohne sie kommt eine Anfrage an, zu der niemand die
+   Auswertung findet - ein `mailto:` kann nichts anhaengen. #}
+<section>
+<div class="wrap">
+  {%- set kontakt = gespraechs_adresse() -%}
+  <div class="schlusskontakt">
+    <h2>Möchten Sie den nächsten Schritt besprechen?</h2>
+    <p>Diese Auswertung zeigt, wo Sie sinnvoll anfangen können und welche
+    Möglichkeiten daraus entstehen. Im Gespräch klären wir, welche davon für
+    Ihren Betrieb wirklich Sinn ergeben und wie eine Umsetzung aussehen könnte.</p>
+    {% if kontakt %}
+    <p class="kontaktzeile">{{ kontakt_adresse() }}</p>
+    <p class="anhangbitte">Wenn Sie uns per E-Mail schreiben, hängen Sie diese
+    PDF bitte an. So können wir direkt an Ihrer Auswertung anknüpfen.</p>
+    {% endif %}
+  </div>
+</div>
+</section>
 
 <div class="wrap foot">AI Start Map · Auswertung vom {{ auswertungsdatum }} auf
 Grundlage Ihrer eigenen Beschreibung</div>
