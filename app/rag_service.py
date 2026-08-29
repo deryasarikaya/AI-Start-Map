@@ -21,7 +21,6 @@ import os
 import re
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
-from dataclasses import dataclass
 from pathlib import Path
 from time import perf_counter
 from shutil import copy2
@@ -107,6 +106,41 @@ HOECHSTENS_ABSAETZE = 25
 #: das in mehreren Absätzen weit oben steht, soll eines schlagen, das in
 #: einem Absatz knapp führt.
 PUNKTE_JE_PLATZ = (3, 2, 1)
+
+#: **Die Breitensuche.** Die Punktesumme oben belohnt, was sich durch die
+#: ganze Erzaehlung zieht - richtig fuer den Hauptengpass, falsch fuer die
+#: Breite des Zielbilds. Gemessen am Heizungsfall: DP-01, DP-03 und DP-05
+#: fuehren je einen Absatz mit Werten um 0,6 an und landen gesamt auf den
+#: Plaetzen 8, 9 und 10. Der Kunde beschreibt seine Einsatzdokumentation
+#: einmal genau - und verliert damit gegen ein Thema, das er zwoelfmal
+#: beilaeufig streift.
+#:
+#: Deshalb eine zweite Sicht: Wer einen Absatz **anfuehrt**, ist ein
+#: Kandidat. Nicht `top_k` hochdrehen - das holte nur die naechsten der
+#: selben Rangfolge.
+#:
+#: Anteil am besten Absatzwert des ganzen Textes, den ein lokaler Sieg
+#: mindestens erreichen muss. **Relativ, nicht absolut:** Wie hoch
+#: Aehnlichkeiten ausfallen, haengt am Text; ein fester Schwellwert waere
+#: bei einer knappen Erzaehlung zu streng und bei einer wortreichen zu lax.
+BREITE_MINDESTANTEIL = 0.85
+
+#: Hoechstens so viele zusaetzliche Muster. Ohne Deckel waere die
+#: Breitensuche nur eine laengere Liste, und "mehr vorschlagen" ist keine
+#: bessere Empfehlung.
+BREITE_HOECHSTENS = 5
+
+#: Wie viele Familien die Breitensuche **zusaetzlich** beisteuern darf.
+#: Ein eigenes Budget, kein groesserer Topf: Der Fokus behaelt seine sechs
+#: Plaetze unveraendert. Ohne diese Trennung fuellen die Fokusmuster den
+#: Deckel in der ersten Runde, und die Breitenmuster stehen zwar in der
+#: Liste, tragen aber nichts bei - gemessen: SF-09 blieb trotz passendem
+#: Muster draussen.
+#:
+#: Genau so gross wie , damit **jedes** Breitenmuster
+#: einen Beitrag leisten kann. Keine gewuenschte Zahl, sondern die
+#: kleinste, die der Regel darueber entspricht.
+BREITE_FAMILIEN_HOECHSTENS = BREITE_HOECHSTENS
 
 INDEX_BACKUP_DIRECTORY = ROOT_DIRECTORY / "data" / "index_backups"
 INDEX_FILE_NAME = "knowledge.faiss"
@@ -1118,6 +1152,10 @@ class RetrievedKnowledge:
     betriebsarten: tuple[KnowledgeChunk, ...] = ()
     diagnosemuster: tuple[KnowledgeChunk, ...] = ()
     loesungsfamilien: tuple[KnowledgeChunk, ...] = ()
+    #: Muster, die einen Absatz anfuehren, aber an der Punktesumme
+    #: scheitern - und die Familien, die sie zusaetzlich anbieten.
+    breitenmuster: tuple[KnowledgeChunk, ...] = ()
+    breite_familien: tuple[KnowledgeChunk, ...] = ()
     faehigkeiten: tuple[KnowledgeChunk, ...] = ()
     zielbild: KnowledgeChunk | None = None
 
@@ -1267,7 +1305,92 @@ def _zusammengefuehrt(
     return [chunks[platz] for platz in rangfolge]
 
 
-def _rank_solution_architecture(query: str) -> list[KnowledgeChunk]:
+@dataclass(frozen=True)
+class Rangergebnis:
+    """Was eine Suche über die Erzählung hergibt — beide Sichten.
+
+    Die Breitensuche braucht die rohen Absatztreffer. Sie ein zweites Mal
+    zu berechnen hiesse, ein zweites Mal einzubetten; sie durch mehrere
+    Rückgabewerte zu schleifen macht die Signatur unlesbar. Deshalb ein
+    Name für das, was zusammengehört.
+    """
+
+    rangfolge: list[KnowledgeChunk]
+    breite: tuple[KnowledgeChunk, ...] = ()
+
+
+def _lokale_sieger(
+    werte, plaetze, chunks: list[KnowledgeChunk], art: str
+) -> list[tuple[KnowledgeChunk, float, int]]:
+    """Muster, die mindestens einen Absatz anfuehren — mit Beleg.
+
+    Zurueck kommt je Muster der Absatz, in dem es am staerksten war, und
+    der Wert dort. Das ist die Spur: Zu jedem Breitenkandidaten laesst
+    sich sagen, welcher Absatz ihn getragen hat.
+    """
+
+    bester_je_muster: dict[str, tuple[KnowledgeChunk, float, int]] = {}
+    for nummer, (zeile_werte, zeile_plaetze) in enumerate(zip(werte, plaetze), start=1):
+        beste: tuple[float, KnowledgeChunk] | None = None
+        for wert, platz in zip(zeile_werte, zeile_plaetze):
+            if platz < 0 or chunks[platz].chunk_type != art:
+                continue
+            if beste is None or float(wert) > beste[0]:
+                beste = (float(wert), chunks[platz])
+        if beste is None:
+            continue
+        wert, gewinner = beste
+        vorher = bester_je_muster.get(gewinner.chunk_id)
+        if vorher is None or wert > vorher[1]:
+            bester_je_muster[gewinner.chunk_id] = (gewinner, wert, nummer)
+    return sorted(bester_je_muster.values(), key=lambda e: e[1], reverse=True)
+
+
+def _breitenkandidaten(
+    werte,
+    plaetze,
+    chunks: list[KnowledgeChunk],
+    schon_da: Sequence[KnowledgeChunk],
+) -> tuple[KnowledgeChunk, ...]:
+    """Starke lokale Treffer, die die Punktesumme sonst verschluckt.
+
+    Vier Bedingungen, jede gegen einen konkreten Fehlweg:
+
+    1. **Einen Absatz anfuehren.** Wer nirgends erster ist, beschreibt
+       keinen eigenen Bedarf — er ist nur ueberall ein bisschen dabei.
+    2. **Nah am besten Absatzwert des Textes.** Sonst kaeme jedes Muster
+       herein, das irgendeinen Restabsatz gewinnt.
+    3. **Nicht schon im Fokus.** Doppelte Nennung macht nichts breiter.
+    4. **Hoechstens `BREITE_HOECHSTENS`.** Sonst ist die Breitensuche nur
+       eine laengere Liste.
+
+    Sortiert nach ihrem besten Absatzwert — zwei Laeufe ueber denselben
+    Text liefern damit dieselbe Reihenfolge.
+    """
+
+    sieger = _lokale_sieger(werte, plaetze, chunks, "diagnostic_pattern")
+    if not sieger:
+        return ()
+    schwelle = sieger[0][1] * BREITE_MINDESTANTEIL
+    bekannt = {c.chunk_id for c in schon_da}
+    gewaehlt: list[KnowledgeChunk] = []
+    for muster, wert, absatz in sieger:
+        if len(gewaehlt) >= BREITE_HOECHSTENS:
+            break
+        if muster.chunk_id in bekannt or wert < schwelle:
+            continue
+        gewaehlt.append(muster)
+        logger.info(
+            "solution_architecture.breite id=%s wert=%.3f absatz=%d schwelle=%.3f",
+            muster.chunk_id,
+            wert,
+            absatz,
+            schwelle,
+        )
+    return tuple(gewaehlt)
+
+
+def _rank_solution_architecture(query: str) -> Rangergebnis:
     """Alle Abschnitte aus Batch 10, nach Ähnlichkeit zur Erzählung sortiert.
 
     **Gesucht wird absatzweise, nicht am Stück.** Dreitausend Wörter als ein
@@ -1282,12 +1405,16 @@ def _rank_solution_architecture(query: str) -> list[KnowledgeChunk]:
 
     Eigene Funktion, damit ein Test sie ersetzen kann, ohne einzubetten —
     Einbetten kostet Geld.
+
+    Gibt neben der Rangfolge auch die rohen Absatztreffer zurück: Die
+    Breitensuche braucht sie, und sie ein zweites Mal zu berechnen hiesse,
+    ein zweites Mal einzubetten.
     """
 
     index, chunks = _load_index_from(SOLUTION_ARCHITECTURE_INDEX_DIRECTORY)
     absaetze = _absaetze(query)
     if not absaetze:
-        return []
+        return Rangergebnis(rangfolge=[])
     vektoren = np.asarray(embed_texts(absaetze), dtype="float32")
     if vektoren.ndim != 2 or vektoren.shape[0] != len(absaetze):
         raise RagConfigurationError(
@@ -1300,7 +1427,72 @@ def _rank_solution_architecture(query: str) -> list[KnowledgeChunk]:
         len(absaetze),
         sum(len(absatz) for absatz in absaetze),
     )
-    return _zusammengefuehrt(werte, plaetze, chunks)
+    rangfolge = _zusammengefuehrt(werte, plaetze, chunks)
+    fokus = [
+        c for c in rangfolge if c.chunk_type == "diagnostic_pattern"
+    ][: CHUNKS_PER_SEARCHED_TYPE["diagnostic_pattern"]]
+    return Rangergebnis(
+        rangfolge=rangfolge,
+        breite=_breitenkandidaten(werte, plaetze, chunks, fokus),
+    )
+
+
+def _familien_aus_mustern(
+    muster: Sequence[KnowledgeChunk],
+    nach_kennung: dict[str, KnowledgeChunk],
+    buchstaben: set[str],
+    hoechstens: int,
+    schon_da: Sequence[KnowledgeChunk] = (),
+) -> list[KnowledgeChunk]:
+    """**Reihum, nicht der Reihe nach.**
+
+    Vorher lief die Schleife Muster fuer Muster durch und nahm alles, was
+    das erste nannte. Da DP-06 fuenf Familien fuehrt und die Grenze bei
+    vier lag, kam das zweite Muster nie zum Zug - es wurde gesucht,
+    gerankt, protokolliert und trug nichts bei. Jetzt liefert jedes Muster
+    erst seine erste Familie, dann seine zweite, und so weiter.
+    """
+
+    familien: list[KnowledgeChunk] = []
+    bekannt = {c.chunk_id for c in schon_da}
+    listen = [list(_ids(m, "passende_loesungsfamilien")) for m in muster]
+    #: Wie weit jedes Muster seine Liste schon abgearbeitet hat.
+    #
+    # **Eine schon vergebene Familie verbraucht keine Runde.** Vorher stand
+    # hier `liste[runde]`: Nannte ein Muster zuerst zwei Familien, die ein
+    # anderes schon beigesteuert hatte, trug es in den ersten beiden Runden
+    # nichts bei - und war draussen, bevor es zu seinem eigenen Beitrag kam.
+    # Beim Heizungsfall traf das SF-03: In DP-01 steht es an dritter
+    # Stelle, hinter zwei bereits gewaehlten. Genau diesen Fall sollte die
+    # Reihum-Logik verhindern.
+    stellen = [0] * len(listen)
+    while len(familien) < hoechstens:
+        etwas_beigetragen = False
+        for nummer, liste in enumerate(listen):
+            if len(familien) >= hoechstens:
+                break
+            # Bis zur naechsten Familie, die es noch nicht gibt.
+            while stellen[nummer] < len(liste):
+                kennung = liste[stellen[nummer]]
+                stellen[nummer] += 1
+                kandidat = nach_kennung.get(kennung)
+                if kandidat is None or kandidat in familien or kennung in bekannt:
+                    continue
+                if kandidat.chunk_type != "solution_family":
+                    continue
+                if not _passt_zur_betriebsart(kandidat, buchstaben):
+                    logger.info(
+                        "solution_architecture.family_filtered id=%s betriebsarten=%s",
+                        kennung,
+                        sorted(buchstaben),
+                    )
+                    continue
+                familien.append(kandidat)
+                etwas_beigetragen = True
+                break
+        if not etwas_beigetragen:
+            break
+    return familien
 
 
 def retrieve_solution_context(query: str) -> RetrievedKnowledge:
@@ -1331,7 +1523,8 @@ def retrieve_solution_context(query: str) -> RetrievedKnowledge:
     # der Abruf die Zeitablaufquote verschlechtert.
     begonnen = perf_counter()
     try:
-        sortiert = _rank_solution_architecture(query)
+        ergebnis = _rank_solution_architecture(query)
+        sortiert, breite = ergebnis.rangfolge, ergebnis.breite
     except RagConfigurationError:
         logger.warning(
             "solution_architecture.unavailable seconds=%.2f",
@@ -1349,39 +1542,31 @@ def retrieve_solution_context(query: str) -> RetrievedKnowledge:
         chunk for chunk in sortiert if chunk.chunk_type == "diagnostic_pattern"
     )[: CHUNKS_PER_SEARCHED_TYPE["diagnostic_pattern"]]
 
+    # **Die Breitensuche.** Muster, die einen Absatz anfuehren, aber an der
+    # Punktesumme scheitern. Sie liefern Kandidaten, keine Auswahl — der
+    # Planner entscheidet weiterhin fachlich, und der ganze Katalog bleibt
+    # ihm ohnehin offen.
+    logger.info(
+        "solution_architecture.sichten fokus=%s breite=%s",
+        [m.chunk_id for m in diagnosemuster],
+        [m.chunk_id for m in breite],
+    )
+
     buchstaben = _betriebsart_buchstaben(betriebsarten)
 
-    # **Reihum, nicht der Reihe nach.**
-    #
-    # Vorher lief die Schleife Muster für Muster durch und nahm alles, was
-    # das erste nannte. Da DP-06 fünf Familien führt und die Grenze bei vier
-    # lag, kam das zweite Muster nie zum Zug — es wurde gesucht, gerankt,
-    # protokolliert und trug nichts bei. Jetzt liefert jedes Muster erst
-    # seine erste Familie, dann seine zweite, und so weiter.
-    familien: list[KnowledgeChunk] = []
-    listen = [list(_ids(muster, "passende_loesungsfamilien")) for muster in diagnosemuster]
-    for runde in range(max((len(liste) for liste in listen), default=0)):
-        for liste in listen:
-            if len(familien) >= MAXIMUM_SOLUTION_FAMILIES:
-                break
-            if runde >= len(liste):
-                continue
-            kennung = liste[runde]
-            kandidat = nach_kennung.get(kennung)
-            if kandidat is None or kandidat in familien:
-                continue
-            if kandidat.chunk_type != "solution_family":
-                continue
-            if not _passt_zur_betriebsart(kandidat, buchstaben):
-                logger.info(
-                    "solution_architecture.family_filtered id=%s betriebsarten=%s",
-                    kennung,
-                    sorted(buchstaben),
-                )
-                continue
-            familien.append(kandidat)
-        if len(familien) >= MAXIMUM_SOLUTION_FAMILIES:
-            break
+    familien = _familien_aus_mustern(
+        diagnosemuster, nach_kennung, buchstaben, MAXIMUM_SOLUTION_FAMILIES
+    )
+    # Die Breitensuche bekommt ein **eigenes** Budget. Sonst fuellen die
+    # Fokusmuster den Deckel in der ersten Runde, und die zusaetzlichen
+    # Bedarfe stehen zwar in der Liste, tragen aber nichts bei.
+    breite_familien = _familien_aus_mustern(
+        breite, nach_kennung, buchstaben, BREITE_FAMILIEN_HOECHSTENS, familien
+    )
+    logger.info(
+        "solution_architecture.breite_familien %s",
+        [f.chunk_id for f in breite_familien],
+    )
 
     faehigkeiten: list[KnowledgeChunk] = []
     for familie in familien:
@@ -1419,6 +1604,8 @@ def retrieve_solution_context(query: str) -> RetrievedKnowledge:
         loesungsfamilien=tuple(familien),
         faehigkeiten=tuple(faehigkeiten),
         zielbild=zielbild,
+        breitenmuster=tuple(breite),
+        breite_familien=tuple(breite_familien),
     )
     logger.info(
         "solution_architecture.retrieved seconds=%.2f betriebsart=%s "

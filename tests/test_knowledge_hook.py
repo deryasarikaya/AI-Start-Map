@@ -251,7 +251,9 @@ def mit_index(monkeypatch: pytest.MonkeyPatch) -> None:
     """Tut so, als läge ein gebauter Index vor, ohne einzubetten."""
 
     monkeypatch.setattr(
-        rag_service, "_rank_solution_architecture", lambda _q: _bestand()
+        rag_service,
+        "_rank_solution_architecture",
+        lambda _q: rag_service.Rangergebnis(rangfolge=_bestand()),
     )
     monkeypatch.setattr(rag_service.Path, "is_file", lambda _self: True)
 
@@ -481,7 +483,11 @@ def test_every_pattern_contributes_a_family(
         )
         for nummer in range(1, 6)
     ]
-    monkeypatch.setattr(rag_service, "_rank_solution_architecture", lambda _q: bestand)
+    monkeypatch.setattr(
+        rag_service,
+        "_rank_solution_architecture",
+        lambda _q: rag_service.Rangergebnis(rangfolge=bestand),
+    )
     monkeypatch.setattr(rag_service.Path, "is_file", lambda _self: True)
 
     gefunden = rag_service.retrieve_solution_context(ERZAEHLT)

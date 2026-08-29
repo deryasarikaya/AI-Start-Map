@@ -149,14 +149,23 @@ def familien_aus_erzaehlung(narrative_text: str) -> list[str]:
 
 
 def _abgerufene_familien(suchtext: str) -> list[str]:
-    """Die Kennungen, die ein Abruf für passend hält — oder nichts."""
+    """Die Kennungen, die ein Abruf für passend hält — oder nichts.
+
+    Beide Sichten kommen mit: die des Fokus und die der Breitensuche. Sie
+    sind Vorschläge, keine Auswahl — der ganze freigegebene Katalog
+    bleibt dem Planner ohnehin offen.
+    """
 
     try:
         gefunden = retrieve_solution_context(suchtext)
     except (AIServiceError, RagConfigurationError):
         logger.warning("solution_architecture.retrieval_failed")
         return []
-    return [familie.chunk_id for familie in gefunden.loesungsfamilien]
+    kennungen = [familie.chunk_id for familie in gefunden.loesungsfamilien]
+    for familie in gefunden.breite_familien:
+        if familie.chunk_id not in kennungen:
+            kennungen.append(familie.chunk_id)
+    return kennungen
 
 
 def diagnose_context(narrative_text: str) -> list[str]:
