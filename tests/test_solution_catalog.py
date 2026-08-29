@@ -656,3 +656,59 @@ def test_capabilities_carry_their_name_not_only_an_identifier() -> None:
     for faehigkeit in eintrag["braucht_capabilities"]:
         assert faehigkeit["id"].startswith("CAP-")
         assert faehigkeit["name"], f"{faehigkeit['id']} ohne Namen"
+
+
+def test_every_capability_a_family_needs_points_back_at_it() -> None:
+    """**Der Graph zeigt in beide Richtungen.**
+
+    `braucht_capabilities` an der Familie ist die Seite, die wirkt —
+    `faehigkeiten_zu()` liest nur sie. `gehoert_zu_familien` an der
+    Fähigkeit wird heute nirgends gelesen und war deshalb unbemerkt
+    auseinandergelaufen: acht Kanten ohne Rückverweis.
+
+    Eine Kante, die nur in eine Richtung zeigt, ist kein halber Fehler.
+    Sie ist eine Behauptung, die niemand prüft — und beim nächsten Mal
+    wird sie in der falschen Richtung geglaubt.
+    """
+
+    import json
+
+    def zeilen(datei):
+        return [
+            json.loads(z)
+            for z in datei.read_text(encoding="utf-8").splitlines()
+            if z.strip()
+        ]
+
+    familien = zeilen(solution_catalog.KATALOG_DATEI)
+    faehigkeiten = {
+        d["chunk_id"]: d for d in zeilen(solution_catalog.FAEHIGKEITEN_DATEI)
+    }
+
+    ohne_rueckverweis = []
+    for familie in familien:
+        for kennung in familie.get("braucht_capabilities") or []:
+            faehigkeit = faehigkeiten.get(kennung)
+            assert faehigkeit is not None, f"{familie['chunk_id']} braucht unbekanntes {kennung}"
+            zurueck = faehigkeit.get("gehoert_zu_familien") or []
+            if zurueck and familie["chunk_id"] not in zurueck:
+                ohne_rueckverweis.append((familie["chunk_id"], kennung))
+
+    assert not ohne_rueckverweis, f"einseitige Kanten: {ohne_rueckverweis}"
+
+
+def test_the_phone_workflow_brings_speech_and_dialogue_with_it() -> None:
+    """**Ein Telefonassistent ohne Transkription ist keiner.**
+
+    CAP-13 (Gesprochenes in Text) und CAP-14 (im Gespräch fehlende
+    Angaben erfragen) nannten SF-15 als ihre Familie — SF-15 führte
+    beide nicht. Weil `faehigkeiten_zu()` nur die Familienseite liest,
+    fehlten dem gewählten Telefonworkflow genau die zwei Fähigkeiten,
+    die ihn ausmachen. Die Bausteine von SF-15 heissen wörtlich
+    „Transkription" und „Mindestangaben erfassen".
+    """
+
+    faehigkeiten = {f["chunk_id"] for f in solution_catalog.faehigkeiten_zu(["SF-15"])}
+
+    assert "CAP-13" in faehigkeiten, "Transkription fehlt dem Telefonworkflow"
+    assert "CAP-14" in faehigkeiten, "Dialogfuehrung fehlt dem Telefonworkflow"
