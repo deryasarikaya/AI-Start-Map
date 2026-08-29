@@ -73,7 +73,7 @@ nur, wenn jemand sie aufruft.
 
 | Skript | was es tut | Kosten |
 |---|---|---|
-| `scripts/gold_lauf.py` | fährt die synthetischen Evaluationsfälle durch die Anwendung und vergleicht mit hinterlegten Erwartungen | 3 Aufrufe je Fall |
+| `scripts/gold_lauf.py` | fährt die synthetischen Evaluationsfälle durch die Anwendung und vergleicht mit hinterlegten Erwartungen | 4 Aufrufe je Fall, mit Belegwiederholung 5 |
 | `scripts/zehn_laeufe.py` | derselbe Fall zehnmal, für Zuverlässigkeit und Zeiten | 2 je Lauf |
 | `scripts/pruefe_batch10.py` | prüft die Wissensdateien | **kostenlos**, liest nur |
 
@@ -83,6 +83,26 @@ hält vor einem Fall an, wenn ein gesetztes Budget nicht mehr reicht:
 
 ```bash
 python scripts/gold_lauf.py --hoechstens 30
+```
+
+**Der Lauf wartet, bis wirklich gerechnet wurde.** Seit die Analyse im
+Celery-Worker steckt, kommt `POST /analyze` sofort mit `state: processing`
+zurück. Ein Runner, der danach weitermacht, fragt ein Ergebnis ab, das noch
+niemand geschrieben hat — und schreibt dessen Abwesenheit als Messwert fort.
+Deshalb schaltet `gold_lauf.py` Celery in den Sofortmodus: dieselbe Aufgabe,
+derselbe Analyseweg, ein Prozess weniger. Nur so zählen Aufrufe und Laufzeit
+überhaupt mit, denn beide sind in einem fremden Prozess unsichtbar.
+
+Mit `--worker` läuft es über einen echten Worker und fragt den Stand ab wie
+der Warteschirm. Das prüft den Weg, nicht die Kosten.
+
+Neben jeder Messung liegt ein **Laufstempel** (`laufstempel.json`) mit Commit,
+Prompt-, Vertrags-, Katalog- und Indexstand. Zwei Messungen mit
+verschiedenen Stempeln sind nicht vergleichbar — auch dann nicht, wenn beide
+grün sind:
+
+```bash
+python scripts/laufstempel.py
 ```
 
 Das ist kein Luxus: In einem Lauf wurden 30 statt der geplanten 22 Aufrufe
@@ -132,6 +152,8 @@ Technik nötig ist.
 
 - **Die Durchkommensquote liegt nicht bei 100 %.** In der letzten Messung kamen
   8 von 11 Fällen durch; die Ausfälle waren Zeitabläufe beim vierten Aufruf.
+  **Diese Zahl ist nicht mehr belastbar:** Der Runner wartete damals nicht
+  auf den Worker. Sie wird mit dem reparierten Lauf neu erhoben.
   Die Ursache ist nicht bewiesen.
 - **Die Größentreffer lagen bei 88 %** — das System liefert eher zu viele
   Module als zu wenige.

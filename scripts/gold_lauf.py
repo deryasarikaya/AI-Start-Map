@@ -1,8 +1,21 @@
 """Fährt den Goldbestand durch die Anwendung und misst, was herauskommt.
 
-**Dieses Skript macht echte Modellaufrufe und kostet Geld.** Zwei Aufrufe je
-Fall — bei zwölf gefüllten Fällen also 24. Fälle ohne Erzählung werden
-übersprungen und gemeldet, nicht gerechnet.
+**Dieses Skript macht echte Modellaufrufe und kostet Geld.** Vier Aufrufe je
+Fall — Diagnose, Zielarchitektur, Ansichten, Rest — bei zwölf gefüllten
+Fällen also 48. Mit Belegwiederholung können es fünf werden. Fälle ohne
+Erzählung werden übersprungen und gemeldet, nicht gerechnet.
+
+**Die Analyse läuft hier im selben Prozess.** Seit sie im Celery-Worker
+steckt, kommt `POST /analyze` sofort mit `state: processing` zurück. Ein
+Runner, der danach einfach weitermacht, misst das Nichts: Er fragt ein
+Ergebnis ab, das noch niemand geschrieben hat. Deshalb schaltet dieses
+Skript Celery in den Sofortmodus — dieselbe Aufgabe, derselbe Code, ein
+Prozess weniger. Nur so zählen auch Aufrufe und Laufzeit mit, denn beide
+sind in einem fremden Prozess unsichtbar.
+
+Mit `--worker` läuft es über einen echten Worker und fragt den Stand ab
+wie der Warteschirm. Das prüft den Weg, nicht die Qualität: Aufrufzahl und
+Kosten bleiben dabei unbekannt.
 
     .venv/Scripts/python.exe scripts/gold_lauf.py
 
@@ -415,12 +428,21 @@ verbrauch: list[object] = []
 
 
 def fahre_lauf(
-    faelle: list[dict], *, client=None, hoechstens: int | None = None
+    faelle: list[dict],
+    *,
+    client=None,
+    hoechstens: int | None = None,
+    sofort: bool = True,
 ) -> list[Fallergebnis]:
     """Fährt jeden Fall mit einer Erzählung durch die Anwendung.
 
     `client` wird für den Trockenlauf hereingereicht. Ohne ihn wird die
     Anwendung geladen — und dann kostet es Geld.
+
+    `sofort` führt die Analyse im selben Prozess aus. Das ist der
+    Normalfall: Nur so zählen Aufrufe und Laufzeit mit. Mit `sofort=False`
+    läuft es über einen echten Worker, und der Runner fragt den Stand ab
+    wie der Warteschirm — dann prüft er den Weg, nicht die Kosten.
     """
 
     if client is None:  # pragma: no cover - im Test immer gesetzt
@@ -431,9 +453,11 @@ def fahre_lauf(
 
         from app.main import app
 
+        if sofort:
+            _sofortmodus_an()
         with TestClient(app) as echter_client:
             return fahre_lauf(
-                faelle, client=echter_client, hoechstens=hoechstens
+                faelle, client=echter_client, hoechstens=hoechstens, sofort=sofort
             )
 
     zaehler = Aufrufzaehler()
@@ -451,10 +475,11 @@ def fahre_lauf(
     verbrauch.append(zaehler)
     for fall in faelle:
         vorher = zaehler.modellaufrufe
-        # Ein Fall kostet drei Aufrufe, kann aber mit Wiederholungen mehr
-        # kosten. Angehalten wird **vor** dem Fall: Ein abgebrochener
-        # Durchlauf ist bezahlt und liefert nichts.
-        if hoechstens is not None and zaehler.modellaufrufe + 3 > hoechstens:
+        # Ein Fall kostet vier Aufrufe — Diagnose, Zielarchitektur,
+        # Ansichten, Rest — und mit einer Belegwiederholung fünf.
+        # Angehalten wird **vor** dem Fall: Ein abgebrochener Durchlauf ist
+        # bezahlt und liefert nichts.
+        if hoechstens is not None and zaehler.modellaufrufe + 4 > hoechstens:
             ergebnisse.append(
                 Fallergebnis(
                     fall_id=str(fall.get("fall_id") or "?"),
@@ -488,26 +513,24 @@ def fahre_lauf(
         client.post(
             "/interview", data={"free_description": erzaehlung}, follow_redirects=False
         )
-        erster = client.post("/analyze")
-        if erster.status_code != 200:
+        erster = _analyse_abwarten(client, "verstanden", sofort)
+        if erster != "verstanden":
             ergebnisse.append(
-                bewerte_fall(fall, None, ursache=f"Aufruf 1: {erster.status_code}")
+                bewerte_fall(fall, None, ursache=f"Diagnose: {erster}")
             )
-            print(f"  {fall.get('fall_id')}: GESCHEITERT bei Aufruf 1, "
+            print(f"  {fall.get('fall_id')}: GESCHEITERT bei der Diagnose ({erster}), "
                   f"{zaehler.modellaufrufe - vorher} Aufrufe", flush=True)
             continue
         # Der Agentenschritt wird übersprungen, damit die Fälle vergleichbar
-        # bleiben und kein dritter Aufruf dazwischenkommt.
+        # bleiben und keine weitere Diagnoserunde dazwischenkommt.
         client.post("/verstanden", data={"weiter": "ja"}, follow_redirects=False)
-        zweiter = client.post("/analyze")
+        zweiter = _analyse_abwarten(client, "ergebnis", sofort)
         dauer = perf_counter() - begonnen
-        if zweiter.status_code != 200:
+        if zweiter != "ergebnis":
             ergebnisse.append(
-                bewerte_fall(
-                    fall, None, sekunden=dauer, ursache=f"Aufruf 2: {zweiter.status_code}"
-                )
+                bewerte_fall(fall, None, sekunden=dauer, ursache=f"Lösung: {zweiter}")
             )
-            print(f"  {fall.get('fall_id')}: GESCHEITERT bei Aufruf 2, "
+            print(f"  {fall.get('fall_id')}: GESCHEITERT bei der Lösung ({zweiter}), "
                   f"{zaehler.modellaufrufe - vorher} Aufrufe", flush=True)
             continue
 
@@ -524,6 +547,76 @@ def fahre_lauf(
             flush=True,
         )
     return ergebnisse
+
+
+def _sofortmodus_an() -> None:
+    """Celery führt die Aufgabe an Ort und Stelle aus.
+
+    Derselbe Aufgabencode, derselbe Analyseweg — nur ohne Warteschlange
+    dazwischen. Das ist die Voraussetzung dafür, dass dieses Skript
+    überhaupt etwas misst: Ein separater Worker rechnet in einem fremden
+    Prozess, und dort sieht weder der Aufrufzähler noch die Uhr etwas.
+    """
+
+    from app.hintergrund import celery_app
+
+    celery_app.conf.task_always_eager = True
+    # Ein Fehler im Lauf soll den Fall scheitern lassen, nicht still
+    # verschwinden — aber die Schleife nicht abbrechen.
+    celery_app.conf.task_eager_propagates = False
+
+
+def _warte_auf_stand(client, erwartet: str, grenze: float = 300.0) -> str:
+    """Fragt den Stand ab, bis er steht — wie der Warteschirm im Browser.
+
+    Gibt den erreichten Zustand zurück. `zeitablauf`, wenn die Grenze
+    reisst: Ein Runner, der ewig wartet, blockiert eine ganze Messung
+    wegen eines einzigen Falls.
+    """
+
+    from time import sleep
+
+    frist = perf_counter() + grenze
+    while perf_counter() < frist:
+        antwort = client.get("/analysis-status", headers={"Accept": "application/json"})
+        if antwort.status_code != 200:
+            return f"status {antwort.status_code}"
+        stand = antwort.json()
+        if stand.get("state") in ("complete", "failed"):
+            ziel = str(stand.get("redirect_url") or "")
+            if stand.get("state") == "failed":
+                return "gescheitert"
+            # `complete` allein reicht nicht: Nach Aufruf 1 ist der Stand
+            # ebenfalls vollstaendig, aber es geht zur Verstandenseite.
+            return "ergebnis" if ziel.endswith("/results") else "verstanden"
+        sleep(1.5)
+    return "zeitablauf"
+
+
+def _analyse_abwarten(client, erwartet: str, sofort: bool) -> str:
+    """Ein Analyseschritt, und die Gewissheit, dass er wirklich lief.
+
+    **Hier lag der Fehler.** Seit die Analyse im Worker steckt, antwortet
+    `/analyze` sofort mit `processing`. Der Runner lief einfach weiter,
+    fragte ein Ergebnis ab, das es nicht gab, und schrieb das Ergebnis
+    dieses Nichts in die Messung. Kein Test schlug an, weil niemand
+    geprüft hat, ob der Schritt überhaupt stattgefunden hat.
+    """
+
+    antwort = client.post("/analyze", headers={"Accept": "application/json"})
+    if antwort.status_code != 200:
+        return f"status {antwort.status_code}"
+    stand = antwort.json().get("state")
+    if stand == "processing" and sofort:
+        # Im Sofortmodus darf das nicht vorkommen: Dann laeuft ein zweiter
+        # Lauf fuer dieselbe Sitzung, oder die Sperre haengt.
+        return "unerwartet_processing"
+    if stand == "processing":
+        return _warte_auf_stand(client, erwartet)
+    ziel = str(antwort.json().get("redirect_url") or "")
+    if stand == "failed":
+        return "gescheitert"
+    return "ergebnis" if ziel.endswith("/results") else "verstanden"
 
 
 def _gespeichert(client) -> dict | None:
@@ -581,6 +674,14 @@ def main() -> int:
         default=None,
         help="Höchstens so viele Modellaufrufe, Wiederholungen mitgezählt.",
     )
+    zerleger.add_argument(
+        "--worker",
+        action="store_true",
+        help=(
+            "Über einen laufenden Celery-Worker fahren und den Stand abfragen. "
+            "Prüft den Weg; Aufrufzahl und Kosten bleiben dabei unbekannt."
+        ),
+    )
     argumente = zerleger.parse_args()
 
     if argumente.vergleiche:
@@ -594,10 +695,21 @@ def main() -> int:
     mit_erzaehlung = sum(1 for fall in faelle if str(fall.get("erzaehlung") or "").strip())
     print(
         f"{len(faelle)} Fälle, davon {mit_erzaehlung} mit Erzählung. "
-        f"Das kostet {mit_erzaehlung * 2} Modellaufrufe.\n"
+        f"Das kostet mindestens {mit_erzaehlung * 4} Modellaufrufe.\n"
     )
 
-    ergebnisse = fahre_lauf(faelle, hoechstens=argumente.hoechstens)
+    # **Der Stempel gehört zur Messung.** Ohne ihn ist hinterher nicht mehr
+    # feststellbar, aus welchem Code-, Prompt- und Katalogstand die Zahlen
+    # stammen — und zwei Messungen sind dann nicht vergleichbar.
+    from scripts.laufstempel import stempel as _stempel
+
+    lauf_stempel = _stempel()
+    if not lauf_stempel["code"]["sauber"]:
+        print("ACHTUNG: Der Arbeitsbaum ist nicht sauber — diese Messung")
+        print("gehoert zu keinem Commit.")
+    ergebnisse = fahre_lauf(
+        faelle, hoechstens=argumente.hoechstens, sofort=not argumente.worker
+    )
     kennzahlen = bewerte_lauf(ergebnisse)
     # Was der Lauf wirklich gekostet hat, Wiederholungen eingeschlossen.
     if verbrauch:
@@ -619,6 +731,9 @@ def main() -> int:
         encoding="utf-8",
     )
     (ziel / "bericht.md").write_text(text, encoding="utf-8")
+    (ziel / "laufstempel.json").write_text(
+        json.dumps(lauf_stempel, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
     print("\n" + text)
     print(f"\ngeschrieben: {ziel}")
     return 0

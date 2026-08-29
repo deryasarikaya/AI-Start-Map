@@ -299,19 +299,100 @@ def test_an_unfilled_field_is_left_out_instead_of_guessed() -> None:
 
 
 class _Attrappe:
-    """Tut so, als wäre sie die Anwendung. Ruft nichts und kostet nichts."""
+    """Tut so, als wäre sie die Anwendung. Ruft nichts und kostet nichts.
+
+    **Sie antwortet wie der echte Endpunkt.** Vorher gab sie auf jeden
+    Aufruf nur `status_code = 200` zurück. Damit sah ein Runner, der gar
+    nicht mehr auf das Ergebnis wartete, hier trotzdem grün aus — der
+    eigentliche Bruch nach der Celery-Umstellung blieb genau deshalb
+    unentdeckt. Eine Attrappe, die weniger kann als die Wirklichkeit,
+    prueft weniger als nichts: Sie erzeugt Vertrauen.
+
+    `/analyze` liefert deshalb jetzt einen Zustand, und zwar der Reihe
+    nach: Der erste Aufruf führt zur Verstandenseite, der zweite zum
+    Ergebnis.
+    """
 
     def __init__(self) -> None:
         self.cookies: dict[str, str] = {}
         self.aufrufe: list[str] = []
+        self._analysen = 0
+        self._koerper: dict[str, object] = {}
 
     def post(self, pfad: str, **_kwargs: object) -> _Attrappe:
         self.aufrufe.append(pfad)
+        if pfad == "/analyze":
+            self._analysen += 1
+            ziel = "/verstanden" if self._analysen % 2 == 1 else "/results"
+            self._koerper = {"state": "complete", "redirect_url": ziel}
+        else:
+            self._koerper = {}
         return self
+
+    def get(self, pfad: str, **_kwargs: object) -> _Attrappe:
+        self.aufrufe.append(pfad)
+        return self
+
+    def json(self) -> dict[str, object]:
+        return self._koerper
 
     @property
     def status_code(self) -> int:
         return 200
+
+
+class _NochNichtFertig(_Attrappe):
+    """`/analyze` nimmt die Arbeit nur an — gerechnet hat noch niemand.
+
+    Genau so antwortet die Anwendung, seit die Analyse im Celery-Worker
+    läuft: sofort, mit `processing`.
+    """
+
+    def post(self, pfad: str, **kwargs: object) -> _Attrappe:
+        super().post(pfad, **kwargs)
+        if pfad == "/analyze":
+            self._koerper = {"state": "processing", "redirect_url": None}
+        return self
+
+    def get(self, pfad: str, **kwargs: object) -> _Attrappe:
+        super().get(pfad, **kwargs)
+        if pfad == "/analysis-status":
+            self._koerper = {"state": "processing", "redirect_url": None}
+        return self
+
+
+def test_the_runner_refuses_to_measure_an_unfinished_run(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """**Kein Ergebnis ist besser als ein erfundenes.**
+
+    Seit die Analyse im Worker steckt, antwortet `/analyze` sofort mit
+    `processing`. Der Runner lief danach einfach weiter, holte ein
+    Ergebnis, das noch niemand geschrieben hatte, und schrieb dessen
+    Abwesenheit als Messwert fort. Nichts schlug an — weder ein Test noch
+    eine Fehlermeldung.
+
+    Der Fall muss deshalb **scheitern** und den Grund nennen, statt eine
+    Zahl zu liefern, die nichts bedeutet.
+    """
+
+    attrappe = _NochNichtFertig()
+    # Ein Ergebnis läge sogar bereit — es darf trotzdem nicht gemessen
+    # werden, denn dieser Lauf hat es nicht erzeugt.
+    monkeypatch.setattr(
+        gold_lauf, "_gespeichert", lambda _client: _ergebnis("Etwas", ["Eins"])
+    )
+    monkeypatch.setattr(gold_lauf, "_prompt_quellen", lambda _erzaehlung: [])
+    # Nicht wirklich fünf Minuten warten.
+    monkeypatch.setattr(gold_lauf, "_warte_auf_stand", lambda *a, **k: "zeitablauf")
+
+    ergebnisse = gold_lauf.fahre_lauf([DER_GUTE_FALL], client=attrappe, sofort=False)
+
+    assert len(ergebnisse) == 1
+    assert ergebnisse[0].durchgekommen is False
+    assert "Diagnose" in ergebnisse[0].ursache
+    # Und der zweite Schritt wurde gar nicht erst bezahlt.
+    assert attrappe.aufrufe.count("/analyze") == 1
 
 
 def test_the_runner_skips_cases_without_a_narrative(
