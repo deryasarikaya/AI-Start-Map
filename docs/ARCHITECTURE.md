@@ -25,6 +25,31 @@ Diese Trennung ist der Grund für den mehrstufigen Aufbau.
 Betriebsarten und Diagnosemuster als Vergleichsmaterial — keine
 Lösungsfamilien, keine Fähigkeiten, kein Zielbild. Wer die Lösung kennt,
 diagnostiziert auf sie hin.
+
+**Aufruf 2 sieht die Erzählung wieder.** Er bekam lange nur die Diagnose,
+und der Prompt nannte sie „die einzigen Fakten über diesen Betrieb“.
+Gemessen am Heizungsfall erreichten ihn damit 115 von 2.064 Wörtern — und
+weil die späteren Aufrufe nur ausformulieren dürfen, was hier gewählt
+wurde, kam nichts davon zurück. Der ausdrücklich genannte Hauptschmerz
+überlebte in einem von drei Läufen.
+
+Seit dem Informationsvertrag bekommt er:
+
+| | |
+|---|---|
+| `SO_ERZAEHLT_ES_DER_BETRIEB` | die Erzählung im Wortlaut — die Quelle |
+| `DIAGNOSE` | die fachliche Deutung — Priorisierungshilfe, nicht Ersatz |
+| `LOESUNGSKATALOG` | alle freigegebenen Familien, je mit `braucht_capabilities`, `setzt_voraus`, `bleibt_beim_menschen` |
+| `ABRUF_AUS_ERZAEHLUNG` | die breite Abrufsicht |
+| `ABRUF_AUS_DIAGNOSE` | die enge Abrufsicht |
+
+**Zwei Abrufsichten, weil eine nicht reicht.** Über drei Läufe desselben
+Textes fand der Abruf auf der Erzählung dreimal dieselben sechs Familien,
+der auf der Diagnose dreimal andere. Zwei davon — Portal und Kapazität —
+wurden jedes Mal gefunden und kein einziges Mal gewählt.
+
+Danach gemessen: dieselbe Auswahl in allen drei Läufen, Telefon von einem
+auf drei Treffer, Portal von null auf drei.
 | 2 | Zielarchitektur | `zielarchitektur.md` | `Zielarchitektur` | Katalogauswahl, Module, Name, Zielbild, künftiger Ablauf |
 | 3 | Ansichten | `ergebnis_teil2a.md` | `ResultPartTwoViews` | Beispieloberflächen |
 | 4 | Rest | `ergebnis_teil2b.md` | `ResultPartTwoRest` | Aufgabenteilung, Wert, Systeme, Umsetzung, Hebel |
