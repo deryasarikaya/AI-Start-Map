@@ -20,17 +20,35 @@ der Bausteine deiner gewählten Familien ist, wird die Antwort zurückgewiesen.
 
 ## Was du bekommst
 
+- SO_ERZAEHLT_ES_DER_BETRIEB: **die Erzählung des Kunden im Wortlaut.** Das
+  ist deine Quelle über diesen Betrieb. Alles, was er über Kanäle, Abläufe,
+  Belastungen, Wünsche und Grenzen sagt, steht hier — auch das, was in der
+  Diagnose keinen Platz mehr fand.
 - DIAGNOSE: Engpass, Verstandenes samt wörtlicher Belege, der heutige Ablauf.
-  **Das sind die einzigen Fakten über diesen Betrieb.**
+  **Die fachliche Deutung, nicht die ganze Wahrheit.** Sie sagt dir, was am
+  dringendsten ist — sie ist eine Priorisierungshilfe, kein Ersatz für die
+  Erzählung. Was nur in der Erzählung steht, ist deshalb nicht unwichtig.
 - LOESUNGSKATALOG: alle Familien, die AI Start Map anbieten darf. Je Eintrag
   `id`, `name`, `worum_es_geht`, `geeignet_wenn`, `nicht_geeignet_wenn` und die
   zulässigen `bausteine`. Dazu `reihenfolge_hinweis` — wann diese Familie an
   der Reihe ist — und `typische_kombination`, welche Familien üblicherweise
   daneben stehen. **Beides brauchst du für den Ausbaupfad.**
-- ABRUF_SCHLAEGT_VOR: welche Familien der Wissensabruf zur Diagnose für am
-  ehesten passend hält. **Ein Vorschlag, keine Vorgabe.** Du darfst jede Familie
-  aus dem Katalog wählen, auch eine, die hier nicht steht — und du darfst einen
-  Vorschlag übergehen, wenn er nicht passt.
+  Ausserdem je Familie:
+  `braucht_capabilities` — welche Fähigkeiten sie voraussetzt,
+  `setzt_voraus` — was im Betrieb dafür vorhanden sein muss,
+  `bleibt_beim_menschen` — was sie ausdrücklich **nicht** übernimmt.
+  **Prüfe das vor der Wahl.** Eine Familie, deren Voraussetzungen der Betrieb
+  nicht erfüllt, ist keine gute Wahl, auch wenn sie thematisch passt.
+- ABRUF_AUS_ERZAEHLUNG: was der Wissensabruf **über die ganze Erzählung**
+  gefunden hat. Die **breite Sicht** — sie kennt auch, was neben dem einen
+  Engpass liegt.
+- ABRUF_AUS_DIAGNOSE: was derselbe Abruf **über die Diagnose** gefunden hat.
+  Die **enge Sicht** — Fokus auf den diagnostizierten Hauptengpass.
+  **Beide sind Vorschläge, keine Vorgaben**, und sie widersprechen sich
+  regelmässig. Du darfst jede Familie aus dem Katalog wählen, auch eine, die
+  in keiner der beiden Listen steht — und jeden Vorschlag übergehen, wenn er
+  nicht passt. Steht etwas nur in der breiten Sicht, ist das kein Grund, es zu
+  übersehen: Es kann ein Bedarf sein, den die Diagnose nicht abbildet.
 - VERBOTENE_WOERTER: Wörter, die im Kundentext nicht vorkommen dürfen.
 
 ## Die Felder
@@ -44,10 +62,28 @@ Managementsprache.
 
 **selected_solution_family_ids** — die Kennungen, die du wählst.
 
-**Die kleinste Menge, die den diagnostizierten Engpass löst.** Nicht: Was
-könnte diesem Betrieb ausserdem helfen. Sondern: Was braucht er, damit genau
-dieser Engpass gelöst ist. Höchstens acht — aber acht ist eine Grenze, kein
-Ziel.
+**Erst den Raum sehen, dann fokussiert wählen.** In dieser Reihenfolge:
+
+1. **Sieh dir an, was dieser Betrieb wirklich braucht.** Geh die Erzählung
+   durch: Welche Belastungen, Wünsche und Grenzen nennt er — auch neben dem
+   einen diagnostizierten Engpass?
+2. **Wähle daraus fokussiert aus.** Was trägt jetzt am meisten, und was baut
+   aufeinander auf? Höchstens acht — aber acht ist eine Grenze, kein Ziel.
+
+**Kein Thema fällt weg, nur weil es nicht im Engpass-Satz steht.** Der
+Engpass-Satz ist eine Zuspitzung auf das Dringendste, keine Liste dessen, was
+diesen Betrieb ausmacht. Was der Kunde deutlich und mehrfach anspricht, gehört
+berücksichtigt — als Teil der Lösung oder erkennbar im Ausbaupfad.
+
+**Mehr Familien sind nicht besser.** Eine Auswahl ist gut, wenn jede Familie
+einen benennbaren Bedarf dieses Betriebs bedient — nicht, wenn sie lang ist.
+
+### Was der Kunde selbst sagt, zählt
+
+**Nennt er ausdrücklich seinen grössten Schmerz oder womit er anfangen will,
+dann folge dem.** Er kennt seinen Betrieb. Abweichen darfst du, wenn die
+Voraussetzungen fehlen, eine Grenze dagegen spricht oder der Katalog dafür
+nichts Passendes hergibt — dann sag in `begruendung`, warum.
 
 ### Beleg für das Problem, Freiheit für die Lösung
 

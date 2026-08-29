@@ -120,9 +120,37 @@ def vorgeschlagene_familien(diagnose: Diagnose) -> list[str]:
     der ganzen Erzählung. Gemessen: Der Engpass-Satz spreizt die
     Trefferliste mehr als doppelt so weit wie die rohe Erzählung, weil er
     in der Sprache der Muster geschrieben ist.
+
+    **Diese Sicht allein reicht nicht.** In drei Messläufen über denselben
+    Text fand dieser Abruf dreimal etwas anderes, während der Abruf über
+    die Erzählung dreimal dasselbe fand. Schärfer heisst nicht
+    zuverlässiger. Deshalb geht er zusammen mit `familien_aus_erzaehlung`
+    an den Planner — als zweite Sicht, nicht als Ersatz.
     """
 
     suchtext = f"{diagnose.engpass_satz} {diagnose.verstanden.engpass_absatz}"
+    return _abgerufene_familien(suchtext)
+
+
+def familien_aus_erzaehlung(narrative_text: str) -> list[str]:
+    """Was der Abruf über die **ganze Erzählung** für passend hält.
+
+    Die breite Sicht: Sie kennt auch, was neben dem einen diagnostizierten
+    Engpass liegt — Statusfragen, Kapazität, Portale.
+
+    **Gemessen, warum es sie braucht.** Dreimal derselbe Heizungsfall: Der
+    Abruf über die Erzählung schlug jedes Mal dieselben sechs Familien vor,
+    der Abruf über die Diagnose jedes Mal andere. Zwei davon — Portal und
+    Kapazität — wurden dabei jedes Mal gefunden und kein einziges Mal
+    gewählt, weil sie in der verdichteten Diagnose nicht mehr vorkamen.
+    """
+
+    return _abgerufene_familien(narrative_text)
+
+
+def _abgerufene_familien(suchtext: str) -> list[str]:
+    """Die Kennungen, die ein Abruf für passend hält — oder nichts."""
+
     try:
         gefunden = retrieve_solution_context(suchtext)
     except (AIServiceError, RagConfigurationError):
@@ -296,10 +324,21 @@ def run_second_call(session_id: int, database_session: Session) -> Result:
 
     # **Auswählen statt erfinden.** Der Abruf schlägt vor, das Modell wählt
     # Kennungen, der Vertrag prüft sie gegen den freigegebenen Katalog.
+    # **Beide Abrufsichten.** Die Erzählung liefert den breiten Raum, die
+    # Diagnose den Fokus auf den Engpass. Keine ersetzt die andere.
+    aus_erzaehlung = familien_aus_erzaehlung(erzaehlung)
+    aus_diagnose = vorgeschlagene_familien(diagnose)
+    logger.info(
+        "solution_architecture.zwei_sichten erzaehlung=%s diagnose=%s nur_erzaehlung=%s",
+        aus_erzaehlung,
+        aus_diagnose,
+        [k for k in aus_erzaehlung if k not in aus_diagnose],
+    )
     gewaehlt = generate_target_architecture(
         narrative_text=erzaehlung,
         diagnose=diagnose,
-        vorgeschlagene_familien=vorgeschlagene_familien(diagnose),
+        vorgeschlagene_familien=aus_diagnose,
+        familien_aus_erzaehlung=aus_erzaehlung,
     )
     # Im Erzählkontext: Das Zusammensetzen prüft die Zitate erneut, und
     # ohne den Text lässt sich das nicht prüfen.

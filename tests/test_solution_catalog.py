@@ -624,3 +624,35 @@ def test_a_tie_is_decided_by_file_order(monkeypatch: pytest.MonkeyPatch) -> None
         getroffen = solution_catalog.zielbild_zu(["SF-01", "SF-02"])
         assert getroffen is not None
         assert getroffen["chunk_id"] == "TA-ERST"
+
+
+def test_the_planner_learns_what_a_family_requires_before_it_picks() -> None:
+    """**Voraussetzungen und Grenzen gehören vor die Wahl.**
+
+    `braucht_capabilities`, `setzt_voraus` und `bleibt_beim_menschen`
+    wurden früher erst nach der Auswahl geladen. Der Planner entschied
+    also, ohne zu wissen, was eine Familie voraussetzt und was bei ihr
+    bewusst beim Menschen bleibt — und begründete eine Wahl mit Wissen,
+    das er nicht hatte.
+    """
+
+    eintrag = next(e for e in solution_catalog.zur_auswahl([]) if e["id"] == "SF-15")
+
+    assert eintrag["setzt_voraus"], "Voraussetzungen fehlen"
+    assert eintrag["bleibt_beim_menschen"], "menschliche Grenzen fehlen"
+    assert eintrag["braucht_capabilities"], "Fähigkeiten fehlen"
+
+
+def test_capabilities_carry_their_name_not_only_an_identifier() -> None:
+    """**Eine nackte Kennung sagt nichts.**
+
+    `CAP-01` allein kostet Platz im Prompt und trägt keine Bedeutung.
+    Erst der Name macht aus einer Voraussetzung eine Information, mit der
+    sich eine Auswahl begründen lässt.
+    """
+
+    eintrag = next(e for e in solution_catalog.zur_auswahl([]) if e["id"] == "SF-15")
+
+    for faehigkeit in eintrag["braucht_capabilities"]:
+        assert faehigkeit["id"].startswith("CAP-")
+        assert faehigkeit["name"], f"{faehigkeit['id']} ohne Namen"

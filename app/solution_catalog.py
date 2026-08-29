@@ -160,6 +160,36 @@ def katalog() -> dict[str, Familie]:
     return gefunden
 
 
+def _feldliste(familie, name: str) -> list[str]:
+    """Ein Listenfeld aus dem vollen Datensatz — oder eine leere Liste.
+
+    Der Katalog ist kuratiert, aber nicht jede Familie füllt jedes Feld.
+    Ein fehlendes Feld darf die Auswahl nicht zum Scheitern bringen.
+    """
+
+    werte = familie.voller_datensatz.get(name) or []
+    return [str(eintrag) for eintrag in werte]
+
+
+def _faehigkeitsnamen() -> dict[str, str]:
+    """Kennung zu Klartext, einmal gelesen.
+
+    **Nackte Kennungen sagen nichts.** `CAP-01` allein ist für eine
+    Auswahlentscheidung wertlos — es kostet Platz im Prompt und trägt
+    keine Bedeutung. Erst mit dem Namen wird aus einer Voraussetzung eine
+    Information: „Gesprochenes in verlässlichen Text überführen“ sagt
+    dem Planner, was die Familie können muss.
+    """
+
+    namen: dict[str, str] = {}
+    for datensatz in _zeilen(FAEHIGKEITEN_DATEI):
+        kennung = str(datensatz.get("chunk_id") or "")
+        titel = str(datensatz.get("faehigkeit_name") or datensatz.get("title") or "")
+        if kennung:
+            namen[kennung] = titel
+    return namen
+
+
 def zur_auswahl(bevorzugt: list[str] | None = None) -> list[dict[str, object]]:
     """Der ganze erlaubte Katalog, kompakt, für die Auswahlentscheidung.
 
@@ -173,9 +203,17 @@ def zur_auswahl(bevorzugt: list[str] | None = None) -> list[dict[str, object]]:
     nicht weiss, was worauf aufbaut, hängt an die gewählte Familie noch
     eine Variante derselben Familie — und der Ausblick zeigt zum dritten
     Mal dasselbe Thema.
+
+    **Mit Voraussetzungen und Grenzen.** `braucht_capabilities`,
+    `setzt_voraus` und `bleibt_beim_menschen` standen hier lange nicht
+    drin — sie wurden erst **nach** der Auswahl nachgeladen. Der Planner
+    entschied also, ohne zu wissen, was eine Familie voraussetzt und was
+    bei ihr bewusst beim Menschen bleibt. Wer eine Lösung wählen soll,
+    muss ihre Bedingungen vorher kennen.
     """
 
     vorne = list(bevorzugt or [])
+    faehigkeiten = _faehigkeitsnamen()
     eintraege = [
         {
             "id": familie.kennung,
@@ -185,6 +223,12 @@ def zur_auswahl(bevorzugt: list[str] | None = None) -> list[dict[str, object]]:
             "nicht_geeignet_wenn": list(familie.nicht_geeignet_wenn),
             "reihenfolge_hinweis": familie.reihenfolge_hinweis,
             "typische_kombination": list(familie.typische_kombination),
+            "braucht_capabilities": [
+                {"id": kennung, "name": faehigkeiten.get(kennung, "")}
+                for kennung in _feldliste(familie, "braucht_capabilities")
+            ],
+            "setzt_voraus": _feldliste(familie, "setzt_voraus"),
+            "bleibt_beim_menschen": _feldliste(familie, "bleibt_beim_menschen"),
             "vom_abruf_vorgeschlagen": familie.kennung in vorne,
         }
         for familie in katalog().values()

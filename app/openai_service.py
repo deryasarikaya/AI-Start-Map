@@ -857,6 +857,7 @@ def generate_target_architecture(
     narrative_text: str,
     diagnose: Diagnose,
     vorgeschlagene_familien: Sequence[str] = (),
+    familien_aus_erzaehlung: Sequence[str] = (),
 ) -> Zielarchitektur:
     """Aufruf 2: Welche Familien aus dem Katalog — und wie heißen sie hier?
 
@@ -865,6 +866,19 @@ def generate_target_architecture(
     die richtige Familie überhaupt wählbar ist. Was der Abruf gefunden hat,
     steht als Vorschlag dabei.
 
+    **Und die Erzählung selbst.** Sie stand hier lange nicht im Payload —
+    `narrative_text` diente nur als Kontext für die Zitatprüfung. Gemessen
+    am Heizungsfall: Aus 2.064 Wörtern erreichten diesen Aufruf 115. Was
+    die Verdichtung nicht überlebte, konnte danach nicht mehr wiederkommen,
+    weil die späteren Aufrufe nur noch ausformulieren dürfen, was hier
+    gewählt wurde. Der ausdrücklich genannte Hauptschmerz des Kunden
+    überlebte in einem von drei Läufen.
+
+    **Zwei Abrufsichten statt einer.** Der Abruf über die Erzählung fand in
+    drei Läufen dreimal dasselbe, der über die Diagnose dreimal etwas
+    anderes. Beide gehen mit und bleiben unterscheidbar: die eine als
+    breiter Raum, die andere als Fokus.
+
     Geprüft wird danach serverseitig, im Vertrag: jede Kennung gegen die
     Freigabeliste, jedes Modul gegen die Bausteine seiner Familien. Ein
     Verstoß ist ein Fehler und löst den eingebauten zweiten Versuch aus.
@@ -872,15 +886,20 @@ def generate_target_architecture(
 
     from app import solution_catalog
 
-    katalog = solution_catalog.zur_auswahl(list(vorgeschlagene_familien))
+    # Beide Sichten stehen vorne im Katalog, die der Erzählung zuerst.
+    bevorzugt = list(dict.fromkeys([*familien_aus_erzaehlung, *vorgeschlagene_familien]))
+    katalog = solution_catalog.zur_auswahl(bevorzugt)
     bausteine = solution_catalog.bausteine_von([e["id"] for e in katalog])
     payload: dict[str, object] = {
+        # **Die Erzählung ist die Quelle, die Diagnose die Deutung.**
+        "SO_ERZAEHLT_ES_DER_BETRIEB": {"erzaehlung": narrative_text},
         "DIAGNOSE": diagnose.model_dump(mode="json"),
         "LOESUNGSKATALOG": [
             {**eintrag, "bausteine": bausteine.get(eintrag["id"], [])}
             for eintrag in katalog
         ],
-        "ABRUF_SCHLAEGT_VOR": list(vorgeschlagene_familien),
+        "ABRUF_AUS_ERZAEHLUNG": list(familien_aus_erzaehlung),
+        "ABRUF_AUS_DIAGNOSE": list(vorgeschlagene_familien),
         # **Kein Zielbildmuster.** Es hier aus dem Abrufvorschlag zu
         # bestimmen hiesse, es an Familien zu hängen, die noch niemand
         # gewählt hat. Das Muster folgt nach der Prüfung aus den

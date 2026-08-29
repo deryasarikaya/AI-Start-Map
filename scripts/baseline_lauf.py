@@ -76,6 +76,10 @@ class Mitschrift(logging.Handler):
     VERSTANDEN = re.compile(
         r"understanding\.written session=(\d+) runde=(\d+) rueckfrage=(\S+) seconds=([\d.]+)"
     )
+    ZWEI_SICHTEN = re.compile(
+        r"solution_architecture\.zwei_sichten erzaehlung=(\[.*?\]) diagnose=(\[.*?\]) "
+        r"nur_erzaehlung=(\[.*?\])"
+    )
 
     def __init__(self) -> None:
         super().__init__(level=logging.INFO)
@@ -88,6 +92,7 @@ class Mitschrift(logging.Handler):
         self.abdeckung: dict[str, object] = {}
         self.verstanden: dict[str, object] = {}
         self.gefiltert: list[str] = []
+        self.zwei_sichten: dict[str, str] = {}
 
     def emit(self, record: logging.LogRecord) -> None:  # noqa: D102
         try:
@@ -134,6 +139,12 @@ class Mitschrift(logging.Handler):
                 "rueckfrage": treffer.group(3) == "True",
                 "sekunden": float(treffer.group(4)),
             }
+        elif (treffer := self.ZWEI_SICHTEN.match(zeile)) is not None:
+            self.zwei_sichten = {
+                "aus_erzaehlung": treffer.group(1),
+                "aus_diagnose": treffer.group(2),
+                "nur_in_erzaehlung": treffer.group(3),
+            }
         elif zeile.startswith("solution_architecture.family_filtered"):
             self.gefiltert.append(zeile)
 
@@ -150,6 +161,7 @@ class Durchreicher:
         self.abrufanfragen: list[str] = []
         self.abruftreffer: list[dict[str, object]] = []
         self.planner: dict[str, object] = {}
+        self.payload_form: dict[str, object] = {}
 
     def um_abruf(self, echt):
         def gemessen(query: str):
@@ -173,6 +185,14 @@ class Durchreicher:
 
     def um_planner(self, echt):
         def gemessen(**kwargs):
+            # Nur Form und Groesse, nicht der Wortlaut: Die Erzaehlung
+            # gehoert nicht in eine Messdatei, die herumliegt.
+            self.payload_form = {
+                "felder": sorted(kwargs),
+                "erzaehlung_zeichen": len(str(kwargs.get("narrative_text") or "")),
+                "aus_erzaehlung": list(kwargs.get("familien_aus_erzaehlung") or []),
+                "aus_diagnose": list(kwargs.get("vorgeschlagene_familien") or []),
+            }
             ergebnis = echt(**kwargs)
             try:
                 self.planner = ergebnis.model_dump(mode="json")
@@ -280,6 +300,8 @@ def ein_lauf(nummer: int, erzaehlung: str) -> dict[str, object]:
     bericht["abdeckung_protokoll"] = mitschrift.abdeckung
     bericht["rueckfrage_gestellt"] = mitschrift.verstanden.get("rueckfrage")
     bericht["planner_ausgabe"] = durchreicher.planner
+    bericht["call2_payload_form"] = durchreicher.payload_form
+    bericht["zwei_sichten"] = mitschrift.zwei_sichten
     bericht["tokens"] = "nicht erfasst - siehe Kopf dieser Datei"
     if ergebnis is not None:
         roh = ergebnis.model_dump(mode="json")

@@ -37,17 +37,85 @@ ANSICHTEN = "ergebnis_teil2a"
 REST = "ergebnis_teil2b"
 
 
-# --- Die kleinste Lösung, die den Engpass löst ----------------------------
+# --- Erst den Raum sehen, dann fokussiert wählen -------------------------
 
 
-def test_the_selection_asks_for_the_smallest_sufficient_set() -> None:
-    """Die Auswahlregel steht da, und sie steht als Frage."""
+def test_the_selection_looks_at_the_whole_business_before_it_narrows() -> None:
+    """**Erst der Raum, dann die Auswahl — in dieser Reihenfolge.**
+
+    Hier stand: „die kleinste Menge, die den diagnostizierten Engpass
+    löst“. Zusammen mit einem Aufruf, der nur die verdichtete Diagnose
+    sah, war das eine Zange: Der Planner kannte wenig und sollte davon
+    noch das Wenigste wählen. Gemessen am Heizungsfall verschwand so der
+    ausdrücklich genannte Hauptschmerz in zwei von drei Läufen.
+
+    Die Regel verlangt jetzt zuerst den Blick auf den Betrieb und danach
+    die fokussierte Wahl. Die Prüffragen bleiben — sie waren nie das
+    Problem.
+    """
 
     fliess = _fliesstext(AUSWAHL)
 
-    assert "kleinste Menge" in fliess
+    assert "Erst den Raum sehen, dann fokussiert wählen" in fliess
     assert "Löst die verbleibende Gesamtlösung ohne diese Familie" in fliess
     assert "Bleibt eine dafür notwendige Station ungelöst" in fliess
+    # Was der Kunde deutlich sagt, darf nicht am Engpass-Satz scheitern.
+    assert "nur weil es nicht im Engpass-Satz steht" in fliess
+
+
+def test_the_selection_is_not_pushed_towards_more_families() -> None:
+    """**Breiter ist nicht dasselbe wie besser.**
+
+    Die Gegenprobe zur Regel darüber. Es wäre leicht, die Auswahl
+    dadurch „grösser“ aussehen zu lassen, dass der Prompt einfach mehr
+    Familien verlangt — eine Mindestzahl, oder „nimm alle Vorschläge“.
+    Dann sähe jede Messung danach besser aus, ohne dass das Ergebnis
+    besser wäre.
+    """
+
+    fliess = _fliesstext(AUSWAHL)
+
+    assert "Mehr Familien sind nicht besser" in fliess
+    for verbotene_aufforderung in (
+        "mindestens fünf",
+        "mindestens vier",
+        "möglichst viele",
+        "alle Vorschläge",
+    ):
+        assert verbotene_aufforderung not in fliess, verbotene_aufforderung
+
+
+def test_the_narrative_is_the_source_and_the_diagnosis_the_reading() -> None:
+    """**Die Diagnose ist nicht mehr die einzige Wahrheit.**
+
+    Der Prompt nannte die Diagnose „die einzigen Fakten über diesen
+    Betrieb“ — und der Aufruf bekam die Erzählung tatsächlich nicht zu
+    sehen. Beides gehört zusammen und wurde zusammen geändert.
+    """
+
+    prompt = _prompt(AUSWAHL)
+    fliess = _fliesstext(AUSWAHL)
+
+    assert "einzigen Fakten" not in fliess
+    assert "SO_ERZAEHLT_ES_DER_BETRIEB" in prompt
+    assert "Priorisierungshilfe" in fliess
+    # Beide Abrufsichten sind benannt und unterscheidbar.
+    assert "ABRUF_AUS_ERZAEHLUNG" in prompt
+    assert "ABRUF_AUS_DIAGNOSE" in prompt
+
+
+def test_the_selection_knows_what_a_family_requires() -> None:
+    """Voraussetzungen und Grenzen vor der Wahl, nicht danach.
+
+    `braucht_capabilities`, `setzt_voraus` und `bleibt_beim_menschen`
+    wurden früher erst **nach** der Auswahl nachgeladen. Der Planner
+    entschied ohne sie.
+    """
+
+    prompt = _prompt(AUSWAHL)
+
+    for feld in ("braucht_capabilities", "setzt_voraus", "bleibt_beim_menschen"):
+        assert feld in prompt, feld
 
 
 def test_a_mention_is_not_a_recommendation() -> None:
