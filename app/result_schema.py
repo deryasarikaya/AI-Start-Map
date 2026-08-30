@@ -1217,6 +1217,15 @@ Disposition = Literal[
 #: keine, und „passt nicht" ist auch keine.
 BEGRUENDUNG_MINDESTWOERTER = 5
 
+#: Der Wortlaut, mit dem der Server eine übergangene Entscheidung
+#: nachträgt. Als Konstante, weil die Messung ihn wiedererkennen muss:
+#: Ein nachgetragenes `open` ist keine Entscheidung des Planners, und wo
+#: dieser Unterschied verschwindet, misst sich die Prüfung selbst schön.
+NACHGETRAGEN = (
+    "Vom Server nachgetragen: Der Planner hat zu diesem Punkt nichts "
+    "entschieden."
+)
+
 
 class CoverageItem(StrictResultModel):
     """Was mit einem Signal geschieht — und warum.
@@ -1526,10 +1535,18 @@ class Zielarchitektur(StrictResultModel):
                         "welche Grenze dagegen spricht oder was schon reicht."
                     )
 
+        # **Jedes Signal, nicht nur die kritischen.** Der erste Entwurf
+        # verlangte eine Entscheidung nur bei `critical`. Gemessen am
+        # Heizungsfall hat das Modell daraufhin genau die Themen, um die
+        # es geht — Morgenübersicht, Kapazitätsgrenze, Wissen in Köpfen —
+        # als nicht kritisch eingestuft, und sie fielen wieder lautlos
+        # heraus. „Nicht kritisch" war damit der neue stille Papierkorb.
+        #
+        # Ein Signal entsteht ohnehin nur dort, wo eine Antwort eine
+        # Empfehlung verändern könnte. Wer es aufschreibt, entscheidet es.
+        # `critical` sagt danach nur noch, wie schwer eine Lücke wiegt.
         offen = [
-            kennung
-            for kennung, kritisch in register.items()
-            if kritisch and kennung not in entschieden
+            kennung for kennung in register if kennung not in entschieden
         ]
         for kennung in offen:
             self.coverage.items.append(
@@ -1537,18 +1554,19 @@ class Zielarchitektur(StrictResultModel):
                     signal_id=kennung,
                     disposition="open",
                     family_refs=[],
-                    explanation=(
-                        "Vom Server nachgetragen: Der Planner hat zu diesem "
-                        "Punkt nichts entschieden."
-                    ),
+                    explanation=NACHGETRAGEN,
                 )
             )
-        self.coverage.uncovered_critical_signal_ids = offen
+        self.coverage.uncovered_critical_signal_ids = [
+            kennung for kennung in offen if register[kennung]
+        ]
         if offen:
             logger.warning(
-                "solution.coverage_gap uebergangen=%s von_kritisch=%d",
+                "solution.coverage_gap uebergangen=%s davon_kritisch=%s "
+                "von_signalen=%d",
                 offen,
-                sum(1 for kritisch in register.values() if kritisch),
+                self.coverage.uncovered_critical_signal_ids or "keine",
+                len(register),
             )
         return self
 

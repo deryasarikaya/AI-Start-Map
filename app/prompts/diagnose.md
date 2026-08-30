@@ -205,6 +205,11 @@ ausfallen, wenn dieser Punkt nicht dastünde? Wenn nein, ist es keins.
 „Acht Leute im Betrieb" ist keins. „Termine nur, wenn wirklich jemand
 frei ist" ist eins.
 
+**Was hier steht, wird beantwortet.** Der nächste Schritt muss zu jedem
+Eintrag sagen, was damit geschieht. Das ist der Grund, sparsam zu sein —
+und zugleich der Grund, nichts Wichtiges wegzulassen, nur weil es nicht
+zum Hauptengpass gehört.
+
 Je Eintrag:
 
 - `id` — eine kurze Kennung: `S1`, `S2`, `S3` … Nichts anderes.
@@ -229,14 +234,18 @@ Je Eintrag:
   - `confirmed` — er hat es gesagt, und ein Zitat belegt es.
   - `inferred` — es folgt aus seiner Erzählung, er hat es nicht so gesagt.
   - `open` — erkennbar wichtig und aus dem Vorliegenden nicht zu klären.
-- `critical` — **muss der nächste Schritt daran vorbei? Nein?** Dann
-  `true`. Kritisch ist, was er selbst als grösste Last, als Wunsch, als
-  Startpunkt oder als Grenze benannt hat, und alles, wo Schaden entstehen
-  kann.
+- `critical` — **wie schwer wiegt es, wenn dieser Punkt übergangen
+  wird?** `true` heißt: Dann ist die Auswertung falsch, nicht nur
+  unvollständig. Das gilt für die grösste Last, den ausgesprochenen
+  Startwunsch und jede Stelle, an der Schaden entstehen kann.
 
   Sei damit sparsam und ehrlich: **zwei bis fünf kritische Signale.** Wer
-  alles kritisch nennt, hat nichts priorisiert. Wer nichts kritisch nennt,
-  hat den Speicher umsonst gefüllt.
+  alles kritisch nennt, hat nichts priorisiert.
+
+  **`false` heißt nicht „unwichtig".** Jedes Signal, das du hier
+  hinschreibst, wird im nächsten Schritt entschieden — auch dieses. Das
+  Feld sagt nur, wie schwer eine Lücke wiegt, nicht ob überhaupt jemand
+  hinsehen muss.
 - `evidence_refs` — die Kennungen aus `evidence_items`, auf denen der
   Punkt steht. Bei `confirmed` mindestens eine. Bei `inferred` und `open`
   darf die Liste leer sein.

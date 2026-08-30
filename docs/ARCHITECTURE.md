@@ -166,12 +166,21 @@ sehen bekommen darf.
 | keine Zeit- oder Geldersparnis | weder in Zahlen noch in Worten — sie wären erfunden |
 | Grenzen nur selbstgesagt | eine Einschränkung darf nur stehen, wenn der Betrieb sie genannt hat |
 | Belegkennungen echt | ein Signal darf sich nur auf eine Belegstelle berufen, die es gibt |
-| eine Entscheidung je Signal | jedes kritische Signal genau einmal in der Abdeckung |
+| eine Entscheidung je Signal | jedes Signal genau einmal in der Abdeckung, nicht nur die kritischen |
 | Einstieg wird gebaut | `start` nur auf Familien, aus denen auch ein Modul entsteht |
 | Nicht-Empfehlung begründet | `not_recommended` braucht einen tragenden Grund, nicht „passt nicht“ |
 
-**Eine Ausnahme, und sie ist bewusst.** Ein kritisches Signal, das der
-Planner übergangen hat, lässt den Lauf **nicht** scheitern. Daran ist die
+**Warum jedes Signal und nicht nur die kritischen.** Der erste Entwurf
+verlangte eine Entscheidung nur bei `critical`. Gemessen am Heizungsfall
+stufte das Modell daraufhin genau die Themen, um die es geht —
+Morgenübersicht, Kapazitätsgrenze, Wissen in Köpfen — als nicht kritisch
+ein, und sie fielen wieder lautlos heraus. „Nicht kritisch“ war der neue
+stille Papierkorb. Ein Signal entsteht ohnehin nur dort, wo eine Antwort
+die Empfehlung verändern könnte; wer es aufschreibt, entscheidet es.
+`critical` sagt seither nur noch, wie schwer eine Lücke wiegt.
+
+**Eine Ausnahme, und sie ist bewusst.** Ein Signal, das der Planner
+übergangen hat, lässt den Lauf **nicht** scheitern. Daran ist die
 Antwort nicht falsch, sondern unvollständig — und ein Kunde soll wegen
 einer fehlenden internen Zeile keine Fehlermeldung sehen. Der Server trägt
 die Lücke als `open` nach und schreibt die Kennung in

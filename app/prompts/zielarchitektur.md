@@ -34,8 +34,8 @@ der Bausteine deiner gewählten Familien ist, wird die Antwort zurückgewiesen.
   Wünsche und Startvorlieben, Grenzen, vorhandene Systeme,
   Voraussetzungen, offene Punkte. Je Signal `id`, `kind`, `statement`,
   `status`, `critical` und Verweise auf Belegstellen.
-  **Zu jedem Signal mit `critical: true` schreibst du unten in `coverage`
-  hin, was damit geschieht.**
+  **Zu jedem dieser Signale schreibst du unten in `coverage` hin, was
+  damit geschieht** — nicht nur zu den kritischen.
 - BELEGSTELLEN: die wörtlichen Zitate, auf die sich die Signale berufen,
   je mit Kennung. Zum Nachlesen — du musst sie nirgends ausgeben.
 - LOESUNGSKATALOG: alle Familien, die AI Start Map anbieten darf. Je Eintrag
@@ -488,8 +488,15 @@ Kontext. In drei Läufen hintereinander kam es im Ergebnis nicht mehr vor
 verschwindet, wurde nicht abgewogen. Er ist durchgefallen.
 
 **Was verlangt wird, ist eine Entscheidung — keine Empfehlung.** Zu
-jedem kritischen Signal genau einen Eintrag. Fünf der sechs möglichen
-Antworten kosten dich keine einzige zusätzliche Familie.
+**jedem** Signal genau einen Eintrag, nicht nur zu den kritischen. Fünf
+der sechs möglichen Antworten kosten dich keine einzige zusätzliche
+Familie.
+
+Der Grund für „jedem": Ein Signal ist ohnehin nur entstanden, weil eine
+Antwort darauf die Empfehlung verändern könnte. Was diesen Filter
+überstanden hat, ist eine Entscheidung wert — und wenn du für einen Punkt
+nur `critical: false` liest, ist das kein Grund, ihn zu übergehen,
+sondern höchstens einer, ihn schnell zu beantworten.
 
 ### Die Felder
 
@@ -523,7 +530,9 @@ Antworten kosten dich keine einzige zusätzliche Familie.
 
 Dazu `uncovered_critical_signal_ids`: die kritischen Signale, zu denen du
 selbst keine Entscheidung triffst. Normalerweise leer — der Server rechnet
-das Feld ohnehin selbst nach.
+das Feld ohnehin selbst nach und trägt jede fehlende Entscheidung als
+`open` nach. Nachgetragen zählt aber als übergangen, nicht als
+entschieden.
 
 ### Was das nicht heißt
 

@@ -298,12 +298,13 @@ def _entscheidungsspiegel(
     entschieden wurde — und ob ueberhaupt jemand entschieden hat.
     """
 
+    from app.result_schema import NACHGETRAGEN
+
     abdeckung = (planner or {}).get("coverage") or {}
     nach_signal = {
         eintrag.get("signal_id"): eintrag
         for eintrag in (abdeckung.get("items") or [])
     }
-    uebergangen = set(abdeckung.get("uncovered_critical_signal_ids") or [])
     spiegel: list[dict[str, object]] = []
     for signal in signale:
         eintrag = nach_signal.get(signal.get("id")) or {}
@@ -321,7 +322,8 @@ def _entscheidungsspiegel(
                 # Ein nachgetragenes `open` ist keine Entscheidung des
                 # Planners. Der Unterschied darf im Bericht nicht
                 # verschwinden, sonst misst er sich selbst schoen.
-                "vom_planner": signal.get("id") not in uebergangen,
+                "vom_planner": bool(eintrag)
+                and eintrag.get("explanation") != NACHGETRAGEN,
             }
         )
     return spiegel
@@ -470,7 +472,7 @@ def main() -> int:
         erg = bericht.get("ergebnis") or {}
         spiegel = bericht.get("entscheidungsspiegel") or []
         kritisch = [z for z in spiegel if z.get("critical")]
-        entschieden = [z for z in kritisch if z.get("vom_planner")]
+        entschieden = [z for z in spiegel if z.get("vom_planner")]
         print(
             f"  {bericht['sekunden_gesamt']}s | "
             f"{len(bericht['modellaufrufe'])} Aufrufe | "
@@ -480,7 +482,7 @@ def main() -> int:
         )
         print(
             f"  Signale={len(spiegel)} kritisch={len(kritisch)} "
-            f"vom Planner entschieden={len(entschieden)}/{len(kritisch)}",
+            f"vom Planner entschieden={len(entschieden)}/{len(spiegel)}",
             flush=True,
         )
         for zeile in spiegel:

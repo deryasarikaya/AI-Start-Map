@@ -28,6 +28,7 @@ import pytest
 from pydantic import ValidationError
 
 from app.result_schema import (
+    NACHGETRAGEN,
     Coverage,
     Diagnose,
     Zielarchitektur,
@@ -362,14 +363,44 @@ def test_older_diagnoses_stay_readable() -> None:
 
 
 def test_coverage_is_accepted() -> None:
-    """Beide kritischen Signale entschieden — nichts bleibt offen."""
+    """Beide kritischen Signale entschieden — nichts Kritisches bleibt offen."""
 
     with signalregister(_gepruefte_signale()), narrative(ERZAEHLUNG):
         gewaehlt = Zielarchitektur.model_validate(_zielarchitektur())
 
     assert gewaehlt.coverage is not None
     assert gewaehlt.coverage.uncovered_critical_signal_ids == []
-    assert {e.signal_id for e in gewaehlt.coverage.items} == {"S1", "S2"}
+    # S3 ist nicht kritisch und wurde vom Planner übergangen — es bekommt
+    # trotzdem eine Entscheidung, weil sonst „nicht kritisch" der neue
+    # stille Papierkorb wäre.
+    assert {e.signal_id for e in gewaehlt.coverage.items} == {"S1", "S2", "S3"}
+
+
+def test_a_signal_that_is_not_critical_is_decided_too() -> None:
+    """Der Befund, an dem der erste Entwurf gescheitert ist.
+
+    Verlangte der Vertrag eine Entscheidung nur bei `critical`, stufte das
+    Modell genau die Themen, um die es geht — Morgenübersicht,
+    Kapazitätsgrenze, Wissen in Köpfen — als nicht kritisch ein. Sie
+    fielen wieder lautlos heraus, nur eine Ebene tiefer. „Nicht kritisch"
+    war der neue stille Papierkorb.
+
+    Ein nicht kritisches Signal darf schnell beantwortet werden. Es darf
+    nicht unbeantwortet bleiben.
+    """
+
+    with signalregister(_gepruefte_signale()), narrative(ERZAEHLUNG):
+        gewaehlt = Zielarchitektur.model_validate(_zielarchitektur())
+
+    assert gewaehlt.coverage is not None
+    nicht_kritisch = next(
+        e for e in gewaehlt.coverage.items if e.signal_id == "S3"
+    )
+    assert nicht_kritisch.disposition == "open"
+    # Nachgetragen zählt nicht als kritische Lücke — S3 ist keine.
+    assert gewaehlt.coverage.uncovered_critical_signal_ids == []
+    # Aber es bleibt erkennbar, dass der Planner es war, der schwieg.
+    assert nicht_kritisch.explanation == NACHGETRAGEN
 
 
 def test_skipped_critical_signal_becomes_visible() -> None:
@@ -412,6 +443,9 @@ def test_missing_coverage_is_filled_for_every_critical_signal() -> None:
 
     assert gewaehlt.coverage is not None
     assert gewaehlt.coverage.uncovered_critical_signal_ids == ["S1", "S2"]
+    # Auch das nicht kritische S3 bekommt eine Entscheidung — es zählt nur
+    # nicht als kritische Lücke.
+    assert [e.signal_id for e in gewaehlt.coverage.items] == ["S1", "S2", "S3"]
     assert all(e.disposition == "open" for e in gewaehlt.coverage.items)
 
 
