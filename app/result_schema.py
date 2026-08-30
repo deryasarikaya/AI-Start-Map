@@ -189,6 +189,12 @@ _signalregister: contextvars.ContextVar[dict[str, bool] | None] = (
     contextvars.ContextVar("entscheidungssignale", default=None)
 )
 
+#: Die Belegkennungen aus Aufruf 1. Dieselbe Begründung: Aufruf 2 beruft
+#: sich beim Why-not auf Belege, und ob es die gibt, steht in der Diagnose.
+_belegregister: contextvars.ContextVar[frozenset[str] | None] = (
+    contextvars.ContextVar("belegstellen", default=None)
+)
+
 
 def _vergleichbarer_name(text: str) -> str:
     """Zwei Modulnamen vergleichbar machen, ohne sie zu verändern."""
@@ -342,18 +348,28 @@ def rejected_quotes() -> list[str]:
 
 
 @contextmanager
-def signalregister(signale: Sequence[DecisionSignal]) -> Iterator[None]:
-    """Stellt die Signale aus Aufruf 1 für die Prüfung von Aufruf 2 bereit.
+def signalregister(
+    signale: Sequence[DecisionSignal],
+    belege: Sequence[EvidenceItem] = (),
+) -> Iterator[None]:
+    """Stellt Signale und Belege aus Aufruf 1 für die Prüfung von Aufruf 2 bereit.
 
     Ohne diesen Rahmen kann der Vertrag nicht feststellen, ob der Planner
     ein Signal übergangen hat — und genau dafür ist diese Prüfung da.
+
+    Die Belege stehen daneben, weil das Why-not sich auf sie beruft: Eine
+    bewusste Nicht-Empfehlung ist glaubwürdiger, wenn sie auf einen Satz
+    des Betriebs zeigt — und ein Verweis auf einen Beleg, den es nicht
+    gibt, ist dieselbe Erfindung wie ein erfundenes Zitat.
     """
 
     marke = _signalregister.set({s.id: s.critical for s in signale})
+    marke_belege = _belegregister.set(frozenset(b.id for b in belege))
     try:
         yield
     finally:
         _signalregister.reset(marke)
+        _belegregister.reset(marke_belege)
 
 
 def _current_narrative(info: ValidationInfo) -> str | None:
@@ -1265,6 +1281,55 @@ class Coverage(StrictResultModel):
     uncovered_critical_signal_ids: Annotated[list[str], Field(max_length=12)] = []
 
 
+#: Warum etwas Naheliegendes **jetzt** nicht empfohlen wird. Sechs
+#: Gründe, und keiner davon ist „passt nicht". Ein Why-not ohne
+#: tragenden Grund ist stilles Weglassen mit einer Überschrift davor.
+WhyNotGrund = Literal[
+    "missing_prerequisite",
+    "safety_boundary",
+    "human_boundary",
+    "existing_solution_is_enough",
+    "too_early_for_start",
+    "not_useful_now",
+]
+
+
+class WhyNot(StrictResultModel):
+    """Eine Möglichkeit, die bewusst nicht empfohlen wird — Aufruf 2.
+
+    **Warum das ein eigenes Feld ist und nicht nur eine Disposition.**
+
+    `coverage` beantwortet, was mit einem *Signal* geschieht. Das Why-not
+    beantwortet etwas anderes: Was hätte hier nahegelegen, und warum tun
+    wir es nicht? Das muss kein Signal gewesen sein — die automatische
+    Terminbuchung bei einem Betrieb, der über Termine klagt, drängt sich
+    auf, ohne dass er sie je verlangt hat.
+
+    In drei gemessenen Läufen des Heizungsfalls entstand über die
+    Disposition kein einziges `not_recommended`. Ein Abschnitt, der nur
+    zufällig entsteht, ist kein Abschnitt.
+
+    **Nie auffüllen.** Null ist die richtige Antwort, wenn nichts
+    Naheliegendes ausgeschlossen wurde. Zwei sind die Obergrenze: Eine
+    Liste von Absagen liest sich als Verteidigung, nicht als Beratung.
+    """
+
+    #: Was nicht empfohlen wird, in der Sprache des Betriebs. Kein
+    #: Familienname, kein Produkt: „Termine automatisch vergeben".
+    titel: NonEmptyText
+    #: Woraus es käme. Mindestens eine Familie aus dem Katalog — sonst
+    #: wäre die Absage so erfunden wie die Empfehlung es wäre.
+    family_refs: Annotated[list[str], Field(min_length=1, max_length=2)]
+    grund: WhyNotGrund
+    #: Der Grund in einem Satz, für diesen Betrieb. Intern.
+    erlaeuterung: NonEmptyText
+    #: Die Belegkennungen, falls der Betrieb selbst etwas dazu gesagt hat.
+    evidence_refs: Annotated[list[NonEmptyText], Field(max_length=3)] = []
+    #: Was fehlt, damit es später doch ginge. Nur bei
+    #: `missing_prerequisite` und `too_early_for_start` sinnvoll.
+    fehlende_voraussetzung: str | None = None
+
+
 class Zielarchitektur(StrictResultModel):
     """Die ausgewählte Lösung und ihre Formulierung — Aufruf 2.
 
@@ -1302,6 +1367,9 @@ class Zielarchitektur(StrictResultModel):
     #: **Was aus den Signalen geworden ist.** Leer mit Vorgabe, damit
     #: bestehende Tests und Läufe ohne Ledger weiterlaufen.
     coverage: Coverage | None = None
+    #: **Was bewusst nicht empfohlen wird.** Null bis zwei. Leer ist die
+    #: richtige Antwort, wenn nichts Naheliegendes ausgeschlossen wurde.
+    why_not: Annotated[list[WhyNot], Field(max_length=2)] = []
 
     @model_validator(mode="after")
     def the_whole_way_is_written_down(self) -> Zielarchitektur:
@@ -1571,6 +1639,65 @@ class Zielarchitektur(StrictResultModel):
         return self
 
     @model_validator(mode="after")
+    def a_refusal_names_something_real(self) -> Zielarchitektur:
+        """Jede Absage zeigt auf eine echte Familie und einen echten Beleg.
+
+        **Und nie auf etwas, das gleichzeitig empfohlen wird.** „Wir
+        empfehlen den Kundenzugang und empfehlen ihn nicht" ist keine
+        Abwägung, sondern ein Widerspruch — und der Leser glaubt danach
+        keiner der beiden Aussagen.
+        """
+
+        if not self.why_not:
+            return self
+        from app import solution_catalog
+
+        belege = _belegregister.get()
+        gewaehlt = set(self.selected_solution_family_ids)
+        gesehen: list[str] = []
+        for absage in self.why_not:
+            eigene, fremde = solution_catalog.pruefe_auswahl(absage.family_refs)
+            if fremde:
+                raise ValueError(
+                    f"Die Nicht-Empfehlung „{absage.titel}“ nennt eine "
+                    f"Familie, die es nicht gibt: {fremde}."
+                )
+            if not eigene:
+                raise ValueError(
+                    f"Die Nicht-Empfehlung „{absage.titel}“ nennt keine "
+                    "Familie aus dem Katalog."
+                )
+            widerspruch = [k for k in eigene if k in gewaehlt]
+            if widerspruch:
+                raise ValueError(
+                    f"Die Nicht-Empfehlung „{absage.titel}“ nennt "
+                    f"{widerspruch}, aber diese Familie wurde empfohlen. "
+                    "Beides zusammen geht nicht."
+                )
+            doppelt = [k for k in eigene if k in gesehen]
+            if doppelt:
+                raise ValueError(
+                    f"Die Nicht-Empfehlung „{absage.titel}“ sagt {doppelt} "
+                    "ein zweites Mal ab."
+                )
+            gesehen.extend(eigene)
+            absage.family_refs = eigene
+            if len(absage.erlaeuterung.split()) < BEGRUENDUNG_MINDESTWOERTER:
+                raise ValueError(
+                    f"Die Nicht-Empfehlung „{absage.titel}“ hat keine "
+                    "nachvollziehbare Begründung."
+                )
+            if belege is None:
+                continue
+            erfunden = [b for b in absage.evidence_refs if b not in belege]
+            if erfunden:
+                raise ValueError(
+                    f"Die Nicht-Empfehlung „{absage.titel}“ beruft sich auf "
+                    f"Belege, die es nicht gibt: {erfunden}."
+                )
+        return self
+
+    @model_validator(mode="after")
     def the_path_opens_a_new_area_each_step(self) -> Zielarchitektur:
         """Jede Stufe eine Familie, und keine Familie zweimal.
 
@@ -1614,6 +1741,100 @@ class Zielarchitektur(StrictResultModel):
         return self
 
 
+#: Die vier Zustände, in denen die Ergebnisseite einen Bereich zeigt.
+#: `today` ist kein Familienzustand — er beschreibt, was heute läuft, und
+#: steht deshalb nicht in diesem Vertrag, sondern im Vergleich.
+Phase = Literal["today", "start", "target", "future"]
+
+
+class DecisionState(StrictResultModel):
+    """Die fachliche Entscheidung eines Laufs — festgehalten, nicht abgeleitet.
+
+    **Warum es das gibt.** Die Ergebnisseite muss wissen, was zum
+    Einstieg gehört, was zum Zielbild und was bewusst später kommt. Bisher
+    liess sich das nur erraten: aus Modulstufen, aus dem Ausbaupfad, aus
+    der Reihenfolge der Familien. Jede Vorlage, die das selbst
+    zusammenreimt, trifft dabei eine fachliche Entscheidung — und zwei
+    Vorlagen reimen es verschieden zusammen. Web und PDF zeigten dann
+    verschiedene Empfehlungen aus demselben Lauf.
+
+    Hier steht sie einmal, geprüft, und beide lesen dieselbe.
+
+    **Serverseitig abgeleitet, ohne weiteren Modellaufruf.** Alles hier
+    steht bereits in Aufruf 1 und 2. Was fehlte, war die Stelle, an der
+    es zusammenkommt und geprüft wird.
+    """
+
+    contract_version: Literal["results-v1"] = "results-v1"
+    #: Die Belegstellen mit ihren Kennungen — die Adressen, auf die sich
+    #: alles Weitere beruft.
+    evidence: Annotated[list[EvidenceItem], Field(max_length=12)] = []
+    signals: Annotated[list[DecisionSignal], Field(max_length=12)] = []
+    coverage: Coverage | None = None
+    why_not: Annotated[list[WhyNot], Field(max_length=2)] = []
+    #: **Das vollständige Zielbild.** Alle empfohlenen Familien.
+    target_family_ids: Annotated[list[str], Field(max_length=8)] = []
+    #: **Der Einstieg.** Eine echte Teilmenge des Zielbilds — was zuerst
+    #: gebaut wird.
+    start_family_ids: Annotated[list[str], Field(max_length=8)] = []
+    #: **Was bewusst später kommt.** Ausserhalb des Zielbilds; sonst wäre
+    #: es kein Später, sondern ein Teil davon.
+    future_family_ids: Annotated[list[str], Field(max_length=8)] = []
+    #: Signale, die erkannt und nicht entschieden werden konnten. Sie
+    #: bleiben als offene Frage sichtbar.
+    open_signal_ids: Annotated[list[str], Field(max_length=12)] = []
+
+    @model_validator(mode="after")
+    def the_start_lies_inside_the_target(self) -> DecisionState:
+        """Start liegt im Zielbild, Später liegt draussen, alles im Katalog.
+
+        Die drei Listen sind serverseitig gerechnet — trotzdem werden sie
+        geprüft. Ein gespeichertes Ergebnis wird beim Lesen erneut durch
+        diesen Vertrag geschickt, und was dabei nicht mehr stimmt, soll
+        auffallen und nicht auf die Seite.
+        """
+
+        from app import solution_catalog
+
+        for feld in ("target_family_ids", "start_family_ids", "future_family_ids"):
+            eigene, fremde = solution_catalog.pruefe_auswahl(getattr(self, feld))
+            if fremde:
+                raise ValueError(
+                    f"„{feld}“ nennt eine Familie, die es im freigegebenen "
+                    f"Katalog nicht gibt: {fremde}."
+                )
+            setattr(self, feld, eigene)
+
+        ausserhalb = [
+            k for k in self.start_family_ids if k not in self.target_family_ids
+        ]
+        if ausserhalb:
+            raise ValueError(
+                f"Der Einstieg nennt {ausserhalb}, aber diese Familie gehört "
+                "nicht zum Zielbild. Womit man anfängt, ist ein Teil dessen, "
+                "wohin man will."
+            )
+        drin = [k for k in self.future_family_ids if k in self.target_family_ids]
+        if drin:
+            raise ValueError(
+                f"„später“ nennt {drin}, aber diese Familie steht schon im "
+                "Zielbild. Dann ist sie kein Später."
+            )
+        if self.target_family_ids and not self.start_family_ids:
+            raise ValueError(
+                "Es gibt ein Zielbild, aber keinen Einstieg. Eine Empfehlung "
+                "ohne ersten Schritt ist keine."
+            )
+
+        kennungen = {signal.id for signal in self.signals}
+        erfunden = [k for k in self.open_signal_ids if k not in kennungen]
+        if erfunden:
+            raise ValueError(
+                f"Offen gemeldet sind Signale, die es nicht gibt: {erfunden}."
+            )
+        return self
+
+
 class ResultPartOne(StrictResultModel):
     """Der obere Teil der Ergebnisseite — der erste Modellaufruf.
 
@@ -1634,6 +1855,11 @@ class ResultPartOne(StrictResultModel):
     # Die Obergrenze bleibt — sie schützt vor einer Aufzählung statt einer
     # Lösung.
     module: Annotated[list[Module], Field(max_length=9)]
+    #: **Die festgehaltene Entscheidung dieses Laufs.** Leer mit Vorgabe:
+    #: Ergebnisse von vor diesem Vertrag haben sie nicht, und ihnen eine
+    #: anzudichten hiesse, einen geprüften Durchlauf zu fälschen. Was mit
+    #: solchen Läufen geschieht, entscheidet der Aufrufer.
+    entscheidung: DecisionState | None = None
     # **Der Ausbaupfad, nicht ein weiteres Modul.**
     #
     # Er steht neben den Modulen und nicht zwischen ihnen: Die Module

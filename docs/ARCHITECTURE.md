@@ -77,7 +77,7 @@ einzige zusätzliche Lösungsfamilie.** Das ist Absicht: Verlangt wird eine
 Entscheidung, keine Empfehlung. Ein Vertrag, der für jedes Signal eine
 Familie fordert, würde Empfehlungen erzwingen — genau das, wogegen der
 Katalogweg gebaut ist.
-| 2 | Zielarchitektur | `zielarchitektur.md` | `Zielarchitektur` | Katalogauswahl, Module, Name, Zielbild, künftiger Ablauf |
+| 2 | Zielarchitektur | `zielarchitektur.md` | `Zielarchitektur` | Katalogauswahl, Module, Name, Zielbild, künftiger Ablauf, Abdeckung, Nicht-Empfehlungen |
 | 3 | Ansichten | `ergebnis_teil2a.md` | `ResultPartTwoViews` | Beispieloberflächen |
 | 4 | Rest | `ergebnis_teil2b.md` | `ResultPartTwoRest` | Aufgabenteilung, Wert, Systeme, Umsetzung, Hebel |
 
@@ -194,6 +194,47 @@ eine Entscheidung“ eine Zahl, die der Server sich selbst schenkt.
 Ein Verstoß führt zu einem zweiten Versuch mit Hinweis. Kommt auch der nicht
 sauber zurück, entsteht **kein** Ergebnis — es gibt keinen Rückfall auf
 Beispieldaten.
+
+### Die festgehaltene Entscheidung
+
+Nach Aufruf 2 steht alles fachlich Entschiedene fest — nur an fünf
+verschiedenen Stellen: gewählte Familien, Abdeckung je Signal,
+Ausbaupfad, Modulstufen, Nicht-Empfehlungen. Was davon der **Einstieg**
+ist und was das **Zielbild**, musste sich bisher jede Vorlage selbst
+zusammenreimen.
+
+Das darf keine Vorlage tun. Wer es sich zusammenreimt, trifft eine
+fachliche Entscheidung — und zwei Vorlagen reimen es verschieden
+zusammen. Web und PDF zeigten dann aus demselben Lauf verschiedene
+Empfehlungen, ohne dass jemand etwas geändert hätte.
+
+`app/decision_state.py` führt es an einer Stelle zusammen, **ohne
+weiteren Modellaufruf**, und legt es als `entscheidung` mit ins
+gespeicherte Ergebnis:
+
+| Feld | was |
+|---|---|
+| `evidence` | die Belegstellen mit ihren Kennungen |
+| `signals` | der Entscheidungsspeicher aus Aufruf 1 |
+| `coverage` | was aus jedem Signal wurde |
+| `why_not` | null bis zwei bewusste Nicht-Empfehlungen |
+| `target_family_ids` | das vollständige Zielbild |
+| `start_family_ids` | der Einstieg — eine Teilmenge davon |
+| `future_family_ids` | was bewusst später kommt — ausserhalb des Zielbilds |
+| `open_signal_ids` | erkannt, nicht entscheidbar |
+
+Geprüfte Invarianten: Start liegt im Zielbild, Später liegt draussen,
+jede Kennung steht im freigegebenen Katalog, ein Zielbild ohne Einstieg
+wird zurückgewiesen. Läufe von vor diesem Vertrag haben das Feld nicht —
+es bleibt leer, statt ihnen eine Entscheidung anzudichten.
+
+**Das ausdrückliche Why-not.** `coverage` beantwortet, was mit einem
+*Signal* geschieht. Das Why-not beantwortet etwas anderes: was
+nahegelegen hätte und warum es nicht kommt. In drei gemessenen Läufen des
+Heizungsfalls entstand über die Abdeckung kein einziges
+`not_recommended` — ein Abschnitt, der nur zufällig entsteht, ist keiner.
+Null bis zwei, nie aufgefüllt, und keine Familie darf gleichzeitig
+empfohlen und abgesagt werden.
 
 ---
 

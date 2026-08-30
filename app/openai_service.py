@@ -937,7 +937,9 @@ def generate_target_architecture(
         # **ausgewählten** Familien.
         "VERBOTENE_WOERTER": list(FORBIDDEN_CUSTOMER_TERMS),
     }
-    with narrative(narrative_text), signalregister(diagnose.decision_signals):
+    with narrative(narrative_text), signalregister(
+        diagnose.decision_signals, diagnose.evidence_items
+    ):
         gewaehlt = parse_structured_output(
             system_prompt=_prompt("zielarchitektur"),
             payload=payload,
@@ -982,6 +984,11 @@ def generate_target_architecture(
             - len(gewaehlt.coverage.uncovered_critical_signal_ids),
             gewaehlt.coverage.uncovered_critical_signal_ids or "keine",
         )
+    logger.info(
+        "solution.why_not anzahl=%d gruende=%s",
+        len(gewaehlt.why_not),
+        [absage.grund for absage in gewaehlt.why_not] or "keine",
+    )
     return gewaehlt
 
 

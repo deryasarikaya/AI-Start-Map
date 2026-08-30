@@ -560,6 +560,65 @@ zum Hauptengpass gehört. Es bekommt eine der sechs Antworten.
  aus der Erzählung nicht hervor."}
 ```
 
+## Was Sie bewusst nicht empfehlen — `why_not`
+
+**Null bis zwei. Meistens null oder eins.**
+
+Hier steht, was bei diesem Betrieb nahegelegen hätte und trotzdem nicht
+kommt. Das ist etwas anderes als die Abdeckung oben: Die beantwortet, was
+mit einem *Signal* geschieht. Hier geht es um eine *Möglichkeit*, die sich
+aufdrängt — auch wenn der Betrieb sie nie verlangt hat.
+
+> Ein Betrieb klagt über Terminanrufe. Automatische Terminvergabe liegt
+> auf der Hand. Sie kommt trotzdem nicht, weil niemand weiß, wer wann
+> wirklich frei ist. **Das gehört hingeschrieben.** Ein Kunde, der es
+> nicht liest, fragt sich, ob wir nicht daran gedacht haben.
+
+**Nie auffüllen.** Wenn nichts Naheliegendes ausgeschlossen wurde, bleibt
+die Liste leer. Eine Reihe von Absagen liest sich als Verteidigung, nicht
+als Beratung — und die zweite ist fast immer die erfundene.
+
+### Wann ein Eintrag hierher gehört
+
+- Der Betrieb hat es selbst angesprochen, und Sie empfehlen es nicht.
+- Es wäre für diese Branche das Erste, woran man denkt.
+- Es fehlt genau eine Voraussetzung, und ohne sie wird es schlecht.
+
+**Nicht** hierher gehört alles, was ohnehin niemand erwartet hätte. Eine
+Absage zu etwas, das nie zur Debatte stand, erzeugt die Frage erst.
+
+### Die Felder
+
+- `titel` — was nicht kommt, in seiner Sprache. „Termine automatisch
+  vergeben", nicht „Terminfamilie". Kein Produktname.
+- `family_refs` — eine oder zwei Kennungen aus dem Katalog, aus denen es
+  käme. **Keine davon darf gewählt sein.** Etwas zu empfehlen und
+  gleichzeitig abzusagen ist keine Abwägung, sondern ein Widerspruch.
+- `grund` — einer von sechs:
+
+  - `missing_prerequisite` — es fehlt etwas, das dafür da sein muss.
+  - `safety_boundary` — es könnte Schaden anrichten.
+  - `human_boundary` — der Betrieb will es beim Menschen lassen.
+  - `existing_solution_is_enough` — er hat schon etwas, das das kann.
+  - `too_early_for_start` — richtig, aber nicht als Erstes.
+  - `not_useful_now` — für diesen Betrieb in dieser Grösse nicht sinnvoll.
+- `erlaeuterung` — ein Satz, an seinem Alltag festgemacht. Kein Scoring,
+  keine Rangzahl, kein „passt nicht".
+- `evidence_refs` — Belegkennungen, falls er selbst etwas dazu gesagt
+  hat. Sonst leer.
+- `fehlende_voraussetzung` — bei `missing_prerequisite` und
+  `too_early_for_start`: was dafür da sein müsste. Sonst `null`.
+
+```
+{"titel": "Termine automatisch vergeben",
+ "family_refs": ["SF-06"],
+ "grund": "missing_prerequisite",
+ "erlaeuterung": "Ein Termin ist nur so verlässlich wie die Kapazität
+ dahinter, und die steht heute in keinem System.",
+ "evidence_refs": ["B4"],
+ "fehlende_voraussetzung": "Eine verlässliche Auskunft, wer wann frei ist"}
+```
+
 ## Der Ausbaupfad — `ausbaupfad`
 
 Hier entscheidet sich, ob der Betrieb eine **Funktion** kauft oder eine

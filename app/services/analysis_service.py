@@ -23,7 +23,7 @@ from app.rag_service import (
 )
 from pydantic import ValidationError
 
-from app import solution_catalog
+from app import decision_state, solution_catalog
 from app.result_schema import (
     Diagnose,
     Result,
@@ -300,6 +300,13 @@ def zusammengesetzt(diagnose: Diagnose, gewaehlt: Zielarchitektur) -> ResultPart
                 "kuenftig": gewaehlt.vergleich_kuenftig,
             },
             "module": [modul.model_dump() for modul in gewaehlt.module],
+            # **Die Entscheidung wandert mit ins Ergebnis.** Ohne sie
+            # müsste die Ergebnisseite aus Modulstufen und Ausbaupfad
+            # erraten, was Einstieg und was Zielbild ist — und Web und
+            # PDF erraten es verschieden.
+            "entscheidung": decision_state.aus_lauf(
+                diagnose, gewaehlt
+            ).model_dump(mode="json"),
             # Der Ausbaupfad steht neben den Modulen, nicht in ihnen: Die
             # Module sind die Lösung, der Pfad ist das, was danach möglich
             # wird.

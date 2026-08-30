@@ -50,6 +50,7 @@ würde irgendwann eine Familie behaupten, die es nicht mehr gibt.
 | Bereich | Datei | worum es geht |
 |---|---|---|
 | **Der Vertrag** | `test_result_contract.py` | Zitate wörtlich, keine erfundenen Zahlen, keine Fachsprache, Grenzen nur selbstgesagt |
+| **Der Entscheidungszustand** | `test_decision_state.py` | Start im Zielbild, Später ausserhalb, Nicht-Empfehlungen, Persistenz, alte Läufe bleiben lesbar |
 | **Die Entscheidung** | `test_decision_signals.py` | Signalspeicher, Belegkennungen, eine Entscheidung je kritischem Signal, übergangene Signale werden sichtbar |
 | **Das Geländer** | `test_solution_catalog.py` | erfundene Kennungen, Module ohne Baustein, kein Katalogtreffer, vorhandene Software, zu viele Familien |
 | **Die Hydration** | `test_solution_hydration.py` | dass die gewählten Familien wirklich geladen werden — und die ungewählten nicht |
