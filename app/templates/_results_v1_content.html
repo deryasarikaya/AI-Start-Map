@@ -1,0 +1,88 @@
+{% set start_key = dto.karte.start[0] if dto.karte.start else (dto.sichtbare_module[0].module_key if dto.sichtbare_module else '') %}
+<section id="ai-start-map" class="result-section map-section" aria-labelledby="map-title">
+  <div class="section-intro">
+    <p class="eyebrow">Ihre AI Start Map</p>
+    <h2 id="map-title">So könnte Ihr Betrieb künftig zusammenarbeiten</h2>
+    <p>Die Karte zeigt die Bereiche Ihres Betriebs: was heute sichtbar ist, wo der Einstieg liegt und was danach möglich wird.</p>
+  </div>
+  <div class="map-workspace" data-map-workspace>
+    <div class="map-stage">
+      <div class="map-filters" aria-label="Kartenansicht filtern">
+        <button type="button" data-map-filter="heute" aria-pressed="false">Heute</button>
+        <button type="button" data-map-filter="start" aria-pressed="true">Hier starten</button>
+        <button type="button" data-map-filter="target" aria-pressed="false">Zielbild</button>
+        <button type="button" data-map-filter="future" aria-pressed="false">Später möglich</button>
+      </div>
+      <div class="map-grid" aria-label="Betriebs-Lösungsraum">
+        {% for modul in dto.module %}
+        <button type="button" class="map-node map-node--{{ modul.state }}{% if modul.module_key == start_key %} is-selected{% endif %}" data-map-node data-state="{{ modul.state }}" data-module-key="{{ modul.module_key }}" aria-pressed="{{ 'true' if modul.module_key == start_key else 'false' }}">
+          <span class="map-node__state">{{ {'heute':'Heute', 'start':'Hier starten', 'target':'Zielbild', 'future':'Später möglich', 'still':''}[modul.state] }}</span>
+          <span>{{ modul.customer_label }}</span>
+        </button>
+        {% endfor %}
+        <div class="operating-center">
+          <span>Zusammenlauf</span><strong>{{ dto.karte.mitte.label }}</strong><small>{{ dto.karte.mitte.zweck }}</small>
+        </div>
+      </div>
+    </div>
+    <aside class="module-panels" aria-live="polite">
+      {% for modul in dto.sichtbare_module %}
+      <article class="module-detail{% if modul.module_key != start_key %} is-detail-hidden{% endif %}" data-module-detail="{{ modul.module_key }}">
+        <p class="card-kicker">{{ {'heute':'Heute', 'start':'Hier würden wir anfangen', 'target':'Teil Ihres Zielbilds', 'future':'Später möglich'}[modul.state] }}</p>
+        <h3>{{ modul.customer_label }}</h3>
+        {% if modul.capability_refs %}
+        <div><p class="detail-label">Das kann die Lösung übernehmen</p><ul class="capability-list">{% for capability in modul.capability_refs[:5] %}<li>{{ capability.label }}</li>{% endfor %}</ul></div>
+        {% endif %}
+        {% for beleg in dto.belege if beleg.id in modul.evidence_refs %}
+        <blockquote class="evidence-inline"><p>„{{ beleg.zitat }}“</p><footer>{{ beleg.bedeutung }}</footer></blockquote>
+        {% endfor %}
+        {% if modul.boundary_refs %}
+        <div class="detail-boundary"><p class="detail-label">Entscheidung bleibt beim Menschen</p>{% for ref in modul.boundary_refs %}{% set grenze = dto.grenzen[ref] %}<p>{{ grenze.titel }}</p>{% endfor %}</div>
+        {% endif %}
+      </article>
+      {% else %}<p class="empty-state">Für diese Auswertung liegt noch kein sichtbarer Einstieg vor.</p>{% endfor %}
+    </aside>
+  </div>
+</section>
+
+<section class="result-section evidence-section" aria-labelledby="evidence-title">
+  <div class="section-intro"><p class="eyebrow">Warum genau dort</p><h2 id="evidence-title">Ihre Aussagen tragen die Entscheidung</h2><p>Der Einstieg folgt nicht einem allgemeinen Muster, sondern den Stellen, an denen Ihr Alltag heute hängen bleibt.</p></div>
+  <div class="evidence-grid">
+    {% for beleg in dto.belege[:3] %}<article class="evidence-card"><blockquote>„{{ beleg.zitat }}“</blockquote><p>{{ beleg.bedeutung }}</p></article>{% endfor %}
+  </div>
+</section>
+
+<section class="result-section operating-section" aria-labelledby="operating-title">
+  <div class="section-intro"><p class="eyebrow">So arbeitet Ihr Zielbild</p><h2 id="operating-title">Ein verlässlicher Ablauf statt verstreuter Einzelinformationen</h2></div>
+  <div class="operating-flow">
+    <article><span>1</span><h3>Eingänge</h3><p>Was hereinkommt, wird am richtigen Ort sichtbar.</p></article>
+    <article><span>2</span><h3>Arbeit ordnen</h3><p>Wichtige Angaben und nächste Schritte bleiben zusammen.</p></article>
+    <article class="operating-flow__center"><span>3</span><h3>{{ dto.karte.mitte.label }}</h3><p>{{ dto.karte.mitte.zweck }}</p></article>
+    <article><span>4</span><h3>Menschen einbinden</h3><p>Ihr Team entscheidet dort, wo Erfahrung und Verantwortung zählen.</p></article>
+    <article><span>5</span><h3>Ergebnis</h3><p>Der nächste Schritt bleibt für alle nachvollziehbar.</p></article>
+  </div>
+</section>
+
+{% if dto.ansichten.primary and dto.ansichten.primary.hat_inhalt %}
+<section class="result-section experience-section" aria-labelledby="experience-title">
+  <div class="section-intro"><p class="eyebrow">So könnte das konkret aussehen</p><h2 id="experience-title">{{ dto.ansichten.primary.titel }}</h2><p>{{ dto.ansichten.primary.inhalt.beschreibung }}</p></div>
+  <div class="experience-primary">{{ ansichten.ansicht(dto.ansichten.primary.inhalt) }}</div>
+  {% if dto.ansichten.supporting %}<div class="experience-supporting">{% for experience in dto.ansichten.supporting if experience.hat_inhalt %}<article>{{ ansichten.ansicht(experience.inhalt) }}</article>{% endfor %}</div>{% endif %}
+</section>
+{% endif %}
+
+<section class="result-section control-section" aria-labelledby="control-title">
+  <div class="section-intro"><p class="eyebrow">Klare Zuständigkeiten</p><h2 id="control-title">Das kann die Lösung übernehmen. Das entscheidet weiterhin Ihr Team.</h2></div>
+  <div class="control-grid">
+    <article class="card card--accent"><h3>Die Lösung übernimmt</h3><ul>{% for modul in dto.sichtbare_module if modul.capability_refs %}{% for capability in modul.capability_refs[:2] %}<li>{{ capability.label }}</li>{% endfor %}{% endfor %}</ul></article>
+    <article class="card card--normal"><h3>Ihr Team entscheidet</h3><ul>{% for punkt in dto.mensch_behaelt[:5] %}<li>{{ punkt }}</li>{% endfor %}{% for grenze in dto.grenzen[:2] %}<li>{{ grenze.titel }}</li>{% endfor %}</ul></article>
+  </div>
+</section>
+
+{% if dto.ausblicke %}<section class="result-section future-section" aria-labelledby="future-title"><div class="section-intro"><p class="eyebrow">Später möglich</p><h2 id="future-title">Was dadurch später interessant werden könnte</h2></div><div class="future-grid">{% for ausblick in dto.ausblicke[:4] %}<article class="card card--normal"><p class="card-kicker">{{ 'Zielbild erweitern' if ausblick.phase == 'target' else 'Später möglich' }}</p><h3>{{ ausblick.outcome }}</h3><p>{{ ausblick.grund_fuer_spaeter }}</p>{% for beleg in dto.belege if beleg.id in ausblick.beleg_refs %}<blockquote>„{{ beleg.zitat }}“</blockquote>{% endfor %}</article>{% endfor %}</div></section>{% endif %}
+
+{% if dto.nicht_empfohlen %}<section class="result-section why-not-section" aria-labelledby="why-not-title"><div class="section-intro"><p class="eyebrow">Bewusst nicht zuerst</p><h2 id="why-not-title">Was wir jetzt noch nicht empfehlen</h2></div>{% for eintrag in dto.nicht_empfohlen %}<article class="why-not-item"><h3>{{ eintrag.titel }}</h3><p>{{ eintrag.erlaeuterung }}</p>{% if eintrag.fehlende_voraussetzung %}<p><b>Voraussetzung:</b> {{ eintrag.fehlende_voraussetzung }}</p>{% endif %}</article>{% endfor %}</section>{% endif %}
+
+{% if dto.offene_fragen %}<section class="open-questions" aria-labelledby="questions-title"><h2 id="questions-title">Das würden wir vor der Umsetzung noch klären</h2><ul>{% for frage in dto.offene_fragen %}<li>{{ frage }}</li>{% endfor %}</ul></section>{% endif %}
+
+<section class="result-cta card card--elevated"><div><p class="eyebrow">Ihr nächster Schritt</p><h2>Startpunkt gemeinsam prüfen</h2><p>Im Gespräch klären wir, wie dieser Einstieg zu Ihrem Betrieb passt.</p></div><div class="cta-actions">{% set kontakt = gespraechs_adresse() %}{% if kontakt %}<a class="primary-button" href="{{ kontakt }}">Startpunkt gemeinsam prüfen <span aria-hidden="true">→</span></a>{% else %}<p class="contact-missing">Die Kontaktadresse ist auf diesem Server nicht hinterlegt.</p>{% endif %}<a class="secondary-button button-link" href="{{ url_for('show_example_pdf', example_slug=example_slug) if beispiel else url_for('show_report_pdf_public') }}">Auswertung als PDF</a></div></section>

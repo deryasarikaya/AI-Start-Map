@@ -24,12 +24,13 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, JSONResponse, Response
 from sqlalchemy.orm import Session
 
-from app import bericht_pdf, repository
+from app import bericht_pdf, repository, results_dto
 from app.hintergrund import auswertung_erzeugen
 from app.database import get_db_session
 from app.models import AnalysisSession, InterviewQuestion
 from app.questions import INTRO_KEYS, INTRO_QUESTIONS
 from app.rag_service import RagConfigurationError
+from app.result_schema import Result
 from app.services import analysis_service, example_service
 from app.services.example_service import ExampleNotFound
 from app.services.demo_service import (
@@ -454,8 +455,8 @@ def show_results(
         return redirect_response(next_valid_path(database_session, session_id))
     return templates.TemplateResponse(
         request=request,
-        name="ergebnis.html",
-        context={"session_id": session_id, "e": ergebnis, **kartenkontext(ergebnis)},
+        name="results_v1.html",
+        context={"session_id": session_id, "dto": results_dto.von_ergebnis(ergebnis)},
     )
 
 
@@ -485,10 +486,9 @@ def show_report(
         return redirect_response(next_valid_path(database_session, session_id))
     return templates.TemplateResponse(
         request=request,
-        name="report.html",
+        name="report_v1.html",
         context={
-            "e": ergebnis,
-            **kartenkontext(ergebnis),
+            "dto": results_dto.von_ergebnis(ergebnis),
             "auswertungsdatum": date.today().strftime("%d.%m.%Y"),
         },
     )
@@ -505,11 +505,50 @@ def _berichtsdaten(database_session: Session, session_id: int) -> dict[str, obje
     ergebnis = analysis_service.stored_result(database_session, session_id)
     if ergebnis is None:
         return None
+    return _berichtsdaten_aus_ergebnis(ergebnis)
+
+
+def _berichtsdaten_aus_ergebnis(ergebnis: Result) -> dict[str, object]:
+    """Baut den einen PDF-/Web-Kontext ausschließlich aus dem ResultDTO."""
+
     return {
-        "e": ergebnis,
-        **kartenkontext(ergebnis),
+        "dto": results_dto.von_ergebnis(ergebnis),
         "auswertungsdatum": date.today().strftime("%d.%m.%Y"),
     }
+
+
+@router.get(
+    "/beispiel/{example_slug}/report.pdf",
+    name="show_example_pdf",
+)
+async def show_example_pdf(
+    request: Request,
+    example_slug: str,
+    database_session: Session = Depends(get_db_session),
+) -> Response:
+    """Erzeugt den PDF-Auszug eines Beispielergebnisses ohne Sitzungscookie."""
+
+    try:
+        ergebnis = example_service.example_result(database_session, example_slug)
+    except ExampleNotFound:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND) from None
+    html = templates.get_template("report_v1.html").render(
+        request=request,
+        pdf=True,
+        beispiel=True,
+        example_slug=example_slug,
+        **_berichtsdaten_aus_ergebnis(ergebnis),
+    )
+    try:
+        dokument = await bericht_pdf.aus_html(html)
+    except bericht_pdf.PdfNichtVerfuegbar:
+        logger.exception("Beispiel-PDF konnte nicht erzeugt werden, slug %s", example_slug)
+        return redirect_response(f"/beispiel/{example_slug}")
+    return Response(
+        content=dokument,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'inline; filename="{bericht_pdf.dateiname(date.today().strftime("%d.%m.%Y"))}"'},
+    )
 
 
 @router.get(
@@ -539,7 +578,7 @@ async def show_report_pdf(
     if daten is None:
         return redirect_response(next_valid_path(database_session, session_id))
 
-    html = templates.get_template("report.html").render(
+    html = templates.get_template("report_v1.html").render(
         request=request, pdf=True, **daten
     )
     try:
@@ -617,8 +656,12 @@ def show_example(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND) from None
     return templates.TemplateResponse(
         request=request,
-        name="ergebnis.html",
-        context={"e": ergebnis, "beispiel": True, **kartenkontext(ergebnis)},
+        name="results_v1.html",
+        context={
+            "dto": results_dto.von_ergebnis(ergebnis),
+            "beispiel": True,
+            "example_slug": example_slug,
+        },
     )
 
 

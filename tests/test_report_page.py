@@ -41,10 +41,10 @@ def test_the_report_opens_the_solution_space_but_does_not_plan_it(client: TestCl
     assert bericht.status_code == 200
     # Der Befund und der Lösungsraum — das gehört hinein.
     for ueberschrift in (
-        "Derselbe Vorgang, heute und künftig",
-        "So könnte Ihr Alltag aussehen",
-        "Aus diesen Modulen besteht Ihre Lösung",
-        "Was das System übernimmt",
+        "Ihre AI Start Map",
+        "Ihre Aussagen tragen die Entscheidung",
+        "Ein verlässlicher Ablauf statt verstreuter Einzelinformationen",
+        "Das kann die Lösung übernehmen. Das entscheidet weiterhin Ihr Team.",
     ):
         assert ueberschrift in bericht.text, ueberschrift
 
@@ -70,27 +70,18 @@ def test_the_report_reads_the_stored_result(client: TestClient) -> None:
     # Der Engpass-Satz steht auf beiden und stammt aus derselben Quelle.
     # Der Bericht erzählt in acht Seiten, jede mit einem eigenen Umbruch.
     for ueberschrift in (
-        "Das haben wir verstanden",
-        # Die Gegenüberstellung steht auf derselben Seite wie der Befund —
-        # sie ist die Antwort darauf.
-        "Derselbe Vorgang, heute und künftig",
-        "So liefe derselbe Vorgang künftig",
-        "So könnte Ihre Lösung konkret aussehen",
+        "AI Start Map · Ihre Auswertung",
         "Ihre AI Start Map",
-        "Damit würden wir anfangen",
-        "Kontrolle und Grenzen",
+        "Ihre Aussagen tragen die Entscheidung",
+        "Ein verlässlicher Ablauf statt verstreuter Einzelinformationen",
+        "Startpunkt gemeinsam prüfen",
     ):
         assert ueberschrift in bericht, ueberschrift
     # Der Anhang ist weg: Der Bericht stellt fest, das Gespräch plant.
     assert "Anhang" not in bericht
-    assert bericht.count("berichtseite") >= 6
-    # Das Deckblatt: die eine Seite, die aus einem Ausdruck einen
-    # Bericht macht.
-    assert "Ihre persönliche KI-Auswertung" in bericht
-    assert "Erstellt auf Grundlage Ihrer eigenen Beschreibung" in bericht
-    # Und die Karte, statisch — sie steht ohne Skript vollständig richtig.
-    assert "Sie sind hier. Und das ist das Gelände dahinter." in bericht
-    assert "Ihr gemeinsamer" in bericht
+    assert "results_v1.css" in bericht
+    # Die Karte steht ohne Skript vollständig im Dokument.
+    assert "Betriebs-Lösungsraum" in bericht
     # Die Überschrift taugt nicht als Anker: Auf der Tafel steht dort
     # eine feste Zeile, kein Kundenwort. Der Engpass-Satz ist beides —
     # Kundenwort, und er steht auf beiden Seiten.
@@ -98,7 +89,7 @@ def test_the_report_reads_the_stored_result(client: TestClient) -> None:
     # Aus dem Bericht gelesen: Dort trägt der Satz eine eigene Klasse.
     # Ein Anker auf „das erste h1" wäre falsch — das ist seit dem
     # Deckblatt der Titel des Berichts, nicht sein Befund.
-    engpass = bericht.split('class="engpasssatz">')[1].split("</h1>")[0].strip()
+    engpass = bericht.split("<h1>")[1].split("</h1>")[0].strip()
     assert engpass
     assert engpass in seite
 
@@ -119,9 +110,7 @@ def test_the_document_is_measured_here_not_in_a_print_dialog(client: TestClient)
 
     bericht = client.get("/report").text
 
-    assert "@page { size: A4; margin: 14mm 16mm 16mm 16mm; }" in bericht
-    # Das Deckblatt trägt seine Farbe bis an den Blattrand.
-    assert "@page cover { margin: 0; }" in bericht
+    assert "@page { size: A4; margin: 14mm; }" in bericht
     # Niemand wird mehr um einen Tastendruck gebeten.
     assert "window.print()" not in bericht
     assert "Strg+P" not in bericht
@@ -159,7 +148,7 @@ def test_the_result_page_links_to_the_report(client: TestClient) -> None:
 
     seite = client.get("/results").text
 
-    assert "Auswertung als PDF ansehen" in seite
+    assert "Auswertung als PDF" in seite
     # „Enthält mehr Details als diese Zusammenfassung" ist gestrichen:
     # Seit das PDF dieselbe Auswertung mit Deckblatt ist, war der Satz ein
     # Versprechen, das die Datei nicht einlöst.
@@ -212,7 +201,7 @@ def test_the_report_leaves_the_order_to_the_conversation(client: TestClient) -> 
 
     assert "Womit wir anfangen" not in bericht
     assert "Wo das hinführt" not in bericht
-    assert "Möchten Sie den nächsten Schritt besprechen?" in bericht
+    assert "Startpunkt gemeinsam prüfen" in bericht
 
 def test_the_page_holds_without_an_order(client: TestClient, monkeypatch) -> None:
     """Ein älteres Ergebnis ohne Reihenfolge zeigt die Seite trotzdem.
@@ -226,7 +215,7 @@ def test_the_page_holds_without_an_order(client: TestClient, monkeypatch) -> Non
 
     assert antwort.status_code == 200
     assert "Womit wir anfangen" not in antwort.text
-    assert "So könnte Ihre Lösung konkret aussehen" in antwort.text
+    assert "Ihre AI Start Map" in antwort.text
 def test_the_pdf_button_returns_a_real_document(client: TestClient) -> None:
     """**Der Knopf verspricht ein PDF — also kommt eines zurück.**
 

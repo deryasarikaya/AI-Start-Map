@@ -1,0 +1,45 @@
+{% import "ansichten.html" as ansichten %}
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ihre Auswertung · AI Start Map</title>
+  <link rel="stylesheet" href="{{ statisch('/styles.css') }}">
+  <link rel="stylesheet" href="{{ statisch('/results_v1.css') }}">
+</head>
+<body class="results-v1">
+  <header class="site-header">
+    <div class="page-shell header-inner">
+      <a class="brand" href="{{ url_for('landing') }}" aria-label="AI Start Map Startseite"><span class="brand-mark">AI</span><span>AI START MAP</span></a>
+    </div>
+  </header>
+  {% include "_page_background.html" %}
+  <main class="results-shell">
+    {% if beispiel %}
+    <p class="example-notice"><b>Gespeicherter Beispiellauf.</b> Diese Auswertung beschreibt eine Hausverwaltung, nicht Ihren Betrieb.</p>
+    {% endif %}
+    <section class="result-hero" aria-labelledby="result-title">
+      <div class="result-hero__decision">
+        <p class="eyebrow">AI Start Map · Ihre Auswertung</p>
+        <h1 id="result-title">{{ dto.uebersicht.engpass }}</h1>
+        <p class="result-hero__target">{{ dto.uebersicht.zielbild_satz }}</p>
+        {% for beleg in dto.belege if beleg.id in dto.uebersicht.beleg_refs %}
+        {% if loop.index == 1 %}<blockquote class="evidence-inline"><p>„{{ beleg.zitat }}“</p><footer>{{ beleg.bedeutung }}</footer></blockquote>{% endif %}
+        {% endfor %}
+        <a class="map-jump" href="#ai-start-map">Auf Ihrer AI Start Map ansehen <span aria-hidden="true">↓</span></a>
+      </div>
+      <aside class="result-hero__start card card--elevated" aria-label="Empfohlener Start">
+        <p class="card-kicker">Hier würden wir anfangen</p>
+        {% for key in dto.uebersicht.einstieg_refs %}
+          {% set modul = dto.modul(key) %}
+          {% if modul %}<p class="start-name">{{ modul.customer_label }}</p>{% endif %}
+        {% endfor %}
+        <p class="start-note">Ein klarer Einstieg, der auf Ihr Zielbild einzahlt.</p>
+      </aside>
+    </section>
+    {% include "_results_v1_content.html" %}
+  </main>
+  <script src="{{ statisch('/results_v1.js') }}" defer></script>
+</body>
+</html>

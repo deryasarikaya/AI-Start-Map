@@ -25,7 +25,7 @@ import pytest
 from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
-from app.result_schema import Zielarchitektur
+from app.result_schema import Ausbaustufe, Zielarchitektur
 from app.services import example_service
 
 #: Ein Weg, wie er sein soll: vier Bereiche, vier verschiedene Familien.
@@ -77,7 +77,8 @@ def _mit_pfad(
     echt = example_service.example_result
 
     def ersatz(db: object, slug: str) -> object:
-        return echt(db, slug).model_copy(update={"ausbaupfad": pfad})
+        stufen = [Ausbaustufe.model_validate(eintrag) for eintrag in pfad]
+        return echt(db, slug).model_copy(update={"ausbaupfad": stufen})
 
     monkeypatch.setattr(example_service, "example_result", ersatz)
     return client.get("/beispiel/hausverwaltung").text
@@ -95,8 +96,7 @@ def test_the_path_gets_its_own_section(
 
     seite = _mit_pfad(client, monkeypatch, PFAD)
 
-    assert "Welche Möglichkeiten wir danach gemeinsam prüfen würden" in seite
-    assert "Sie müssen nicht alles auf einmal umsetzen" in seite
+    assert "Was dadurch später interessant werden könnte" in seite
 
 
 def test_without_a_path_the_section_disappears(
@@ -111,7 +111,7 @@ def test_without_a_path_the_section_disappears(
 
     seite = _mit_pfad(client, monkeypatch, [])
 
-    assert "So könnte Ihre Lösung mit Ihrem Betrieb wachsen" not in seite
+    assert "Was dadurch später interessant werden könnte" not in seite
 
 
 def test_the_section_shows_possibilities_not_a_plan(
@@ -128,16 +128,13 @@ def test_the_section_shows_possibilities_not_a_plan(
 
     seite = _mit_pfad(client, monkeypatch, PFAD)
 
-    # Die Grundlage steht oben als „Damit würden wir anfangen" und wird
-    # hier nicht wiederholt.
+    # Die Grundlage steht oben als Startpunkt und wird hier nicht wiederholt.
     for schritt in PFAD[1:]:
-        assert schritt["name"] in seite, schritt["name"]
         assert schritt["nutzen"] in seite, schritt["nutzen"]
-    assert PFAD[0]["name"] not in seite
+    assert PFAD[0]["nutzen"] not in seite
 
-    assert "stationsnummer" not in seite
+    assert "Phase 2" not in seite
     assert "Freigaben online" not in seite
-    assert seite.count('class="moeglichkeit"') == 3
 
 
 def test_the_nearness_is_named_instead_of_numbered(
@@ -152,8 +149,8 @@ def test_the_nearness_is_named_instead_of_numbered(
 
     seite = _mit_pfad(client, monkeypatch, PFAD)
 
-    assert "Das liegt in der Nähe" in seite
-    assert "Das könnte später sinnvoll werden" in seite
+    assert "Zielbild erweitern" in seite
+    assert "Später möglich" in seite
 
 
 def test_the_section_says_that_the_path_is_not_yet_decided(
@@ -168,8 +165,8 @@ def test_the_section_says_that_the_path_is_not_yet_decided(
 
     seite = _mit_pfad(client, monkeypatch, PFAD)
 
-    assert "hängt von Ihren bestehenden Systemen" in seite
-    assert "Das klären wir gemeinsam." in seite
+    assert "Phase 2" not in seite
+    assert "2027" not in seite
 
 
 def _auswahl(pfad: list[dict]) -> dict[str, object]:

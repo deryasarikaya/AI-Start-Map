@@ -34,7 +34,7 @@ def test_the_example_is_available_without_a_model_call(
     antwort = client.get("/beispiel/hausverwaltung")
 
     assert antwort.status_code == 200
-    assert "So könnte Ihre Lösung konkret aussehen" in antwort.text
+    assert "AI Start Map · Ihre Auswertung" in antwort.text
 
 
 def test_the_example_says_that_it_is_an_example(client: TestClient) -> None:
@@ -43,7 +43,7 @@ def test_the_example_says_that_it_is_an_example(client: TestClient) -> None:
     antwort = client.get("/beispiel/hausverwaltung")
 
     assert "Gespeicherter Beispiellauf" in antwort.text
-    assert "beschreibt nicht Ihren" in antwort.text
+    assert "nicht Ihren Betrieb" in antwort.text
 
 
 def test_a_real_result_carries_no_example_notice(client: TestClient) -> None:
@@ -229,13 +229,13 @@ def test_the_stored_example_carries_a_full_result(client: TestClient) -> None:
     seite = client.get("/beispiel/hausverwaltung").text
 
     for abschnitt in (
-        "Das haben wir verstanden",
-        "Was heute unnötig Aufwand erzeugt",
-        "Das würde sich für Sie verändern",
-        "So könnte Ihre Lösung konkret aussehen",
-        "Damit würden wir anfangen",
-        "Das läuft künftig automatisch",
-        "Möchten Sie so arbeiten?",
+        "AI Start Map · Ihre Auswertung",
+        "Hier würden wir anfangen",
+        "Ihre AI Start Map",
+        "Ihre Aussagen tragen die Entscheidung",
+        "Ein verlässlicher Ablauf statt verstreuter Einzelinformationen",
+        "Das kann die Lösung übernehmen. Das entscheidet weiterhin Ihr Team.",
+        "Startpunkt gemeinsam prüfen",
     ):
         assert abschnitt in seite, abschnitt
 

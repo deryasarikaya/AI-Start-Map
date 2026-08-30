@@ -167,19 +167,14 @@ def test_a_path_leads_from_the_centre_to_every_marked_point() -> None:
 
 
 def test_the_map_is_drawn_not_tabulated(client: TestClient) -> None:
-    """Es ist eine Landkarte, kein Raster aus Kästen.
-
-    Die erste Fassung war genau das: sechs rechteckige Blöcke mit
-    Punktlisten darin. Das ist ein Dashboard. Eine Karte hat Flächen,
-    einen Mittelpunkt und Wege dorthin.
-    """
+    """Die feste Operating Map zeigt die gesamte Landschaft."""
 
     seite = client.get("/beispiel/hausverwaltung").text
 
-    assert "<svg" in seite
-    assert seite.count('class="kartenzone') == 6
-    assert "kartenkern" in seite
-    assert "kartenweg" in seite
+    assert 'id="ai-start-map"' in seite
+    assert seite.count("data-map-node") == 14
+    assert "Betriebs-Lösungsraum" in seite
+    assert "Zusammenlauf" in seite
 
 
 def test_the_map_needs_no_javascript(client: TestClient) -> None:
@@ -191,11 +186,12 @@ def test_the_map_needs_no_javascript(client: TestClient) -> None:
     """
 
     seite = client.get("/beispiel/hausverwaltung").text
-    kartenteil = seite.split('<figure class="karte">', 1)[1].split("</figure>", 1)[0]
+    kartenteil = seite.split('class="map-workspace"', 1)[1].split("</section>", 1)[0]
 
     assert "<script" not in kartenteil
-    assert "kartenpunkt--start" in kartenteil or "kartenpunkt--nah" in kartenteil
-    assert "Ihr gemeinsamer" in kartenteil
+    assert "data-map-node" in kartenteil
+    assert "data-module-detail" in kartenteil
+    assert "Zusammenlauf" in kartenteil
 
 
 def test_the_map_says_where_to_begin(client: TestClient) -> None:
@@ -208,12 +204,13 @@ def test_the_map_says_where_to_begin(client: TestClient) -> None:
 
     seite = client.get("/beispiel/hausverwaltung").text
 
-    assert "Sie sind hier. Und das ist das Gelände dahinter." in seite
-    assert "Hervorgehoben ist, wo ein sinnvoller Startpunkt liegt." in seite
+    assert "So könnte Ihr Betrieb künftig zusammenarbeiten" in seite
+    assert "Die Karte zeigt die Bereiche Ihres Betriebs" in seite
     for zustand in (
         "Hier würden wir anfangen",
-        "Das liegt in der Nähe",
-        "Das gibt es darüber hinaus",
+        "Heute",
+        "Zielbild",
+        "Später möglich",
     ):
         assert zustand in seite, zustand
 
@@ -228,5 +225,5 @@ def test_the_phone_gets_the_same_points_as_a_list(client: TestClient) -> None:
 
     seite = client.get("/beispiel/hausverwaltung").text
 
-    assert 'class="kartenliste"' in seite
-    assert seite.count('class="listengebiet"') == 6
+    assert 'class="map-grid"' in seite
+    assert seite.count("data-map-node") == 14

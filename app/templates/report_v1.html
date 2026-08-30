@@ -1,0 +1,6 @@
+{% import "ansichten.html" as ansichten %}
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ihre Auswertung · AI Start Map</title>
+{% if pdf %}<style>{{ stil('styles.css') }}</style><style>{{ stil('results_v1.css') }}</style>{% else %}<link rel="stylesheet" href="{{ statisch('/styles.css') }}"><link rel="stylesheet" href="{{ statisch('/results_v1.css') }}">{% endif %}
+<style>@page { size: A4; margin: 14mm; } @media print { .site-header, .map-filters, .cta-actions { display: none; } .result-section { break-inside: avoid; } }</style></head>
+<body class="results-v1 report-v1"><header class="site-header"><div class="page-shell header-inner"><span class="brand"><span class="brand-mark">AI</span><span>AI START MAP</span></span></div></header><main class="results-shell"><p class="eyebrow">AI Start Map · Ihre Auswertung</p><h1>{{ dto.uebersicht.engpass }}</h1><p class="report-date">Erstellt am {{ auswertungsdatum }}</p>{% include "_results_v1_content.html" %}</main></body></html>
