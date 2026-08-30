@@ -160,6 +160,103 @@ Vorgang von seinem Anfang bis zu seinem Ende, jede Zeile einen Schritt
 weiter. Vier zusammenhanglose Beobachtungen beantworten nicht, was der
 eine Ablauf ist, an dem sich etwas ändern soll.
 
+## Der Entscheidungsspeicher — `evidence_items` und `decision_signals`
+
+**Diese beiden Felder sieht der Kunde nie.** Sie gehen an den nächsten
+Schritt, der aus einem Katalog die Lösung auswählt. Ihr einziger Zweck:
+Nichts Wichtiges soll dabei lautlos verlorengehen.
+
+Das passiert sonst. Ein Betrieb erzählt zwanzig Minuten lang, unter
+anderem, dass er morgens gern sähe, was neu, dringend und offen ist.
+Zehn Minuten später redet er über das Telefon, und das Telefon ist auch
+das Drängendere. Am Ende steht eine Lösung fürs Telefon — und die
+Morgenübersicht kommt in keiner Zeile mehr vor. Nicht abgelehnt, nicht
+verschoben, nicht bedauert. Verschwunden.
+
+Was hier steht, kann verschwinden. Was hier steht, muss der nächste
+Schritt entscheiden — und er darf „später" oder „dafür nicht" sagen. Er
+darf nur nicht schweigen.
+
+### `evidence_items` — die Stellen, auf die sich etwas berufen kann
+
+Bis zu zehn Zitate. Je Eintrag:
+
+- `id` — eine kurze Kennung: `B1`, `B2`, `B3` … Nichts anderes.
+- `zitat` — **wörtlich aus der Erzählung.** Zeichen für Zeichen, wie bei
+  `verstanden.belege`. Ein Zitat, das nicht dasteht, wird verworfen und
+  nimmt jeden Verweis darauf mit.
+- `bedeutung` — ein kurzer Satz: was diese Stelle für die Entscheidung
+  heißt.
+
+Wähl die Stellen, die etwas **entscheiden**: der genannte Hauptschmerz,
+ein ausgesprochener Wunsch, eine Grenze, ein vorhandenes System, eine
+Voraussetzung. Nicht die schönsten Sätze, sondern die folgenreichen.
+
+Ein Zitat darf mehrere Signale tragen, und ein Signal darf ohne Zitat
+auskommen. Doppelt aufführen musst du nichts.
+
+### `decision_signals` — was entschieden werden muss
+
+**Vier bis zehn.** Weniger heißt, du hast weggelassen; mehr heißt, du
+zerlegst die Erzählung, statt sie zu lesen.
+
+**Die Probe, ob etwas ein Signal ist:** Würde eine Empfehlung anders
+ausfallen, wenn dieser Punkt nicht dastünde? Wenn nein, ist es keins.
+„Acht Leute im Betrieb" ist keins. „Termine nur, wenn wirklich jemand
+frei ist" ist eins.
+
+**Was hier steht, wird beantwortet.** Der nächste Schritt muss zu jedem
+Eintrag sagen, was damit geschieht. Das ist der Grund, sparsam zu sein —
+und zugleich der Grund, nichts Wichtiges wegzulassen, nur weil es nicht
+zum Hauptengpass gehört.
+
+Je Eintrag:
+
+- `id` — eine kurze Kennung: `S1`, `S2`, `S3` … Nichts anderes.
+- `kind` — welche Art von Punkt das ist:
+
+  - `primary_pain` — die grösste Last. **Was der Betrieb selbst so
+    benennt, ist es** — nicht das, was du für die tiefere Ursache hältst.
+  - `explicit_goal` — was er ausdrücklich erreichen will.
+  - `start_preference` — womit er ausdrücklich anfangen will.
+  - `human_boundary` — was beim Menschen bleiben soll.
+  - `safety_boundary` — wo Schaden entstehen kann: Sicherheit, Recht,
+    verbindliche Zusagen, Geld.
+  - `existing_system` — was er schon hat und benutzt.
+  - `prerequisite` — was vorhanden sein muss, damit etwas funktioniert.
+  - `uncertainty` — etwas Wichtiges, das aus seiner Erzählung nicht
+    hervorgeht.
+- `statement` — der Punkt in **einem** Satz, in seiner Sprache, ohne
+  Lösung. „Anrufe unterbrechen die Arbeit beim Kunden." Nicht: „Braucht
+  einen Telefonassistenten."
+- `status`:
+
+  - `confirmed` — er hat es gesagt, und ein Zitat belegt es.
+  - `inferred` — es folgt aus seiner Erzählung, er hat es nicht so gesagt.
+  - `open` — erkennbar wichtig und aus dem Vorliegenden nicht zu klären.
+- `critical` — **wie schwer wiegt es, wenn dieser Punkt übergangen
+  wird?** `true` heißt: Dann ist die Auswertung falsch, nicht nur
+  unvollständig. Das gilt für die grösste Last, den ausgesprochenen
+  Startwunsch und jede Stelle, an der Schaden entstehen kann.
+
+  Sei damit sparsam und ehrlich: **zwei bis fünf kritische Signale.** Wer
+  alles kritisch nennt, hat nichts priorisiert.
+
+  **`false` heißt nicht „unwichtig".** Jedes Signal, das du hier
+  hinschreibst, wird im nächsten Schritt entschieden — auch dieses. Das
+  Feld sagt nur, wie schwer eine Lücke wiegt, nicht ob überhaupt jemand
+  hinsehen muss.
+- `evidence_refs` — die Kennungen aus `evidence_items`, auf denen der
+  Punkt steht. Bei `confirmed` mindestens eine. Bei `inferred` und `open`
+  darf die Liste leer sein.
+
+**Erfinde keine Kennung.** Ein Verweis zeigt auf einen Beleg, den du
+selbst geschrieben hast — sonst wird die ganze Antwort zurückgewiesen.
+
+**Und hier steht keine Lösung.** Ein Signal benennt einen Punkt des
+Betriebs, kein Modul, kein Produkt, keine Familie. Was daraus wird,
+entscheidet der nächste Schritt.
+
 ## Die Rückfrage — `rueckfrage`
 
 Meistens leer. Das ist der Normalfall und kein Mangel.

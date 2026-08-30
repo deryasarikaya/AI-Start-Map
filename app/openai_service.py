@@ -44,6 +44,7 @@ from app.result_schema import (
     Zielarchitektur,
     narrative,
     rejected_quotes,
+    signalregister,
 )
 from app.schemas import (
     AS_IS_META_PATTERN,
@@ -795,7 +796,24 @@ def generate_diagnosis(
         "VERGLEICHSWISSEN_DIAGNOSE_NIE_AUSGEBEN": list(knowledge_chunks),
     }
     with narrative(narrative_text):
-        return _diagnosis_with_enough_evidence(payload)
+        diagnose = _diagnosis_with_enough_evidence(payload)
+    # **Was der Ledger gefunden hat, gehört ins Protokoll.** Ohne diese
+    # Zeile liesse sich später nicht sagen, ob ein Punkt gar nicht erkannt
+    # oder nur nicht entschieden wurde — und das sind zwei verschiedene
+    # Fehler mit zwei verschiedenen Ursachen.
+    kritisch = [s.id for s in diagnose.decision_signals if s.critical]
+    logger.info(
+        "diagnosis.signals signale=%d kritisch=%d belege=%d arten=%s "
+        "kritische_kennungen=%s",
+        len(diagnose.decision_signals),
+        len(kritisch),
+        len(diagnose.evidence_items),
+        [s.kind for s in diagnose.decision_signals],
+        kritisch,
+    )
+    if not diagnose.decision_signals:
+        logger.warning("diagnosis.signals_missing aktion=keine")
+    return diagnose
 
 
 def _diagnosis_with_enough_evidence(payload: dict[str, object]) -> Diagnose:
@@ -890,10 +908,23 @@ def generate_target_architecture(
     bevorzugt = list(dict.fromkeys([*familien_aus_erzaehlung, *vorgeschlagene_familien]))
     katalog = solution_catalog.zur_auswahl(bevorzugt)
     bausteine = solution_catalog.bausteine_von([e["id"] for e in katalog])
+    # **Der Ledger steht neben der Diagnose, nicht in ihr.** In der
+    # Diagnose mitzuschleifen hiesse, ihn zwischen Engpass-Absatz und
+    # Eckdaten zu verstecken — er ist aber kein Beiwerk, sondern die
+    # Liste, an der dieser Aufruf gemessen wird.
+    diagnose_ohne_ledger = diagnose.model_dump(mode="json")
+    diagnose_ohne_ledger.pop("evidence_items", None)
+    diagnose_ohne_ledger.pop("decision_signals", None)
     payload: dict[str, object] = {
         # **Die Erzählung ist die Quelle, die Diagnose die Deutung.**
         "SO_ERZAEHLT_ES_DER_BETRIEB": {"erzaehlung": narrative_text},
-        "DIAGNOSE": diagnose.model_dump(mode="json"),
+        "DIAGNOSE": diagnose_ohne_ledger,
+        "BELEGSTELLEN": [
+            beleg.model_dump(mode="json") for beleg in diagnose.evidence_items
+        ],
+        "ENTSCHEIDUNGSSIGNALE": [
+            signal.model_dump(mode="json") for signal in diagnose.decision_signals
+        ],
         "LOESUNGSKATALOG": [
             {**eintrag, "bausteine": bausteine.get(eintrag["id"], [])}
             for eintrag in katalog
@@ -906,7 +937,7 @@ def generate_target_architecture(
         # **ausgewählten** Familien.
         "VERBOTENE_WOERTER": list(FORBIDDEN_CUSTOMER_TERMS),
     }
-    with narrative(narrative_text):
+    with narrative(narrative_text), signalregister(diagnose.decision_signals):
         gewaehlt = parse_structured_output(
             system_prompt=_prompt("zielarchitektur"),
             payload=payload,
@@ -932,6 +963,24 @@ def generate_target_architecture(
             "solution.coverage stufen=%d offen=%s",
             len(gewaehlt.ausbaupfad),
             offen or "keine",
+        )
+    # **Und was aus den Signalen geworden ist.** Eine Zeile je Lauf, damit
+    # sich über mehrere Läufe hinweg ablesen lässt, ob derselbe Bedarf
+    # jedes Mal dieselbe Behandlung bekommt.
+    if gewaehlt.coverage is not None:
+        logger.info(
+            "solution.signal_coverage entscheidungen=%d verteilung=%s "
+            "vom_planner=%d nachgetragen=%s",
+            len(gewaehlt.coverage.items),
+            sorted(
+                {
+                    eintrag.disposition
+                    for eintrag in gewaehlt.coverage.items
+                }
+            ),
+            len(gewaehlt.coverage.items)
+            - len(gewaehlt.coverage.uncovered_critical_signal_ids),
+            gewaehlt.coverage.uncovered_critical_signal_ids or "keine",
         )
     return gewaehlt
 

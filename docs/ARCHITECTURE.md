@@ -19,7 +19,7 @@ Diese Trennung ist der Grund für den mehrstufigen Aufbau.
 
 | # | Aufruf | Prompt | Schema | was entsteht |
 |---|---|---|---|---|
-| 1 | Diagnose | `diagnose.md` | `Diagnose` | Engpass, Belege, Eckdaten, heutiger Ablauf, Rückfrage |
+| 1 | Diagnose | `diagnose.md` | `Diagnose` | Engpass, Belege, Eckdaten, heutiger Ablauf, Rückfrage, Entscheidungsspeicher |
 
 **Aufruf 1 sieht kein Lösungswissen.** Er bekommt die Erzählung, dazu
 Betriebsarten und Diagnosemuster als Vergleichsmaterial — keine
@@ -42,6 +42,8 @@ Seit dem Informationsvertrag bekommt er:
 | `LOESUNGSKATALOG` | alle freigegebenen Familien, je mit `braucht_capabilities`, `setzt_voraus`, `bleibt_beim_menschen` |
 | `ABRUF_AUS_ERZAEHLUNG` | die breite Abrufsicht |
 | `ABRUF_AUS_DIAGNOSE` | die enge Abrufsicht |
+| `ENTSCHEIDUNGSSIGNALE` | die Punkte, an denen er nicht vorbeikommt |
+| `BELEGSTELLEN` | die wörtlichen Zitate, auf denen sie stehen |
 
 **Zwei Abrufsichten, weil eine nicht reicht.** Über drei Läufe desselben
 Textes fand der Abruf auf der Erzählung dreimal dieselben sechs Familien,
@@ -50,6 +52,31 @@ wurden jedes Mal gefunden und kein einziges Mal gewählt.
 
 Danach gemessen: dieselbe Auswahl in allen drei Läufen, Telefon von einem
 auf drei Treffer, Portal von null auf drei.
+
+**Und der Entscheidungsspeicher, weil Finden nicht Entscheiden ist.** Nach
+der Breitensuche wurde die Morgenübersicht in drei von drei Läufen
+gefunden und dem Planner angeboten. Gewählt wurde sie in null von drei —
+und nirgends stand, dass sie nicht gewählt wurde. Ein Bedarf, den niemand
+aufgeschrieben hat, kann auch niemand bewusst ablehnen; er verschwindet.
+
+Deshalb schreibt Aufruf 1 zusätzlich auf, **was entschieden werden muss**,
+und Aufruf 2 schreibt auf, **was er damit gemacht hat**:
+
+```
+wichtige Aussage  →  Beleg  →  Signal  →  Entscheidung
+```
+
+Ein Signal ist kein Betriebsmodell. Es entsteht nur, wo eine Antwort eine
+Empfehlung, eine Grenze, eine Phase oder eine Nicht-Empfehlung verändern
+würde — vier bis zehn Stück, davon zwei bis fünf kritisch. Die Erzählung
+bleibt vollständig daneben stehen; der Speicher ersetzt sie nicht.
+
+Die sechs möglichen Entscheidungen sind `start`, `target`, `future`,
+`supporting`, `not_recommended` und `open`. **Fünf davon kosten keine
+einzige zusätzliche Lösungsfamilie.** Das ist Absicht: Verlangt wird eine
+Entscheidung, keine Empfehlung. Ein Vertrag, der für jedes Signal eine
+Familie fordert, würde Empfehlungen erzwingen — genau das, wogegen der
+Katalogweg gebaut ist.
 | 2 | Zielarchitektur | `zielarchitektur.md` | `Zielarchitektur` | Katalogauswahl, Module, Name, Zielbild, künftiger Ablauf |
 | 3 | Ansichten | `ergebnis_teil2a.md` | `ResultPartTwoViews` | Beispieloberflächen |
 | 4 | Rest | `ergebnis_teil2b.md` | `ResultPartTwoRest` | Aufgabenteilung, Wert, Systeme, Umsetzung, Hebel |
@@ -143,6 +170,31 @@ sehen bekommen darf.
 | keine internen Kennungen | Fall-, Muster-, Datei- oder Chunk-Namen |
 | keine Zeit- oder Geldersparnis | weder in Zahlen noch in Worten — sie wären erfunden |
 | Grenzen nur selbstgesagt | eine Einschränkung darf nur stehen, wenn der Betrieb sie genannt hat |
+| Belegkennungen echt | ein Signal darf sich nur auf eine Belegstelle berufen, die es gibt |
+| eine Entscheidung je Signal | jedes Signal genau einmal in der Abdeckung, nicht nur die kritischen |
+| Einstieg wird gebaut | `start` nur auf Familien, aus denen auch ein Modul entsteht |
+| Nicht-Empfehlung begründet | `not_recommended` braucht einen tragenden Grund, nicht „passt nicht“ |
+
+**Warum jedes Signal und nicht nur die kritischen.** Der erste Entwurf
+verlangte eine Entscheidung nur bei `critical`. Gemessen am Heizungsfall
+stufte das Modell daraufhin genau die Themen, um die es geht —
+Morgenübersicht, Kapazitätsgrenze, Wissen in Köpfen — als nicht kritisch
+ein, und sie fielen wieder lautlos heraus. „Nicht kritisch“ war der neue
+stille Papierkorb. Ein Signal entsteht ohnehin nur dort, wo eine Antwort
+die Empfehlung verändern könnte; wer es aufschreibt, entscheidet es.
+`critical` sagt seither nur noch, wie schwer eine Lücke wiegt.
+
+**Eine Ausnahme, und sie ist bewusst.** Ein Signal, das der Planner
+übergangen hat, lässt den Lauf **nicht** scheitern. Daran ist die
+Antwort nicht falsch, sondern unvollständig — und ein Kunde soll wegen
+einer fehlenden internen Zeile keine Fehlermeldung sehen. Der Server trägt
+die Lücke als `open` nach und schreibt die Kennung in
+`coverage.uncovered_critical_signal_ids`.
+
+Diese Liste ist die eigentliche Messung: Der nachgetragene Eintrag sorgt
+dafür, dass nichts still verschwindet, die Liste daneben sagt, wie oft der
+Planner es selbst nicht geschafft hat. Ohne sie wäre „jedes Signal hat
+eine Entscheidung“ eine Zahl, die der Server sich selbst schenkt.
 
 Ein Verstoß führt zu einem zweiten Versuch mit Hinweis. Kommt auch der nicht
 sauber zurück, entsteht **kein** Ergebnis — es gibt keinen Rückfall auf

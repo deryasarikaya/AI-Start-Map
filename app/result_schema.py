@@ -179,6 +179,17 @@ _gewaehlte_familien: contextvars.ContextVar[tuple[str, ...] | None] = (
 )
 
 
+#: Die Signale aus Aufruf 1, damit Aufruf 2 dagegen geprüft werden kann.
+#: Der Planner nennt in seiner Abdeckung Signalkennungen; ob es die gibt und
+#: welche davon kritisch sind, steht in der Diagnose — einem Objekt, das der
+#: Zielarchitektur-Vertrag nicht sieht. Wie bei `_narrative`: Die
+#: OpenAI-Schnittstelle baut das Modell selbst und reicht keinen
+#: Validierungskontext durch.
+_signalregister: contextvars.ContextVar[dict[str, bool] | None] = (
+    contextvars.ContextVar("entscheidungssignale", default=None)
+)
+
+
 def _vergleichbarer_name(text: str) -> str:
     """Zwei Modulnamen vergleichbar machen, ohne sie zu verändern."""
 
@@ -328,6 +339,21 @@ def rejected_quotes() -> list[str]:
 
     vermerkt = _aussortierte_zitate.get()
     return list(vermerkt or [])
+
+
+@contextmanager
+def signalregister(signale: Sequence[DecisionSignal]) -> Iterator[None]:
+    """Stellt die Signale aus Aufruf 1 für die Prüfung von Aufruf 2 bereit.
+
+    Ohne diesen Rahmen kann der Vertrag nicht feststellen, ob der Planner
+    ein Signal übergangen hat — und genau dafür ist diese Prüfung da.
+    """
+
+    marke = _signalregister.set({s.id: s.critical for s in signale})
+    try:
+        yield
+    finally:
+        _signalregister.reset(marke)
 
 
 def _current_narrative(info: ValidationInfo) -> str | None:
@@ -916,6 +942,79 @@ class SelectedModule(Module):
     baustein_refs: Annotated[list[str], Field(min_length=1, max_length=4)]
 
 
+#: Was ein Signal ist. Nicht jeder Satz der Erzählung wird eines — nur
+#: das, was eine Empfehlung, eine Grenze, eine Phase oder eine
+#: Nicht-Empfehlung verändern kann.
+SignalArt = Literal[
+    "primary_pain",
+    "explicit_goal",
+    "start_preference",
+    "human_boundary",
+    "safety_boundary",
+    "existing_system",
+    "prerequisite",
+    "uncertainty",
+]
+
+#: Wie sicher das Signal ist. `confirmed` steht auf einem wörtlichen Beleg,
+#: `inferred` folgt aus der Erzählung, ohne dass er es so gesagt hat,
+#: `open` ist erkannt und aus dem Vorliegenden nicht entscheidbar.
+SignalStand = Literal["confirmed", "inferred", "open"]
+
+#: Kennungen sind kurz und maschinenlesbar. Der Kunde sieht sie nie; sie
+#: verbinden Beleg, Signal und Entscheidung über drei Modellaufrufe hinweg.
+KENNUNG = re.compile(r"^[A-Za-z][A-Za-z0-9_-]{0,15}$")
+
+
+class EvidenceItem(StrictResultModel):
+    """Ein wörtliches Zitat mit einer Kennung, auf die sich etwas berufen kann.
+
+    **Der Unterschied zu `Evidence`.** `Evidence` steht auf der Seite und
+    wird gelesen. Ein `EvidenceItem` wird *referenziert*: Ein Signal sagt
+    „das steht hier", und diese Kennung ist die Adresse dafür.
+
+    Dieselbe Prüfung wie überall: Das Zitat kommt wörtlich in der
+    Erzählung vor, sonst fliegt es raus. Das ist keine neue Regel, nur
+    dieselbe an einer zweiten Stelle.
+    """
+
+    id: NonEmptyText
+    zitat: NonEmptyText
+    bedeutung: NonEmptyText
+
+
+class DecisionSignal(StrictResultModel):
+    """Ein Punkt, der eine Entscheidung verändern kann — Aufruf 1.
+
+    **Warum es das gibt.** Seit der Breitensuche wurde die Morgenübersicht
+    in drei von drei Läufen gefunden und dem Planner angeboten — und in
+    drei von drei Läufen fallengelassen, ohne dass irgendwo stand, dass
+    sie fallengelassen wurde. Ein Bedarf, den niemand aufgeschrieben hat, kann
+    auch niemand bewusst ablehnen. Er verschwindet einfach.
+
+    Ein Signal ist die Aufschreibung. Was daraus wird, entscheidet Aufruf 2
+    — aber er muss es entscheiden, und die Entscheidung ist nachlesbar.
+
+    **Kein Betriebsmodell.** Das hier zerlegt nicht die Erzählung. Wer
+    jeden Absatz zu einem Signal macht, hat eine zweite Erzählung und
+    keine Entscheidungsgrundlage.
+    """
+
+    id: NonEmptyText
+    kind: SignalArt
+    #: Der Punkt in einem Satz, in der Sprache des Betriebs. Intern.
+    statement: NonEmptyText
+    status: SignalStand
+    #: **Muss dieser Punkt bewusst entschieden werden?** `True` heisst:
+    #: Aufruf 2 kommt an ihm nicht vorbei. Nicht jedes Signal ist das —
+    #: aber was der Betrieb selbst als grösste Last, als Wunsch oder als
+    #: Grenze benannt hat, ist es.
+    critical: bool
+    #: Die Kennungen der Belege, auf denen das Signal steht. Leer ist
+    #: erlaubt: Ein abgeleitetes Signal hat keinen wörtlichen Beleg.
+    evidence_refs: Annotated[list[NonEmptyText], Field(max_length=4)] = []
+
+
 class Diagnose(StrictResultModel):
     """Was der Betrieb erzählt hat und woran es liegt — Aufruf 1.
 
@@ -930,6 +1029,110 @@ class Diagnose(StrictResultModel):
     #: deshalb hierher, nicht zur Lösung.
     vergleich_heute: Annotated[list[NonEmptyText], Field(max_length=7)]
     rueckfrage: FollowUp | None = None
+    #: **Die Belegstellen des Ledgers.** Getrennt von `verstanden.belege`:
+    #: Die stehen auf der Seite und sind auf drei begrenzt, weil dort drei
+    #: Karten hängen. Hier stehen die Stellen, auf die sich Signale berufen
+    #: — das sind mehr, und der Kunde sieht sie nie.
+    #: Leer mit Vorgabe, damit ältere gespeicherte Diagnosen lesbar bleiben.
+    evidence_items: Annotated[list[EvidenceItem], Field(max_length=12)] = []
+    #: **Was bewusst entschieden werden muss.** Leer mit Vorgabe, aus
+    #: demselben Grund.
+    decision_signals: Annotated[list[DecisionSignal], Field(max_length=12)] = []
+
+    @model_validator(mode="after")
+    def the_ledger_holds_together(self, info: ValidationInfo) -> Diagnose:
+        """Belege sind wörtlich, Kennungen eindeutig, Verweise gehen ins Leere nicht.
+
+        **Drei verschiedene Fälle, drei verschiedene Antworten.**
+
+        Ein Zitat, das nicht wörtlich dasteht, fliegt raus — dieselbe
+        Regel wie bei `verstanden.belege`, und aus demselben Grund einzeln
+        statt als Scheitern des ganzen Laufs.
+
+        Ein Verweis auf einen *so aussortierten* Beleg wird stillschweigend
+        gelöst: Das Signal bleibt, es steht nur nicht mehr auf diesem
+        Zitat. Den Fehler hat die Zitatprüfung bereits vermerkt; ihn ein
+        zweites Mal zum Scheitern zu bringen, kostet einen Modellaufruf und
+        bringt nichts.
+
+        Ein Verweis auf eine Kennung, die es **nie gab**, ist etwas
+        anderes: Da hat sich das Modell eine Adresse ausgedacht. Das ist
+        ein Fehler und löst den eingebauten zweiten Versuch aus. Sonst
+        stünde am Ende ein Signal, das behauptet, belegt zu sein, und der
+        Beleg existiert nicht.
+        """
+
+        erzaehlung = _current_narrative(info)
+        if erzaehlung is None:
+            raise ValueError(
+                "Belegstellen lassen sich ohne den Erzähltext nicht prüfen. "
+                f"Übergib ihn als Kontext unter '{NARRATIVE_CONTEXT_KEY}' "
+                "oder über narrative()."
+            )
+
+        gesehen: set[str] = set()
+        for beleg in self.evidence_items:
+            if KENNUNG.match(beleg.id) is None:
+                raise ValueError(
+                    f"Die Belegkennung „{beleg.id}“ ist keine Kennung. "
+                    "Erlaubt sind Buchstaben, Ziffern, Strich und "
+                    "Unterstrich, höchstens sechzehn Zeichen."
+                )
+            if beleg.id in gesehen:
+                raise ValueError(
+                    f"Die Belegkennung „{beleg.id}“ steht zweimal. Jede "
+                    "Kennung gehört genau einem Beleg."
+                )
+            gesehen.add(beleg.id)
+
+        haystack = normalize_for_quote_match(erzaehlung)
+        behalten: list[EvidenceItem] = []
+        verworfen: set[str] = set()
+        for beleg in self.evidence_items:
+            if normalize_for_quote_match(beleg.zitat) in haystack:
+                behalten.append(beleg)
+                continue
+            verworfen.add(beleg.id)
+            logger.warning(
+                "ledger.quote_rejected id=%s zitat=%r grund=nicht_woertlich",
+                beleg.id,
+                beleg.zitat,
+            )
+            vermerkt = _aussortierte_zitate.get()
+            if vermerkt is not None:
+                vermerkt.append(beleg.zitat)
+        self.evidence_items = behalten
+        vorhanden = {beleg.id for beleg in behalten}
+
+        signalkennungen: set[str] = set()
+        for signal in self.decision_signals:
+            if KENNUNG.match(signal.id) is None:
+                raise ValueError(
+                    f"Die Signalkennung „{signal.id}“ ist keine Kennung. "
+                    "Erlaubt sind Buchstaben, Ziffern, Strich und "
+                    "Unterstrich, höchstens sechzehn Zeichen."
+                )
+            if signal.id in signalkennungen:
+                raise ValueError(
+                    f"Die Signalkennung „{signal.id}“ steht zweimal. Jede "
+                    "Kennung gehört genau einem Signal."
+                )
+            signalkennungen.add(signal.id)
+            erfunden = [
+                bezug
+                for bezug in signal.evidence_refs
+                if bezug not in vorhanden and bezug not in verworfen
+            ]
+            if erfunden:
+                raise ValueError(
+                    f"Das Signal „{signal.id}“ beruft sich auf Belege, die "
+                    f"es nicht gibt: {erfunden}. Ein Verweis zeigt auf eine "
+                    "Kennung aus evidence_items."
+                )
+            signal.evidence_refs = [
+                bezug for bezug in signal.evidence_refs if bezug in vorhanden
+            ]
+        return self
 
 
 #: Die vier Stellen, an denen ein Ablauf hängen bleiben kann.
@@ -998,6 +1201,70 @@ class Ausbaustufe(StrictResultModel):
     solution_family_ids: Annotated[list[str], Field(min_length=1, max_length=3)]
 
 
+#: Was mit einem Signal geschieht. Sechs Antworten, und **jede davon ist
+#: eine**. Auch „derzeit nicht empfohlen" und „nicht entscheidbar" sind
+#: Entscheidungen — das stille Weglassen ist keine.
+Disposition = Literal[
+    "start",
+    "target",
+    "future",
+    "supporting",
+    "not_recommended",
+    "open",
+]
+
+#: Was `not_recommended` an Begründung mindestens braucht. Ein Wort ist
+#: keine, und „passt nicht" ist auch keine.
+BEGRUENDUNG_MINDESTWOERTER = 5
+
+#: Der Wortlaut, mit dem der Server eine übergangene Entscheidung
+#: nachträgt. Als Konstante, weil die Messung ihn wiedererkennen muss:
+#: Ein nachgetragenes `open` ist keine Entscheidung des Planners, und wo
+#: dieser Unterschied verschwindet, misst sich die Prüfung selbst schön.
+NACHGETRAGEN = (
+    "Vom Server nachgetragen: Der Planner hat zu diesem Punkt nichts "
+    "entschieden."
+)
+
+
+class CoverageItem(StrictResultModel):
+    """Was mit einem Signal geschieht — und warum.
+
+    **Abdeckung heisst nicht Umsetzung.** Ein Signal ist behandelt, wenn
+    jemand entschieden hat, was damit passiert. Dass daraus eine
+    Lösungsfamilie wird, ist einer von sechs möglichen Ausgängen und nicht
+    das Ziel. Ein Vertrag, der für jedes Signal eine Familie verlangt,
+    erzwingt Empfehlungen — und Empfehlungen, die aus einem Zwang
+    entstehen, sind das, wogegen dieser ganze Weg gebaut ist.
+    """
+
+    signal_id: NonEmptyText
+    disposition: Disposition
+    #: Die Familien, die dahinterstehen. Bei `start` und `target` Pflicht:
+    #: Wer sagt „das ist Teil der Lösung", muss sagen, welcher Teil. Bei
+    #: `supporting`, `not_recommended` und `open` darf die Liste leer sein.
+    family_refs: Annotated[list[str], Field(max_length=3)] = []
+    #: Ein Satz: warum diese Entscheidung. Intern, der Kunde sieht ihn nie.
+    explanation: NonEmptyText
+
+
+class Coverage(StrictResultModel):
+    """Die Entscheidungen zu allen Signalen — Aufruf 2.
+
+    **Die Stelle, an der Übergehen auffällt.** Vorher konnte ein wichtiger
+    Bedarf gefunden, dem Planner angeboten und lautlos übergangen werden;
+    im Ergebnis war davon nichts zu sehen, weil es keine Stelle gab, an
+    der etwas zu sehen gewesen wäre. Hier ist diese Stelle.
+    """
+
+    items: Annotated[list[CoverageItem], Field(max_length=16)] = []
+    #: **Welche kritischen Signale der Planner nicht entschieden hat.**
+    #: Serverseitig gerechnet, nicht übernommen: Eine Selbstauskunft über
+    #: die eigenen Lücken ist keine Messung. Was das Modell hier hinschreibt,
+    #: wird überschrieben.
+    uncovered_critical_signal_ids: Annotated[list[str], Field(max_length=12)] = []
+
+
 class Zielarchitektur(StrictResultModel):
     """Die ausgewählte Lösung und ihre Formulierung — Aufruf 2.
 
@@ -1032,6 +1299,9 @@ class Zielarchitektur(StrictResultModel):
     #: **Der ausgeschriebene Weg.** Vier Einträge, einer je Stelle. Leer
     #: mit Vorgabe, damit ältere gespeicherte Ergebnisse lesbar bleiben.
     abdeckung: Annotated[list[Abdeckung], Field(max_length=4)] = []
+    #: **Was aus den Signalen geworden ist.** Leer mit Vorgabe, damit
+    #: bestehende Tests und Läufe ohne Ledger weiterlaufen.
+    coverage: Coverage | None = None
 
     @model_validator(mode="after")
     def the_whole_way_is_written_down(self) -> Zielarchitektur:
@@ -1157,6 +1427,147 @@ class Zielarchitektur(StrictResultModel):
                     f"Familien. Erlaubt sind: {erlaubt}."
                 )
             modul.baustein_refs = getroffen
+        return self
+
+    @model_validator(mode="after")
+    def every_critical_signal_gets_a_decision(self) -> Zielarchitektur:
+        """Kein kritisches Signal verlässt diesen Aufruf ohne Entscheidung.
+
+        **Was ein Fehler ist und was nur eine Lücke.**
+
+        Eine erfundene Signalkennung, eine Familie ausserhalb des Katalogs,
+        ein `start`, der auf etwas zeigt, das gar nicht gebaut wird, zwei
+        Entscheidungen zu demselben Signal, ein `not_recommended` ohne
+        Grund: Das sind Fehler. Sie lösen den eingebauten zweiten Versuch
+        aus, weil die Antwort in sich nicht stimmt.
+
+        Ein kritisches Signal, das der Planner **übergangen** hat, ist
+        etwas anderes. Daran ist die Antwort nicht falsch, sondern
+        unvollständig — und den ganzen Lauf daran scheitern zu lassen,
+        setzt einen Kunden wegen einer fehlenden internen Zeile vor eine
+        Fehlermeldung. Stattdessen trägt der Server die Lücke als `open`
+        nach und schreibt die Kennung in `uncovered_critical_signal_ids`.
+
+        **Das ist keine Kosmetik, sondern die Messung.** Der nachgetragene
+        Eintrag sorgt dafür, dass nichts still verschwindet; die Liste
+        daneben sagt, wie oft der Planner es selbst nicht geschafft hat.
+        Ohne sie wäre „jedes Signal hat eine Entscheidung" eine Zahl, die
+        der Server sich selbst schenkt.
+        """
+
+        register = _signalregister.get()
+        if register is None:
+            if self.coverage is not None:
+                raise ValueError(
+                    "Die Abdeckung lässt sich ohne die Signale aus Aufruf 1 "
+                    "nicht prüfen. Übergib sie über signalregister()."
+                )
+            return self
+        if not self.catalog_fit and self.coverage is None:
+            # Ohne Katalogtreffer gibt es keine Auswahl, an der etwas
+            # hängen könnte. Ein leerer Ledger ist dann kein Versäumnis.
+            return self
+
+        from app import solution_catalog
+
+        if self.coverage is None:
+            self.coverage = Coverage()
+
+        # Welche Familien tatsächlich gebaut werden. `start` darf nur auf
+        # diese zeigen: Eine Familie, aus der kein Modul entsteht, ist
+        # kein Einstieg, sondern eine Absichtserklärung.
+        gebaut = {
+            kennung
+            for modul in self.module
+            for kennung in modul.solution_family_ids
+        }
+        gewaehlt = set(self.selected_solution_family_ids)
+
+        entschieden: list[str] = []
+        for eintrag in self.coverage.items:
+            if eintrag.signal_id not in register:
+                raise ValueError(
+                    f"Die Abdeckung nennt das Signal „{eintrag.signal_id}“, "
+                    "das es in der Diagnose nicht gibt."
+                )
+            if eintrag.signal_id in entschieden:
+                raise ValueError(
+                    f"Das Signal „{eintrag.signal_id}“ bekommt zwei "
+                    "Entscheidungen. Genau eine je Signal."
+                )
+            entschieden.append(eintrag.signal_id)
+
+            eigene, fremde = solution_catalog.pruefe_auswahl(eintrag.family_refs)
+            if fremde:
+                raise ValueError(
+                    f"Die Entscheidung zu „{eintrag.signal_id}“ nennt eine "
+                    f"Familie, die es nicht gibt: {fremde}."
+                )
+            eintrag.family_refs = eigene
+
+            if eintrag.disposition in ("start", "target"):
+                if not eigene:
+                    raise ValueError(
+                        f"Die Entscheidung „{eintrag.disposition}“ zu "
+                        f"„{eintrag.signal_id}“ nennt keine Familie. Was zur "
+                        "Lösung gehört, gehört zu einer gewählten Familie."
+                    )
+                ausserhalb = [k for k in eigene if k not in gewaehlt]
+                if ausserhalb:
+                    raise ValueError(
+                        f"Die Entscheidung „{eintrag.disposition}“ zu "
+                        f"„{eintrag.signal_id}“ nennt {ausserhalb}, aber "
+                        "diese Familie wurde nicht ausgewählt."
+                    )
+            if eintrag.disposition == "start":
+                ohne_modul = [k for k in eigene if k not in gebaut]
+                if ohne_modul:
+                    raise ValueError(
+                        f"Der Einstieg zu „{eintrag.signal_id}“ nennt "
+                        f"{ohne_modul}, aber daraus entsteht kein Modul. Ein "
+                        "Einstieg ist etwas, das gebaut wird."
+                    )
+            if eintrag.disposition == "not_recommended":
+                if len(eintrag.explanation.split()) < BEGRUENDUNG_MINDESTWOERTER:
+                    raise ValueError(
+                        f"Die Nicht-Empfehlung zu „{eintrag.signal_id}“ hat "
+                        "keine nachvollziehbare Begründung. Sag, was fehlt, "
+                        "welche Grenze dagegen spricht oder was schon reicht."
+                    )
+
+        # **Jedes Signal, nicht nur die kritischen.** Der erste Entwurf
+        # verlangte eine Entscheidung nur bei `critical`. Gemessen am
+        # Heizungsfall hat das Modell daraufhin genau die Themen, um die
+        # es geht — Morgenübersicht, Kapazitätsgrenze, Wissen in Köpfen —
+        # als nicht kritisch eingestuft, und sie fielen wieder lautlos
+        # heraus. „Nicht kritisch" war damit der neue stille Papierkorb.
+        #
+        # Ein Signal entsteht ohnehin nur dort, wo eine Antwort eine
+        # Empfehlung verändern könnte. Wer es aufschreibt, entscheidet es.
+        # `critical` sagt danach nur noch, wie schwer eine Lücke wiegt.
+        offen = [
+            kennung for kennung in register if kennung not in entschieden
+        ]
+        for kennung in offen:
+            self.coverage.items.append(
+                CoverageItem(
+                    signal_id=kennung,
+                    disposition="open",
+                    family_refs=[],
+                    explanation=NACHGETRAGEN,
+                )
+            )
+        self.coverage.uncovered_critical_signal_ids = [
+            kennung for kennung in offen if register[kennung]
+        ]
+        if offen:
+            logger.warning(
+                "solution.coverage_gap uebergangen=%s davon_kritisch=%s "
+                "von_signalen=%d",
+                offen,
+                self.coverage.uncovered_critical_signal_ids or "keine",
+                len(register),
+            )
         return self
 
     @model_validator(mode="after")

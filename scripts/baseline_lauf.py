@@ -80,6 +80,22 @@ class Mitschrift(logging.Handler):
         r"solution_architecture\.zwei_sichten erzaehlung=(\[.*?\]) diagnose=(\[.*?\]) "
         r"nur_erzaehlung=(\[.*?\])"
     )
+    # Fokus und Breite trennen sich erst im Abruf; die Zeile ist die
+    # einzige Stelle, an der beide nebeneinander stehen.
+    SICHTEN = re.compile(
+        r"solution_architecture\.sichten fokus=(\[.*?\]) breite=(\[.*?\])"
+    )
+    BREITE_FAMILIEN = re.compile(
+        r"solution_architecture\.breite_familien (\[.*?\])"
+    )
+    SIGNALE = re.compile(
+        r"diagnosis\.signals signale=(\d+) kritisch=(\d+) belege=(\d+) "
+        r"arten=(\[.*?\]) kritische_kennungen=(\[.*?\])"
+    )
+    SIGNAL_ABDECKUNG = re.compile(
+        r"solution\.signal_coverage entscheidungen=(\d+) verteilung=(\[.*?\]) "
+        r"vom_planner=(\d+) nachgetragen=(.*)"
+    )
 
     def __init__(self) -> None:
         super().__init__(level=logging.INFO)
@@ -93,6 +109,10 @@ class Mitschrift(logging.Handler):
         self.verstanden: dict[str, object] = {}
         self.gefiltert: list[str] = []
         self.zwei_sichten: dict[str, str] = {}
+        self.sichten: list[dict[str, str]] = []
+        self.breite_familien: list[str] = []
+        self.signale: dict[str, object] = {}
+        self.signal_abdeckung: dict[str, object] = {}
 
     def emit(self, record: logging.LogRecord) -> None:  # noqa: D102
         try:
@@ -145,6 +165,27 @@ class Mitschrift(logging.Handler):
                 "aus_diagnose": treffer.group(2),
                 "nur_in_erzaehlung": treffer.group(3),
             }
+        elif (treffer := self.SICHTEN.match(zeile)) is not None:
+            self.sichten.append(
+                {"fokus": treffer.group(1), "breite": treffer.group(2)}
+            )
+        elif (treffer := self.BREITE_FAMILIEN.match(zeile)) is not None:
+            self.breite_familien.append(treffer.group(1))
+        elif (treffer := self.SIGNALE.match(zeile)) is not None:
+            self.signale = {
+                "anzahl": int(treffer.group(1)),
+                "kritisch": int(treffer.group(2)),
+                "belegstellen": int(treffer.group(3)),
+                "arten": treffer.group(4),
+                "kritische_kennungen": treffer.group(5),
+            }
+        elif (treffer := self.SIGNAL_ABDECKUNG.match(zeile)) is not None:
+            self.signal_abdeckung = {
+                "entscheidungen": int(treffer.group(1)),
+                "verteilung": treffer.group(2),
+                "vom_planner": int(treffer.group(3)),
+                "nachgetragen": treffer.group(4).strip(),
+            }
         elif zeile.startswith("solution_architecture.family_filtered"):
             self.gefiltert.append(zeile)
 
@@ -162,6 +203,8 @@ class Durchreicher:
         self.abruftreffer: list[dict[str, object]] = []
         self.planner: dict[str, object] = {}
         self.payload_form: dict[str, object] = {}
+        self.signale: list[dict[str, object]] = []
+        self.belegstellen: list[dict[str, object]] = []
 
     def um_abruf(self, echt):
         def gemessen(query: str):
@@ -187,12 +230,25 @@ class Durchreicher:
         def gemessen(**kwargs):
             # Nur Form und Groesse, nicht der Wortlaut: Die Erzaehlung
             # gehoert nicht in eine Messdatei, die herumliegt.
+            diagnose = kwargs.get("diagnose")
             self.payload_form = {
                 "felder": sorted(kwargs),
                 "erzaehlung_zeichen": len(str(kwargs.get("narrative_text") or "")),
                 "aus_erzaehlung": list(kwargs.get("familien_aus_erzaehlung") or []),
                 "aus_diagnose": list(kwargs.get("vorgeschlagene_familien") or []),
             }
+            # **Der Speicher, wie ihn Aufruf 2 zu sehen bekommt.** Ohne ihn
+            # liesse sich hinterher nicht unterscheiden, ob ein Thema gar
+            # nicht erkannt oder nur nicht entschieden wurde.
+            try:
+                self.signale = [
+                    s.model_dump(mode="json") for s in diagnose.decision_signals
+                ]
+                self.belegstellen = [
+                    b.model_dump(mode="json") for b in diagnose.evidence_items
+                ]
+            except AttributeError:  # pragma: no cover - Form kann abweichen
+                self.signale, self.belegstellen = [], []
             ergebnis = echt(**kwargs)
             try:
                 self.planner = ergebnis.model_dump(mode="json")
@@ -230,6 +286,47 @@ def _fachliche_felder(ergebnis: dict) -> dict[str, object]:
         "grenzen": [g.get("titel") for g in (aufgaben.get("grenzen") or [])],
         "ansichten": [v.get("titel") for v in (ergebnis.get("ansichten") or [])],
     }
+
+
+def _entscheidungsspiegel(
+    signale: list[dict[str, object]], planner: dict[str, object]
+) -> list[dict[str, object]]:
+    """Signal fuer Signal: erkannt — und was daraus wurde.
+
+    **Die eine Tabelle, um die es in diesem Gate geht.** Alles andere im
+    Bericht sagt, was gefunden und was gewaehlt wurde. Diese sagt, was
+    entschieden wurde — und ob ueberhaupt jemand entschieden hat.
+    """
+
+    from app.result_schema import NACHGETRAGEN
+
+    abdeckung = (planner or {}).get("coverage") or {}
+    nach_signal = {
+        eintrag.get("signal_id"): eintrag
+        for eintrag in (abdeckung.get("items") or [])
+    }
+    spiegel: list[dict[str, object]] = []
+    for signal in signale:
+        eintrag = nach_signal.get(signal.get("id")) or {}
+        spiegel.append(
+            {
+                "id": signal.get("id"),
+                "kind": signal.get("kind"),
+                "critical": signal.get("critical"),
+                "status": signal.get("status"),
+                "statement": signal.get("statement"),
+                "belege": signal.get("evidence_refs"),
+                "disposition": eintrag.get("disposition"),
+                "familien": eintrag.get("family_refs"),
+                "begruendung": eintrag.get("explanation"),
+                # Ein nachgetragenes `open` ist keine Entscheidung des
+                # Planners. Der Unterschied darf im Bericht nicht
+                # verschwinden, sonst misst er sich selbst schoen.
+                "vom_planner": bool(eintrag)
+                and eintrag.get("explanation") != NACHGETRAGEN,
+            }
+        )
+    return spiegel
 
 
 def ein_lauf(nummer: int, erzaehlung: str) -> dict[str, object]:
@@ -302,6 +399,16 @@ def ein_lauf(nummer: int, erzaehlung: str) -> dict[str, object]:
     bericht["planner_ausgabe"] = durchreicher.planner
     bericht["call2_payload_form"] = durchreicher.payload_form
     bericht["zwei_sichten"] = mitschrift.zwei_sichten
+    bericht["fokus_und_breite"] = mitschrift.sichten
+    bericht["breite_familien"] = mitschrift.breite_familien
+    bericht["signal_protokoll"] = mitschrift.signale
+    bericht["abdeckung_signale_protokoll"] = mitschrift.signal_abdeckung
+    bericht["signale"] = durchreicher.signale
+    bericht["belegstellen"] = durchreicher.belegstellen
+    bericht["coverage"] = (durchreicher.planner or {}).get("coverage")
+    bericht["entscheidungsspiegel"] = _entscheidungsspiegel(
+        durchreicher.signale, durchreicher.planner
+    )
     bericht["tokens"] = "nicht erfasst - siehe Kopf dieser Datei"
     if ergebnis is not None:
         roh = ergebnis.model_dump(mode="json")
@@ -363,6 +470,9 @@ def main() -> int:
             json.dumps(bericht, ensure_ascii=False, indent=2), encoding="utf-8"
         )
         erg = bericht.get("ergebnis") or {}
+        spiegel = bericht.get("entscheidungsspiegel") or []
+        kritisch = [z for z in spiegel if z.get("critical")]
+        entschieden = [z for z in spiegel if z.get("vom_planner")]
         print(
             f"  {bericht['sekunden_gesamt']}s | "
             f"{len(bericht['modellaufrufe'])} Aufrufe | "
@@ -370,6 +480,20 @@ def main() -> int:
             f"Familien={erg.get('familien')}",
             flush=True,
         )
+        print(
+            f"  Signale={len(spiegel)} kritisch={len(kritisch)} "
+            f"vom Planner entschieden={len(entschieden)}/{len(spiegel)}",
+            flush=True,
+        )
+        for zeile in spiegel:
+            marke = "!" if zeile.get("critical") else " "
+            herkunft = "" if zeile.get("vom_planner") else "  (nachgetragen)"
+            print(
+                f"   {marke} {zeile.get('id')} {zeile.get('kind')} -> "
+                f"{zeile.get('disposition')} {zeile.get('familien') or ''}"
+                f"{herkunft}",
+                flush=True,
+            )
 
     print(f"\n{ziel}")
     return 0

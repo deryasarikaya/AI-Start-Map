@@ -50,6 +50,7 @@ würde irgendwann eine Familie behaupten, die es nicht mehr gibt.
 | Bereich | Datei | worum es geht |
 |---|---|---|
 | **Der Vertrag** | `test_result_contract.py` | Zitate wörtlich, keine erfundenen Zahlen, keine Fachsprache, Grenzen nur selbstgesagt |
+| **Die Entscheidung** | `test_decision_signals.py` | Signalspeicher, Belegkennungen, eine Entscheidung je kritischem Signal, übergangene Signale werden sichtbar |
 | **Das Geländer** | `test_solution_catalog.py` | erfundene Kennungen, Module ohne Baustein, kein Katalogtreffer, vorhandene Software, zu viele Familien |
 | **Die Hydration** | `test_solution_hydration.py` | dass die gewählten Familien wirklich geladen werden — und die ungewählten nicht |
 | **Kleine Lösungen** | `test_small_and_no_tech_results.py` | ein Modul, keine Ansicht, kein System, keine neue Technik |
@@ -59,6 +60,13 @@ würde irgendwann eine Familie behaupten, die es nicht mehr gibt.
 | **Die Seiten** | `test_example_page.py`, `test_report_page.py`, `test_ux_journey.py` | Ergebnisseite, PDF, Rückfallebene |
 | **Das Wissen** | `test_knowledge_hook.py`, `test_batch10_validator.py` | Abrufweg, Wissensprüfung, Zirkelschluss |
 | **Die Messwerkzeuge** | `test_gold_lauf.py`, `test_zehn_laeufe.py` | dass die Messskripte messen, was sie behaupten |
+
+Die Entscheidungsgruppe prüft eine Trennung, die leicht verwischt: Was in
+sich nicht stimmt — eine erfundene Belegkennung, ein Einstieg auf einer
+Familie, aus der nichts gebaut wird — **scheitert**. Was nur fehlt, wird
+**sichtbar**, statt den Lauf mitzunehmen. Kein Test dort verlangt eine
+bestimmte Lösungsfamilie; ein Test, der „Signal X also Familie Y“ prüfte,
+wäre selbst die starre Zuordnung, gegen die der Katalogweg gebaut ist.
 
 Die letzte Gruppe ist besonders: Sie prüft **Werkzeuge**, die im Kundenablauf
 nie laufen. Ein Messskript, dessen Schalter nicht schalten, misst zweimal
