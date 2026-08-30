@@ -25,7 +25,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Literal
 
-from app import decision_state, experiences, map_state, operating_model, solution_catalog
+from app import experiences, map_state, operating_model, solution_catalog
 from app.experiences import ExperienceAuswahl
 from app.map_state import MapState
 from app.result_schema import DecisionState, Result
@@ -64,15 +64,26 @@ class Grenze:
 
 @dataclass(frozen=True)
 class Ausblick:
-    """Ein Bereich, der bewusst später kommt.
+    """Ein Bereich, der nach dem Einstieg dazukommt.
 
     **Keine Roadmap.** Kein Zeitraum, keine Reihenfolgenummer, keine
     Schätzung. Nur: was dadurch möglich wird und warum es nicht jetzt ist.
+
+    **`phase` ist nicht dekorativ.** Der Ausbaupfad mischt zwei Dinge:
+    Bereiche, die zum empfohlenen Zielbild gehören und nur nicht zuerst
+    kommen — und Bereiche, die darüber hinausgehen. Auf der Karte sind
+    das zwei verschiedene Zustände. Ohne dieses Feld nennte die Karte
+    einen Bereich „später" und die Ausblicksliste vier, drei davon im
+    Zielbild: genau die Uneinigkeit zwischen zwei Darstellungen, gegen
+    die dieser Vertrag gebaut ist.
     """
 
     outcome: str
     grund_fuer_spaeter: str
     familien: tuple[str, ...]
+    #: `target` — gehört zum Zielbild, kommt nur nicht zuerst.
+    #: `future` — geht über das Zielbild hinaus.
+    phase: Literal["target", "future"]
     bereich: str | None = None
     beleg_refs: tuple[str, ...] = field(default_factory=tuple)
 
@@ -193,7 +204,9 @@ def _grenzen(ergebnis: Result, zielbild: list[str]) -> list[Grenze]:
     return gefunden
 
 
-def _ausblicke(ergebnis: Result, zustand: DecisionState) -> list[Ausblick]:
+def _ausblicke(
+    ergebnis: Result, zustand: DecisionState, karte: MapState
+) -> list[Ausblick]:
     """Zwei bis vier Bereiche, die später möglich werden — **nie aufgefüllt**.
 
     Quelle ist der Ausbaupfad: Dort steht bereits, welcher Bereich
@@ -227,6 +240,17 @@ def _ausblicke(ergebnis: Result, zustand: DecisionState) -> list[Ausblick]:
                 outcome=stufe.nutzen or stufe.name,
                 grund_fuer_spaeter=grund,
                 familien=familien,
+                # **Die Karte ist die Quelle, nicht eine zweite Rechnung.**
+                # Ob eine Familie im Zielbild steht, ist nicht dieselbe
+                # Frage: Eine neue Familie kann in einem Bereich liegen,
+                # der schon leuchtet. Gemessen am Heizungsfall trat genau
+                # das ein — der Ausblick nannte den Eingang „später",
+                # während er auf der Karte der Einstieg war.
+                phase=(
+                    "future"
+                    if bereiche and bereiche[0].schluessel in karte.future
+                    else "target"
+                ),
                 bereich=bereiche[0].schluessel if bereiche else None,
             )
         )
@@ -292,7 +316,7 @@ def von_ergebnis(ergebnis: Result) -> ResultDTO:
         ansichten=ansichten,
         grenzen=tuple(_grenzen(ergebnis, zustand.target_family_ids)),
         mensch_behaelt=tuple(ergebnis.aufgabenteilung.mensch),
-        ausblicke=tuple(_ausblicke(ergebnis, zustand)),
+        ausblicke=tuple(_ausblicke(ergebnis, zustand, karte)),
         nicht_empfohlen=tuple(
             NichtEmpfohlen(
                 titel=absage.titel,
@@ -332,6 +356,5 @@ __all__ = [
     "ResultDTO",
     "Uebersicht",
     "VERTRAG",
-    "decision_state",
     "von_ergebnis",
 ]

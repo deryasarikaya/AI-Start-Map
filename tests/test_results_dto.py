@@ -243,3 +243,74 @@ def test_an_adapted_run_without_families_shows_a_quiet_map() -> None:
     assert dto.karte.start == ()
     assert all(k.zustand == "still" for k in dto.karte.knoten)
     assert dto.ansichten.primary is None
+
+
+def test_the_outlook_says_whether_it_is_inside_the_target() -> None:
+    """Der Ausbaupfad mischt zwei Dinge — der Vertrag trennt sie.
+
+    Ein Bereich, der zum Zielbild gehört und nur nicht zuerst kommt, ist
+    etwas anderes als einer, der darüber hinausgeht. Auf der Karte sind
+    das zwei Zustände. Ohne dieses Feld nennte die Karte einen Bereich
+    „später" und die Ausblicksliste vier — und Web und PDF zeigten wieder
+    Verschiedenes.
+    """
+
+    familien = _lauf_mit_entscheidung().entscheidung.target_family_ids
+    pfad = [
+        {
+            "stufe": "danach",
+            "name": "Vorgänge überblicken",
+            "nutzen": "Sie suchen den Stand nicht mehr zusammen.",
+            "bausteine": ["Ein Stand"],
+            "solution_family_ids": [familien[1]],
+        },
+        {
+            "stufe": "spaeter",
+            "name": "Kunden selbst informieren",
+            "nutzen": "Sie beantworten Standfragen nicht mehr selbst.",
+            "bausteine": ["Stand ansehen"],
+            "solution_family_ids": ["SF-10"],
+        },
+    ]
+    dto = results_dto.von_ergebnis(
+        _lauf_mit_entscheidung({"ausbaupfad": pfad}, ausbaupfad=pfad)
+    )
+
+    nach_phase = {a.phase: a for a in dto.ausblicke}
+    assert set(nach_phase) == {"target", "future"}
+    assert nach_phase["target"].familien == (familien[1],)
+    assert nach_phase["future"].familien == ("SF-10",)
+    # Und was die Karte „später" nennt, ist genau die future-Zeile.
+    assert nach_phase["future"].bereich in dto.karte.future
+
+
+def test_the_outlook_and_the_map_never_disagree() -> None:
+    """Was der Ausblick „später" nennt, nennt die Karte auch so.
+
+    Eine Familie ausserhalb des Zielbilds kann in einem Bereich liegen,
+    der bereits leuchtet. An einem echten Lauf trat genau das ein: Der
+    Ausblick nannte den Eingang „später", während er auf der Karte der
+    Einstieg war. Die Karte entscheidet, weil sie in Bereichen denkt.
+    """
+
+    familien = _lauf_mit_entscheidung().entscheidung.target_family_ids
+    pfad = [
+        {
+            "stufe": "danach",
+            "name": "Vor dem Termin klarer werden",
+            "nutzen": "Sie fragen Angaben nicht mehr mehrfach nach.",
+            "bausteine": ["Angaben vorab"],
+            # SF-16 steht nicht im Zielbild, liegt aber im selben Bereich
+            # wie SF-01 — und der ist der Einstieg.
+            "solution_family_ids": ["SF-16"],
+        },
+    ]
+    dto = results_dto.von_ergebnis(
+        _lauf_mit_entscheidung({"ausbaupfad": pfad}, ausbaupfad=pfad)
+    )
+
+    for ausblick in dto.ausblicke:
+        if ausblick.phase == "future":
+            assert ausblick.bereich in dto.karte.future
+        else:
+            assert ausblick.bereich not in dto.karte.future
