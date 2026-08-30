@@ -13,10 +13,10 @@ def test_landing_voice_fallback_and_mobile_assets(client: TestClient) -> None:
     assert landing.status_code == 200
     for text in (
         "Kostenlose, individuelle Analyse für kleine Betriebe",
-        "Erzählen Sie, wie Ihr Betrieb läuft.",
-        "Wir zeigen Ihnen, wo KI und Automatisierung sinnvoll ansetzen",
-        "Sie brauchen keine fertige KI-Idee und kein technisches Vorwissen.",
-        "Wo heute unnötig Aufwand entsteht",
+        "Finden Sie heraus, wo KI Ihnen wirklich Arbeit abnehmen kann.",
+        "Beschreiben Sie einfach Ihren Arbeitsalltag.",
+        "wo heute unnötiger Aufwand entsteht",
+        "Und wie Ihre Abläufe künftig besser zusammenspielen könnten.",
         "Das sehen Sie, bevor Sie über den nächsten Schritt entscheiden",
         "Sie müssen Ihr Problem nicht in KI-Sprache erklären",
         "Nicht möglichst viele Ideen. Ein begründeter Start.",

@@ -34,6 +34,11 @@ zeigt den erwartbaren Entscheidungsvorteil. Die Interviewseite verlangt keine
 Vorbereitung oder Lösungssprache. Die Verstandenseite bleibt eine
 Diagnosebestätigung und spielt noch keine Ergebnisdarstellung vor.
 
+Der Landing-Hero benennt diesen Nutzen verbindlich als Frage: „Finden Sie
+heraus, wo KI Ihnen wirklich Arbeit abnehmen kann.“ Er erklärt anschließend
+Aufwand, sinnvolle KI- und Automatisierungsverbesserungen, einen möglichen
+Beginn und die künftig besser zusammenspielenden Abläufe.
+
 ## Semantische Design-Tokens
 
 Die Tokens stehen zentral in `app/static/styles.css` unter `:root`.

@@ -110,9 +110,9 @@ def test_unsubstantiated_benefit_claims_do_not_reach_the_customer() -> None:
 
 def test_landing_processing_and_mobile_contract(client: TestClient) -> None:
     landing = client.get("/").text
-    assert "Erzählen Sie, wie Ihr Betrieb läuft." in landing
-    assert "Wir zeigen Ihnen, wo KI und Automatisierung sinnvoll ansetzen" in landing
-    assert "wie Ihr Betrieb künftig arbeiten könnte" in landing
+    assert "Finden Sie heraus, wo KI Ihnen wirklich Arbeit abnehmen kann." in landing
+    assert "Beschreiben Sie einfach Ihren Arbeitsalltag." in landing
+    assert "Und wie Ihre Abläufe künftig besser zusammenspielen könnten." in landing
     # „dauert wenige Minuten" ist raus: Die Seite will, dass er sich Zeit
     # nimmt, und darf ihn nicht gleichzeitig zur Eile mahnen.
     assert "Kostenlos · per Sprache oder Text · keine KI-Vorkenntnisse" in landing
