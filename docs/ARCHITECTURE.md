@@ -121,6 +121,11 @@ GET  /report      routes                Druckansicht fürs PDF
 `/beispiel/hausverwaltung` zeigt einen gespeicherten Lauf ohne jeden
 Modellaufruf — die Rückfallebene für eine Vorführung.
 
+Die Nutzerstrecke vor der Ergebnisdarstellung teilt sich eine semantische
+visuelle Foundation, ohne in diesen Datenfluss einzugreifen. Tokens,
+Komponentenmuster, Zuständigkeiten und die Übergabe an eine spätere Results V1
+stehen in [`PRE_RESULTS_UI_FOUNDATION.md`](PRE_RESULTS_UI_FOUNDATION.md).
+
 ---
 
 ## Der Vertrag

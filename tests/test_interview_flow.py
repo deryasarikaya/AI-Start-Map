@@ -99,7 +99,8 @@ def test_empty_answers_are_rejected(
     )
 
     assert response.status_code == 422
-    assert "Bitte erzähl uns kurz, was dich im Alltag beschäftigt." in response.text
+    assert "Bitte beschreiben Sie, wie Ihr Betrieb heute läuft." in response.text
+    assert "Sie können frei sprechen oder schreiben." in response.text
     answers = list(
         database_session.scalars(
             select(InterviewQuestion.answer_text).where(

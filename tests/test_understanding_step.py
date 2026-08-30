@@ -80,7 +80,8 @@ def test_a_follow_up_question_is_shown(
     assert seite.status_code == 200
     assert FRAGE["frage"] in seite.text
     assert FRAGE["warum"] in seite.text
-    assert "Eine Information fehlt mir noch für eine sinnvolle Empfehlung" in seite.text
+    assert "Diese Information würde Ihre Empfehlung tatsächlich verändern" in seite.text
+    assert "Warum wir fragen:" in seite.text
 
 
 def test_without_a_question_the_page_says_so(
@@ -239,7 +240,7 @@ def test_the_understanding_page_shows_one_quote_not_three(
 
     seite = client.get("/verstanden")
 
-    assert seite.text.count('<div class="q">') == 1
+    assert seite.text.count('<blockquote class="evidence-card">') == 1
 
 
 def test_the_page_is_not_reachable_before_the_first_call(client: TestClient) -> None:

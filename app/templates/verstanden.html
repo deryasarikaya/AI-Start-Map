@@ -1,120 +1,93 @@
-{# „Passt das so?" — zwischen Erzählung und Ergebnis.
+{% extends "base.html" %}
 
-   **Die Seite ist eine Bestätigung, keine Aufgabe.** Der alte Bestätigungs-
-   schritt flog einmal raus, weil er dem Kunden unsere Arbeit aufhalste: Er
-   sollte prüfen, ob wir richtig verstanden hatten. Danach fragte die Seite
-   „Möchten Sie noch etwas ergänzen?" — und stellte damit dieselbe Aufgabe
-   wieder, nur höflicher. Ein offenes Textfeld ist eine Frage, auch ohne
-   Fragezeichen.
+{% block title %}{% if rueckfrage %}Eine wichtige Rückfrage{% else %}Passt das so?{% endif %} · AI Start Map{% endblock %}
 
-   Jetzt steht vorn die Antwort, die der Kunde geben will: Ja, weiter. Die
-   Korrektur bleibt erreichbar, aber sie kostet einen Klick — sie ist der
-   Ausnahmefall und sieht auch so aus. Ohne JavaScript funktioniert das
-   ebenfalls, weil `<details>` das selbst kann.
+{% block content %}
+<section class="understanding-page">
+    <nav class="journey-context" aria-label="Ablauf Ihrer Analyse">
+        <span>Beschreibung erhalten</span>
+        <span aria-hidden="true">→</span>
+        <span class="journey-context__current">Verständnis bestätigen</span>
+        <span aria-hidden="true">→</span>
+        <span>Auswertung erhalten</span>
+    </nav>
 
-   Die Seite erweitert bewusst nicht `base.html`: Sie gehört sichtbar zur
-   Ergebnisseite und bringt deren Farbsystem unter `.ergebnis` mit. #}
-<!doctype html>
-<html lang="de">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-{# Der Titel folgt dem Zustand der Seite: Eine Seite, die fragt, ist
-   keine Bestätigung. #}
-<title>{% if rueckfrage %}Eine Frage habe ich noch{% else %}Passt das so?{% endif %} · AI Start Map</title>
-<link rel="stylesheet" href="{{ statisch('/styles.css') }}">
-</head>
-<body class="ergebnis">
+    <header class="understanding-intro">
+        <p class="eyebrow">AI Start Map · Das habe ich verstanden</p>
+        <h1 class="page-title">Wir haben Ihren Betrieb so verstanden.</h1>
+        <p class="page-description">Das ist noch keine Empfehlung. Prüfen Sie nur, ob der
+        zentrale Engpass und der heutige Ablauf Ihren Betrieb treffen.</p>
+    </header>
 
-<div class="wrap top">
-  <p class="eyebrow">AI Start Map · Das habe ich verstanden</p>
-  {# Die Verstandenseite zeigt eine **Diagnose**, keine Lösung. Der
-     Engpass-Satz steht deshalb direkt darin und nicht in einer Kurzfassung,
-     die auch den Lösungsnamen trägt. #}
-  <h1>{{ e.engpass_satz }}</h1>
-  <div class="chipline">
-    {% for eckdatum in e.verstanden.eckdaten %}
-    <span class="chip">{{ eckdatum }}</span>
-    {% endfor %}
-  </div>
-  {# Ein Zitat, nicht zwei. Es geht darum zu zeigen, dass zugehört wurde,
-     nicht darum, die Erzählung zurückzuspielen. #}
-  {% if e.verstanden.belege %}
-  <div class="quotes">
-    {% set beleg = e.verstanden.belege[0] %}
-    <div class="q"><em>„{{ beleg.zitat }}“</em><span>{{ beleg.bedeutung }}</span></div>
-  </div>
-  {% endif %}
+    <article class="understanding-summary card card--elevated" aria-labelledby="understanding-finding">
+        <p class="card-kicker">Der zentrale Engpass</p>
+        <h2 id="understanding-finding">{{ e.engpass_satz }}</h2>
 
-  {# **Die Zusammenfassung seines Problems — ohne neues Feld.**
+        {% if e.verstanden.eckdaten %}
+        <ul class="fact-chips" aria-label="Erkannte Eckdaten">
+            {% for eckdatum in e.verstanden.eckdaten %}
+            <li>{{ eckdatum }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
 
-     Die Diagnose erzeugt `vergleich_heute` längst: den Vorgang, wie er heute
-     läuft, als Kette, serverseitig geprüft. Die Liste stand bisher nur auf der
-     Ergebnisseite. Wer zehn Minuten erzählt hat, sah hier dieselben vier
-     Eckdaten wie jemand mit einem Satz — die Seite wuchs nicht mit dem, was er
-     investiert hatte.
+        {% if e.verstanden.belege %}
+        {% set beleg = e.verstanden.belege[0] %}
+        <blockquote class="evidence-card">
+            <p>„{{ beleg.zitat }}“</p>
+            <footer>{{ beleg.bedeutung }}</footer>
+        </blockquote>
+        {% endif %}
 
-     Sie skaliert jetzt von selbst: ein Satz Eingabe ergibt zwei Zeilen, zehn
-     Minuten ergeben fünf. #}
-  {% if e.vergleich_heute %}
-  <div class="heutelauf">
-    <p class="heutemarke">So läuft es heute</p>
-    <ul>
-      {% for zeile in e.vergleich_heute[:5] %}
-      <li>{{ zeile }}</li>
-      {% endfor %}
-    </ul>
-  </div>
-  {% endif %}
-</div>
+        {% if e.vergleich_heute %}
+        <div class="current-flow">
+            <p class="card-kicker">So läuft es heute</p>
+            <ol>
+                {% for zeile in e.vergleich_heute[:5] %}
+                <li><span>{{ loop.index }}</span><p>{{ zeile }}</p></li>
+                {% endfor %}
+            </ol>
+        </div>
+        {% endif %}
+    </article>
 
-<section>
-<div class="wrap">
-  <div class="cta">
-    <form method="post" action="{{ url_for('save_understanding_public') }}">
-    {% if rueckfrage %}
-      {# Hier ist das offene Feld richtig: Es steht unter einer Frage, die
-         gestellt wurde. Das Modell fragt selten, und nur dann, wenn die
-         Antwort das Ergebnis verändern würde. #}
-      <h2>Eine Information fehlt mir noch für eine sinnvolle Empfehlung</h2>
-      <p class="big">{{ rueckfrage.frage }}</p>
-      <p class="sub"><em>{{ rueckfrage.warum }}</em></p>
-      <textarea name="antwort" rows="3" placeholder="Ihre Antwort in einem Satz"></textarea>
-      <div class="ctabuttons">
-        <button class="btn" type="submit" name="weiter" value="nein">Antworten</button>
-        <button class="btn ghost" type="submit" name="weiter" value="ja">Weiß ich gerade nicht</button>
-      </div>
-    {% elif letzte_runde %}
-      {# Nach der zweiten Runde gibt es keine dritte. Deshalb steht hier kein
-         Textfeld: Ein Feld, dessen Inhalt niemand mehr liest, wäre eine
-         Einladung ins Leere. #}
-      <h2>Ich habe alles, was ich brauche</h2>
-      <p class="sub">Danke für die Ergänzung. Jetzt stelle ich Ihre Auswertung
-      zusammen.</p>
-      <div class="ctabuttons">
-        <button class="btn" type="submit" name="weiter" value="ja">Weiter zur Auswertung</button>
-      </div>
-    {% else %}
-      <h2>Passt das so?</h2>
-      <p class="sub">Wenn das Ihren Betrieb trifft, erstellen wir daraus jetzt Ihre
-      Auswertung.</p>
-      <div class="ctabuttons">
-        <button class="btn" type="submit" name="weiter" value="ja">Ja, Auswertung erstellen <span aria-hidden="true">→</span></button>
-      </div>
-      {# Auf Wunsch, nicht im Weg. Zugeklappt ist es ein Angebot, aufgeklappt
-         ein Feld — und niemand muss daran vorbei, der einverstanden ist. #}
-      <details class="korrektur">
-        <summary>Etwas korrigieren oder ergänzen</summary>
-        <textarea name="antwort" rows="4" placeholder="Was fehlt oder stimmt so nicht?"></textarea>
-        <button class="btn ghost" type="submit" name="weiter" value="nein">Ergänzung übernehmen</button>
-      </details>
-    {% endif %}
-    </form>
-  </div>
-</div>
+    <section class="understanding-decision card card--accent" aria-labelledby="decision-title">
+        <form method="post" action="{{ url_for('save_understanding_public') }}" data-disable-on-submit data-submitting-label="Wird übernommen …" data-processing-title="Ich übernehme Ihre Bestätigung." data-processing-copy="Danach geht Ihre Analyse automatisch weiter.">
+        {% if rueckfrage %}
+            <p class="card-kicker">Eine gezielte Rückfrage</p>
+            <h2 id="decision-title">Diese Information würde Ihre Empfehlung tatsächlich verändern</h2>
+            <p class="question-copy">{{ rueckfrage.frage }}</p>
+            <p class="question-reason"><b>Warum wir fragen:</b> {{ rueckfrage.warum }}</p>
+            <label for="follow-up-answer">Ihre Antwort</label>
+            <textarea id="follow-up-answer" name="antwort" rows="3" placeholder="Ihre Antwort in einem Satz"></textarea>
+            <div class="decision-actions">
+                <button class="primary-button" type="submit" name="weiter" value="nein">Antwort übernehmen</button>
+                <button class="secondary-button" type="submit" name="weiter" value="ja">Weiß ich gerade nicht</button>
+            </div>
+        {% elif letzte_runde %}
+            <p class="card-kicker">Verständnis bestätigt</p>
+            <h2 id="decision-title">Ich habe alles, was ich brauche</h2>
+            <p>Danke für die Ergänzung. Jetzt stelle ich Ihre Auswertung zusammen.</p>
+            <div class="decision-actions">
+                <button class="primary-button" type="submit" name="weiter" value="ja">Weiter zur Auswertung <span aria-hidden="true">→</span></button>
+            </div>
+        {% else %}
+            <p class="card-kicker">Ihre Bestätigung</p>
+            <h2 id="decision-title">Passt das so?</h2>
+            <p>Wenn das Ihren Betrieb trifft, erstellen wir daraus jetzt Ihre Auswertung.</p>
+            <div class="decision-actions">
+                <button class="primary-button" type="submit" name="weiter" value="ja">Ja, Auswertung erstellen <span aria-hidden="true">→</span></button>
+            </div>
+            <details class="correction-details">
+                <summary>Etwas korrigieren oder ergänzen</summary>
+                <label for="correction-answer">Was fehlt oder stimmt so nicht?</label>
+                <textarea id="correction-answer" name="antwort" rows="4"></textarea>
+                <button class="secondary-button" type="submit" name="weiter" value="nein">Ergänzung übernehmen</button>
+            </details>
+        {% endif %}
+        </form>
+    </section>
+
+    <p class="understanding-source">Ihre Beschreibung bleibt die Grundlage der weiteren Auswertung.</p>
 </section>
-
-<div class="wrap foot">AI Start Map · Auswertung auf Grundlage Ihrer eigenen Beschreibung</div>
-
-</body>
-</html>
+{% endblock %}

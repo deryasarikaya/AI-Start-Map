@@ -18,13 +18,20 @@
 {# Keine Fortschrittsleiste: Sie sah nach Formularstrecke aus und stand in
    Konkurrenz zum eigentlichen Analysezustand. #}
 <section class="analyse" data-analyze-url="{{ url_for('analyze_session_public') }}" data-status-url="{{ url_for('analysis_status_public') }}" data-edit-url="{{ url_for('show_interview_public') }}">
+    <nav class="journey-context journey-context--centered" aria-label="Ablauf Ihrer Analyse">
+        <span>Beschreibung erhalten</span>
+        <span aria-hidden="true">→</span>
+        <span class="journey-context__current">Analyse läuft</span>
+        <span aria-hidden="true">→</span>
+        <span>Auswertung erhalten</span>
+    </nav>
+    <p class="eyebrow">Ihre persönliche Analyse</p>
     <h1 class="page-title">Ihre Auswertung entsteht gerade.</h1>
-    <p class="page-description">AI Start Map verbindet Ihre Beschreibung mit passenden
-    Automatisierungs- und KI-Möglichkeiten und bereitet daraus Ihre individuelle
-    Auswertung vor.</p>
+    <p class="page-description">AI Start Map ordnet Ihre Beschreibung ein, prüft passende
+    Möglichkeiten und führt daraus Engpass, Startpunkt und Zielbild zusammen.</p>
 
-    <div class="analysepfad">
-        <ol class="phasen" data-phasen>
+    <div class="analysepfad card card--elevated">
+        <ol class="phasen" data-phasen aria-label="Analyseschritte">
           <li class="phase phase--fertig" data-phase="uebernommen">
             <span class="phasenpunkt" aria-hidden="true"></span>
             <div><b>Ihre Beschreibung verstehen</b><span>Abläufe, Beteiligte und Zusammenhänge einordnen</span></div>
@@ -130,6 +137,8 @@
         stationen.forEach((station, nummer) => {
             station.classList.toggle("phase--fertig", nummer < bis);
             station.classList.toggle("phase--aktiv", nummer === bis);
+            if (nummer === bis && neu !== "complete") station.setAttribute("aria-current", "step");
+            else station.removeAttribute("aria-current");
         });
         if (neu === phase) return;
         phase = neu;

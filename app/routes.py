@@ -191,7 +191,10 @@ async def save_interview(
                 "session_id": session_id,
                 "questions": questions,
                 "answers": submitted,
-                "error_message": "Bitte erzähl uns kurz, was dich im Alltag beschäftigt.",
+                "error_message": (
+                    "Bitte beschreiben Sie, wie Ihr Betrieb heute läuft. "
+                    "Sie können frei sprechen oder schreiben."
+                ),
             },
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
         )
