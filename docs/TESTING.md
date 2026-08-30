@@ -60,7 +60,7 @@ würde irgendwann eine Familie behaupten, die es nicht mehr gibt.
 | **Die Teilung** | `test_second_call_split.py` | beide Hälften laufen, keine halben Ergebnisse |
 | **Zuverlässigkeit** | `test_result_reliability.py` | Wiederholung nach schlechtem Zitat, Denkstufen, Zeitbudget |
 | **Der Ablauf** | `test_analysis_flow.py`, `test_understanding_step.py` | Routen, Zwischenstand, höchstens zwei Runden |
-| **Die Results-V1-Darstellung** | `test_results_v1.py`, `test_example_page.py`, `test_report_page.py`, `test_ux_journey.py` | DTO-only Web/PDF, 14 Map-Bereiche, no-JS-Kerninhalt, Beispiel-PDF, Rückfallebene |
+| **Die Results-V1-Darstellung** | `test_results_v1.py`, `test_karte.py`, `test_example_page.py`, `test_report_page.py`, `test_ux_journey.py` | DTO-only Web/PDF, 14 Bereiche in fester Kartenlandschaft, Operating Flow mit Human Rail, no-JS-Kerninhalt, Beispiel-PDF, Rückfallebene |
 | **Das Wissen** | `test_knowledge_hook.py`, `test_batch10_validator.py` | Abrufweg, Wissensprüfung, Zirkelschluss |
 | **Die Messwerkzeuge** | `test_gold_lauf.py`, `test_zehn_laeufe.py` | dass die Messskripte messen, was sie behaupten |
 

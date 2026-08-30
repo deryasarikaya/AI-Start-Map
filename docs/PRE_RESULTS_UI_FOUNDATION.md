@@ -165,12 +165,18 @@ gemeinsamen Tokens als einzige visuelle Source of Truth. Eigene lokale
 Farbwerte, ein zweiter Satz Radien und Schatten oder ein lokaler
 `body`-Hintergrund sind nicht zulässig.
 
+Die Results-Map bleibt innerhalb dieser Foundation eine echte visuelle
+Betriebslandschaft: feste Bereiche, verbindende Wege und ein Operating Center
+statt eines gleichwertigen Kartenrasters. Das Zielbetriebsmodell zeigt einen
+gerichteten Arbeitsfluss mit Human Decision Rail. Beide Komponenten verwenden
+die vorhandenen Shared Tokens; sie schaffen keine zweite Results-Palette.
+
 Die fachliche Informationsarchitektur der Results bleibt im ResultDTO; diese
 Foundation entscheidet keine Inhalte, Startpunkte oder Experience Types.
 
 ## Status
 
-Implementiert, integriert und browsergeprüft auf dem Results-V1-Branch:
-Desktop und 390-px-Mobile verwenden denselben Page Background ohne
-horizontalen Überlauf. Die fachliche Darstellung ist durch den
-ResultDTO-Vertrag getrennt abgesichert.
+Implementiert und integriert auf dem Results-V1-Branch: Desktop und 390-px-
+Mobile verwenden denselben Page Background ohne horizontalen Überlauf. Die
+fachliche Darstellung ist durch den ResultDTO-Vertrag getrennt abgesichert;
+die visuelle Map-, Flow- und Experience-Darstellung bleibt reine Projektion.

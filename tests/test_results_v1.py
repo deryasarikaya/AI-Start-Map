@@ -34,8 +34,8 @@ def test_web_and_pdf_read_the_same_dto_only(client: TestClient) -> None:
     for text in (
         "AI Start Map · Ihre Auswertung",
         "Ihre AI Start Map",
-        "Ihre Aussagen tragen die Entscheidung",
-        "Ein verlässlicher Ablauf statt verstreuter Einzelinformationen",
+        "Sie sind hier. Und das Gelände dahinter.",
+        "So liefe Ihr Alltag künftig.",
         "Startpunkt gemeinsam prüfen",
     ):
         assert text in web.text
@@ -63,6 +63,8 @@ def test_map_and_evidence_remain_readable_without_javascript(client: TestClient)
         assert label in response.text
     assert "Betriebs-Lösungsraum" in response.text
     assert "data-map-workspace" in response.text
+    assert 'class="map-landscape__svg"' in response.text
+    assert "Human Decision Rail" in response.text
     assert " hidden=" not in response.text
 
 

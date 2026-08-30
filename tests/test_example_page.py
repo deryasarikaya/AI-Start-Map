@@ -232,9 +232,9 @@ def test_the_stored_example_carries_a_full_result(client: TestClient) -> None:
         "AI Start Map · Ihre Auswertung",
         "Hier würden wir anfangen",
         "Ihre AI Start Map",
-        "Ihre Aussagen tragen die Entscheidung",
-        "Ein verlässlicher Ablauf statt verstreuter Einzelinformationen",
-        "Das kann die Lösung übernehmen. Das entscheidet weiterhin Ihr Team.",
+            "Sie sind hier. Und das Gelände dahinter.",
+            "So liefe Ihr Alltag künftig.",
+            "Das übernimmt die Lösung. Das entscheidet Ihr Team.",
         "Startpunkt gemeinsam prüfen",
     ):
         assert abschnitt in seite, abschnitt

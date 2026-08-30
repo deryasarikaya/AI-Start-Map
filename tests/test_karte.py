@@ -174,7 +174,8 @@ def test_the_map_is_drawn_not_tabulated(client: TestClient) -> None:
     assert 'id="ai-start-map"' in seite
     assert seite.count("data-map-node") == 14
     assert "Betriebs-Lösungsraum" in seite
-    assert "Zusammenlauf" in seite
+    assert 'class="map-landscape__svg"' in seite
+    assert "map-operating-center" in seite
 
 
 def test_the_map_needs_no_javascript(client: TestClient) -> None:
@@ -191,7 +192,7 @@ def test_the_map_needs_no_javascript(client: TestClient) -> None:
     assert "<script" not in kartenteil
     assert "data-map-node" in kartenteil
     assert "data-module-detail" in kartenteil
-    assert "Zusammenlauf" in kartenteil
+    assert "map-operating-center" in kartenteil
 
 
 def test_the_map_says_where_to_begin(client: TestClient) -> None:
@@ -204,8 +205,8 @@ def test_the_map_says_where_to_begin(client: TestClient) -> None:
 
     seite = client.get("/beispiel/hausverwaltung").text
 
-    assert "So könnte Ihr Betrieb künftig zusammenarbeiten" in seite
-    assert "Die Karte zeigt die Bereiche Ihres Betriebs" in seite
+    assert "Sie sind hier. Und das Gelände dahinter." in seite
+    assert "Die Karte macht sichtbar, wo Arbeit heute auseinanderläuft" in seite
     for zustand in (
         "Hier würden wir anfangen",
         "Heute",
@@ -225,5 +226,5 @@ def test_the_phone_gets_the_same_points_as_a_list(client: TestClient) -> None:
 
     seite = client.get("/beispiel/hausverwaltung").text
 
-    assert 'class="map-grid"' in seite
+    assert 'class="map-landscape"' in seite
     assert seite.count("data-map-node") == 14

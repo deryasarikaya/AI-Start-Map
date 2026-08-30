@@ -183,10 +183,19 @@ Entscheidung noch Evidence oder Grenzen, die der Altbestand nicht trägt.
 
 Die sichtbare Karte hat keine vom Modell erzeugten Regionen. Sie rendert die
 vierzehn festen Operating-Module mit den Zuständen `heute`, `start`,
-`target`, `future` und `still`. Auf Desktop erscheinen Karte und
-Detailbereich nebeneinander; auf Mobile wird daraus eine priorisierte
-einspaltige Modul-Liste mit vier State-Filtern. Ohne JavaScript bleiben alle
-Map-Inhalte und Detailbereiche lesbar.
+`target`, `future` und `still` in der vorhandenen, festen Sechs-Gebiete-
+Geometrie aus `app/karte.py`: Zonen, Verbindungen und Operating Center bilden
+eine Betriebslandschaft, keine Kartenmatrix. Auf Desktop erscheinen diese
+Landschaft und der evidenzgebundene Detailbereich nebeneinander; auf Mobile
+wird daraus eine priorisierte einspaltige Modul-Liste mit vier State-Filtern.
+Ohne JavaScript bleiben alle Map-Inhalte und Detailbereiche lesbar.
+
+Das Zielbetriebsmodell ist ebenfalls reine Darstellung aus dem Vertrag: ein
+fester Ablauf `Eingänge → KI & Automatisierung → Operating Center → Menschen
+→ Ergebnis` und eine Human Decision Rail. Die Experience-Bibliothek erhält nur
+den bereits ausgewählten `Experience.inhalt`; CSS und JavaScript wählen weder
+einen Experience Type noch einen Startbereich. Evidence erscheint beim
+Startdetail, nicht als zweite fachliche Entscheidungsschicht.
 
 Die Vorlagen verwenden die globale Foundation aus
 `app/static/styles.css` und `_page_background.html`; `results_v1.css` ergänzt

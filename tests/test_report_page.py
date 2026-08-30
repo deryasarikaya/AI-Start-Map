@@ -42,9 +42,9 @@ def test_the_report_opens_the_solution_space_but_does_not_plan_it(client: TestCl
     # Der Befund und der Lösungsraum — das gehört hinein.
     for ueberschrift in (
         "Ihre AI Start Map",
-        "Ihre Aussagen tragen die Entscheidung",
-        "Ein verlässlicher Ablauf statt verstreuter Einzelinformationen",
-        "Das kann die Lösung übernehmen. Das entscheidet weiterhin Ihr Team.",
+            "Sie sind hier. Und das Gelände dahinter.",
+            "So liefe Ihr Alltag künftig.",
+            "Das übernimmt die Lösung. Das entscheidet Ihr Team.",
     ):
         assert ueberschrift in bericht.text, ueberschrift
 
@@ -72,8 +72,8 @@ def test_the_report_reads_the_stored_result(client: TestClient) -> None:
     for ueberschrift in (
         "AI Start Map · Ihre Auswertung",
         "Ihre AI Start Map",
-        "Ihre Aussagen tragen die Entscheidung",
-        "Ein verlässlicher Ablauf statt verstreuter Einzelinformationen",
+            "Sie sind hier. Und das Gelände dahinter.",
+            "So liefe Ihr Alltag künftig.",
         "Startpunkt gemeinsam prüfen",
     ):
         assert ueberschrift in bericht, ueberschrift
