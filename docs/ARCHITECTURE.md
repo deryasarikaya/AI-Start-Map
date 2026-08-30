@@ -282,6 +282,48 @@ Landschaft, sondern eine Angebotsliste.
 Kein Modellaufruf, keine erzeugten Koordinaten, keine kundenabhängige
 Landschaft: Zweimal dieselbe Entscheidung ergibt zweimal dieselbe Karte.
 
+### Was der Mensch am Ende sieht
+
+Der Ansichtsaufruf wählte lange frei aus neun Ansichtstypen, und eine
+Übersicht passt immer irgendwie. Das Ergebnis: Ein Telefonbetrieb und ein
+Ingenieurbüro bekamen dasselbe Dashboard. Wer zwei Auswertungen
+nebeneinander legt, merkt das sofort.
+
+`app/experiences.py` leitet die Zieltypen aus dem **empfohlenen Einstieg**
+ab. Wer mit dem Telefon anfängt, sieht einen Sprachassistenten; wer mit
+dem Wissen anfängt, einen Auskunftsassistenten. Der Aufruf füllt danach
+nur noch Inhalte.
+
+Durchgesetzt wird: genau **eine** Hauptansicht, höchstens zwei
+begleitende, und keine zweimal derselbe Typ. Eine gelieferte Ansicht, die
+sich auf keinen Bereich dieses Betriebs zurückführen lässt, zählt nicht —
+dieselbe Regel wie für ein Modul ohne Familie. Passt gar nichts, steht
+der Rahmen ohne Inhalt: ehrlicher, als eine unpassende Ansicht zur
+Hauptansicht zu erklären, damit die Seite voll wird.
+
+### Der gemeinsame Vertrag für Web und PDF
+
+`app/results_dto.py` fasst alles zusammen, was die Ergebnisseite zeigt.
+Vorher hing jede Vorlage direkt am gespeicherten Ergebnis und musste sich
+selbst zusammensuchen, was der Einstieg ist und welche Grenze vom Kunden
+stammt — beides fachliche Entscheidungen, die zwei Vorlagen verschieden
+treffen.
+
+Ein Feld verdient eine eigene Erwähnung: **die Herkunft einer Grenze.**
+„Sie wollen keine Preiszusagen" ist eine Aussage über diesen Kunden.
+„Preise bleiben beim Menschen" ist eine Eigenschaft unseres Katalogs.
+Beides nebeneinander als seine Entscheidung auszugeben, legt ihm Sätze in
+den Mund, die er nie gesagt hat — deshalb tragen sie `kunde` oder
+`katalog`.
+
+**Läufe von vorher gehen nicht verloren.** Ein Ergebnis ohne
+festgehaltene Entscheidung wird angepasst, so weit es das hergibt: die
+Familien seiner Module als Zielbild, die Module auf Stufe `jetzt` als
+Einstieg, die Ausbaustufen als Späteres. Der Vertrag sagt dann
+ausdrücklich `ergebnis-v6-adaptiert`. Was ein alter Lauf nicht enthält —
+Belege, Signale, Nicht-Empfehlungen — bleibt leer, statt erfunden zu
+werden.
+
 ---
 
 ## Datenmodell
