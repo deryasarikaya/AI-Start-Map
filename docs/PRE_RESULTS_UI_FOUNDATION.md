@@ -12,6 +12,14 @@ spätere Results V1 soll dieselben semantischen Tokens und Interaktionsmuster
 verwenden, damit vor und nach der Analyse kein visueller Produktwechsel
 entsteht.
 
+Der Page Background ist dabei eine globale Produktkonstante. Seine Komposition
+ist nicht neu angenähert, sondern aus dem sichtbaren Kopf der aktuellen
+Results-Seite übernommen: der Weiß-zu-Creme-Verlauf, der zweite Teal-Radiallayer
+und der langsam wandernde Teal-Schein. Landingpage, Betriebsbeschreibung,
+Processing, Verständnisbestätigung und Results verwenden dieselbe zentrale
+Backdrop-Schicht aus `app/templates/_page_background.html` und
+`app/static/styles.css`.
+
 ## Produktversprechen entlang der Strecke
 
 Die Strecke erzählt durchgängig denselben Dreiklang:
@@ -32,7 +40,9 @@ Die Tokens stehen zentral in `app/static/styles.css` unter `:root`.
 
 | Token | Zweck |
 |---|---|
-| `--page-bg`, `--page-bg-gradient` | gemeinsamer Seitenhintergrund |
+| `--page-bg`, `--page-bg-gradient` | Grundfarbe und beide Results-Gradient-Layer |
+| `--page-bg-position`, `--page-bg-size`, `--page-bg-repeat` | verbindliche Layer-Geometrie |
+| `--page-bg-height`, `--page-bg-glow` | Höhe und bewegter Results-Schein |
 | `--surface-elevated` | neutrale Kartenfläche |
 | `--surface-accent` | zurückhaltende Akzentfläche |
 | `--text-muted`, `--text-accent` | sekundärer Text und Hervorhebungen |
@@ -135,6 +145,13 @@ Results V1 sollte `--page-bg`, die Surface-, Text-, Border-, Radius-, Shadow-,
 Width-, Spacing- und Motion-Tokens direkt übernehmen. Für normale Inhalte,
 wichtige Zielbildflächen und Handlungen stehen die Karten- und Buttonmuster
 bereits bereit.
+
+Results V1 bindet außerdem `_page_background.html` ein. Die Backdrop-Schicht
+beginnt unter der jeweiligen oberen Produktleiste; Seiteninhalt und Karten
+liegen transparent darüber. Eigene `body`-, Full-height-Wrapper- oder
+Hero-Hintergründe dürfen diese Grundkomposition nicht zurücksetzen. Damit
+bleiben Grundfarbe, Verlauf, Intensität und Bewegung beim Seitenwechsel
+konstant.
 
 Nicht übernehmen sollte Results V1 parallel gepflegte lokale Farbwerte oder
 einen zweiten Satz Radien und Schatten unter `.ergebnis`. Die fachliche

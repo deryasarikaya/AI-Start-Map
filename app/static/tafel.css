@@ -1,8 +1,9 @@
 /* Die Ergebnistafel.
  *
  * Eigene Datei statt eines weiteren Abschnitts in `styles.css`: Die Tafel
- * bringt ihr eigenes Farb- und Rastersystem mit, und keine andere Seite soll
- * davon etwas abbekommen. Alles hier haengt an `.tafel`.
+ * bringt ihr eigenes Inhaltsraster mit. Palette und Page Background stammen
+ * dagegen aus der globalen Foundation; alles Ergebnisspezifische hier haengt
+ * an `.tafel`.
  *
  * Desktop zuerst. Der Kunde sieht diese Seite am Bildschirm, wenn er sich
  * Zeit genommen hat; auf dem Telefon stapeln sich dieselben Karten
@@ -28,7 +29,6 @@
   --rund: 14px;
 
   margin: 0;
-  background: var(--grund);
   color: var(--tinte);
   font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -96,24 +96,7 @@
  * heutiger Engpass und Lösung zu einem Gedanken. */
 .tafel .kopf {
   position: relative; padding: 58px 0 34px; overflow: hidden;
-  background:
-    linear-gradient(180deg, #fbfbf8 0%, var(--grund) 100%),
-    radial-gradient(90% 130% at 88% -20%,
-                    rgb(63 167 163 / .1) 0%, transparent 60%);
-}
-/* Ein Hauch Bewegung im Grund, mehr nicht: Eine Fläche, auf der sich nie
- * etwas regt, liest sich als Bild — eine, auf der sich etwas regt, als
- * etwas, das läuft. Auf hellem Grund muss das viel leiser sein als auf
- * dunklem, sonst wirkt es billig. */
-.tafel .kopf::before {
-  content: ""; position: absolute; inset: -30% -10% auto -10%; height: 90%;
-  background: radial-gradient(closest-side, rgb(63 167 163 / .12), transparent);
-  animation: tafel-atem 14s ease-in-out infinite alternate;
-  pointer-events: none;
-}
-@keyframes tafel-atem {
-  from { transform: translate3d(-6%, 0, 0) scale(1); }
-  to   { transform: translate3d(8%, 4%, 0) scale(1.12); }
+  background: transparent;
 }
 /* Einspaltig. Der Kopf hat eine Aufgabe — sagen, worum es geht — und die
  * braucht keine zweite Spalte. Was wir verstanden haben, steht gleich
@@ -1002,7 +985,6 @@
  * steht im Betriebssystem, und sie gilt hier ohne Rückfrage. */
 @media (prefers-reduced-motion: reduce) {
   .tafel [data-auftritt] { opacity: 1; transform: none; transition: none; }
-  .tafel .kopf::before,
   .tafel .bandstufe--schluessel .bandsymbol::after { animation: none; }
   .tafel .zusammenlauf path { stroke-dashoffset: 0; }
   .tafel .baustein:hover,

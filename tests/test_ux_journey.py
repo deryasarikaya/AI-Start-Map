@@ -79,6 +79,11 @@ def test_landing_voice_fallback_and_mobile_assets(client: TestClient) -> None:
     for token in (
         "--page-bg",
         "--page-bg-gradient",
+        "--page-bg-position",
+        "--page-bg-size",
+        "--page-bg-repeat",
+        "--page-bg-height",
+        "--page-bg-glow",
         "--surface-elevated",
         "--surface-accent",
         "--radius-card",
@@ -88,9 +93,25 @@ def test_landing_voice_fallback_and_mobile_assets(client: TestClient) -> None:
         "--motion-standard",
     ):
         assert token in styles
-    # Der Grund bewegt sich. Eine Fläche, auf der sich nie etwas regt,
-    # liest sich als Bild — nicht als etwas, das läuft.
-    assert "grund-atem" in styles
+    # Der Results-Hintergrund ist die eine Quelle fuer den gesamten Funnel:
+    # exakt dieselben Layer, dieselbe Geometrie und dieselbe Bewegung.
+    assert "linear-gradient(180deg, #fbfbf8 0%, var(--page-bg) 100%)" in styles
+    assert "radial-gradient(90% 130% at 88% -20%" in styles
+    assert "rgb(63 167 163 / .12)" in styles
+    assert "page-background-atem" in styles
+    assert "grund-atem" not in styles
+    assert 'class="page-backdrop"' in landing.text
+
+    result_template = (
+        Path(__file__).resolve().parents[1] / "app/templates/ergebnis.html"
+    ).read_text(encoding="utf-8")
+    example_result = client.get("/beispiel/hausverwaltung")
+    tafel_styles = client.get("/static/tafel.css").text
+    assert '{% include "_page_background.html" %}' in result_template
+    assert example_result.status_code == 200
+    assert example_result.text.count('class="page-backdrop"') == 1
+    assert "tafel-atem" not in tafel_styles
+    assert "radial-gradient(90% 130% at 88% -20%" not in tafel_styles
     assert "@media (max-width: 42.99rem)" in styles
     assert "min-height: 3.35rem" in styles
     assert "overflow-x: hidden" in styles
