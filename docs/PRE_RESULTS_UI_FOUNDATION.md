@@ -27,7 +27,7 @@ Die Strecke erzählt durchgängig denselben Dreiklang:
 1. Der Betrieb beschreibt einen echten Ablauf in eigenen Worten.
 2. AI Start Map bestätigt zuerst Engpass und Ist-Ablauf.
 3. Danach entsteht eine begründete Auswertung mit sinnvollem Startpunkt und
-   größerem Zielbild.
+   einem möglichen künftigen Ablauf.
 
 Die Landingpage verkauft deshalb keine allgemeine Liste von KI-Ideen. Sie
 zeigt den erwartbaren Entscheidungsvorteil. Die Interviewseite verlangt keine
@@ -94,7 +94,8 @@ aktiv markiert werden. Die aktive Phase erhält zusätzlich
 ### Landingpage
 
 - benennt Zielgruppe und Nutzen vor dem ersten CTA;
-- zeigt Engpass, Startpunkt und Zielbild als kompakten Ergebnisvorgeschmack;
+- zeigt Engpass, sinnvollen Start und möglichen künftigen Ablauf als kompakten
+  Ergebnisvorgeschmack;
 - erklärt, dass Aussagen begründet und menschliche Entscheidungen sichtbar
   bleiben;
 - zeigt typische Alltagssituationen statt Branchen- oder Toollisten;
@@ -111,7 +112,8 @@ aktiv markiert werden. Die aktive Phase erhält zusätzlich
 
 - zeigt echte, vom Status-Endpunkt gelieferte Phasen;
 - enthält keine Prozentzahl, künstliche Dauer oder Fake-Fortschrittsanimation;
-- erklärt knapp, dass Engpass, Startpunkt und Zielbild zusammengeführt werden.
+- erklärt knapp, dass Engpass, möglicher künftiger Ablauf und sinnvoller erster
+  Schritt zusammengeführt werden.
 
 ### Verständnisbestätigung
 
