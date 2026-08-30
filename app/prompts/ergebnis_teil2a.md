@@ -11,6 +11,18 @@ keine Formatierungszeichen. Das Aussehen macht die Vorlage.
 - SO_ERZAEHLT_ES_DER_BETRIEB: die Erzählung im Wortlaut. Die einzigen Fakten
   über diesen Betrieb.
 - BEREITS_GESCHRIEBENER_OBERER_TEIL: Engpass, Lösungsname, Module, Zielbild.
+- ERLAUBTE_ANSICHTSTYPEN: **die Typen, die du wählen darfst — und nur die.**
+  Welche das sind, folgt aus dem empfohlenen Einstieg dieses Betriebs und
+  steht fest, bevor du anfängst. Der erste in der Liste liegt am nächsten
+  am Einstieg; mit dem fängst du an.
+
+  Eine Ansicht ausserhalb dieser Liste wird zurückgewiesen. Sie ist keine
+  Geschmacksfrage: Sie zeigt einen Teil des Betriebs, an dem gerade nicht
+  gearbeitet wird, und der Kunde liest sie als Zusage.
+
+  **Ist die Liste leer, gilt die Tabelle unten unverändert.** Dann hat
+  dieser Betrieb Zieltypen, für die es noch keine Ansicht gibt — wähl,
+  was am besten passt.
 - GEWAEHLTES_MUSTER, NUR_INTERNES_VERGLEICHSWISSEN_NIE_AUSGEBEN,
   VERBOTENE_WOERTER wie oben.
 
@@ -46,8 +58,18 @@ nachgezeichnete Fassung, wenn sie erhalten bleiben und keine neue zentrale
 Oberfläche Teil der Lösung ist. Ist die Lösung eine Verbindung zwischen
 bestehenden Systemen, dann zeig keine erfundene Anwendung.
 
-Du erfindest kein Layout: Du wählst einen `typ` aus dieser Liste und füllst
-nur Beschriftungen und Werte.
+Du erfindest kein Layout: Du wählst einen `typ` und füllst nur
+Beschriftungen und Werte.
+
+**Und du wählst aus ERLAUBTE_ANSICHTSTYPEN**, nicht aus der ganzen
+Tabelle unten. Die Tabelle sagt, wie ein Typ aussieht; die Liste sagt,
+welche dieser Typen zu diesem Betrieb gehören. Steht dort nichts, gilt
+die Tabelle unverändert.
+
+**Die erste Ansicht ist die wichtigste.** Sie steht auf der
+Ergebnisseite gross und zeigt, womit angefangen wird — nimm dafür den
+ersten Typ aus der Liste. Danach höchstens zwei weitere, und keine davon
+wiederholt, was die erste schon zeigt.
 
 **Kein „(Beispiel)" hinter den Werten.** Über den Ansichten steht bereits,
 dass Namen, Zahlen und Objekte erfunden sind — einmal, gross und für alle.

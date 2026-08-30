@@ -56,11 +56,47 @@ def test_candidates_come_from_the_start_first() -> None:
 
     assert moegliche[0].rang == 0
     assert moegliche[0].bereich == "kundenzugang_intake"
-    assert {k.typ for k in moegliche if k.rang == 0} == {
+    # Genau die Typen der **gewählten** Familien: SF-15 trägt den
+    # Sprachassistenten, SF-01 den Posteingang. `guided_intake` gehört zu
+    # SF-14 und SF-16 — die stehen nicht in der Auswahl.
+    assert [k.typ for k in moegliche if k.rang == 0] == [
         "voice_assistant",
-        "guided_intake",
         "ai_inbox",
-    }
+    ]
+
+
+def test_the_family_decides_the_type_not_the_area() -> None:
+    """Der Kundenzugang trägt Telefon und Posteingang — nur eines davon zählt.
+
+    Hingen die Zieltypen am Bereich, bekäme eine Hausverwaltung ohne
+    Telefonfamilie einen Sprachassistenten als Hauptansicht. Gemessen,
+    nicht vermutet: Genau das trat auf, solange der Bereich entschied.
+    """
+
+    ohne_telefon = DecisionState.model_validate(
+        {
+            "target_family_ids": ["SF-01", "SF-02"],
+            "start_family_ids": ["SF-01", "SF-02"],
+        }
+    )
+
+    moegliche = experiences.kandidaten(ohne_telefon)
+
+    assert "voice_assistant" not in {k.typ for k in moegliche}
+    assert moegliche[0].typ == "ai_inbox"
+
+
+def test_the_order_of_affinities_is_a_statement() -> None:
+    """Beim Kundenzugang kommt der Sprachassistent vor dem Posteingang.
+
+    Sortierte die Auswahl nach Typnamen, gewänne `ai_inbox` alphabetisch
+    gegen `voice_assistant` — und ein Telefonbetrieb bekäme einen
+    Posteingang als Hauptansicht.
+    """
+
+    erlaubt = experiences.erlaubte_ansichtstypen(_telefonbetrieb())
+
+    assert erlaubt[0] == "telefonassistent"
 
 
 def test_a_type_appears_only_once() -> None:
@@ -115,7 +151,9 @@ def test_exactly_one_primary_experience() -> None:
     assert gewaehlt.primary is not None
     assert gewaehlt.primary.typ == "voice_assistant"
     assert len(gewaehlt.supporting) <= BEGLEITEND_HOECHSTENS
-    assert len(gewaehlt.alle) == 3
+    # Die Übersicht fällt heraus: Sie gehört zu SF-09 und SF-12, und
+    # keine der beiden steht in der Auswahl dieses Betriebs.
+    assert [e.typ for e in gewaehlt.alle] == ["voice_assistant", "case_workspace"]
 
 
 def test_the_primary_follows_the_start_not_the_order_of_delivery() -> None:
@@ -234,3 +272,106 @@ def test_the_same_decision_yields_the_same_selection() -> None:
     nochmal = experiences.auswahl(_telefonbetrieb(), ansichten)
 
     assert erst == nochmal
+
+
+def test_the_allowed_view_types_reach_the_call_in_order() -> None:
+    """Was der Aufruf wählen darf, steht fest, bevor er beginnt.
+
+    Ohne diese Liste wählte er frei, die Auswahl verwarf danach das
+    Unpassende — bezahlte Arbeit für nichts, und im schlechten Fall eine
+    Seite ohne Vorschau.
+    """
+
+    erlaubt = experiences.erlaubte_ansichtstypen(_telefonbetrieb())
+
+    assert erlaubt[0] == "telefonassistent"
+    assert "dokumentenablage" not in erlaubt
+    # Jeder erlaubte Typ lässt sich auf einen Kandidaten zurückführen.
+    typen = {k.typ for k in experiences.kandidaten(_telefonbetrieb())}
+    from app.operating_model import ANSICHT_ZU_EXPERIENCE
+
+    assert all(ANSICHT_ZU_EXPERIENCE[a] in typen for a in erlaubt)
+
+
+def test_a_business_without_a_matching_view_gets_no_restriction() -> None:
+    """Drei Zieltypen haben heute keine Ansicht — das darf keine leere Seite geben.
+
+    Leer heisst deshalb „keine Einschränkung", nicht „nichts erlaubt".
+    """
+
+    nur_ohne_ansicht = DecisionState.model_validate(
+        {"target_family_ids": ["SF-04"], "start_family_ids": ["SF-04"]}
+    )
+
+    assert experiences.kandidaten(nur_ohne_ansicht)[0].typ == "automation_flow"
+    assert experiences.erlaubte_ansichtstypen(nur_ohne_ansicht) == []
+
+
+# --- Die Durchsetzung im Vertrag -------------------------------------------
+
+
+def test_a_view_outside_the_scope_is_refused() -> None:
+    """Der Aufruf darf nur füllen, was freigegeben ist — hart geprüft.
+
+    Ohne diese Prüfung bliebe die Liste ein Vorschlag. Ein Modell, dem
+    eine Übersicht besser gefällt, lieferte weiter eine, die Auswahl
+    verwürfe sie danach, und der Betrieb sähe eine Seite ohne Vorschau.
+    """
+
+    import pytest
+    from pydantic import ValidationError
+
+    from app.result_schema import View, freigegebene_ansichten
+
+    uebersicht = {
+        "typ": "uebersicht",
+        "titel": "Heute im Blick",
+        "beschreibung": "Die offenen Vorgänge auf einen Blick.",
+        "module_refs": [],
+        "daten": {"zeilen": [{"text": "Ein Vorgang", "status": "rot"}]},
+    }
+    with freigegebene_ansichten(["telefonassistent", "eingangspruefung"]):
+        with pytest.raises(ValidationError, match="gehört nicht zum empfohlenen"):
+            View.model_validate(uebersicht)
+
+
+def test_an_allowed_view_passes_the_scope() -> None:
+    """Was freigegeben ist, geht durch — sonst hätte die Prüfung keinen Sinn."""
+
+    from app.result_schema import View, freigegebene_ansichten
+
+    eingang = {
+        "typ": "eingangspruefung",
+        "titel": "Neue Anfragen",
+        "beschreibung": "Was heute hereinkam.",
+        "module_refs": [],
+        "daten": {
+            "nachrichten": [
+                {
+                    "absender": "Frau Müller",
+                    "zeit": "08:14",
+                    "text": "Heizung ausgefallen",
+                    "marken": ["Störung"],
+                }
+            ]
+        },
+    }
+    with freigegebene_ansichten(["telefonassistent", "eingangspruefung"]):
+        assert View.model_validate(eingang).typ == "eingangspruefung"
+
+
+def test_without_a_scope_nothing_is_restricted() -> None:
+    """Ein gespeichertes Ergebnis darf beim Nachlesen nicht an einer
+    Auswahl scheitern, die es zu seiner Zeit nie gab."""
+
+    from app.result_schema import View
+
+    uebersicht = {
+        "typ": "uebersicht",
+        "titel": "Heute im Blick",
+        "beschreibung": "Die offenen Vorgänge auf einen Blick.",
+        "module_refs": [],
+        "daten": {"zeilen": [{"text": "Ein Vorgang", "status": "rot"}]},
+    }
+
+    assert View.model_validate(uebersicht).typ == "uebersicht"

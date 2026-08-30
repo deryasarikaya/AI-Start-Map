@@ -30,6 +30,7 @@ zweimal zu beschreiben. Also werden die sechs übernommen.
 from __future__ import annotations
 
 import logging
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from typing import Literal
 
@@ -219,6 +220,62 @@ BEREICHE: tuple[Bereich, ...] = (
 )
 
 
+#: **Welcher Zieltyp zu welcher Familie gehört.**
+#:
+#: Eine Ebene feiner als der Bereich, und das ist nötig. „Kundenzugang &
+#: Anfrageaufnahme" enthält den Telefonworkflow und den Nachrichten-
+#: eingang; nur der erste rechtfertigt einen Sprachassistenten. Hingen die
+#: Zieltypen am Bereich, bekäme eine Hausverwaltung ohne Telefonfamilie
+#: einen Telefonassistenten als Hauptansicht — gemessen, nicht vermutet.
+#:
+#: Die Reihenfolge je Familie ist eine Aussage: Was vorn steht, zeigt den
+#: Kern dieser Familie am deutlichsten.
+FAMILIEN_AFFINITAETEN: dict[str, tuple[ExperienceType, ...]] = {
+    "SF-01": ("ai_inbox",),
+    "SF-02": ("case_workspace",),
+    "SF-03": ("document_flow",),
+    "SF-04": ("automation_flow",),
+    "SF-05": ("knowledge_assistant", "customer_self_service"),
+    "SF-06": ("automation_flow",),
+    "SF-07": ("case_workspace", "document_flow"),
+    "SF-08": ("document_flow", "automation_flow"),
+    "SF-09": ("management_overview",),
+    "SF-10": ("customer_self_service",),
+    "SF-11": ("knowledge_assistant",),
+    "SF-12": ("management_overview", "case_workspace"),
+    "SF-13": ("automation_flow",),
+    "SF-14": ("guided_intake", "customer_self_service"),
+    "SF-15": ("voice_assistant",),
+    "SF-16": ("guided_intake",),
+    "SF-17": ("automation_flow",),
+    "SF-18": ("management_overview", "automation_flow"),
+    "SF-19": ("document_flow",),
+    "SF-20": ("automation_flow", "management_overview"),
+    "SF-21": ("guided_intake", "knowledge_assistant"),
+    "SF-22": ("document_flow", "case_workspace"),
+    "SF-23": ("automation_flow", "document_flow"),
+    "SF-24": ("case_workspace",),
+    "SF-25": ("management_overview",),
+}
+
+
+def affinitaeten_von(kennungen: Sequence[str]) -> tuple[ExperienceType, ...]:
+    """Die Zieltypen, die genau diese Familien rechtfertigen.
+
+    In der Reihenfolge der Familien, dann der Typen — beides sind
+    Aussagen und keine Sortierhilfen. Eine unbekannte Familie trägt
+    nichts bei, statt eine Ausnahme zu werfen: Der laute Fall ist
+    `pruefe_vollstaendigkeit`.
+    """
+
+    gefunden: list[ExperienceType] = []
+    for kennung in kennungen:
+        for typ in FAMILIEN_AFFINITAETEN.get(str(kennung).strip().upper(), ()):
+            if typ not in gefunden:
+                gefunden.append(typ)
+    return tuple(gefunden)
+
+
 class BereichsLuecke(RuntimeError):
     """Eine Familie hat keinen Bereich — oder einen Bereich zweimal.
 
@@ -295,6 +352,11 @@ def pruefe_vollstaendigkeit() -> None:
     if unbekannt:
         raise BereichsLuecke(
             f"Diese Bereiche nennen Familien, die es nicht gibt: {unbekannt}."
+        )
+    ohne_zieltyp = sorted(freigegeben - set(FAMILIEN_AFFINITAETEN))
+    if ohne_zieltyp:
+        raise BereichsLuecke(
+            f"Diese Familien haben keinen Zieltyp: {ohne_zieltyp}."
         )
     gebiete = {zone.kennung for zone in karte.ZONEN}
     fremde = sorted({b.gebiet for b in BEREICHE} - gebiete)

@@ -178,6 +178,18 @@ _gewaehlte_familien: contextvars.ContextVar[tuple[str, ...] | None] = (
     contextvars.ContextVar("gewaehlte_familien", default=None)
 )
 
+#: Die Ansichtstypen, die Aufruf 3 füllen darf.
+#:
+#: **Warum das eingeschränkt wird.** Der Aufruf wählte lange frei aus
+#: allen neun Typen, und eine Übersicht passt immer irgendwie. Was nicht
+#: zum empfohlenen Einstieg gehört, wird danach ohnehin verworfen — dann
+#: aber nach bezahlter Arbeit, und die Seite steht ohne Vorschau da.
+#: Steht hier nichts, wird nicht geprüft: Ein gespeichertes Ergebnis darf
+#: beim Nachlesen nicht an einer Auswahl scheitern, die es nie gab.
+_freigegebene_ansichten: contextvars.ContextVar[tuple[str, ...] | None] = (
+    contextvars.ContextVar("freigegebene_ansichten", default=None)
+)
+
 
 #: Die Signale aus Aufruf 1, damit Aufruf 2 dagegen geprüft werden kann.
 #: Der Planner nennt in seiner Abdeckung Signalkennungen; ob es die gibt und
@@ -345,6 +357,22 @@ def rejected_quotes() -> list[str]:
 
     vermerkt = _aussortierte_zitate.get()
     return list(vermerkt or [])
+
+
+@contextmanager
+def freigegebene_ansichten(typen: Sequence[str]) -> Iterator[None]:
+    """Stellt für die Dauer eines Aufrufs, welche Ansichtstypen zulässig sind.
+
+    Leer bedeutet **keine Einschränkung**, nicht „nichts erlaubt": Es gibt
+    Betriebe, deren Zieltypen gar keine Ansicht haben, und die sollen
+    nicht mit einer leeren Seite bestraft werden.
+    """
+
+    marke = _freigegebene_ansichten.set(tuple(typen) or None)
+    try:
+        yield
+    finally:
+        _freigegebene_ansichten.reset(marke)
 
 
 @contextmanager
@@ -767,8 +795,21 @@ class View(StrictResultModel):
 
     @model_validator(mode="after")
     def data_must_fit_the_type(self) -> View:
-        """Weist eine Ansicht zurück, deren Makro nichts anzuzeigen hätte."""
+        """Weist eine Ansicht zurück, deren Makro nichts anzuzeigen hätte.
 
+        **Und eine, die zu diesem Betrieb nicht gehört.** Welche Typen
+        zulässig sind, folgt aus dem empfohlenen Einstieg und steht
+        bereits fest, bevor dieser Aufruf beginnt. Eine Ansicht daneben
+        wird später ohnehin verworfen — hier fällt sie sofort auf, und
+        der zweite Versuch kann es besser machen.
+        """
+
+        erlaubt = _freigegebene_ansichten.get()
+        if erlaubt is not None and self.typ not in erlaubt:
+            raise ValueError(
+                f"Die Ansicht „{self.typ}“ gehört nicht zum empfohlenen "
+                f"Einstieg dieses Betriebs. Zulässig sind: {list(erlaubt)}."
+            )
         for feld in REQUIRED_VIEW_FIELDS[self.typ]:
             if not getattr(self.daten, feld, None):
                 raise ValueError(

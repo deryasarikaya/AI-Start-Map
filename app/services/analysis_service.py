@@ -23,7 +23,7 @@ from app.rag_service import (
 )
 from pydantic import ValidationError
 
-from app import decision_state, solution_catalog
+from app import decision_state, experiences, solution_catalog
 from app.result_schema import (
     Diagnose,
     Result,
@@ -362,11 +362,19 @@ def run_second_call(session_id: int, database_session: Session) -> Result:
         part_one = zusammengesetzt(diagnose, gewaehlt)
     # Erst jetzt, nach der Prüfung: die vollen Datensätze, die
     # gebrauchten Fähigkeiten und das passende Zielbildmuster.
+    # **Der Ansichtsaufruf bekommt seinen Rahmen mit.** Welche Typen zu
+    # diesem Betrieb gehören, steht mit der Entscheidung schon fest; sie
+    # erst danach zu prüfen, hiesse den Aufruf für den Papierkorb zahlen.
     part_two = generate_result_part_two(
         narrative_text=erzaehlung,
         part_one=part_one,
         knowledge_chunks=[],
         loesungswissen=geprueftes_loesungswissen(gewaehlt),
+        erlaubte_ansichten=experiences.erlaubte_ansichtstypen(
+            part_one.entscheidung
+        )
+        if part_one.entscheidung is not None
+        else [],
     )
     with narrative(erzaehlung):
         ergebnis = Result.model_validate(

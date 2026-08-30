@@ -34,6 +34,7 @@ from openai import OpenAI, OpenAIError
 from pydantic import BaseModel, ValidationError
 
 from app.result_schema import (
+    freigegebene_ansichten,
     freigegebene_module,
     MINIMUM_EVIDENCE,
     Diagnose,
@@ -1054,6 +1055,7 @@ def generate_result_part_two(
     knowledge_chunks: Sequence[str],
     recommendation_context: dict[str, object] | None = None,
     loesungswissen: dict[str, object] | None = None,
+    erlaubte_ansichten: Sequence[str] = (),
 ) -> ResultPartTwo:
     """Erzeugt den unteren Teil der Ergebnisseite — in zwei Aufrufen.
 
@@ -1083,12 +1085,27 @@ def generate_result_part_two(
     familien = [
         kennung for modul in part_one.module for kennung in modul.solution_family_ids
     ]
+    # **Und der Geltungsbereich für die Ansichten.** Welche Typen zu
+    # diesem Betrieb gehören, steht aus dem Einstieg bereits fest. Ohne
+    # diese Liste wählte der Aufruf frei, die Auswahl verwarf danach das
+    # Unpassende — bezahlte Arbeit für nichts, und im schlechten Fall
+    # eine Seite ohne Vorschau.
+    logger.info(
+        "views.scope erlaubt=%s",
+        list(erlaubte_ansichten) or "keine Einschraenkung",
+    )
     with narrative(narrative_text), freigegebene_module(module, familien):
-        ansichten = parse_structured_output(
-            system_prompt=_prompt("ergebnis_teil2a"),
-            payload=payload,
-            result_type=ResultPartTwoViews,
-        )
+        with freigegebene_ansichten(erlaubte_ansichten):
+            ansichten = parse_structured_output(
+                system_prompt=_prompt("ergebnis_teil2a"),
+                payload={
+                    **payload,
+                    # Leer heisst: keine Einschränkung. Der Prompt sagt
+                    # dann nichts weiter dazu.
+                    "ERLAUBTE_ANSICHTSTYPEN": list(erlaubte_ansichten),
+                },
+                result_type=ResultPartTwoViews,
+            )
         # Die Ansichten gehen in den zweiten Aufruf mit: Aufgabenteilung
         # und Wert sollen zu dem passen, was der Kunde gezeigt bekommt.
         uebriges = parse_structured_output(

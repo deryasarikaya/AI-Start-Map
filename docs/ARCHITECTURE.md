@@ -306,6 +306,25 @@ dieselbe Regel wie für ein Modul ohne Familie. Passt gar nichts, steht
 der Rahmen ohne Inhalt: ehrlicher, als eine unpassende Ansicht zur
 Hauptansicht zu erklären, damit die Seite voll wird.
 
+**Der Aufruf bekommt den Rahmen vorher.** Welche Typen zulässig sind,
+steht mit der Entscheidung bereits fest; sie erst danach zu prüfen hiess,
+den Aufruf für den Papierkorb zu bezahlen und im schlechten Fall eine
+Seite ohne Vorschau zu bekommen. `ERLAUBTE_ANSICHTSTYPEN` geht deshalb in
+den Payload, der Vertrag weist eine Ansicht daneben zurück, und der
+eingebaute zweite Versuch kann es besser machen. Eine leere Liste bedeutet
+**keine Einschränkung**, nicht „nichts erlaubt": Drei Zieltypen haben
+heute noch keine Ansicht, und ein Betrieb soll dafür keine leere Seite
+bekommen.
+
+**Der Zieltyp hängt an der Familie, nicht am Bereich.** „Kundenzugang &
+Anfrageaufnahme" enthält den Telefonworkflow *und* den
+Nachrichteneingang; nur der erste rechtfertigt einen Sprachassistenten.
+Gemessen: Solange der Bereich entschied, hätte eine Hausverwaltung ohne
+Telefonfamilie einen Telefonassistenten als Hauptansicht bekommen — und
+weil die Sortierung dabei nach Typnamen ging, gewann `ai_inbox`
+alphabetisch sogar gegen `voice_assistant`. Beides ist behoben: Die
+Reihenfolge der Affinitäten ist eine fachliche Aussage und wird erhalten.
+
 ### Der gemeinsame Vertrag für Web und PDF
 
 `app/results_dto.py` fasst alles zusammen, was die Ergebnisseite zeigt.

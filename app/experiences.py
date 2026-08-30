@@ -50,6 +50,13 @@ class Kandidat:
     bereich: str
     familien: tuple[str, ...]
     rang: int
+    #: Die Stelle in der fachlichen Ordnung. **Nicht dekorativ:** Die
+    #: Affinitäten eines Bereichs stehen in einer Reihenfolge, und die
+    #: ist eine Aussage — beim Kundenzugang kommt der Sprachassistent vor
+    #: dem Posteingang. Sortierte man stattdessen nach Typnamen, gewänne
+    #: `ai_inbox` alphabetisch gegen `voice_assistant`, und ein
+    #: Telefonbetrieb bekäme einen Posteingang als Hauptansicht.
+    ordnung: int = 0
 
 
 @dataclass(frozen=True)
@@ -93,18 +100,52 @@ def kandidaten(zustand: DecisionState) -> list[Kandidat]:
     """
 
     gefunden: dict[ExperienceType, Kandidat] = {}
+    ordnung = 0
     for rang, kennungen in enumerate(
         (zustand.start_family_ids, zustand.target_family_ids)
     ):
+        # `bereiche_fuer` liefert bereits in der Reihenfolge des
+        # Arbeitslaufs; innerhalb eines Bereichs gilt die Reihenfolge
+        # seiner Affinitäten. Beides zusammen ist die fachliche Ordnung,
+        # und genau die soll die Sortierung erhalten.
         for bereich in operating_model.bereiche_fuer(kennungen):
             familien = tuple(
                 operating_model.familien_im_bereich(bereich, kennungen)
             )
-            for typ in bereich.experience_affinitaeten:
+            # **Die Familien entscheiden, nicht der Bereich.** Der
+            # Kundenzugang trägt Telefon und Posteingang; nur wer die
+            # Telefonfamilie gewählt hat, bekommt einen Sprachassistenten.
+            for typ in operating_model.affinitaeten_von(familien):
                 if typ in gefunden:
                     continue
-                gefunden[typ] = Kandidat(typ, bereich.schluessel, familien, rang)
-    return sorted(gefunden.values(), key=lambda k: (k.rang, k.bereich, k.typ))
+                gefunden[typ] = Kandidat(
+                    typ, bereich.schluessel, familien, rang, ordnung
+                )
+                ordnung += 1
+    return sorted(gefunden.values(), key=lambda k: (k.rang, k.ordnung))
+
+
+def erlaubte_ansichtstypen(zustand: DecisionState) -> list[str]:
+    """Welche Ansichtstypen dieser Betrieb überhaupt bekommen kann.
+
+    **Wozu.** Der Ansichtsaufruf wählte bisher frei aus allen neun Typen.
+    Was nicht zum Einstieg gehört, verwirft die Auswahl danach ohnehin —
+    aber erst nach bezahlter Arbeit, und die Seite steht dann ohne
+    Vorschau da. Diese Liste geht deshalb **vorher** in den Aufruf.
+
+    Die Reihenfolge ist die der Kandidaten: Was am nächsten am Einstieg
+    liegt, steht vorn. Drei Zieltypen haben heute keine Ansicht
+    (`guided_intake`, `knowledge_assistant`, `automation_flow`); für sie
+    kann der Aufruf nichts liefern, und sie fallen hier still heraus.
+    """
+
+    rang = {k.typ: nummer for nummer, k in enumerate(kandidaten(zustand))}
+    passende = [
+        (rang[ziel], ansicht)
+        for ansicht, ziel in ANSICHT_ZU_EXPERIENCE.items()
+        if ziel in rang
+    ]
+    return [ansicht for _, ansicht in sorted(passende)]
 
 
 def _zieltyp(ansichtstyp: str) -> ExperienceType | None:
@@ -153,7 +194,7 @@ def auswahl(
             [k.typ for k in moegliche],
         )
 
-    getroffen.sort(key=lambda paar: (paar[0].rang, paar[0].bereich, paar[0].typ))
+    getroffen.sort(key=lambda paar: (paar[0].rang, paar[0].ordnung))
     if getroffen:
         kandidat, titel = getroffen[0]
         primary = Experience(kandidat.typ, kandidat.bereich, kandidat.familien, titel)
