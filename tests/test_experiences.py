@@ -13,19 +13,69 @@ Und eine Ansicht ohne Bezug zu einem Bereich dieses Betriebs zählt nicht
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-
 from app import experiences
 from app.experiences import BEGLEITEND_HOECHSTENS
-from app.result_schema import DecisionState
+from app.result_schema import DecisionState, View
+
+#: Die kleinsten Daten, mit denen ein Ansichtstyp gültig ist. Als Tabelle,
+#: damit die Tests mit **echten** Ansichten arbeiten: Eine Attrappe hätte
+#: nie gezeigt, ob der Inhalt wirklich bis in den Vertrag durchträgt.
+_MINDESTDATEN: dict[str, dict[str, object]] = {
+    "uebersicht": {"zeilen": [{"text": "Ein Vorgang", "status": "rot"}]},
+    "vorgangsakte": {"felder": [{"label": "Objekt", "wert": "Haus 12"}]},
+    "kundenakte": {"felder": [{"label": "Kunde", "wert": "Frau Müller"}]},
+    "eingangspruefung": {
+        "nachrichten": [
+            {
+                "absender": "Frau Müller",
+                "zeit": "08:14",
+                "text": "Heizung ausgefallen",
+                "marken": ["Störung"],
+            }
+        ]
+    },
+    "nachrichtenverlauf": {
+        "blasen": [{"seite": "kunde", "text": "Ist jemand da?", "zeit": "08:14"}]
+    },
+    "telefonassistent": {
+        "blasen": [{"seite": "kunde", "text": "Heizung ist aus", "zeit": "08:14"}]
+    },
+    "terminuebersicht": {
+        "eintraege_termine": [
+            {
+                "zeit": "09:00",
+                "person": "Frau Müller",
+                "leistung": "Wartung",
+                "status": "gruen",
+            }
+        ]
+    },
+    "aussenansicht": {"schritte": [{"text": "Anfrage eingegangen", "erreicht": True}]},
+    "dokumentenablage": {
+        "eintraege_dokumente": [
+            {
+                "typ": "Rechnung",
+                "name": "Rechnung 12",
+                "datum": "12.03.",
+                "zuordnung": "Haus 12",
+            }
+        ]
+    },
+}
 
 
-@dataclass
-class _Ansicht:
-    """So viel von einer Ansicht, wie die Auswahl braucht."""
+def _Ansicht(typ: str, titel: str) -> View:
+    """Eine echte, geprüfte Ansicht — keine Attrappe."""
 
-    typ: str
-    titel: str
+    return View.model_validate(
+        {
+            "typ": typ,
+            "titel": titel,
+            "beschreibung": "Wofür diese Ansicht da ist.",
+            "module_refs": [],
+            "daten": _MINDESTDATEN[typ],
+        }
+    )
 
 
 def _telefonbetrieb() -> DecisionState:
@@ -248,7 +298,9 @@ def test_a_frame_without_content_is_honest() -> None:
     gewaehlt = experiences.auswahl(_telefonbetrieb(), [])
 
     assert gewaehlt.primary is not None
-    assert gewaehlt.primary.inhalt_ref is None
+    assert not gewaehlt.primary.hat_inhalt
+    assert gewaehlt.primary.inhalt is None
+    assert gewaehlt.primary.titel is None
     assert gewaehlt.supporting == ()
 
 
@@ -375,3 +427,71 @@ def test_without_a_scope_nothing_is_restricted() -> None:
     }
 
     assert View.model_validate(uebersicht).typ == "uebersicht"
+
+
+# --- Der Inhalt trägt bis in die Auswahl -----------------------------------
+
+
+def test_the_content_travels_with_the_experience() -> None:
+    """Die Auswahl trägt die geprüfte Ansicht, nicht nur ihren Namen.
+
+    Eine Auswahl, die nur sagt „nimm den Sprachassistenten", zwingt jede
+    Darstellung, sich den passenden Eintrag selbst herauszusuchen — und
+    zwei Darstellungen suchen verschieden.
+    """
+
+    ansicht = _Ansicht("telefonassistent", "Anruf aufgenommen")
+    gewaehlt = experiences.auswahl(_telefonbetrieb(), [ansicht])
+
+    assert gewaehlt.primary.hat_inhalt
+    assert gewaehlt.primary.inhalt is ansicht
+    assert gewaehlt.primary.titel == "Anruf aufgenommen"
+    assert gewaehlt.primary.inhalt.daten.blasen
+
+
+def test_a_discarded_view_never_becomes_content() -> None:
+    """Was verworfen wurde, taucht auch nicht als Inhalt wieder auf."""
+
+    verworfen = _Ansicht("dokumentenablage", "Unterlagen")
+    gewaehlt = experiences.auswahl(
+        _telefonbetrieb(), [verworfen, _Ansicht("telefonassistent", "Anruf")]
+    )
+
+    assert all(e.inhalt is not verworfen for e in gewaehlt.alle)
+    assert gewaehlt.primary.titel == "Anruf"
+
+
+def test_supporting_views_carry_their_own_content() -> None:
+    """Auch die begleitenden Ansichten tragen ihren Inhalt — höchstens zwei."""
+
+    gewaehlt = experiences.auswahl(
+        _telefonbetrieb(),
+        [
+            _Ansicht("telefonassistent", "Anruf"),
+            _Ansicht("eingangspruefung", "Neue Anfragen"),
+            _Ansicht("vorgangsakte", "Ein Vorgang"),
+        ],
+    )
+
+    assert len(gewaehlt.supporting) == BEGLEITEND_HOECHSTENS
+    assert all(e.hat_inhalt for e in gewaehlt.alle)
+    assert [e.titel for e in gewaehlt.supporting] == ["Neue Anfragen", "Ein Vorgang"]
+
+
+def test_the_primary_falls_forward_to_the_first_view_with_content() -> None:
+    """Der Einstieg bestimmt die Rangfolge — der Inhalt entscheidet, wer sichtbar wird.
+
+    Fehlt für den ersten Kandidaten eine Ansicht, rückt der nächste mit
+    Inhalt nach. Einen leeren Rahmen an die erste Stelle zu setzen, während
+    daneben ein gefüllter läge, hilft niemandem — und erfunden wird dabei
+    nichts: Der nachrückende Rahmen ist genauso gegroundet.
+    """
+
+    # Für `voice_assistant` (Rang 0) liefert der Aufruf nichts.
+    gewaehlt = experiences.auswahl(
+        _telefonbetrieb(), [_Ansicht("vorgangsakte", "Ein Vorgang")]
+    )
+
+    assert gewaehlt.primary.typ == "case_workspace"
+    assert gewaehlt.primary.hat_inhalt
+    assert gewaehlt.primary.familien == ("SF-02",)

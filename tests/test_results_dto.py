@@ -314,3 +314,170 @@ def test_the_outlook_and_the_map_never_disagree() -> None:
             assert ausblick.bereich in dto.karte.future
         else:
             assert ausblick.bereich not in dto.karte.future
+
+
+# --- Die Bereichsprojektion ------------------------------------------------
+
+
+def test_every_area_reaches_the_contract_with_its_state() -> None:
+    """Alle vierzehn Bereiche, jeder mit dem Zustand der Karte.
+
+    Die stillen gehen mit: Die Karte zeigt die ganze Landschaft, und wer
+    nur das Empfohlene ausliefert, kann sie nicht zeichnen.
+    """
+
+    dto = results_dto.von_ergebnis(_lauf_mit_entscheidung())
+
+    assert len(dto.module) == 14
+    for modul in dto.module:
+        knoten = dto.karte.knoten_von(modul.module_key)
+        assert knoten is not None
+        # Ein zweiter Rechenweg für dieselbe Frage wäre eine zweite
+        # Gelegenheit, sich zu widersprechen.
+        assert modul.state == knoten.zustand
+    assert dto.sichtbare_module
+    assert all(m.state != "still" for m in dto.sichtbare_module)
+
+
+def test_areas_are_ordered_and_addressable() -> None:
+    """Reihenfolge des Arbeitslaufs, und jeder Bereich einzeln erreichbar."""
+
+    dto = results_dto.von_ergebnis(_lauf_mit_entscheidung())
+
+    reihenfolgen = [m.map_order for m in dto.module]
+    assert reihenfolgen == sorted(reihenfolgen)
+    assert dto.modul("kundenzugang_intake") is not None
+    assert dto.modul("gibt-es-nicht") is None
+
+
+def test_areas_name_no_unknown_families() -> None:
+    """Jede Kennung im Vertrag steht im freigegebenen Katalog."""
+
+    from app import solution_catalog
+
+    dto = results_dto.von_ergebnis(_lauf_mit_entscheidung())
+    freigegeben = solution_catalog.freigegebene_kennungen()
+
+    for modul in dto.module:
+        assert set(modul.family_refs) <= freigegeben
+
+
+def test_a_quiet_area_claims_nothing() -> None:
+    """Ein Bereich, der kein Thema ist, behauptet keine Fähigkeiten.
+
+    Sonst stünde im Vertrag, was die Lösung an einer Stelle können müsse,
+    an der gar nichts empfohlen wurde.
+    """
+
+    dto = results_dto.von_ergebnis(_lauf_mit_entscheidung())
+
+    for modul in dto.module:
+        if modul.state == "still":
+            assert modul.capability_refs == ()
+            assert modul.evidence_refs == ()
+
+
+def test_a_recommended_area_carries_capabilities_and_evidence() -> None:
+    """Was empfohlen ist, sagt auch, was es können muss und woher es kommt."""
+
+    dto = results_dto.von_ergebnis(_lauf_mit_entscheidung())
+    einstieg = dto.modul(dto.karte.start[0])
+
+    assert einstieg.capability_refs
+    assert all(f.ref and f.label for f in einstieg.capability_refs)
+    # Die Belege stammen aus den Signalen, die zu diesen Familien führten.
+    assert set(einstieg.evidence_refs) <= {b.id for b in dto.belege}
+
+
+def test_boundaries_are_referenced_not_repeated() -> None:
+    """Eine Grenze steht einmal im Vertrag und wird sonst nur adressiert."""
+
+    dto = results_dto.von_ergebnis(_lauf_mit_entscheidung())
+
+    for modul in dto.module:
+        for stelle in modul.boundary_refs:
+            grenze = dto.grenzen[stelle]
+            assert grenze.herkunft == "katalog"
+            assert grenze.familie in modul.family_refs
+
+
+def test_the_experience_content_reaches_the_contract() -> None:
+    """Der Renderer bekommt die Ansichtsdaten, ohne sie selbst zu suchen."""
+
+    from app.operating_model import ANSICHT_ZU_EXPERIENCE
+
+    dto = results_dto.von_ergebnis(_lauf_mit_entscheidung())
+    primary = dto.ansichten.primary
+
+    assert primary is not None and primary.hat_inhalt
+    assert primary.inhalt.titel and primary.inhalt.daten is not None
+    # Der Inhalt gehört zu genau dieser Experience, nicht zu irgendeiner.
+    assert ANSICHT_ZU_EXPERIENCE[primary.inhalt.typ] == primary.typ
+    assert len(dto.ansichten.supporting) <= 2
+    assert all(
+        ANSICHT_ZU_EXPERIENCE[e.inhalt.typ] == e.typ
+        for e in dto.ansichten.alle
+        if e.hat_inhalt
+    )
+
+
+def test_a_view_the_business_may_not_have_is_not_projected() -> None:
+    """Eine unzulässige Ansicht aus Aufruf 3 erreicht den Vertrag nicht.
+
+    Der Vertrag weist sie beim Erzeugen bereits zurück. Käme sie aus einem
+    älteren gespeicherten Lauf, an dem diese Prüfung noch nicht hing, darf
+    sie hier trotzdem nicht durchrutschen.
+    """
+
+    from tests.test_experiences import _Ansicht
+
+    lauf = _lauf_mit_entscheidung(
+        {"ansichten": [_Ansicht("terminuebersicht", "Termine").model_dump()]}
+    )
+    dto = results_dto.von_ergebnis(lauf)
+
+    # Termine gehören zu SF-06 und SF-18 — beide nicht in dieser Auswahl.
+    assert all(
+        not e.hat_inhalt or e.inhalt.typ != "terminuebersicht"
+        for e in dto.ansichten.alle
+    )
+    assert dto.ansichten.primary is not None
+    assert not dto.ansichten.primary.hat_inhalt
+
+
+def test_a_missing_content_is_reported_not_invented() -> None:
+    """Liefert Aufruf 3 nichts Zulässiges, bleibt der Rahmen erkennbar leer."""
+
+    dto = results_dto.von_ergebnis(_lauf_mit_entscheidung({"ansichten": []}))
+
+    assert dto.ansichten.primary is not None
+    assert not dto.ansichten.primary.hat_inhalt
+    assert dto.ansichten.primary.inhalt is None
+    assert dto.ansichten.primary.titel is None
+    # Der Rahmen selbst bleibt gegroundet — er weiss, wofür er steht.
+    assert dto.ansichten.primary.familien
+
+
+def test_an_adapted_run_still_gets_the_full_landscape() -> None:
+    """Auch ein alter Lauf bekommt alle Bereiche — nur still."""
+
+    dto = results_dto.von_ergebnis(_ergebnis())
+
+    assert len(dto.module) == 14
+    assert dto.sichtbare_module == ()
+    assert all(m.capability_refs == () for m in dto.module)
+
+
+def test_web_and_pdf_would_read_the_same_contract() -> None:
+    """Derselbe Lauf, zweimal gelesen, ergibt denselben Vertrag.
+
+    Das ist die ganze Zusage: Zwei Darstellungen, die hieraus lesen,
+    können sich nicht widersprechen.
+    """
+
+    lauf = _lauf_mit_entscheidung()
+    erst, nochmal = results_dto.von_ergebnis(lauf), results_dto.von_ergebnis(lauf)
+
+    assert erst.module == nochmal.module
+    assert erst.ansichten == nochmal.ansichten
+    assert erst == nochmal

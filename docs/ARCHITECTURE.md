@@ -340,6 +340,32 @@ Beides nebeneinander als seine Entscheidung auszugeben, legt ihm Sätze in
 den Mund, die er nie gesagt hat — deshalb tragen sie `kunde` oder
 `katalog`.
 
+**Der Vertrag trägt die Bereiche und die Ansichtsinhalte selbst.** Ohne
+das müsste jede Darstellung vier Nachschläge in drei Quellen machen:
+welche Familien zu einem Bereich gehören, welche Fähigkeiten die
+brauchen, welche Belege dahinterstehen, welche Grenze dazugehört — und
+zwei Darstellungen machen sie verschieden.
+
+| Feld | was |
+|---|---|
+| `module` | alle vierzehn Bereiche, jeder mit dem Zustand der **Karte** |
+| `capability_refs` | nur bei empfohlenen Bereichen; ein stiller behauptet nichts |
+| `evidence_refs` | über Abdeckung und Signal nachgeschlagen, nicht neu zugeordnet |
+| `boundary_refs` | Stellen in `grenzen` — eine Grenze steht einmal und wird sonst adressiert |
+| `ansichten.*.inhalt` | die geprüfte Ansicht aus Aufruf 3, oder nichts |
+
+Der Zustand wird von der Karte **übernommen**, nicht neu gerechnet: Zwei
+Rechenwege für dieselbe Frage sind zwei Gelegenheiten, sich zu
+widersprechen.
+
+Fehlt für einen Rahmen der Inhalt, bleibt `inhalt` leer und `hat_inhalt`
+falsch — die Darstellung sieht es an einem Feld statt an einer fehlenden
+Zeile, und niemand ist versucht, etwas zu erfinden. Liefert der Aufruf
+für den ersten Kandidaten nichts, rückt der nächste **mit** Inhalt nach:
+Ein leerer Rahmen an erster Stelle hilft niemandem, während daneben ein
+gefüllter läge — und erfunden wird dabei nichts, der nachrückende Rahmen
+ist genauso an seine Familien gebunden.
+
 **Läufe von vorher gehen nicht verloren.** Ein Ergebnis ohne
 festgehaltene Entscheidung wird angepasst, so weit es das hergibt: die
 Familien seiner Module als Zielbild, die Module auf Stufe `jetzt` als

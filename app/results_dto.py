@@ -63,6 +63,69 @@ class Grenze:
 
 
 @dataclass(frozen=True)
+class Faehigkeit:
+    """Was die Lösung an dieser Stelle können muss.
+
+    `ref` ist die Katalogkennung und bleibt innen; `label` ist der Satz,
+    den der Katalog bereits kundenverständlich führt („Eingänge nach
+    Anliegen einordnen"). Die Darstellung zeigt `label` und nie `ref`.
+    """
+
+    ref: str
+    label: str
+
+
+@dataclass(frozen=True)
+class OperatingModul:
+    """Ein Bereich des Betriebs, fertig zum Anzeigen.
+
+    **Warum das im Vertrag steht und nicht in der Darstellung entsteht.**
+    Ohne dieses Feld müsste jede Darstellung selbst nachschlagen, welche
+    Familien zu einem Bereich gehören, welche Fähigkeiten die brauchen,
+    welche Belege dahinterstehen und welche Grenze dazu gehört. Das sind
+    vier Nachschläge in drei Quellen — und zwei Darstellungen machen sie
+    verschieden.
+
+    Alles hier ist aus bereits geprüften Daten abgeleitet. Es entsteht
+    keine neue Empfehlung: `state` kommt aus der Karte, `family_refs` aus
+    der Entscheidung, die Fähigkeiten aus dem Katalog.
+    """
+
+    module_key: str
+    customer_label: str
+    #: Gebietskennung aus `karte.ZONEN` und ihr Name.
+    business_area: str
+    business_area_label: str
+    #: Derselbe Zustand, den auch die Karte zeigt.
+    state: str
+    #: Die Familien dieses Bereichs, die zu diesem Betrieb gehören —
+    #: Zielbild **und** Späteres, genau wie der Knoten auf der Karte.
+    #: Ein Bereich kann deshalb `start` sein und eine Familie führen, die
+    #: erst später kommt; `capability_refs` bleibt davon unberührt und
+    #: nennt nur, was wirklich empfohlen ist.
+    #: **Intern** — der Kunde sieht `customer_label`.
+    family_refs: tuple[str, ...]
+    #: Nur bei Bereichen, die zum Zielbild gehören: Was die Lösung hier
+    #: können muss. Für einen stillen Bereich steht hier nichts — sonst
+    #: behauptete der Vertrag Fähigkeiten für etwas, das nicht empfohlen
+    #: wurde.
+    capability_refs: tuple[Faehigkeit, ...] = field(default_factory=tuple)
+    #: Die Belege, die diesen Bereich tragen.
+    evidence_refs: tuple[str, ...] = field(default_factory=tuple)
+    #: Stellen in `ResultDTO.grenzen`, die zu diesem Bereich gehören.
+    #: Als Index, damit dieselbe Grenze nicht zweimal im Vertrag steht.
+    boundary_refs: tuple[int, ...] = field(default_factory=tuple)
+    #: Reihenfolge im Arbeitslauf.
+    map_order: int = 0
+
+    @property
+    def ist_sichtbar(self) -> bool:
+        """Ob dieser Bereich für diesen Betrieb überhaupt ein Thema ist."""
+
+        return self.state != "still"
+
+
+@dataclass(frozen=True)
 class Ausblick:
     """Ein Bereich, der nach dem Einstieg dazukommt.
 
@@ -130,6 +193,10 @@ class ResultDTO:
     belege: tuple[Beleg, ...]
     entscheidung: DecisionState
     karte: MapState
+    #: **Alle vierzehn Bereiche, jeder mit seinem Zustand.** Die stillen
+    #: gehen mit: Die Karte zeigt die ganze Landschaft, und wer nur das
+    #: Empfohlene ausliefert, kann sie nicht zeichnen.
+    module: tuple[OperatingModul, ...]
     ansichten: ExperienceAuswahl
     grenzen: tuple[Grenze, ...]
     mensch_behaelt: tuple[str, ...]
@@ -142,6 +209,17 @@ class ResultDTO:
         """Ob dieser Lauf von vor dem Entscheidungsvertrag stammt."""
 
         return self.herkunft != VERTRAG
+
+    @property
+    def sichtbare_module(self) -> tuple[OperatingModul, ...]:
+        """Die Bereiche, die für diesen Betrieb ein Thema sind."""
+
+        return tuple(m for m in self.module if m.ist_sichtbar)
+
+    def modul(self, schluessel: str) -> OperatingModul | None:
+        """Ein Bereich über seinen Schlüssel."""
+
+        return next((m for m in self.module if m.module_key == schluessel), None)
 
 
 def _entscheidung_aus_altlauf(ergebnis: Result) -> DecisionState:
@@ -201,6 +279,92 @@ def _grenzen(ergebnis: Result, zielbild: list[str]) -> list[Grenze]:
             if any(g.titel == satz for g in gefunden):
                 continue
             gefunden.append(Grenze(satz, satz, "katalog", kennung))
+    return gefunden
+
+
+def _belege_je_familie(zustand: DecisionState) -> dict[str, list[str]]:
+    """Welche Belegkennungen hinter welcher Familie stehen.
+
+    Der Weg ist zweistufig und beide Stufen sind bereits geprüft: Die
+    Abdeckung sagt, welches Signal zu welcher Familie führte; das Signal
+    sagt, auf welchen Zitaten es steht. Hier wird nichts zugeordnet, was
+    nicht schon zugeordnet war — nur nachgeschlagen.
+    """
+
+    nach_signal = {s.id: s.evidence_refs for s in zustand.signals}
+    gefunden: dict[str, list[str]] = {}
+    for eintrag in zustand.coverage.items if zustand.coverage is not None else []:
+        for kennung in eintrag.family_refs:
+            fuer_familie = gefunden.setdefault(kennung, [])
+            for bezug in nach_signal.get(eintrag.signal_id, []):
+                if bezug not in fuer_familie:
+                    fuer_familie.append(bezug)
+    return gefunden
+
+
+def _module(
+    zustand: DecisionState, karte: MapState, grenzen: list[Grenze]
+) -> list[OperatingModul]:
+    """Die vierzehn Bereiche, fertig zum Anzeigen.
+
+    **Alle vierzehn, nicht nur die empfohlenen.** Die Karte zeigt die
+    ganze Landschaft; wer nur das Empfohlene ausliefert, kann sie nicht
+    zeichnen. Was für diesen Betrieb kein Thema ist, trägt `still` und
+    bekommt weder Fähigkeiten noch Belege — ein stiller Bereich soll
+    nichts behaupten.
+
+    Der Zustand wird **von der Karte übernommen**, nicht neu gerechnet.
+    Zwei Rechenwege für dieselbe Frage sind zwei Gelegenheiten, sich zu
+    widersprechen.
+    """
+
+    belege = _belege_je_familie(zustand)
+    im_zielbild = set(zustand.target_family_ids)
+    gefunden: list[OperatingModul] = []
+    for bereich in sorted(operating_model.BEREICHE, key=lambda b: b.reihenfolge):
+        knoten = karte.knoten_von(bereich.schluessel)
+        zustand_des_bereichs = knoten.zustand if knoten is not None else "still"
+        eigene = list(knoten.familien) if knoten is not None else []
+        # Fähigkeiten und Belege nur für das, was wirklich empfohlen ist.
+        empfohlen = [k for k in eigene if k in im_zielbild]
+        faehigkeiten = (
+            tuple(
+                Faehigkeit(
+                    str(datensatz.get("chunk_id") or ""),
+                    str(datensatz.get("title") or datensatz.get("faehigkeit_name") or ""),
+                )
+                for datensatz in solution_catalog.faehigkeiten_zu(empfohlen)
+                if datensatz.get("chunk_id")
+            )
+            if empfohlen
+            else ()
+        )
+        gesehen: list[str] = []
+        for kennung in empfohlen:
+            for bezug in belege.get(kennung, []):
+                if bezug not in gesehen:
+                    gesehen.append(bezug)
+        gefunden.append(
+            OperatingModul(
+                module_key=bereich.schluessel,
+                customer_label=bereich.name,
+                business_area=bereich.gebiet,
+                business_area_label=next(
+                    (z.name for z in karte.gebiete if z.kennung == bereich.gebiet),
+                    bereich.gebiet,
+                ),
+                state=zustand_des_bereichs,
+                family_refs=tuple(eigene),
+                capability_refs=faehigkeiten,
+                evidence_refs=tuple(gesehen),
+                boundary_refs=tuple(
+                    stelle
+                    for stelle, grenze in enumerate(grenzen)
+                    if grenze.familie is not None and grenze.familie in eigene
+                ),
+                map_order=bereich.reihenfolge,
+            )
+        )
     return gefunden
 
 
@@ -304,6 +468,7 @@ def von_ergebnis(ergebnis: Result) -> ResultDTO:
     )
     karte = map_state.aus_entscheidung(zustand)
     ansichten = experiences.auswahl(zustand, list(ergebnis.ansichten))
+    grenzen = _grenzen(ergebnis, zustand.target_family_ids)
     dto = ResultDTO(
         contract_version=VERTRAG,
         herkunft="ergebnis-v6-adaptiert" if angepasst else VERTRAG,
@@ -313,8 +478,9 @@ def von_ergebnis(ergebnis: Result) -> ResultDTO:
         ),
         entscheidung=zustand,
         karte=karte,
+        module=tuple(_module(zustand, karte, grenzen)),
         ansichten=ansichten,
-        grenzen=tuple(_grenzen(ergebnis, zustand.target_family_ids)),
+        grenzen=tuple(grenzen),
         mensch_behaelt=tuple(ergebnis.aufgabenteilung.mensch),
         ausblicke=tuple(_ausblicke(ergebnis, zustand, karte)),
         nicht_empfohlen=tuple(
@@ -335,11 +501,13 @@ def von_ergebnis(ergebnis: Result) -> ResultDTO:
         ),
     )
     logger.info(
-        "results_dto.built herkunft=%s einstieg=%s primary=%s ausblicke=%d "
-        "grenzen=%d nicht_empfohlen=%d offen=%d",
+        "results_dto.built herkunft=%s einstieg=%s primary=%s inhalt=%s "
+        "module_sichtbar=%d ausblicke=%d grenzen=%d nicht_empfohlen=%d offen=%d",
         dto.herkunft,
         dto.uebersicht.einstieg_refs,
         dto.uebersicht.primary_experience,
+        dto.ansichten.primary.hat_inhalt if dto.ansichten.primary else False,
+        len(dto.sichtbare_module),
         len(dto.ausblicke),
         len(dto.grenzen),
         len(dto.nicht_empfohlen),
@@ -351,7 +519,9 @@ def von_ergebnis(ergebnis: Result) -> ResultDTO:
 __all__ = [
     "Ausblick",
     "Beleg",
+    "Faehigkeit",
     "Grenze",
+    "OperatingModul",
     "NichtEmpfohlen",
     "ResultDTO",
     "Uebersicht",

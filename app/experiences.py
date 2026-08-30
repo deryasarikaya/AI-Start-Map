@@ -28,7 +28,7 @@ from dataclasses import dataclass
 
 from app import operating_model
 from app.operating_model import ANSICHT_ZU_EXPERIENCE, ExperienceType
-from app.result_schema import DecisionState
+from app.result_schema import DecisionState, View
 
 logger = logging.getLogger(__name__)
 
@@ -61,18 +61,38 @@ class Kandidat:
 
 @dataclass(frozen=True)
 class Experience:
-    """Eine ausgewählte Ansicht mit ihrer Herkunft.
+    """Eine ausgewählte Ansicht mit ihrer Herkunft **und ihrem Inhalt**.
 
-    `inhalt_ref` zeigt auf die Ansicht aus dem Ergebnis, die sie füllt —
-    oder ist leer, wenn der Aufruf für diesen Typ nichts geliefert hat.
-    Dann steht der Rahmen ohne Inhalt, und das ist ehrlicher, als einen
-    Inhalt zu erfinden.
+    **Warum der Inhalt hier hängt und nicht nur ein Verweis darauf.** Eine
+    Auswahl, die nur sagt „nimm den Sprachassistenten", zwingt jede
+    Darstellung, sich den passenden Eintrag aus der Ansichtsliste selbst
+    herauszusuchen. Das ist eine Zuordnung, und zwei Darstellungen treffen
+    sie verschieden — genau die Uneinigkeit, gegen die der ganze Vertrag
+    gebaut ist. Also wird sie einmal getroffen, hier.
+
+    `inhalt` ist leer, wenn der Aufruf für diesen Typ nichts Zulässiges
+    geliefert hat. Dann steht der Rahmen ohne Inhalt. Das ist ehrlicher,
+    als einen Inhalt zu erfinden — und die Darstellung sieht es an einem
+    Feld statt an einer fehlenden Zeile.
     """
 
     typ: ExperienceType
     bereich: str
     familien: tuple[str, ...]
-    inhalt_ref: str | None = None
+    #: Die geprüfte Ansicht aus Aufruf 3 — oder nichts.
+    inhalt: View | None = None
+
+    @property
+    def hat_inhalt(self) -> bool:
+        """Ob für diese Ansicht wirklich etwas zu zeigen ist."""
+
+        return self.inhalt is not None
+
+    @property
+    def titel(self) -> str | None:
+        """Die Überschrift der Ansicht, falls es eine gibt."""
+
+        return None if self.inhalt is None else self.inhalt.titel
 
 
 @dataclass(frozen=True)
@@ -175,18 +195,22 @@ def auswahl(
         return ExperienceAuswahl(primary=None)
     nach_typ = {k.typ: k for k in moegliche}
 
-    getroffen: list[tuple[Kandidat, str]] = []
+    getroffen: list[tuple[Kandidat, View | None]] = []
     verworfen: list[str] = []
     for ansicht in ansichten or []:
         typ = _zieltyp(getattr(ansicht, "typ", None) or "")
-        titel = str(getattr(ansicht, "titel", "") or "")
         kandidat = nach_typ.get(typ) if typ is not None else None
         if kandidat is None:
-            verworfen.append(f"{getattr(ansicht, 'typ', '?')}/{titel}")
+            verworfen.append(
+                f"{getattr(ansicht, 'typ', '?')}/{getattr(ansicht, 'titel', '')}"
+            )
             continue
         if any(k.typ == kandidat.typ for k, _ in getroffen):
             continue
-        getroffen.append((kandidat, titel))
+        # **Nur eine echte, geprüfte Ansicht wird zum Inhalt.** Die
+        # Auswahl wird auch mit leichteren Vorrichtungen aufgerufen; was
+        # kein `View` ist, trägt den Rahmen, aber keinen Inhalt.
+        getroffen.append((kandidat, ansicht if isinstance(ansicht, View) else None))
     if verworfen:
         logger.info(
             "experiences.ungegroundet verworfen=%s moeglich=%s",
@@ -196,11 +220,11 @@ def auswahl(
 
     getroffen.sort(key=lambda paar: (paar[0].rang, paar[0].ordnung))
     if getroffen:
-        kandidat, titel = getroffen[0]
-        primary = Experience(kandidat.typ, kandidat.bereich, kandidat.familien, titel)
+        kandidat, inhalt = getroffen[0]
+        primary = Experience(kandidat.typ, kandidat.bereich, kandidat.familien, inhalt)
         begleitend = tuple(
-            Experience(k.typ, k.bereich, k.familien, t)
-            for k, t in getroffen[1 : 1 + BEGLEITEND_HOECHSTENS]
+            Experience(k.typ, k.bereich, k.familien, i)
+            for k, i in getroffen[1 : 1 + BEGLEITEND_HOECHSTENS]
         )
     else:
         erster = moegliche[0]
@@ -209,10 +233,12 @@ def auswahl(
 
     gewaehlt = ExperienceAuswahl(primary=primary, supporting=begleitend)
     logger.info(
-        "experiences.selected primary=%s bereich=%s begleitend=%s aus_kandidaten=%d",
+        "experiences.selected primary=%s bereich=%s inhalt=%s begleitend=%s "
+        "aus_kandidaten=%d",
         primary.typ,
         primary.bereich,
-        [e.typ for e in begleitend] or "keine",
+        primary.hat_inhalt,
+        [(e.typ, e.hat_inhalt) for e in begleitend] or "keine",
         len(moegliche),
     )
     return gewaehlt
