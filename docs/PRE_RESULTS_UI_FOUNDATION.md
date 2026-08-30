@@ -146,12 +146,11 @@ müssen vor einer Veröffentlichung fachlich und rechtlich entschieden und dann
 mit der realen Datenverarbeitung abgeglichen werden. Bis dahin darf keine
 unbelegte Datenschutz-Zusage in Landingpage oder Interview ergänzt werden.
 
-## Übergabe an Results V1
+## Results V1 auf derselben Foundation
 
-Results V1 sollte `--page-bg`, die Surface-, Text-, Border-, Radius-, Shadow-,
-Width-, Spacing- und Motion-Tokens direkt übernehmen. Für normale Inhalte,
-wichtige Zielbildflächen und Handlungen stehen die Karten- und Buttonmuster
-bereits bereit.
+Results V1 übernimmt `--page-bg`, die Surface-, Text-, Border-, Radius-, Shadow-,
+Width-, Spacing- und Motion-Tokens direkt. Für normale Inhalte, wichtige
+Zielbildflächen und Handlungen stehen dieselben Karten- und Buttonmuster bereit.
 
 Results V1 bindet außerdem `_page_background.html` ein. Die Backdrop-Schicht
 beginnt unter der jeweiligen oberen Produktleiste; Seiteninhalt und Karten
@@ -160,13 +159,18 @@ Hero-Hintergründe dürfen diese Grundkomposition nicht zurücksetzen. Damit
 bleiben Grundfarbe, Verlauf, Intensität und Bewegung beim Seitenwechsel
 konstant.
 
-Nicht übernehmen sollte Results V1 parallel gepflegte lokale Farbwerte oder
-einen zweiten Satz Radien und Schatten unter `.ergebnis`. Die fachliche
-Informationsarchitektur der Results bleibt eine eigene Aufgabe; diese
-Foundation legt nur die visuelle und interaktive Sprache fest.
+`app/templates/results_v1.html` und `app/static/results_v1.css` sind
+implementiert und aktiv. Sie verwenden `_page_background.html` sowie die
+gemeinsamen Tokens als einzige visuelle Source of Truth. Eigene lokale
+Farbwerte, ein zweiter Satz Radien und Schatten oder ein lokaler
+`body`-Hintergrund sind nicht zulässig.
+
+Die fachliche Informationsarchitektur der Results bleibt im ResultDTO; diese
+Foundation entscheidet keine Inhalte, Startpunkte oder Experience Types.
 
 ## Status
 
-Implementiert und offline getestet auf `feature/pre-results-ui-foundation`.
-Der Branch bleibt getrennt von `feature/final-stabilization` und wird dort
-nicht automatisch zusammengeführt.
+Implementiert, integriert und browsergeprüft auf dem Results-V1-Branch:
+Desktop und 390-px-Mobile verwenden denselben Page Background ohne
+horizontalen Überlauf. Die fachliche Darstellung ist durch den
+ResultDTO-Vertrag getrennt abgesichert.

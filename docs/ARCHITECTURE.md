@@ -153,6 +153,46 @@ visuelle Foundation, ohne in diesen Datenfluss einzugreifen. Tokens,
 Komponentenmuster, Zuständigkeiten und die Übergabe an eine spätere Results V1
 stehen in [`PRE_RESULTS_UI_FOUNDATION.md`](PRE_RESULTS_UI_FOUNDATION.md).
 
+### Results V1 — Darstellung ohne neue fachliche Entscheidung
+
+`app/results_dto.py` ist die einzige Übergabe von einem gespeicherten
+`Result` in die sichtbare Results V1. Es verdichtet nichts fachlich neu:
+`DecisionState`, Coverage, Why-not, persistierte Belege, `MapState`, die
+vierzehn `OperatingModul`-Projektionen, Operating Center sowie die bereits
+ausgewählte `Experience.inhalt` werden zu einem `ResultDTO` zusammengeführt.
+
+| Verbraucher | Route | Vorlage | Input |
+|---|---|---|---|
+| Web | `/results` | `results_v1.html` | `ResultDTO` |
+| Lesefassung | `/report` | `report_v1.html` | derselbe `ResultDTO` |
+| PDF | `/report.pdf` | `report_v1.html` | derselbe `ResultDTO` |
+| gespeichertes Beispiel | `/beispiel/hausverwaltung` und `/beispiel/hausverwaltung/report.pdf` | dieselben Vorlagen | adaptierter `ResultDTO` |
+
+`results_v1.html`, `_results_v1_content.html`, `report_v1.html` und
+`results_v1.js` kennen weder das alte Ergebnisobjekt `e` noch
+`kartenkontext`. Der Renderer zeigt nur bereits geprüfte Informationen:
+Entscheidungsübersicht mit einem Startbeleg, feste Map-Bereiche und
+Zustände, evidenzgebundene Detailansicht, Zielablauf, Primary/Supporting
+Experience, Human Boundaries, optionale Future Opportunities, Why-not und
+offene Fragen. `results_v1.js` verwaltet ausschließlich Auswahl- und
+Filterzustand der Map; es enthält keine Empfehlungsvorschriften.
+
+Für ältere gespeicherte Läufe markiert `ResultDTO.herkunft` die Anpassung.
+Der Adapter bewahrt vorhandene View-Inhalte, ergänzt aber weder eine
+Entscheidung noch Evidence oder Grenzen, die der Altbestand nicht trägt.
+
+Die sichtbare Karte hat keine vom Modell erzeugten Regionen. Sie rendert die
+vierzehn festen Operating-Module mit den Zuständen `heute`, `start`,
+`target`, `future` und `still`. Auf Desktop erscheinen Karte und
+Detailbereich nebeneinander; auf Mobile wird daraus eine priorisierte
+einspaltige Modul-Liste mit vier State-Filtern. Ohne JavaScript bleiben alle
+Map-Inhalte und Detailbereiche lesbar.
+
+Die Vorlagen verwenden die globale Foundation aus
+`app/static/styles.css` und `_page_background.html`; `results_v1.css` ergänzt
+nur Layout und Zustandsdarstellung mit diesen Tokens. Es gibt keine lokale
+Results-Palette.
+
 ---
 
 ## Der Vertrag

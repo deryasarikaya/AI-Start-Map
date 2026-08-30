@@ -60,7 +60,7 @@ würde irgendwann eine Familie behaupten, die es nicht mehr gibt.
 | **Die Teilung** | `test_second_call_split.py` | beide Hälften laufen, keine halben Ergebnisse |
 | **Zuverlässigkeit** | `test_result_reliability.py` | Wiederholung nach schlechtem Zitat, Denkstufen, Zeitbudget |
 | **Der Ablauf** | `test_analysis_flow.py`, `test_understanding_step.py` | Routen, Zwischenstand, höchstens zwei Runden |
-| **Die Seiten** | `test_example_page.py`, `test_report_page.py`, `test_ux_journey.py` | Ergebnisseite, PDF, Rückfallebene |
+| **Die Results-V1-Darstellung** | `test_results_v1.py`, `test_example_page.py`, `test_report_page.py`, `test_ux_journey.py` | DTO-only Web/PDF, 14 Map-Bereiche, no-JS-Kerninhalt, Beispiel-PDF, Rückfallebene |
 | **Das Wissen** | `test_knowledge_hook.py`, `test_batch10_validator.py` | Abrufweg, Wissensprüfung, Zirkelschluss |
 | **Die Messwerkzeuge** | `test_gold_lauf.py`, `test_zehn_laeufe.py` | dass die Messskripte messen, was sie behaupten |
 
@@ -106,6 +106,22 @@ derselbe Analyseweg, ein Prozess weniger. Nur so zählen Aufrufe und Laufzeit
 
 Mit `--worker` läuft es über einen echten Worker und fragt den Stand ab wie
 der Warteschirm. Das prüft den Weg, nicht die Kosten.
+
+### Geprüfter Results-V1-Lauf
+
+Am Results-V1-Branch wurde der vollständige Heizungs-/Sanitärfall aus
+`knowledge/evaluation/entwurf_heizung_sanitaer.json` manuell gegen die
+separate Testdatenbank gefahren. Der Lauf erzeugte einen persistierten
+Decision State mit acht Coverage-Einträgen, zwei Startbereichen, zwei Future-
+Bereichen, einer Why-not-Entscheidung und einer echten Primary Experience
+`voice_assistant` inklusive Inhalt. Die Resultseite rendert daraus Belege,
+Map, Human Boundaries und Experience ohne eine zweite Modellgenerierung.
+
+Das ist ein einzelner Lauf, keine Zuverlässigkeitsmessung. Die Anzahl von
+Retries ist nicht als persistierte Laufmetrik verfügbar und wird deshalb hier
+nicht behauptet. Die Offline-Suite bleibt der Vertragsschutz; erneute
+Goldläufe bleiben nötig, sobald Prompts, Katalog oder Ergebnisvertrag
+verändert werden.
 
 Neben jeder Messung liegt ein **Laufstempel** (`laufstempel.json`) mit Commit,
 Prompt-, Vertrags-, Katalog- und Indexstand. Zwei Messungen mit

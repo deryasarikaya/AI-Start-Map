@@ -45,7 +45,7 @@ Erzählung des Betriebs
         ├─ Aufruf 3 · Ansichten           Beispieloberflächen
         ├─ Aufruf 4 · Rest                Aufgabenteilung, Wert, Systeme, Umsetzung
         │
-        └─ Ergebnisseite + PDF
+        └─ ResultDTO → Ergebnisseite + PDF
 ```
 
 Details in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
@@ -54,6 +54,12 @@ Die gemeinsame visuelle und inhaltliche Foundation für Landingpage,
 Betriebsbeschreibung, Analysezustände und Verständnisbestätigung ist in
 [`docs/PRE_RESULTS_UI_FOUNDATION.md`](docs/PRE_RESULTS_UI_FOUNDATION.md)
 dokumentiert.
+
+Die sichtbare Results V1 liest ausschließlich den geprüften
+[`ResultDTO`](docs/ARCHITECTURE.md#results-v1--darstellung-ohne-neue-fachliche-entscheidung).
+Web und PDF erhalten dieselben Evidence-, Decision-, Map-, Experience- und
+Human-Boundary-Daten; weder Vorlage noch JavaScript wählen Lösungsfamilien
+oder Startpunkte erneut.
 
 ---
 
