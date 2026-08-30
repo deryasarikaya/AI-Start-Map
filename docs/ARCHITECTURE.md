@@ -236,6 +236,52 @@ Heizungsfalls entstand über die Abdeckung kein einziges
 Null bis zwei, nie aufgefüllt, und keine Familie darf gleichzeitig
 empfohlen und abgesagt werden.
 
+### Die Darstellungsschicht
+
+Der Katalog ist die fachliche Wahrheit: Was empfohlen werden darf, steht
+dort. Seine Kennungen und Namen sind aber nichts, was ein Betrieb liest —
+`SF-15` nicht und „Sprach- und Telefonworkflow" auch nicht.
+
+`app/operating_model.py` legt eine reine **Darstellungsschicht** darüber:
+vierzehn Bereiche in Kundensprache, jeder aus einer oder mehreren
+Familien zusammengesetzt, jeder in einem der sechs Gebiete, die
+`app/karte.py` seit Langem kennt. Ein zweites Gebietsschema danebenzu-
+stellen hiesse, dieselbe Landschaft zweimal zu beschreiben.
+
+Diese Schicht enthält **nichts Fachliches** — keine Eignung, keine
+Fähigkeiten, keine Voraussetzungen, keine menschlichen Grenzen, keine
+Empfehlungslogik. All das steht im Katalog. Stünde es hier auch, gäbe es
+zwei Wahrheiten, die auseinanderlaufen, und die Frage „welche gilt?"
+hätte keine gute Antwort. Ein Test hält fest, dass jede der
+fünfundzwanzig Familien genau einen Bereich hat: Ohne ihn könnte eine
+empfohlene Familie auf der Ergebnisseite schlicht fehlen.
+
+**Wo die Arbeit zusammenläuft** — das Operating Center — wird aus den
+Bereichen des Zielbilds abgeleitet, nicht erzeugt. Der erste Entwurf
+hatte eine feste „gemeinsame Akte"; für einen Handwerksbetrieb stimmt
+das, für ein Ingenieurbüro nicht. Dort läuft nichts in einer Akte
+zusammen, sondern in einem verlässlichen Wissenskontext. Vier Arten:
+gemeinsamer Arbeitskontext, Durchlaufstrecke, Wissensraum,
+Entscheidungsraum. Wo sich nichts sammelt, wird auch nichts behauptet.
+
+### Die Karte als Daten
+
+`app/map_state.py` markiert die feste Landschaft mit vier Zuständen:
+`heute`, `start`, `target`, `future`. Alle vierzehn Bereiche bleiben
+sichtbar — eine Karte, die nur zeigt, was empfohlen wird, ist keine
+Landschaft, sondern eine Angebotsliste.
+
+| | |
+|---|---|
+| Punkt | ein Bereich, nicht eine Familie — vierzehn statt fünfundzwanzig |
+| Ort | Schwerpunkt der Familienpunkte aus `karte.PLAETZE` |
+| `heute` | nur wo der Betrieb selbst ein System genannt hat |
+| `start` | höchstens zwei Bereiche; was nicht hineinpasst, bleibt Zielbild |
+| `future` | höchstens vier, **nie aufgefüllt** |
+
+Kein Modellaufruf, keine erzeugten Koordinaten, keine kundenabhängige
+Landschaft: Zweimal dieselbe Entscheidung ergibt zweimal dieselbe Karte.
+
 ---
 
 ## Datenmodell

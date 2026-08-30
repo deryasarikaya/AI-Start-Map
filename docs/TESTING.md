@@ -50,6 +50,7 @@ würde irgendwann eine Familie behaupten, die es nicht mehr gibt.
 | Bereich | Datei | worum es geht |
 |---|---|---|
 | **Der Vertrag** | `test_result_contract.py` | Zitate wörtlich, keine erfundenen Zahlen, keine Fachsprache, Grenzen nur selbstgesagt |
+| **Die Darstellung** | `test_operating_model.py`, `test_map_state.py` | 25/25 Familien haben einen Bereich, Zustände überschneiden sich nicht, dieselbe Entscheidung ergibt dieselbe Karte |
 | **Der Entscheidungszustand** | `test_decision_state.py` | Start im Zielbild, Später ausserhalb, Nicht-Empfehlungen, Persistenz, alte Läufe bleiben lesbar |
 | **Die Entscheidung** | `test_decision_signals.py` | Signalspeicher, Belegkennungen, eine Entscheidung je kritischem Signal, übergangene Signale werden sichtbar |
 | **Das Geländer** | `test_solution_catalog.py` | erfundene Kennungen, Module ohne Baustein, kein Katalogtreffer, vorhandene Software, zu viele Familien |
