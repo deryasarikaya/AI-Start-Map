@@ -18,14 +18,20 @@
 {% block title %}Ihre Betriebsbeschreibung · AI Start Map{% endblock %}
 
 {% block content %}
+<nav class="journey-context" aria-label="Ablauf Ihrer Analyse">
+    <span class="journey-context__current">Betrieb beschreiben</span>
+    <span aria-hidden="true">→</span>
+    <span>Verständnis bestätigen</span>
+    <span aria-hidden="true">→</span>
+    <span>Auswertung erhalten</span>
+</nav>
 <section class="content-intro erhebung-kopf">
     <p class="eyebrow">Ihre Betriebsbeschreibung</p>
-    <h1 class="page-title">Beschreiben Sie, wie Ihr Betrieb heute wirklich läuft.</h1>
-    <p class="page-description">Je besser wir Ihren Alltag verstehen, desto konkreter kann
-    Ihre Auswertung werden. Erzählen Sie uns, wie Kunden, Aufgaben, Termine, Informationen
-    und Ihr Team heute zusammenspielen – per Sprache oder Text.</p>
-    <p class="erhebung-nutzen">Daraus analysieren wir Ihren größten Hebel, einen sinnvollen
-    Startpunkt und weitere Möglichkeiten für KI und Automatisierung.</p>
+    <h1 class="page-title">Beschreiben Sie einen echten Ablauf aus Ihrem Alltag.</h1>
+    <p class="page-description">Zum Beispiel vom ersten Kundenkontakt bis zum Abschluss.
+    Sie müssen nichts vorbereiten und noch keine Lösung kennen.</p>
+    <p class="erhebung-nutzen">Erzählen Sie, was passiert, wer beteiligt ist, wo Informationen
+    liegen bleiben und was heute unnötig Zeit kostet. Sie können frei sprechen oder schreiben.</p>
 </section>
 
 <form class="erhebung" action="{{ url_for('save_interview_public') }}" method="post" data-disable-on-submit data-submitting-label="Ich lese Ihre Beschreibung …" data-processing-title="Ich lese Ihre Beschreibung." data-processing-copy="Gleich sehen Sie, was ich verstanden habe." data-voice-input data-voice-target="free_description">
@@ -46,9 +52,9 @@
                     <span class="sprachzeichen" aria-hidden="true">●</span>
                     <div>
                         <h3 id="voice-title">Per Sprache erzählen</h3>
-                        <p class="voice-status" data-voice-status aria-live="polite">Beschreiben
-                        Sie Ihren Arbeitsalltag so, wie Sie ihn einem Berater erklären würden,
-                        der Ihren Betrieb noch nicht kennt.</p>
+                        <p class="voice-status" data-voice-status aria-live="polite">Erzählen
+                        Sie so, wie Sie den Ablauf einer Person erklären würden, die Ihren Betrieb
+                        noch nicht kennt.</p>
                         <p class="sprachnotiz">Sie können jederzeit pausieren und weiter aufnehmen.</p>
                         <p class="voice-support" data-voice-support></p>
                     </div>
@@ -64,7 +70,8 @@
             <div class="schreibfeld">
                 <label for="free_description">Oder schriftlich beschreiben</label>
                 <p class="feldnotiz">Schreiben Sie frei und so ausführlich, wie es für Ihren
-                Betrieb sinnvoll ist.</p>
+                Betrieb sinnvoll ist. Je konkreter Ihr Einblick, desto passender wird Ihre
+                Auswertung.</p>
                 {# Kein `maxlength`: Zehn Minuten Sprechen sind rund 28.000
                    Zeichen, und die kommen vollstaendig an — nachgemessen.
 
@@ -78,12 +85,13 @@
             </div>
 
             <div class="erhebung-abschluss">
-                <button class="primary-button" type="submit">Individuelle Auswertung erstellen <span aria-hidden="true">→</span></button>
+                <button class="primary-button" type="submit">Beschreibung analysieren <span aria-hidden="true">→</span></button>
                 {# Nimmt die Angst vor der unvollstaendigen Erzaehlung — und
                    beschreibt, was der Agent wirklich tut. Er fragt selten,
                    weil die Latte hoch ist, nicht weil er nicht zuhoert. #}
-                <p class="ctahinweis">AI Start Map fragt nur nach, wenn eine fehlende
-                Information Ihre Empfehlung wirklich verändern würde.</p>
+                <p class="ctahinweis"><b>Danach sehen Sie zuerst, was AI Start Map verstanden hat.</b>
+                Nachgefragt wird nur, wenn eine fehlende Information Ihre Empfehlung wirklich
+                verändern würde.</p>
             </div>
         </div>
 
@@ -96,7 +104,7 @@
                 <li><b>Ihr Betrieb</b><span>Branche, Leistungen, Kunden</span></li>
                 <li><b>Ihr Team</b><span>Größe, Rollen, Zuständigkeiten</span></li>
                 <li><b>Typischer Ablauf</b><span>Vom ersten Kontakt bis zum Abschluss</span></li>
-                <li><b>Kanäle &amp; Systeme</b><span>Telefon, E-Mail, WhatsApp, Kalender, Software</span></li>
+                <li><b>Kanäle &amp; Systeme</b><span>Telefon, E-Mail, WhatsApp, Termine, Kalender, Software</span></li>
                 <li><b>Aufwand &amp; Häufigkeit</b><span>Wo entsteht Arbeit – und wie oft?</span></li>
                 <li><b>Wünsche &amp; Grenzen</b><span>Was soll automatisiert werden – und was bewusst bei Ihnen bleiben?</span></li>
             </ul>

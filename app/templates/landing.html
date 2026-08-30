@@ -1,219 +1,114 @@
 {% extends "base.html" %}
 
-{# **Die Startseite verkauft keine Checkliste.**
-
-   Sie hiess einmal „Dein passender KI-Schritt" — Einzahl, klein gedacht,
-   und genau das Versprechen, das der Betrieb dann auch bekam. Sie muss in
-   wenigen Sekunden etwas anderes sagen: Der Besucher erzaehlt, wie sein
-   Betrieb wirklich laeuft, und bekommt dafuer kostenlos eine individuelle
-   Analyse — mit einem konkreten Startpunkt und dem Gelaende dahinter.
-
-   Sie muss ihn dazu bringen, mehrere Minuten in seine Beschreibung zu
-   investieren. Deshalb steht ueberall, was er dafuer bekommt, und nirgends
-   das Wort „kurz". #}
-
-{% block title %}AI Start Map · Ihre individuelle KI-Analyse{% endblock %}
+{% block title %}AI Start Map · Ihre individuelle Betriebsanalyse{% endblock %}
 
 {% block content %}
 <section class="landing-section landing-hero">
     <div class="hero-copy">
-        <p class="eyebrow">Kostenlose individuelle KI-Analyse für kleine Betriebe</p>
-        <h1>Erzählen Sie, wie Ihr Betrieb wirklich läuft.<br>Wir zeigen Ihnen, was KI daraus machen könnte.</h1>
-        <p class="lead">Keine Checkliste und keine Standardempfehlungen. Sie beschreiben Ihren
-        Arbeitsalltag in Ihren eigenen Worten. AI Start Map analysiert Ihren Betrieb individuell
-        und zeigt Ihnen, wo Automatisierung sinnvoll starten kann, wie eine mögliche Lösung
-        aussehen könnte und welche größeren KI-Möglichkeiten sich daraus ergeben könnten.</p>
-        <form action="{{ url_for('begin_journey') }}" method="post" data-disable-on-submit data-submitting-label="Einen Moment …" data-processing-title="Ich bereite Ihre Beschreibung vor." data-processing-copy="Gleich können Sie erzählen.">
-            <button class="primary-button hero-button" type="submit">Meine persönliche AI Start Map erstellen <span aria-hidden="true">→</span></button>
-        </form>
-        <p class="micro-copy">Kostenlos · per Sprache oder Text · keine KI-Vorkenntnisse nötig</p>
-    </div>
-
-    {# **Die Vorschau zeigt die Geschichte, nicht die Form.**
-
-       Hier stand erst eine verkleinerte Karte: sechs Kreise um eine Mitte,
-       ohne Beschriftung. Sie las sich wie ein Ladesymbol — wer fragen
-       muss, was er sieht, hat es nicht verstanden.
-
-       Drei Zeilen sagen dasselbe in einer Sekunde: wo er steht, wo wir
-       anfangen, wohin es geht. Die richtige Karte kommt in der Auswertung. #}
-    <div class="herovorschau" aria-hidden="true">
-        <div class="vorschauzeile vorschauzeile--heute">
-            <span class="vorschaupunkt"></span>
-            <div><b>Ihr Betrieb heute</b><span>Wo Arbeit hängen bleibt</span></div>
+        <p class="eyebrow">Kostenlose, individuelle Analyse für kleine Betriebe</p>
+        <h1>Finden Sie heraus, wo KI Ihnen wirklich Arbeit abnehmen kann.</h1>
+        <p class="lead">Beschreiben Sie einfach Ihren Arbeitsalltag. AI Start Map zeigt Ihnen,
+        wo heute unnötiger Aufwand entsteht, was sich sinnvoll mit KI und Automatisierung
+        verbessern lässt und womit Sie beginnen würden.</p>
+        <p class="hero-addendum"><strong>Und wie Ihre Abläufe künftig besser zusammenspielen könnten.</strong></p>
+        <div class="hero-actions">
+            <form action="{{ url_for('begin_journey') }}" method="post" data-disable-on-submit data-submitting-label="Einen Moment …" data-processing-title="Ich bereite Ihre Beschreibung vor." data-processing-copy="Gleich können Sie frei erzählen.">
+                <button class="primary-button hero-button" type="submit">Kostenlose Analyse starten <span aria-hidden="true">→</span></button>
+            </form>
+            <a class="secondary-button button-link" href="#auswertung">So sieht Ihre Auswertung aus</a>
         </div>
-        <div class="vorschaupfeil">↓</div>
-        <div class="vorschauzeile vorschauzeile--start">
-            <span class="vorschaupunkt"></span>
-            <div><b>Ihr Startpunkt</b><span>Womit wir anfangen würden</span></div>
+        <p class="micro-copy hero-trust">Kostenlos · per Sprache oder Text · keine KI-Vorkenntnisse</p>
+    </div>
+
+    <aside class="outcome-preview card card--elevated" aria-label="So entsteht Ihre AI Start Map">
+        <p class="card-kicker">Ihre AI Start Map</p>
+        <ol class="preview-path">
+            <li class="preview-step preview-step--today">
+                <span class="preview-marker" aria-hidden="true"></span>
+                <div><b>Engpass</b><span>Wo heute unnötig Aufwand entsteht</span></div>
+            </li>
+            <li class="preview-step preview-step--start">
+                <span class="preview-marker" aria-hidden="true"></span>
+                <div><b>Sinnvoller Start</b><span>Womit Sie realistisch beginnen würden</span></div>
+            </li>
+            <li class="preview-step preview-step--future">
+                <span class="preview-marker" aria-hidden="true"></span>
+                <div><b>Größeres Zielbild</b><span>Wie Ihr Betrieb künftig zusammenarbeiten könnte</span></div>
+            </li>
+        </ol>
+        <div class="preview-proof">
+            <span>Aus Ihren Aussagen begründet</span>
+            <span>Entscheidungen bleiben beim Menschen</span>
         </div>
-        <div class="vorschaupfeil">↓</div>
-        <div class="vorschauzeile vorschauzeile--weiter">
-            <span class="vorschaupunkt"></span>
-            <div><b>Ihre AI Start Map</b><span>Wohin Ihr Betrieb wachsen kann</span></div>
-        </div>
+    </aside>
+</section>
+
+<section id="auswertung" class="landing-section outcome-section" aria-labelledby="outcome-title">
+    <div class="section-heading">
+        <p class="section-kicker">Ihre persönliche Auswertung</p>
+        <h2 id="outcome-title" class="section-title">Das sehen Sie, bevor Sie über den nächsten Schritt entscheiden</h2>
+        <p>Keine freie Sammlung von KI-Ideen. Sie bekommen ein zusammenhängendes Bild Ihres
+        Betriebs und eine begründete Empfehlung.</p>
     </div>
+    <ol class="outcome-list card card--normal">
+        <li><span>1</span><p><b>Wo heute unnötig Aufwand entsteht</b><small>Der Engpass wird aus Ihrer Beschreibung abgeleitet.</small></p></li>
+        <li><span>2</span><p><b>Wie Ihr Betrieb künftig zusammenarbeiten könnte</b><small>Sie sehen einen verständlichen künftigen Ablauf statt einzelner Tool-Tipps.</small></p></li>
+        <li><span>3</span><p><b>Womit Sie sinnvoll anfangen würden</b><small>Der Startpunkt passt zu Ihrem heutigen Ablauf und Ihren Voraussetzungen.</small></p></li>
+        <li><span>4</span><p><b>Welche Möglichkeiten danach entstehen</b><small>Die AI Start Map zeigt den Weg über den ersten Schritt hinaus.</small></p></li>
+        <li><span>5</span><p><b>Was bewusst beim Menschen bleiben sollte</b><small>Freigaben, Ausnahmen und sensible Entscheidungen behalten klare Grenzen.</small></p></li>
+    </ol>
+    <p class="evidence-note">Sie sehen außerdem, auf welchen Aussagen aus Ihrer Beschreibung die Empfehlung beruht.</p>
 </section>
 
-{# **Was bekomme ich?** — der Abschnitt, der die Minuten rechtfertigt.
-   Drei Bausteine, die den Bogen der Auswertung vorwegnehmen: heute, der
-   Start, das Gelaende. Sie sind bewusst verschieden eingefaerbt, damit man
-   den Weg sieht, bevor man liest. #}
-<section class="landing-section ausbeute" aria-labelledby="ausbeute-title">
-    <p class="section-kicker">Ihre Auswertung</p>
-    <h2 id="ausbeute-title" class="section-title">Das sehen Sie nach Ihrer Analyse</h2>
-    <div class="ausbeute-reihe">
-        <article class="ausbeute-teil ausbeute-teil--heute">
-            <p class="teilmarke">Ihr Betrieb heute</p>
-            <h3>Wir zeigen, wo Arbeit tatsächlich hängen bleibt.</h3>
-            <p class="teilbeispiel">„Wiederkehrende Statusfragen unterbrechen den Betrieb,
-            obwohl die Information bereits vorhanden ist."</p>
-        </article>
-        <article class="ausbeute-teil ausbeute-teil--start">
-            <p class="teilmarke">Ihr sinnvoller Start</p>
-            <h3>Sie sehen, womit wir bei Ihnen zuerst anfangen würden.</h3>
-            <p class="teilbeispiel">„Ein gemeinsamer Vorgangsstand schafft die Grundlage
-            für weitere Automatisierung."</p>
-        </article>
-        <article class="ausbeute-teil ausbeute-teil--karte">
-            <p class="teilmarke">Ihre AI Start Map</p>
-            <h3>Sie sehen, welche weiteren Bereiche daraus entstehen könnten.</h3>
-            <p class="teilbeispiel">Sie sind hier. Hier würden wir anfangen. Und hier könnte
-            Ihr Betrieb mit KI und Automatisierung weiterwachsen.</p>
-        </article>
+<section class="landing-section situations-section" aria-labelledby="situations-title">
+    <div class="section-heading">
+        <p class="section-kicker">Aus Ihrem echten Alltag</p>
+        <h2 id="situations-title" class="section-title">Sie müssen Ihr Problem nicht in KI-Sprache erklären</h2>
+        <p>Normale Situationen reichen. AI Start Map ordnet ein, was dahintersteckt und
+        ob Ordnung, Automatisierung oder KI der richtige nächste Schritt ist.</p>
     </div>
-</section>
-
-{# **Vorher standen hier vier brave Haekchen** über verstreute Informationen
-   und manuelle Nacharbeit. Die sagten dem Besucher nichts, was er nicht
-   selbst wusste — und eichten ihn auf Ablage, bevor er ein Wort gesagt
-   hatte. Jetzt vier Alltagssituationen, die zeigen, was heute geht.
-   Keine Werkzeugnamen, keine Technik. Der Effekt soll sein: „Ach, sowas
-   geht inzwischen?" #}
-<section class="landing-section koennen" aria-labelledby="koennen-title">
-    <p class="section-kicker">Was heute schon möglich ist</p>
-    <h2 id="koennen-title" class="section-title">KI kann heute weit mehr als Texte schreiben</h2>
-    <div class="koennen-raster">
-        <article class="koennen-fall">
-            <span class="fallzeichen" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg>
-            </span>
-            <h3>Telefon</h3>
-            <p class="fallszene">Das Telefon klingelt – obwohl viele Fragen immer dieselben sind.</p>
-            <p class="fallnutzen">Eine KI kann Anliegen verstehen, einfache Fragen beantworten,
-            Informationen aufnehmen oder den richtigen Rückruf vorbereiten.</p>
-        </article>
-        <article class="koennen-fall">
-            <span class="fallzeichen" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.6 8.6 0 0 1-3.8-.9L3 20.5l1.5-4.2A8.4 8.4 0 0 1 3.6 12a8.4 8.4 0 0 1 8.4-8.4 8.4 8.4 0 0 1 9 7.9Z"/></svg>
-            </span>
-            <h3>Nachrichten &amp; Aufträge</h3>
-            <p class="fallszene">Eine Nachricht, ein Foto oder ein Beleg kommt rein.</p>
-            <p class="fallnutzen">Informationen können automatisch erkannt, zusammengeführt und
-            einem Kunden, Auftrag oder Vorgang zugeordnet werden.</p>
-        </article>
-        <article class="koennen-fall">
-            <span class="fallzeichen" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 20h10M8 9h8M8 13h5"/></svg>
-            </span>
-            <h3>Kundenservice</h3>
-            <p class="fallszene">Ein Kunde möchte wissen, wie weit sein Auftrag ist.</p>
-            <p class="fallnutzen">Statusinformationen können über Portal, Chat, Messenger oder
-            andere passende Kanäle verfügbar gemacht werden.</p>
-        </article>
-        <article class="koennen-fall">
-            <span class="fallzeichen" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/></svg>
-            </span>
-            <h3>Nachfassen</h3>
-            <p class="fallszene">Etwas darf nicht wieder vergessen werden.</p>
-            <p class="fallnutzen">Offene Angebote, Rückrufe, Wartungen oder Termine können erkannt
-            und zum richtigen Zeitpunkt wieder aufgegriffen werden.</p>
-        </article>
-    </div>
-</section>
-
-{# Fuer die, die mehr wissen wollen — zugeklappt, damit die Seite nicht in
-   fuenfzehn Erklaerabschnitte zerfaellt. `<details>` klappt der Browser
-   selbst auf, das braucht kein Skript. #}
-<section class="landing-section vertiefung">
-    <details class="vertiefung-block">
-        <summary>Was analysiert AI Start Map eigentlich?</summary>
-        <p class="vertiefung-lead">AI Start Map sucht nicht einfach nach einzelnen Aufgaben,
-        die sich automatisieren lassen. Die Analyse betrachtet, wo Informationen, Kommunikation
-        und Arbeit im Betrieb zusammenhängen – und welche Lösung daraus sinnvoll entstehen könnte.</p>
-        <div class="vertiefung-raster">
-            <div><b>Kundenkontakt</b><span>Telefon, E-Mail, WhatsApp, Website, Chat</span></div>
-            <div><b>Vorgänge &amp; Aufträge</b><span>Status, Zuständigkeiten, Übergaben, offene Punkte</span></div>
-            <div><b>Dokumente &amp; Informationen</b><span>Fotos, PDFs, Belege, Notizen, Datenübertragung</span></div>
-            <div><b>Termine &amp; Nachfassen</b><span>Buchungen, Rückrufe, Erinnerungen, offene Angebote</span></div>
-            <div><b>Kundenservice &amp; Self-Service</b><span>Portale, Statusauskunft, Chat, wiederkehrende Fragen</span></div>
-            <div><b>Wissen &amp; Steuerung</b><span>interne Assistenten, Übersicht, Prioritäten, vorhandenes Wissen</span></div>
-        </div>
-    </details>
-</section>
-
-<section class="landing-section compact-steps" aria-labelledby="steps-title">
-    <p class="section-kicker">So funktioniert es</p>
-    <h2 id="steps-title" class="section-title">So entsteht Ihre persönliche AI Start Map</h2>
-    <div class="simple-steps">
-        <article><span>1</span><div><h3>Sie erzählen Ihren echten Alltag</h3><p>Kein Branchenquiz und keine fünf vorgegebenen Antworten. Sie beschreiben in Ihren eigenen Worten, was bei Ihnen passiert, was Zeit kostet oder immer wieder an Ihnen hängen bleibt.</p></div></article>
-        {# **Kein Versprechen mehr, das selten eingeloest wird.** Hier stand
-           „Ich frage gezielt nach" — der Agent fragt aber nur, wenn eine
-           fehlende Angabe die Empfehlung wirklich veraendert, und das ist
-           selten. Jetzt beschreibt der Satz, was tatsaechlich passiert. #}
-        <article><span>2</span><div><h3>AI Start Map analysiert Ihren Betrieb</h3><p>Die Analyse sucht nach Engpässen, wiederkehrender Arbeit, Abhängigkeiten und Möglichkeiten, bei denen KI oder Automatisierung tatsächlich etwas verändern könnte.</p></div></article>
-        <article><span>3</span><div><h3>Sie bekommen Ihre individuelle Auswertung</h3><p>Sie sehen einen sinnvollen Startpunkt, wie eine mögliche Lösung aussehen könnte und welche größeren Möglichkeiten sich daraus ergeben.</p></div></article>
-    </div>
-</section>
-
-{# **Der Unterschied.** Die rechte Karte war einmal ein einzelner Ablauf —
-   und legte damit fest, dass am Ende immer so etwas herauskommt. Jetzt
-   steht dort, was AI Start Map wirklich anders macht. #}
-<section class="landing-section comparison-section" aria-labelledby="unterschied-title">
-    <p class="section-kicker">Der Unterschied</p>
-    <h2 id="unterschied-title" class="section-title">Ein KI-Quiz kennt Ihren Betrieb nicht.</h2>
-    <div class="comparison-grid">
-        <article class="comparison-card muted-card">
-            <p class="card-kicker">Typischer KI-Check</p>
-            <p>Branche auswählen. Ein paar Fragen anklicken. Danach bekommen Sie allgemeine
-            Empfehlungen wie „Nutzen Sie einen Chatbot", „automatisieren Sie E-Mails" oder
-            „führen Sie ein CRM ein".</p>
-            <p class="karten-schluss">Das gleiche Ergebnis könnte auch der nächste Betrieb bekommen.</p>
-        </article>
-        <article class="comparison-card">
-            <p class="card-kicker">AI Start Map</p>
-            <p>Sie erzählen, wie Ihr Betrieb tatsächlich funktioniert. AI Start Map analysiert
-            genau Ihre Abläufe, Ihre Engpässe und Ihre Grenzen. Daraus entsteht Ihre individuelle
-            Empfehlung und Ihre persönliche AI Start Map.</p>
-            <p class="karten-schluss karten-schluss--stark">Ihr Betrieb rein. Ihre Auswertung raus.</p>
-        </article>
-    </div>
-</section>
-
-{# Der Satz, der die Hemmschwelle nimmt: Er muss vorher nichts wissen —
-   auch nicht, ob KI ueberhaupt die richtige Antwort ist. #}
-<section class="landing-section vertrauen">
-    <h2 class="section-title">Sie müssen vorher nicht wissen, welche KI-Lösung Sie brauchen.</h2>
-    <p class="vertrauen-text">Vielleicht ist für Sie eine kleine Automatisierung sinnvoll.
-    Vielleicht ein Kundenportal, ein Telefonassistent, eine gemeinsame Kundenakte oder ein
-    interner KI-Assistent. Vielleicht ist KI an einer Stelle gar nicht die beste Antwort.
-    Genau das soll die Analyse herausfinden.</p>
-    <ul class="vertrauen-punkte">
-        <li>Keine KI-Vorkenntnisse nötig</li>
-        <li>Keine vorgegebene Tool-Auswahl</li>
-        <li>Ihre tatsächlichen Abläufe sind die Grundlage</li>
+    <ul class="situation-list" aria-label="Beispiele aus dem Betriebsalltag">
+        <li>Anfragen kommen über mehrere Kanäle herein.</li>
+        <li>Informationen müssen immer wieder zusammengesucht werden.</li>
+        <li>Kunden fragen nach dem aktuellen Stand.</li>
+        <li>Fotos, Dokumente und Notizen müssen zugeordnet werden.</li>
+        <li>Rückrufe, Angebote oder Termine dürfen nicht untergehen.</li>
+        <li>Wiederkehrende Arbeit bleibt an einzelnen Personen hängen.</li>
     </ul>
 </section>
 
-<section class="landing-section schlussruf">
-    <h2 class="section-title">Was könnte in Ihrem Betrieb möglich sein?</h2>
-    <p class="schlussruf-text">Geben Sie AI Start Map einen echten Einblick in Ihren
-    Arbeitsalltag. Dafür bekommen Sie keine Standardliste, sondern eine individuelle
-    Auswertung Ihres Betriebs.</p>
-    <form action="{{ url_for('begin_journey') }}" method="post" data-disable-on-submit data-submitting-label="Einen Moment …" data-processing-title="Ich bereite Ihre Beschreibung vor." data-processing-copy="Gleich können Sie erzählen.">
-        <button class="primary-button hero-button" type="submit">Meine persönliche AI Start Map erstellen <span aria-hidden="true">→</span></button>
-    </form>
-    <p class="micro-copy">Kostenlos · per Sprache oder Text · keine KI-Vorkenntnisse nötig</p>
+<section class="landing-section difference-section card card--accent" aria-labelledby="difference-title">
+    <div>
+        <p class="section-kicker">Der Unterschied</p>
+        <h2 id="difference-title" class="section-title">Nicht möglichst viele Ideen. Ein begründeter Start.</h2>
+    </div>
+    <div class="difference-copy">
+        <p>AI Start Map verbindet Ihre Aussagen mit dem Engpass, einem möglichen künftigen
+        Ablauf und einem sinnvollen ersten Schritt. Sie zeigt auch, welche Möglichkeiten
+        später entstehen und was bewusst bei Ihnen bleibt.</p>
+        <p class="difference-proof"><b>Ihr Betrieb bleibt die Quelle.</b> Lösungswissen hilft
+        beim Einordnen, wird aber nicht zu Fakten über Sie.</p>
+    </div>
+</section>
+
+<section class="landing-section start-section" aria-labelledby="start-title">
+    <div class="section-heading">
+        <p class="section-kicker">So beginnt die Analyse</p>
+        <h2 id="start-title" class="section-title">Ein echter Ablauf aus Ihrem Alltag genügt</h2>
+    </div>
+    <ol class="start-steps">
+        <li><span>1</span><div><b>Frei sprechen oder schreiben</b><p>Keine Checkliste und keine Tool-Auswahl.</p></div></li>
+        <li><span>2</span><div><b>Nur relevante Rückfragen beantworten</b><p>Gefragt wird nur, wenn die Information Ihre Empfehlung verändern würde.</p></div></li>
+        <li><span>3</span><div><b>Auswertung und Startpunkt erhalten</b><p>Sie entscheiden danach in Ruhe, ob und wie es weitergeht.</p></div></li>
+    </ol>
+    <div class="start-cta card card--elevated">
+        <div>
+            <h2>Wie könnte Ihr Betrieb künftig arbeiten?</h2>
+            <p>Erzählen Sie uns, wie es heute wirklich läuft.</p>
+        </div>
+        <form action="{{ url_for('begin_journey') }}" method="post" data-disable-on-submit data-submitting-label="Einen Moment …" data-processing-title="Ich bereite Ihre Beschreibung vor." data-processing-copy="Gleich können Sie frei erzählen.">
+            <button class="primary-button" type="submit">Kostenlose Analyse starten <span aria-hidden="true">→</span></button>
+        </form>
+    </div>
 </section>
 {% endblock %}

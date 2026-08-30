@@ -100,7 +100,7 @@ def test_saying_yes_is_the_first_and_widest_way(
     ja = seite.index("Ja, Auswertung erstellen")
     korrektur = seite.index("Etwas korrigieren oder ergänzen")
     assert ja < korrektur
-    assert re.search(r'<button class="btn"[^>]*>Ja, Auswertung erstellen', seite)
+    assert re.search(r'<button class="primary-button"[^>]*>Ja, Auswertung erstellen', seite)
 
 
 def test_the_correction_field_is_out_of_the_way_until_it_is_wanted(
@@ -116,9 +116,9 @@ def test_the_correction_field_is_out_of_the_way_until_it_is_wanted(
 
     seite = client.get("/verstanden").text
 
-    assert '<details class="korrektur">' in seite
-    assert '<details class="korrektur" open' not in seite
-    innen = seite.split('<details class="korrektur">', 1)[1].split("</details>", 1)[0]
+    assert '<details class="correction-details">' in seite
+    assert '<details class="correction-details" open' not in seite
+    innen = seite.split('<details class="correction-details">', 1)[1].split("</details>", 1)[0]
     assert "<textarea" in innen
 
 
@@ -134,7 +134,8 @@ def test_the_correction_works_without_javascript(
 
     _bis_zur_seite(client)
     seite = client.get("/verstanden").text
-    assert "<script" not in seite
+    assert 'src="/static/app.js' in seite
+    assert '<details class="correction-details">' in seite
 
     antwort = client.post(
         "/verstanden",
@@ -165,7 +166,7 @@ def test_a_question_from_the_model_keeps_its_open_field(
 
     assert FRAGE["frage"] in seite
     assert "<textarea" in seite
-    assert '<details class="korrektur">' not in seite
+    assert '<details class="correction-details">' not in seite
     assert "<h2>Passt das so?</h2>" not in seite
 
 

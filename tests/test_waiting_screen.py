@@ -88,7 +88,7 @@ def test_the_screen_names_every_station_of_the_way(client: TestClient) -> None:
     """Vier Stationen, und alle vier sind benannt.
 
     Der Kunde soll sehen, dass hier mehr passiert als Lesen: dass auch nach
-    groesseren Moeglichkeiten gesucht wird. Wer das nicht liest, haelt die
+    spaeteren Moeglichkeiten gesucht wird. Wer das nicht liest, haelt die
     Wartezeit fuer eine Textverarbeitung.
     """
 
@@ -99,13 +99,13 @@ def test_the_screen_names_every_station_of_the_way(client: TestClient) -> None:
     for station in (
         "Ihre Beschreibung verstehen",
         "Potenziale erkennen",
-        "Passende Möglichkeiten prüfen",
+        "Passende Ansätze prüfen",
         "Auswertung vorbereiten",
     ):
         assert station in seite, station
-    # Die Seite nennt ausdrücklich auch das Größere, nicht nur den ersten
+    # Die Seite nennt ausdrücklich auch das Spätere, nicht nur den ersten
     # Schritt — sonst liest sich das Warten wie eine Textverarbeitung.
-    assert "größeren KI-Lösungen" in seite
+    assert "späteren Möglichkeiten" in seite
 
 
 def test_the_screen_invents_no_progress(client: TestClient) -> None:

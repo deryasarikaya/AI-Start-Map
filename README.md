@@ -50,6 +50,11 @@ Erzählung des Betriebs
 
 Details in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
+Die gemeinsame visuelle und inhaltliche Foundation für Landingpage,
+Betriebsbeschreibung, Analysezustände und Verständnisbestätigung ist in
+[`docs/PRE_RESULTS_UI_FOUNDATION.md`](docs/PRE_RESULTS_UI_FOUNDATION.md)
+dokumentiert.
+
 ---
 
 ## Das Geländer

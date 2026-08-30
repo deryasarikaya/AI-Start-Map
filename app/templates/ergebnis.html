@@ -15,8 +15,8 @@
    Beispielansicht hat, bekommt den Abschnitt nicht. Kein Betrieb bekommt ein
    Kästchen, das bei ihm leer wäre.
 
-   Die Seite erweitert bewusst nicht `base.html`: Sie bringt ihr eigenes
-   Farbsystem mit und soll vom bestehenden Rahmen nicht überlagert werden. #}
+   Die Seite erweitert bewusst nicht `base.html`, verwendet aber dieselbe
+   globale Page-Background-Foundation wie der restliche Funnel. #}
 {% import "ansichten.html" as ansichten %}<!doctype html>
 <html lang="de">
 <head>
@@ -132,6 +132,8 @@
   berechnet und beschreibt nicht Ihren Betrieb.
 </div>
 {% endif %}
+
+{% include "_page_background.html" %}
 
 
 {# ═══════════════ 1 · DER KOPF ═══════════════
