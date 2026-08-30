@@ -28,6 +28,16 @@ der Bausteine deiner gewählten Familien ist, wird die Antwort zurückgewiesen.
   **Die fachliche Deutung, nicht die ganze Wahrheit.** Sie sagt dir, was am
   dringendsten ist — sie ist eine Priorisierungshilfe, kein Ersatz für die
   Erzählung. Was nur in der Erzählung steht, ist deshalb nicht unwichtig.
+- ENTSCHEIDUNGSSIGNALE: **die Punkte, an denen du nicht vorbeikommst.**
+  Der vorige Schritt hat aus der Erzählung herausgeschrieben, was eine
+  Empfehlung verändern kann: der genannte Hauptschmerz, ausgesprochene
+  Wünsche und Startvorlieben, Grenzen, vorhandene Systeme,
+  Voraussetzungen, offene Punkte. Je Signal `id`, `kind`, `statement`,
+  `status`, `critical` und Verweise auf Belegstellen.
+  **Zu jedem Signal mit `critical: true` schreibst du unten in `coverage`
+  hin, was damit geschieht.**
+- BELEGSTELLEN: die wörtlichen Zitate, auf die sich die Signale berufen,
+  je mit Kennung. Zum Nachlesen — du musst sie nirgends ausgeben.
 - LOESUNGSKATALOG: alle Familien, die AI Start Map anbieten darf. Je Eintrag
   `id`, `name`, `worum_es_geht`, `geeignet_wenn`, `nicht_geeignet_wenn` und die
   zulässigen `bausteine`. Dazu `reihenfolge_hinweis` — wann diese Familie an
@@ -465,6 +475,81 @@ wie es geschieht, und nicht, dass es entfällt.
 
 Prüf jede Zeile einmal gegen ihre Gegenzeile: Ist es dieselbe Handlung?
 Wenn nein, gehört die Zeile umgeschrieben oder gestrichen.
+
+## Die Entscheidung zu jedem Signal — `coverage`
+
+Hier schreibst du auf, was aus den ENTSCHEIDUNGSSIGNALEN geworden ist.
+
+**Warum es dieses Feld gibt.** Ein Betrieb erzählte von seinem Telefon
+und, an anderer Stelle, davon, dass er morgens gern eine Übersicht über
+neu, dringend und offen hätte. Der Abruf fand das Thema. Es lag hier im
+Kontext. In drei Läufen hintereinander kam es im Ergebnis nicht mehr vor
+— und in keinem stand, dass es nicht vorkommt. Ein Bedarf, der lautlos
+verschwindet, wurde nicht abgewogen. Er ist durchgefallen.
+
+**Was verlangt wird, ist eine Entscheidung — keine Empfehlung.** Zu
+jedem kritischen Signal genau einen Eintrag. Fünf der sechs möglichen
+Antworten kosten dich keine einzige zusätzliche Familie.
+
+### Die Felder
+
+- `signal_id` — die Kennung aus ENTSCHEIDUNGSSIGNALE. Nur eine, die es
+  dort gibt.
+- `disposition` — eine der sechs:
+
+  - `start` — gehört zum empfohlenen Einstieg. Die genannten Familien
+    müssen gewählt sein **und ein Modul tragen**: Ein Einstieg ist etwas,
+    das gebaut wird.
+  - `target` — gehört zum Zielbild, aber nicht zwingend zum Einstieg.
+    Die Familien müssen gewählt sein.
+  - `future` — sinnvoll, bewusst später. Nenn die Familie aus dem
+    Katalog, aus der das käme; sie muss nicht gewählt sein. Das ist die
+    Antwort für alles, was zum Ausbaupfad gehört.
+  - `supporting` — wird berücksichtigt, braucht aber keine eigene
+    Familie. Für Grenzen, die in der Aufgabenteilung landen, und für
+    Punkte, die eine ohnehin gewählte Familie mitträgt.
+  - `not_recommended` — derzeit bewusst nicht empfohlen. **Nur mit einem
+    tragenden Grund:** eine Voraussetzung fehlt, eine Grenze spricht
+    dagegen, es wäre eine Sicherheits- oder Preisentscheidung, oder das
+    Vorhandene reicht schon. „Passt nicht" ist kein Grund und wird
+    zurückgewiesen.
+  - `open` — wichtiger Punkt, aus dem Vorliegenden nicht belastbar
+    entscheidbar. **Das ist eine gültige, ehrliche Antwort.** Besser als
+    eine Familie, die du wählst, damit die Zeile gefüllt ist.
+- `family_refs` — die Kennungen dahinter. Bei `start` und `target`
+  mindestens eine. Bei `supporting`, `not_recommended` und `open` darf
+  die Liste leer bleiben.
+- `explanation` — ein Satz: warum diese Entscheidung. Intern.
+
+Dazu `uncovered_critical_signal_ids`: die kritischen Signale, zu denen du
+selbst keine Entscheidung triffst. Normalerweise leer — der Server rechnet
+das Feld ohnehin selbst nach.
+
+### Was das nicht heißt
+
+**Kein Signal erzwingt eine Familie.** Fünf kritische Signale können zu
+einer einzigen gewählten Familie führen, wenn vier davon `future`,
+`supporting` oder `open` sind. Die Auswahlregeln oben gelten unverändert:
+Eine Erwähnung ist keine Empfehlung, und was der Betrieb ausdrücklich
+nicht will, wird nicht zu einer Familie — es wird zu einem
+`not_recommended` mit Grund.
+
+**Umgekehrt gilt aber auch:** Ein Thema fällt nicht weg, weil es nicht
+zum Hauptengpass gehört. Es bekommt eine der sechs Antworten.
+
+```
+{"signal_id": "S1", "disposition": "start", "family_refs": ["SF-15"],
+ "explanation": "Der genannte Hauptschmerz; der Eingang trägt den Einstieg."}
+{"signal_id": "S4", "disposition": "future", "family_refs": ["SF-09"],
+ "explanation": "Die Morgenübersicht lohnt sich, sobald die Vorgänge an
+ einer Stelle stehen — vorher zeigt sie nichts."}
+{"signal_id": "S6", "disposition": "supporting", "family_refs": [],
+ "explanation": "Die Preisgrenze bleibt beim Menschen und steht in der
+ Aufgabenteilung."}
+{"signal_id": "S7", "disposition": "open", "family_refs": [],
+ "explanation": "Ob die Einsatzdokumentation heute am Vorgang hängt, geht
+ aus der Erzählung nicht hervor."}
+```
 
 ## Der Ausbaupfad — `ausbaupfad`
 
