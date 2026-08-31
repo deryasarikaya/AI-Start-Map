@@ -127,7 +127,7 @@
 .future-cards__dependency { padding-top: .65rem; border-top: 1px solid var(--border-subtle); color: var(--text-muted) !important; font-size: .75rem !important; font-weight: 700; }
 
 /* Abschluss 1:1 nach dem freigegebenen Claude-Stand b9eff80. */
-.results-cta--final { display: grid; justify-items: center; padding: clamp(2.5rem, 5vw, 2.9rem) clamp(1.4rem, 4vw, 2.5rem) 2.5rem; border: 1px solid var(--rand-mint); border-radius: 22px; background: var(--flaeche-mint); box-shadow: var(--shadow-card); text-align: center; }
+.results-cta--final { display: grid; grid-template-columns: minmax(0, 1fr); justify-content: center; justify-items: center; padding: clamp(2.5rem, 5vw, 2.9rem) clamp(1.4rem, 4vw, 2.5rem) 2.5rem; border: 1px solid var(--rand-mint); border-radius: 22px; background: var(--flaeche-mint); box-shadow: var(--shadow-card); text-align: center; }
 .results-cta--final > div:first-child { max-width: 58ch; }
 .results-cta--final h2 { margin-bottom: .55rem; font-size: clamp(1.6rem, 2.2vw, 2rem); }
 .results-cta--final p { margin-bottom: 0; color: var(--text-secondary); font-size: 1.02rem; line-height: 1.55; }
