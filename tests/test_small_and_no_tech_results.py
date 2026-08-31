@@ -80,12 +80,32 @@ def test_a_short_comparison_is_valid() -> None:
     assert len(teil.vergleich.heute) == 3
 
 
-def test_the_page_hides_what_is_empty(client) -> None:  # type: ignore[no-untyped-def]
-    """Keine Überschrift über nichts.
+def _engpass_des_beispiels() -> str:
+    """Der Engpass-Satz aus dem hinterlegten Beispiellauf."""
 
-    Ohne Ansichten und ohne Module entfallen die beiden Abschnitte. Eine
-    Überschrift, unter der nichts steht, ist die Ankündigung von etwas, das
-    nicht kommt.
+    import json
+    from pathlib import Path
+
+    datei = (
+        Path(__file__).resolve().parents[1]
+        / "knowledge/examples/hausverwaltung.json"
+    )
+    inhalt = json.loads(datei.read_text(encoding="utf-8"))
+    return str(inhalt["ergebnis"]["kurzfassung"]["engpass_satz"])
+
+
+def test_the_page_hides_what_is_empty(client) -> None:  # type: ignore[no-untyped-def]
+    """Keine Überschrift über nichts — aber auch kein Verschweigen.
+
+    Ohne Ansichten entfällt der Erfahrungsabschnitt: Eine Überschrift,
+    unter der nichts steht, ist die Ankündigung von etwas, das nicht
+    kommt.
+
+    **Die Fähigkeiten sind ein anderer Fall.** Sie hängen an den
+    empfohlenen Familien und nicht an den Modulen des Ergebnisses. Sind
+    welche da, gehören sie auf die Seite — auch wenn dieser Lauf sonst
+    klein ausfällt. Weggelassen wird der Block nur, wenn es wirklich
+    keine gibt.
     """
 
     from app.services import example_service
@@ -102,10 +122,15 @@ def test_the_page_hides_what_is_empty(client) -> None:  # type: ignore[no-untype
         example_service.example_result = echt
 
     assert "So würde der Einstieg im Alltag aussehen" not in seite
-    assert "Das kann die Lösung übernehmen" not in seite
-    # Die Diagnose steht weiterhin als Decision Hero da.
+    # Die Fähigkeiten stehen weiter da: Sie folgen aus den empfohlenen
+    # Familien, und die sind auch ohne Module dieses Laufs vorhanden.
+    assert "Das kann die Lösung übernehmen" in seite
+    # Die Diagnose steht weiterhin als Decision Hero da. Der Satz wird
+    # aus dem hinterlegten Lauf gelesen und nicht abgeschrieben: Als
+    # fester Text gehörte er zu einem früheren Beispiel und brach beim
+    # Austausch, ohne dass es jemandem auffiel.
     assert "AI Start Map · Ihre Auswertung" in seite
-    assert "Informationen zu einem Fall liegen verstreut" in seite
+    assert _engpass_des_beispiels() in seite
 
 
 # --- Keine neue Technik ---------------------------------------------------

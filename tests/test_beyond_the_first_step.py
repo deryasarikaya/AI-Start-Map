@@ -132,12 +132,19 @@ def test_the_section_shows_possibilities_not_a_plan(
 
     seite = _mit_pfad(client, monkeypatch, PFAD)
 
-    # Die Grundlage wird im Start-Panel gezeigt und hier nicht wiederholt.
-    # Der DTO-Ausblick zeigt bewusst das geschäftliche Ergebnis, nicht den
-    # internen Namen einer alten Ausbaustufe.
-    for schritt in PFAD[1:]:
-        assert schritt["nutzen"] in seite, schritt["nutzen"]
-    assert PFAD[0]["nutzen"] not in seite
+    # **Hier steht nur das echte Später.** Eine Ausbaustufe, deren Familie
+    # bereits zum Zielbild gehört, trägt `phase == "target"` und wird über
+    # Karte, Zielbild und Betriebsmodell gezeigt. Sie hier zu wiederholen
+    # hiesse, dieselbe Sache zweimal zu nennen — einmal als Teil der
+    # Lösung und einmal als Möglichkeit danach.
+    #
+    # In diesem Pfad trägt nur SF-10 ein `future`: Die Phase folgt der
+    # Karte, und die kennt das Später des hinterlegten Laufs. SF-01 steht
+    # in dessen Zielbild, SF-24 in keinem von beidem — beide sind hier
+    # kein Später und stehen deshalb nicht in dieser Liste.
+    assert PFAD[2]["nutzen"] in seite, PFAD[2]["nutzen"]
+    for schritt in (PFAD[0], PFAD[1], PFAD[3]):
+        assert schritt["nutzen"] not in seite, schritt["nutzen"]
 
     assert "stationsnummer" not in seite
     assert "Freigaben online" not in seite

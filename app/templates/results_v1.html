@@ -103,11 +103,13 @@
     {% if result.mensch_behaelt or result.grenzen %}<aside class="decision-rail"><p class="card-kicker">Menschen entscheiden sichtbar weiter</p><div>{% for item in result.mensch_behaelt[:4] %}<span>{{ item }}</span>{% endfor %}{% for boundary in result.grenzen if boundary.herkunft == 'kunde' %}<span>{{ boundary.titel }}</span>{% endfor %}</div></aside>{% endif %}
   </section>
 
-  {% if primary %}
+  {# Ohne renderbaren Inhalt entfaellt der Abschnitt ganz: Ein leerer
+     Rahmen zeigt nichts und sieht aus wie ein Versehen. #}
+  {% if primary and primary.hat_inhalt %}
   <section class="results-section experience-section" aria-labelledby="experience-title">
-    <div class="section-intro section-intro--split"><div><p class="eyebrow">So würde der Einstieg im Alltag aussehen</p><h2 id="experience-title">{{ primary.inhalt.titel if primary.hat_inhalt else primary.typ | replace('_', ' ') }}</h2></div><p>{{ primary.inhalt.beschreibung if primary.hat_inhalt else 'Die Erfahrung wird erst mit Ihrem Team konkret ausgestaltet.' }}</p></div>
+    <div class="section-intro section-intro--split"><div><p class="eyebrow">So würde der Einstieg im Alltag aussehen</p><h2 id="experience-title">{{ primary.inhalt.titel }}</h2></div><p>{{ primary.inhalt.beschreibung }}</p></div>
     <div class="primary-experience">{{ experiences.render(primary) }}</div>
-    {% if result.ansichten.supporting %}<div class="supporting-experiences">{% for experience in result.ansichten.supporting %}<article><p class="card-kicker">Unterstützend</p><h3>{{ experience.inhalt.titel if experience.hat_inhalt else experience.typ | replace('_', ' ') }}</h3>{{ experiences.render(experience) }}</article>{% endfor %}</div>{% endif %}
+    {% set begleitend = result.ansichten.supporting | selectattr('hat_inhalt') | list %}{% if begleitend %}<div class="supporting-experiences">{% for experience in begleitend %}<article><p class="card-kicker">Unterstützend</p><h3>{{ experience.inhalt.titel }}</h3>{{ experiences.render(experience) }}</article>{% endfor %}</div>{% endif %}
   </section>
   {% endif %}
 
@@ -119,15 +121,31 @@
     </div>
   </section>
 
-  {% if result.ausblicke or result.nicht_empfohlen or result.offene_fragen %}
+  {# Nur das echte Spaeter: Was `target` traegt, gehoert zum Zielbild
+     und steht weiter oben - hier waere es dieselbe Sache zweimal. #}
+  {% set spaetere = result.ausblicke | selectattr('phase', 'equalto', 'future') | list %}
+  {# Der Ausblick haengt allein am echten Spaeter. Eine Ueberschrift
+     „Was dadurch spaeter interessant werden koennte" ueber einer
+     Nicht-Empfehlung stimmt nicht: Das ist kein Spaeter, sondern ein
+     Nein mit Grund. #}
+  {% if spaetere %}
   <section class="results-section horizon-section" aria-labelledby="horizon-title">
     <div class="section-intro"><p class="eyebrow">Der Raum danach</p><h2 id="horizon-title">Was dadurch später interessant werden könnte</h2><p>Das ist ein Möglichkeitshorizont, kein Projektplan.</p></div>
     <div class="horizon-grid">
-      {% if result.ausblicke %}<div class="future-list">{% for future in result.ausblicke %}<article><span>{{ 'Zielbild' if future.phase == 'target' else 'Später möglich' }}</span><h3>{{ future.outcome }}</h3><p>{{ future.grund_fuer_spaeter }}</p>{% if future.beleg_refs %}{% for evidence in result.belege if evidence.id in future.beleg_refs %}<small>„{{ evidence.zitat }}“</small>{% endfor %}{% endif %}</article>{% endfor %}</div>{% endif %}
-      <div class="horizon-asides">
-        {% if result.nicht_empfohlen %}<details class="why-not"><summary>Was wir bewusst noch nicht empfehlen</summary>{% for item in result.nicht_empfohlen[:2] %}<article><b>{{ item.titel }}</b><p>{{ item.erlaeuterung }}</p>{% if item.fehlende_voraussetzung %}<small>Voraussetzung: {{ item.fehlende_voraussetzung }}</small>{% endif %}</article>{% endfor %}</details>{% endif %}
-        {% if result.offene_fragen %}<details class="open-questions"><summary>Das würden wir vor der Umsetzung noch klären</summary><ul>{% for question in result.offene_fragen %}<li>{{ question }}</li>{% endfor %}</ul></details>{% endif %}
-      </div>
+      <div class="future-list">{% for future in spaetere %}<article><span>Später möglich</span><h3>{{ future.outcome }}</h3><p>{{ future.grund_fuer_spaeter }}</p>{% if future.beleg_refs %}{% for evidence in result.belege if evidence.id in future.beleg_refs %}<small>„{{ evidence.zitat }}“</small>{% endfor %}{% endif %}</article>{% endfor %}</div>
+    </div>
+  </section>
+  {% endif %}
+
+  {# Bewusste Nicht-Empfehlungen und offene Fragen stehen fuer sich. Sie
+     gelten unabhaengig davon, ob es einen Ausblick gibt - und sie sollen
+     ihn auch nicht ersetzen. #}
+  {% if result.nicht_empfohlen or result.offene_fragen %}
+  <section class="results-section horizon-section horizon-section--asides" aria-labelledby="reservations-title">
+    <div class="section-intro"><p class="eyebrow">Offen gesagt</p><h2 id="reservations-title">Was wir noch nicht empfehlen</h2></div>
+    <div class="horizon-asides">
+      {% if result.nicht_empfohlen %}<details class="why-not"><summary>Was wir bewusst noch nicht empfehlen</summary>{% for item in result.nicht_empfohlen[:2] %}<article><b>{{ item.titel }}</b><p>{{ item.erlaeuterung }}</p>{% if item.fehlende_voraussetzung %}<small>Voraussetzung: {{ item.fehlende_voraussetzung }}</small>{% endif %}</article>{% endfor %}</details>{% endif %}
+      {% if result.offene_fragen %}<details class="open-questions"><summary>Das würden wir vor der Umsetzung noch klären</summary><ul>{% for question in result.offene_fragen %}<li>{{ question }}</li>{% endfor %}</ul></details>{% endif %}
     </div>
   </section>
   {% endif %}
