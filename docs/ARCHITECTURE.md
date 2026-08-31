@@ -361,9 +361,27 @@ widersprechen.
 `GET /results` und `/beispiel/{slug}` rufen `results_dto.von_ergebnis()` auf
 und geben ausschließlich diesen Vertrag an `results_v1.html` weiter. Die
 Vorlage entscheidet keine Familien, rekonstruiert keine Belege und liest kein
-altes Ergebnisobjekt. Die Karte zeigt die festen vierzehn Bereiche, ihre
-Zustände und das abgeleitete Operating Center; die kontrollierte
-Experience-Bibliothek zeigt ausschließlich `ansichten.*.inhalt`.
+altes Ergebnisobjekt. Die Experience-Bibliothek bleibt Teil des Vertrages und
+liest ausschließlich `ansichten.*.inhalt`; sie ist in der abgeschlossenen
+Customer-Results-Seite aber keine eigene Hauptsection.
+
+**Die sichtbare Results V1 ist eine Entscheidungsreise, keine zweite
+Entscheidungslogik.** Ihre feste Reihenfolge lautet: Hero, belegter heutiger
+Aufwand, Vorher/Nachher, Betriebslandkarte, künftiger Alltag,
+System/Mensch-Arbeitsteilung, kundenseitige Grenzen, spätere Möglichkeiten
+und CTA. Die Betriebslandkarte ist eine vierstufige, von links nach rechts
+lesbare Projektion: `Anker` zeigen **Heute**, Startmodule und ihre
+Capabilities zeigen **Was verbindet**, das aus `karte.mitte` abgeleitete
+Operating Center zeigt den **Neuen Arbeitsstand**, und ausschließlich
+`ausblicke` mit `phase == future` zeigen **Später möglich**. Ihre feste
+Geometrie trifft keine neue fachliche Entscheidung und bleibt auf mobilen
+Bildschirmen dieselbe Strecke in einer vertikalen Lesereihenfolge.
+
+Human Boundaries und kundenseitige Grenzen bleiben aus dem DTO getrennt: Die
+Arbeitsteilung zeigt nur die für den Einstieg relevanten menschlichen
+Entscheidungen; die folgende Leitplanken-Section zeigt ausschließlich Grenzen
+mit Herkunft `kunde`. Die interne Why-not-Entscheidung bleibt im Vertrag,
+wird auf dieser Customer Experience aber bewusst nicht dargestellt.
 
 Der bestehende PDF-Weg bleibt in diesem Clean-Sheet-Pass funktionsfähig, ist
 aber **nicht** der visuelle oder technische Constraint der neuen Web-Results.

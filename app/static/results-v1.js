@@ -1,50 +1,39 @@
-/* Interaktion erweitert die lesbare Basisdarstellung nur um Auswahl und Filter.
-   Sie trifft keine fachlichen Entscheidungen und erzeugt keinen Inhalt. */
+/* Die Karte öffnet ausschließlich bereits gerenderte DTO-Details. */
 (function () {
   "use strict";
 
   const root = document.querySelector("[data-results-root]");
   if (!root) return;
 
-  const html = document.documentElement;
-  const nodeButtons = Array.from(root.querySelectorAll("[data-map-node]"));
+  const nodes = Array.from(root.querySelectorAll("[data-map-node]"));
   const details = Array.from(root.querySelectorAll("[data-map-detail]"));
-  const filters = Array.from(root.querySelectorAll("[data-map-filter]"));
+  const popup = root.querySelector("[data-map-popup]");
+  const closeButton = root.querySelector("[data-map-detail-close]");
 
-  /** Zeigt die geprüften Details des gewählten Moduls. */
   function selectNode(key) {
-    nodeButtons.forEach((button) => {
-      const selected = button.dataset.mapNode === key;
-      button.classList.toggle("is-selected", selected);
-      button.setAttribute("aria-pressed", String(selected));
+    nodes.forEach((node) => {
+      const selected = node.dataset.mapNode === key;
+      node.classList.toggle("is-selected", selected);
+      node.setAttribute("aria-expanded", String(selected));
     });
     details.forEach((detail) => {
       detail.classList.toggle("is-active", detail.dataset.mapDetail === key);
     });
+    if (popup) popup.classList.add("is-open");
   }
 
-  /** Filtert nur die sichtbare Kartendarstellung, nicht die Inhalte selbst. */
-  function filterNodes(state) {
-    nodeButtons.forEach((button) => {
-      button.hidden = state !== "all" && button.dataset.mapState !== state;
+  function closeDetails() {
+    nodes.forEach((node) => {
+      node.classList.remove("is-selected");
+      node.setAttribute("aria-expanded", "false");
     });
-    filters.forEach((filter) => {
-      const active = filter.dataset.mapFilter === state;
-      filter.classList.toggle("is-active", active);
-      filter.setAttribute("aria-pressed", String(active));
-    });
-    const selected = nodeButtons.find((button) => button.classList.contains("is-selected"));
-    if (selected?.hidden) {
-      const firstVisible = nodeButtons.find((button) => !button.hidden);
-      if (firstVisible) selectNode(firstVisible.dataset.mapNode);
-    }
+    details.forEach((detail) => detail.classList.remove("is-active"));
+    if (popup) popup.classList.remove("is-open");
   }
 
-  nodeButtons.forEach((button) => {
-    button.addEventListener("click", () => selectNode(button.dataset.mapNode));
+  nodes.forEach((node) => {
+    node.addEventListener("click", () => selectNode(node.dataset.mapNode));
   });
-  filters.forEach((filter) => {
-    filter.addEventListener("click", () => filterNodes(filter.dataset.mapFilter));
-  });
-  html.dataset.resultsEnhanced = "true";
+  if (closeButton) closeButton.addEventListener("click", closeDetails);
+  document.documentElement.dataset.resultsEnhanced = "true";
 }());

@@ -34,3 +34,21 @@ def test_results_v1_has_a_separate_controlled_experience_library() -> None:
         "automation_flow",
     ):
         assert experience_type in library
+
+
+def test_results_v1_projects_the_approved_four_stage_map() -> None:
+    """Die freigegebene Landkarte bleibt DTO-only und ohne Karten-Inspector."""
+
+    template = (
+        Path(__file__).resolve().parents[1] / "app/templates/results_v1.html"
+    ).read_text(encoding="utf-8")
+    assert "result.anker" in template
+    assert "result.karte.start" in template
+    assert "result.karte.mitte.label" in template
+    assert "future.depends_on_module_refs" in template
+    assert 'class="approved-map"' in template
+    assert "Was verbindet" in template
+    assert "Neuer Arbeitsstand" in template
+    assert 'data-map-filter' not in template
+    assert 'data-map-popup' not in template
+    assert 'data-map-detail-close' not in template

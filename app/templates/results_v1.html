@@ -1,160 +1,165 @@
-{# Results V1 ist eine reine Projektion des ResultDTO.
+{# Results V1 zeigt ausschließlich den vorbereiteten ResultDTO.
 
-   Diese Vorlage darf keine Familien auswählen, keine Belege suchen und keine
-   Inhalte aus dem gespeicherten Ergebnis zusammensetzen. Alle sichtbaren
-   Aussagen kommen aus `result`, das vor dem Rendern einmal geprüft wurde. #}
+   Die Vorlage trifft keine fachliche Auswahl: Alle Sichtbarkeit, Phasen,
+   Belege, Module, Grenzen und Ausblicke liegen bereits im Vertrag vor. #}
 {% extends "base.html" %}
-{% import "results_experiences.html" as experiences %}
 
 {% block title %}Ihre Auswertung · AI Start Map{% endblock %}
-{% block extra_head %}<link rel="stylesheet" href="{{ statisch('/results-v1.css') }}">{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{{ statisch('/results-v1.css') }}&amp;cx=results-final-1"><link rel="stylesheet" href="{{ statisch('/results-final.css') }}&amp;cx=results-final-1">{% endblock %}
 
 {% block content %}
-{% set start_key = result.karte.start[0] if result.karte.start else none %}
-{% set start_module = result.modul(start_key) if start_key else none %}
-{% set primary = result.ansichten.primary %}
-<main class="results-v1" data-results-root>
+{% set start_modules = result.sichtbare_module | selectattr('module_key', 'in', result.karte.start) | list %}
+{% set future_items = result.ausblicke | selectattr('phase', 'equalto', 'future') | list %}
+{% set customer_boundaries = result.grenzen | selectattr('herkunft', 'equalto', 'kunde') | list %}
+{% set system_capabilities = namespace(items=[]) %}
+{% for module in start_modules %}
+  {% for capability in module.capability_refs %}
+    {% if capability.label not in system_capabilities.items and system_capabilities.items | length < 5 %}
+      {% set system_capabilities.items = system_capabilities.items + [capability.label] %}
+    {% endif %}
+  {% endfor %}
+{% endfor %}
+{% set start_outcomes = namespace(items=[]) %}
+{% for module in start_modules %}
+  {% for outcome in module.outcomes %}
+    {% if outcome not in start_outcomes.items and start_outcomes.items | length < 3 %}
+      {% set start_outcomes.items = start_outcomes.items + [outcome] %}
+    {% endif %}
+  {% endfor %}
+{% endfor %}
+
+<main class="results-v1 results-v1--final" data-results-root>
   {% if beispiel %}
-  <aside class="results-note" aria-label="Hinweis zum Beispiellauf"><b>Gespeicherter Beispiellauf.</b> Diese Ansicht wird nicht neu berechnet und beschreibt nicht Ihren Betrieb.</aside>
+    <aside class="results-note" aria-label="Hinweis zum Beispiellauf"><b>Gespeicherter Beispiellauf.</b> Diese Ansicht wird nicht neu berechnet und beschreibt nicht Ihren Betrieb.</aside>
   {% endif %}
 
-  <section class="results-hero" aria-labelledby="results-title">
+  {# 1 · Hero: bleibt der vorgegebene Einstieg in Zielbild und Start. #}
+  <section class="results-hero results-hero--final" aria-labelledby="results-title">
     <div class="results-hero__copy">
-      <p class="eyebrow">AI Start Map · Ihre Auswertung</p>
-      <h1 id="results-title">{{ result.uebersicht.engpass }}</h1>
-      <p class="results-hero__target">{{ result.uebersicht.zielbild_satz }}</p>
-      {% if result.uebersicht.beleg_refs %}
-      <div class="hero-evidence">
-        {% for evidence in result.belege if evidence.id in result.uebersicht.beleg_refs %}
-        <blockquote>„{{ evidence.zitat }}“<footer>{{ evidence.bedeutung }}</footer></blockquote>
-        {% endfor %}
-      </div>
-      {% endif %}
+      <p class="eyebrow">AI Start Map · Auswertung</p>
+      <p class="results-question">So könnte Ihr Betrieb künftig laufen</p>
+      <h1 id="results-title">{{ result.uebersicht.zielbild_name or result.uebersicht.zielbild_satz }}</h1>
+      {% if result.uebersicht.zielbild_name and result.uebersicht.zielbild_satz %}<p class="results-hero__target">{{ result.uebersicht.zielbild_satz }}</p>{% endif %}
     </div>
-
-    <aside class="start-decision card card--elevated">
-      <p class="card-kicker">Hier würden wir anfangen</p>
-      <h2>{{ start_module.customer_label if start_module else result.uebersicht.zielbild_name }}</h2>
-      {% if start_module and start_module.capability_refs %}
-      <ul>{% for capability in start_module.capability_refs[:3] %}<li>{{ capability.label }}</li>{% endfor %}</ul>
-      {% endif %}
-      <a class="secondary-button" href="#ai-start-map">Auf Ihrer AI Start Map ansehen</a>
-    </aside>
-  </section>
-
-  <section class="results-section map-section" id="ai-start-map" aria-labelledby="map-title">
-    <div class="section-intro section-intro--split">
-      <div><p class="eyebrow">Ihre AI Start Map</p><h2 id="map-title">Der Lösungsraum für Ihren Betrieb</h2></div>
-      <p>Die Karte ordnet den Start in ein größeres Zielbild ein. Sie zeigt nur Bereiche, die im geprüften Ergebnis dafür freigegeben sind.</p>
-    </div>
-
-    <div class="map-state-controls" role="group" aria-label="Kartenansicht filtern">
-      <button type="button" class="is-active" data-map-filter="all" aria-pressed="true">Alles</button>
-      <button type="button" data-map-filter="heute" aria-pressed="false">Heute</button>
-      <button type="button" data-map-filter="start" aria-pressed="false">Hier starten</button>
-      <button type="button" data-map-filter="target" aria-pressed="false">Zielbild</button>
-      <button type="button" data-map-filter="future" aria-pressed="false">Später möglich</button>
-    </div>
-
-    <div class="map-workspace" data-map-workspace>
-      <div class="operating-landscape" aria-label="AI Start Map mit Betriebsbereichen">
-        {% for area in result.karte.gebiete %}
-        <section class="map-area map-area--{{ area.kennung }}" aria-label="{{ area.name }}">
-          <h3>{{ area.name }}</h3>
-          <div class="map-area__nodes">
-          {% for node in result.karte.knoten if node.gebiet == area.kennung %}
-            {% set module = result.modul(node.schluessel) %}
-            <button type="button" class="map-node map-node--{{ node.zustand }}{% if node.schluessel == start_key %} is-selected{% endif %}" data-map-node="{{ node.schluessel }}" data-map-state="{{ node.zustand }}" aria-pressed="{{ 'true' if node.schluessel == start_key else 'false' }}">
-              <span class="map-node__state">{{ {'heute': 'Heute', 'start': 'Hier starten', 'target': 'Zielbild', 'future': 'Später möglich', 'still': 'Nicht im Fokus'}.get(node.zustand) }}</span>
-              <b>{{ module.customer_label if module else node.name }}</b>
-            </button>
-          {% endfor %}
-          </div>
-        </section>
-        {% endfor %}
-        <div class="operating-center" aria-label="{{ result.karte.mitte.label }}">
-          <span>Operating Center</span><b>{{ result.karte.mitte.label }}</b><small>{{ result.karte.mitte.zweck }}</small>
-        </div>
-      </div>
-
-      <aside class="map-detail" aria-live="polite">
-        {% for module in result.sichtbare_module %}
-        <article class="map-detail__content{% if module.module_key == start_key %} is-active{% endif %}" data-map-detail="{{ module.module_key }}">
-          <p class="card-kicker">{{ {'heute': 'Heute sichtbar', 'start': 'Empfohlener Start', 'target': 'Teil des Zielbilds', 'future': 'Später möglich'}.get(module.state, 'Betriebsbereich') }}</p>
-          <h3>{{ module.customer_label }}</h3>
-          {% if module.capability_refs %}<div class="capability-list"><p>Das kann die Lösung übernehmen</p><ul>{% for capability in module.capability_refs[:5] %}<li>{{ capability.label }}</li>{% endfor %}</ul></div>{% endif %}
-          {% if module.evidence_refs %}<div class="evidence-inline"><p>Warum das dazugehört</p>{% for evidence in result.belege if evidence.id in module.evidence_refs %}<blockquote>„{{ evidence.zitat }}“<footer>{{ evidence.bedeutung }}</footer></blockquote>{% endfor %}</div>{% endif %}
-          {% if module.boundary_refs %}<div class="boundary-inline"><p>Entscheidungsgrenze</p>{% for index in module.boundary_refs %}<span>{{ result.grenzen[index].titel }}</span>{% endfor %}</div>{% endif %}
-        </article>
-        {% endfor %}
+    {% if start_modules %}
+      <aside class="start-decision start-decision--final card card--elevated">
+        <p class="card-kicker">Hier würden wir anfangen</p>
+        <h2>{% for module in start_modules[:2] %}{{ module.customer_label }}{% if not loop.last %} · {% endif %}{% endfor %}</h2>
+        {% if start_outcomes.items %}<p class="start-decision__outcome">{{ start_outcomes.items[0] }}</p>{% endif %}
+        <a class="primary-button" href="#ai-start-map">Auf Ihrer AI Start Map ansehen <span aria-hidden="true">→</span></a>
       </aside>
-    </div>
+    {% endif %}
   </section>
 
-  <section class="results-section operating-section" aria-labelledby="operating-title">
-    <div class="section-intro"><p class="eyebrow">So könnte Arbeit künftig zusammenlaufen</p><h2 id="operating-title">{{ result.uebersicht.zielbild_name }}</h2><p>{{ result.uebersicht.zielbild_satz }}</p></div>
-    <div class="operating-flow">
-      <article class="operating-flow__stage"><span>01</span><p>Relevante Informationen</p><div>{% for module in result.sichtbare_module if module.state in ['heute', 'start'] %}<b>{{ module.customer_label }}</b>{% endfor %}</div></article>
-      <article class="operating-flow__stage operating-flow__stage--active"><span>02</span><p>Erkennen & zusammenführen</p><div>{% if start_module and start_module.capability_refs %}{% for capability in start_module.capability_refs[:3] %}<b>{{ capability.label }}</b>{% endfor %}{% else %}<b>Geprüfte Informationen zusammenführen</b>{% endif %}</div></article>
-      <article class="operating-flow__center"><span>03</span><p>{{ result.karte.mitte.label }}</p><b>{{ result.karte.mitte.zweck }}</b></article>
-      <article class="operating-flow__stage"><span>04</span><p>Menschen & Arbeitsoberflächen</p><div>{% if primary %}<b>{{ primary.typ | replace('_', ' ') }}</b>{% endif %}{% for module in result.sichtbare_module if module.state == 'target' %}<b>{{ module.customer_label }}</b>{% endfor %}</div></article>
-      <article class="operating-flow__stage"><span>05</span><p>Ergebnis</p><div><b>{{ result.uebersicht.zielbild_name }}</b></div></article>
-    </div>
-    {% if result.mensch_behaelt or result.grenzen %}<aside class="decision-rail"><p class="card-kicker">Menschen entscheiden sichtbar weiter</p><div>{% for item in result.mensch_behaelt[:4] %}<span>{{ item }}</span>{% endfor %}{% for boundary in result.grenzen if boundary.herkunft == 'kunde' %}<span>{{ boundary.titel }}</span>{% endfor %}</div></aside>{% endif %}
-  </section>
-
-  {# Ohne renderbaren Inhalt entfaellt der Abschnitt ganz: Ein leerer
-     Rahmen zeigt nichts und sieht aus wie ein Versehen. #}
-  {% if primary and primary.hat_inhalt %}
-  <section class="results-section experience-section" aria-labelledby="experience-title">
-    <div class="section-intro section-intro--split"><div><p class="eyebrow">So würde der Einstieg im Alltag aussehen</p><h2 id="experience-title">{{ primary.inhalt.titel }}</h2></div><p>{{ primary.inhalt.beschreibung }}</p></div>
-    <div class="primary-experience">{{ experiences.render(primary) }}</div>
-    {% set begleitend = result.ansichten.supporting | selectattr('hat_inhalt') | list %}{% if begleitend %}<div class="supporting-experiences">{% for experience in begleitend %}<article><p class="card-kicker">Unterstützend</p><h3>{{ experience.inhalt.titel }}</h3>{{ experiences.render(experience) }}</article>{% endfor %}</div>{% endif %}
-  </section>
+  {# 2 · Evidence: maximal drei belegte Punkte über den heutigen Aufwand. #}
+  {% if result.anker %}
+    <section class="results-section understood-section" aria-labelledby="understood-title">
+      <div class="section-intro section-intro--compact">
+        <p class="eyebrow">Das haben wir verstanden</p>
+        <h2 id="understood-title">{{ result.uebersicht.engpass }}</h2>
+        <p>Was heute unnötig Aufwand erzeugt.</p>
+      </div>
+      <div class="evidence-cards">
+        {% for anchor in result.anker[:3] %}
+          {% set evidence = (result.belege | selectattr('id', 'in', anchor.evidence_refs) | list | first) %}
+          <article class="evidence-card">
+            <span class="evidence-card__mark" aria-hidden="true">↗</span>
+            <h3>{{ anchor.customer_label }}</h3>
+            {% if anchor.short_description %}<p>{{ anchor.short_description }}</p>{% endif %}
+            {% if evidence %}<blockquote>„{{ evidence.zitat }}“</blockquote>{% endif %}
+          </article>
+        {% endfor %}
+      </div>
+    </section>
   {% endif %}
 
-  <section class="results-section responsibility-section" aria-labelledby="responsibility-title">
-    <div class="section-intro"><p class="eyebrow">Kontrolle bleibt Teil der Lösung</p><h2 id="responsibility-title">Das übernimmt die Lösung. Das entscheidet Ihr Team.</h2></div>
-    <div class="responsibility-grid">
-      <article class="responsibility-card responsibility-card--system"><p>Die Lösung unterstützt bei</p><ul>{% if start_module and start_module.capability_refs %}{% for capability in start_module.capability_refs[:5] %}<li>{{ capability.label }}</li>{% endfor %}{% endif %}</ul></article>
-      <article class="responsibility-card responsibility-card--human"><p>Ihr Team entscheidet weiterhin</p><ul>{% for item in result.mensch_behaelt[:6] %}<li>{{ item }}</li>{% endfor %}{% for boundary in result.grenzen if boundary.herkunft == 'kunde' %}<li>{{ boundary.erlaeuterung }}</li>{% endfor %}</ul></article>
-    </div>
-  </section>
-
-  {# Nur das echte Spaeter: Was `target` traegt, gehoert zum Zielbild
-     und steht weiter oben - hier waere es dieselbe Sache zweimal. #}
-  {% set spaetere = result.ausblicke | selectattr('phase', 'equalto', 'future') | list %}
-  {# Der Ausblick haengt allein am echten Spaeter. Eine Ueberschrift
-     „Was dadurch spaeter interessant werden koennte" ueber einer
-     Nicht-Empfehlung stimmt nicht: Das ist kein Spaeter, sondern ein
-     Nein mit Grund. #}
-  {% if spaetere %}
-  <section class="results-section horizon-section" aria-labelledby="horizon-title">
-    <div class="section-intro"><p class="eyebrow">Der Raum danach</p><h2 id="horizon-title">Was dadurch später interessant werden könnte</h2><p>Das ist ein Möglichkeitshorizont, kein Projektplan.</p></div>
-    <div class="horizon-grid">
-      <div class="future-list">{% for future in spaetere %}<article><span>Später möglich</span><h3>{{ future.outcome }}</h3><p>{{ future.grund_fuer_spaeter }}</p>{% if future.beleg_refs %}{% for evidence in result.belege if evidence.id in future.beleg_refs %}<small>„{{ evidence.zitat }}“</small>{% endfor %}{% endif %}</article>{% endfor %}</div>
-    </div>
-  </section>
+  {# 3 · Vorher/Nachher: nur belegte heutige Reibung und DTO-Outcomes. #}
+  {% if result.anker or start_outcomes.items %}
+    <section class="results-section change-section" aria-labelledby="change-title">
+      <div class="section-intro section-intro--compact">
+        <p class="eyebrow">Auf einen Blick</p>
+        <h2 id="change-title">Was sich mit AI Start Map für Sie verändert</h2>
+      </div>
+      <div class="before-after">
+        <article class="before-after__today">
+          <p class="card-kicker">Heute · ohne AI Start Map</p>
+          <h3>Heute hält Ihr Team die Informationen selbst zusammen</h3>
+          <ul>{% for anchor in result.anker[:3] %}<li>{{ anchor.customer_label }}</li>{% endfor %}</ul>
+        </article>
+        <div class="before-after__arrow" aria-hidden="true"><span>→</span></div>
+        <article class="before-after__future">
+          <p class="card-kicker">Mit AI Start Map</p>
+          <h3>Mit AI Start Map entsteht ein gemeinsamer Arbeitsstand</h3>
+          <ul>{% for outcome in start_outcomes.items %}<li>{{ outcome }}</li>{% endfor %}{% if not start_outcomes.items and result.karte.mitte.zweck %}<li>{{ result.karte.mitte.zweck }}</li>{% endif %}</ul>
+        </article>
+      </div>
+    </section>
   {% endif %}
 
-  {# Bewusste Nicht-Empfehlungen und offene Fragen stehen fuer sich. Sie
-     gelten unabhaengig davon, ob es einen Ausblick gibt - und sie sollen
-     ihn auch nicht ersetzen. #}
-  {% if result.nicht_empfohlen or result.offene_fragen %}
-  <section class="results-section horizon-section horizon-section--asides" aria-labelledby="reservations-title">
-    <div class="section-intro"><p class="eyebrow">Offen gesagt</p><h2 id="reservations-title">Was wir noch nicht empfehlen</h2></div>
-    <div class="horizon-asides">
-      {% if result.nicht_empfohlen %}<details class="why-not"><summary>Was wir bewusst noch nicht empfehlen</summary>{% for item in result.nicht_empfohlen[:2] %}<article><b>{{ item.titel }}</b><p>{{ item.erlaeuterung }}</p>{% if item.fehlende_voraussetzung %}<small>Voraussetzung: {{ item.fehlende_voraussetzung }}</small>{% endif %}</article>{% endfor %}</details>{% endif %}
-      {% if result.offene_fragen %}<details class="open-questions"><summary>Das würden wir vor der Umsetzung noch klären</summary><ul>{% for question in result.offene_fragen %}<li>{{ question }}</li>{% endfor %}</ul></details>{% endif %}
+  {# 4 · Die freigegebene Betriebslandkarte. Die Geometrie bleibt konstant;
+         die vier Bereiche werden ausschließlich aus dem ResultDTO gefüllt. #}
+  <section class="results-section map-section map-section--approved" id="ai-start-map" aria-labelledby="map-title">
+    <div class="section-intro section-intro--split">
+      <div><p class="eyebrow">Ihre AI Start Map</p><h2 id="map-title">Eine Betriebslandkarte, die sich mit Ihrem Betrieb füllt.</h2></div>
+      <p>Von links nach rechts sehen Sie, wo Ihr Alltag heute Reibung erzeugt, welche Bausteine ihn verbinden, welcher Arbeitsstand daraus entsteht und was später sinnvoll darauf aufbauen kann.</p>
     </div>
+    <div class="approved-map" aria-label="AI Start Map mit heute, verbindenden Bausteinen, neuem Arbeitsstand und späteren Möglichkeiten">
+      <svg class="approved-map__terrain" viewBox="0 0 1000 475" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M-10 83 C126 39 211 111 360 64 S654 35 1010 91"></path><path d="M-10 201 C126 150 247 235 364 187 S650 138 1010 207"></path><path d="M-10 386 C128 333 251 426 387 375 S654 329 1010 390"></path>
+        <path class="approved-map__route-under" d="M129 255 C256 252 313 247 412 248 S576 244 698 248"></path><path class="approved-map__route" d="M129 255 C256 252 313 247 412 248 S576 244 698 248"></path>
+        <path class="approved-map__later-route" d="M795 248 C849 177 884 154 944 154"></path><path class="approved-map__later-route" d="M795 248 C850 249 881 251 944 251"></path><path class="approved-map__later-route" d="M795 248 C851 326 882 349 944 349"></path>
+      </svg>
+      <div class="approved-map__stages">
+        <section class="approved-map__stage approved-map__stage--today" aria-labelledby="map-today-title"><p class="approved-map__stage-head" id="map-today-title"><b>1</b> Heute</p><div class="approved-map__list">{% for anchor in result.anker[:3] %}<article class="approved-map__point approved-map__point--today"><span class="approved-map__pin" aria-hidden="true">{{ ['✉', '☎', '◌'][loop.index0] }}</span><div><b>{{ anchor.customer_label }}</b>{% if anchor.short_description %}<small>{{ anchor.short_description }}</small>{% endif %}</div></article>{% endfor %}{% if not result.anker %}<p class="approved-map__empty">Belegte Punkte aus Ihrem Alltag erscheinen hier.</p>{% endif %}</div></section>
+        <section class="approved-map__stage approved-map__stage--connect" aria-labelledby="map-connect-title"><p class="approved-map__stage-head" id="map-connect-title"><b>2</b> Was verbindet</p><div class="approved-map__bridge">{% for module in start_modules[:3] %}<article class="approved-map__bridge-step{% if loop.first %} approved-map__bridge-step--start{% endif %}"><span aria-hidden="true">{% if loop.index == 1 %}✦{% elif loop.index == 2 %}☎{% else %}◎{% endif %}</span><div><b>{{ module.customer_label }}</b>{% if module.capability_refs %}<small>{{ module.capability_refs[0].label }}</small>{% elif module.business_outcome %}<small>{{ module.business_outcome }}</small>{% endif %}</div></article>{% endfor %}{% if not start_modules %}<p class="approved-map__empty">Der passende Startpunkt erscheint hier.</p>{% endif %}</div></section>
+        <section class="approved-map__stage approved-map__stage--target" aria-labelledby="map-target-title"><p class="approved-map__stage-head" id="map-target-title"><b>3</b> Neuer Arbeitsstand</p><article class="approved-map__center"><p><span aria-hidden="true">◎</span> Ihr neuer Arbeitsstand</p><h3>{{ result.karte.mitte.label }}</h3><span>{{ result.karte.mitte.zweck }}</span>{% if start_outcomes.items %}<b class="approved-map__next"><strong>Nächster Nutzen:</strong> {{ start_outcomes.items[0] }}</b>{% endif %}</article></section>
+        <section class="approved-map__stage approved-map__stage--later" aria-labelledby="map-later-title"><p class="approved-map__stage-head" id="map-later-title"><b>4</b> Später möglich</p><div class="approved-map__list">{% for future in future_items[:3] %}{% set module = result.modul(future.bereich) if future.bereich else none %}<article class="approved-map__point approved-map__point--later"><span class="approved-map__pin" aria-hidden="true">{{ ['◌', '□', '↗'][loop.index0] }}</span><div><b>{{ module.customer_label if module else future.outcome }}</b><small>{{ future.outcome }}</small></div></article>{% endfor %}{% if not future_items %}<p class="approved-map__empty">Weitere passende Möglichkeiten entstehen erst auf dieser Grundlage.</p>{% endif %}</div></section>
+      </div>
+      <div class="approved-map__benefits"><b>So hilft Ihnen diese Strecke:</b>{% for outcome in start_outcomes.items[:3] %}<span>{{ outcome }}</span>{% endfor %}</div>
+    </div>
+    {% if start_modules %}<aside class="map-explainer"><p class="card-kicker">Warum dieser Start?</p><h3>{{ start_modules[0].customer_label }}</h3>{% if start_modules[0].why_now %}<p>{{ start_modules[0].why_now[0] }}</p>{% elif start_modules[0].business_outcome %}<p>{{ start_modules[0].business_outcome }}</p>{% endif %}</aside>{% endif %}
   </section>
+
+  {# 5 · Der alte Claude-Alltagsflow in seiner horizontalen, verbundenen Form. #}
+  <section class="results-section operating-section operating-section--final" aria-labelledby="operating-title">
+      <div class="section-intro section-intro--compact operating-section__intro"><p class="eyebrow">{{ result.karte.mitte.label }}</p><h2 id="operating-title">So liefe Ihr Alltag künftig</h2><p>So werden wiederkehrende Schritte vorbereitet und der nächste wichtige Schritt bleibt sichtbar.</p></div>
+      <div class="everyday-flow">
+        <article class="everyday-flow__stage"><span>1</span><p>Neue Informationen</p><ul>{% for anchor in result.anker[:2] %}<li>{{ anchor.customer_label }}</li>{% else %}<li>{{ result.uebersicht.engpass }}</li>{% endfor %}</ul></article><i aria-hidden="true">→</i>
+        <article class="everyday-flow__stage everyday-flow__stage--automation"><span>2</span><p>Automatisch vorbereiten</p><ul>{% for capability in system_capabilities.items[:3] %}<li>{{ capability }}</li>{% else %}{% for module in start_modules[:2] %}<li>{{ module.customer_label }}</li>{% endfor %}{% endfor %}</ul></article><i aria-hidden="true">→</i>
+        <article class="everyday-flow__stage everyday-flow__stage--center"><span>3</span><p>{{ result.karte.mitte.label }}</p><b>{{ result.karte.mitte.zweck }}</b></article><i aria-hidden="true">→</i>
+        <article class="everyday-flow__stage"><span>4</span><p>Nachvollziehbarer nächster Schritt</p><ul>{% for outcome in start_outcomes.items[:2] %}<li>{{ outcome }}</li>{% else %}<li>{{ result.uebersicht.zielbild_satz }}</li>{% endfor %}</ul></article>
+      </div>
+    </section>
+
+  {# 6 · System und Mensch: die klare Zweiteilung des Claude-Referenzstands. #}
+  {% if system_capabilities.items or result.mensch_behaelt %}
+    <section class="results-section responsibility-section responsibility-section--final" aria-labelledby="responsibility-title">
+      <div class="section-intro section-intro--compact"><h2 id="responsibility-title">Das läuft künftig automatisch — das bleibt in Ihrer Verantwortung</h2><p>Wiederkehrende Arbeit wird vorbereitet. Entscheidungen bleiben bei Ihnen.</p></div>
+      <div class="responsibility-split">
+        {% if system_capabilities.items %}<article class="responsibility-split__system"><h3>✦ Das übernimmt das System</h3><ul>{% for capability in system_capabilities.items %}<li>{{ capability }}</li>{% endfor %}</ul></article>{% endif %}
+        {% if result.mensch_behaelt %}<article class="responsibility-split__human"><h3>♙ Das bleibt in Ihrer Verantwortung</h3><ul>{% for item in result.mensch_behaelt[:5] %}<li>{{ item }}</li>{% endfor %}</ul></article>{% endif %}
+      </div>
+    </section>
   {% endif %}
 
-  <section class="results-cta card card--elevated" aria-labelledby="cta-title">
-    <div><p class="eyebrow">Der nächste Schritt</p><h2 id="cta-title">Startpunkt gemeinsam prüfen</h2><p>Die Auswertung zeigt die Entscheidung. Im Gespräch klären wir den konkreten Weg für Ihren Betrieb.</p></div>
-    {% set kontakt = gespraechs_adresse() %}
-    <div class="results-cta__actions">{% if kontakt %}<a class="primary-button" href="{{ kontakt }}">Startpunkt besprechen</a>{% else %}<p class="contact-note">Die Kontaktadresse ist auf diesem Server nicht hinterlegt.</p>{% endif %}{% if session_id %}<a class="secondary-button" href="/report.pdf">Auswertung als PDF</a>{% endif %}</div>
+  {# 7 · Nur Kunden-Grenzen. Kataloggrenzen werden nie als Kundenaussage ausgegeben. #}
+  {% if customer_boundaries %}
+    <section class="results-section customer-boundaries" aria-labelledby="boundaries-title"><div class="section-intro section-intro--compact"><h2 id="boundaries-title">Ihre Grenzen bleiben Teil der Lösung</h2></div><div class="customer-boundaries__list">{% for boundary in customer_boundaries[:3] %}<article><span aria-hidden="true">♢</span><div><h3>{{ boundary.titel }}</h3><p>{{ boundary.erlaeuterung }}</p></div></article>{% endfor %}</div></section>
+  {% endif %}
+
+  {# 8 · Nur echte future-Ausblicke. Why-not und target-Ausblicke bleiben unsichtbar. #}
+  {% if future_items %}
+    <section class="results-section future-section" aria-labelledby="future-title">
+      <div class="section-intro section-intro--compact"><p class="eyebrow">Wenn das läuft</p><h2 id="future-title">Welche Möglichkeiten wir danach gemeinsam prüfen würden</h2><p>Sie müssen nicht alles auf einmal umsetzen. Wenn die Grundlage steht, können weitere Bereiche Schritt für Schritt sinnvoll darauf aufbauen.</p></div>
+      <div class="future-cards">{% for future in future_items[:4] %}{% set module = result.modul(future.bereich) if future.bereich else none %}{% set evidence = (result.belege | selectattr('id', 'in', future.beleg_refs) | list | first) %}<article><p class="card-kicker">Später möglich</p><h3>{{ module.customer_label if module else future.outcome }}</h3><p>{{ future.outcome }}</p><p class="future-cards__label">Warum später?</p><p>{{ future.grund_fuer_spaeter }}</p>{% if future.depends_on_module_refs %}<p class="future-cards__dependency">Baut auf: {% for ref in future.depends_on_module_refs %}{% set dependency = result.modul(ref) %}{{ dependency.customer_label if dependency else ref }}{% if not loop.last %} · {% endif %}{% endfor %}</p>{% endif %}{% if evidence %}<blockquote>„{{ evidence.zitat }}“</blockquote>{% endif %}</article>{% endfor %}</div>
+    </section>
+  {% endif %}
+
+  {# 9 · Abschluss: keine technische Fehlermeldung, wenn kein Kontaktweg konfiguriert ist. #}
+  <section class="results-cta results-cta--final" aria-labelledby="cta-title">
+    <div><h2 id="cta-title">Möchten Sie so arbeiten?</h2><p>Diese Auswertung zeigt, wo Sie sinnvoll anfangen können und welche Möglichkeiten daraus entstehen. Im Gespräch klären wir, was für Ihren Betrieb wirklich Sinn ergibt.</p></div>
+    <div class="results-cta__actions">{% set kontakt = gespraechs_adresse() %}{% if kontakt %}<a class="primary-button" href="{{ kontakt }}">Ja, ich möchte das umsetzen <span aria-hidden="true">→</span></a>{% endif %}{% if session_id %}<a class="secondary-button" href="/report.pdf">Auswertung als PDF ansehen</a>{% endif %}</div>
+    <div class="results-cta__trust"><span>Sie behalten die Kontrolle. Um die Umsetzung kümmern wir uns.</span><small>Diese Auswertung basiert auf Ihrer eigenen Beschreibung.</small>{% if kontakt %}<small>Öffnet eine vorbereitete E-Mail für das Umsetzungsgespräch.</small>{% endif %}</div>
   </section>
 </main>
 {% endblock %}
-{% block scripts %}<script src="{{ statisch('/results-v1.js') }}" defer></script>{% endblock %}

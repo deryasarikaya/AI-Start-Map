@@ -34,7 +34,7 @@ def test_the_example_is_available_without_a_model_call(
     antwort = client.get("/beispiel/hausverwaltung")
 
     assert antwort.status_code == 200
-    assert "AI Start Map · Ihre Auswertung" in antwort.text
+    assert "AI Start Map · Auswertung" in antwort.text
 
 
 def test_the_example_says_that_it_is_an_example(client: TestClient) -> None:
@@ -229,13 +229,12 @@ def test_the_stored_example_carries_a_full_result(client: TestClient) -> None:
     seite = client.get("/beispiel/hausverwaltung").text
 
     for abschnitt in (
-        "AI Start Map · Ihre Auswertung",
+        "AI Start Map · Auswertung",
         "Hier würden wir anfangen",
-        "Der Lösungsraum für Ihren Betrieb",
-        "So könnte Arbeit künftig zusammenlaufen",
-        "So würde der Einstieg im Alltag aussehen",
-        "Das übernimmt die Lösung. Das entscheidet Ihr Team.",
-        "Startpunkt gemeinsam prüfen",
+        "Eine Betriebslandkarte, die sich mit Ihrem Betrieb füllt.",
+        "So liefe Ihr Alltag künftig",
+        "Das läuft künftig automatisch — das bleibt in Ihrer Verantwortung",
+        "Möchten Sie so arbeiten?",
     ):
         assert abschnitt in seite, abschnitt
 
@@ -245,6 +244,11 @@ def test_the_stored_example_carries_a_full_result(client: TestClient) -> None:
     # Beides ist nicht gestrichen, sondern in den Ausdruck gewandert.
     for verschoben in ("Darauf bauen wir auf", "So würden wir anfangen"):
         assert verschoben not in seite, verschoben
+
+    assert "Was wir noch nicht empfehlen" not in seite
+    assert "Noch nicht empfohlen" not in seite
+    assert "So könnte Ihre Lösung konkret aussehen" not in seite
+    assert "Die Lösung unterstützt. Ihr Team entscheidet." not in seite
 
 
 def test_a_lever_that_needs_technology_is_not_promised_as_free(

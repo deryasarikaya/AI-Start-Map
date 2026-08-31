@@ -171,10 +171,10 @@ def test_complete_public_journey(
 
     ergebnis = client.get("/results")
     for text in (
-        "AI Start Map · Ihre Auswertung",
+        "AI Start Map · Auswertung",
         "Hier würden wir anfangen",
-        "Der Lösungsraum für Ihren Betrieb",
-        "Startpunkt gemeinsam prüfen",
+        "Eine Betriebslandkarte, die sich mit Ihrem Betrieb füllt",
+        "Möchten Sie so arbeiten?",
     ):
         assert text in ergebnis.text
     assert "/sessions/" not in ergebnis.text

@@ -99,8 +99,8 @@ def test_the_path_gets_its_own_section(
 
     seite = _mit_pfad(client, monkeypatch, PFAD)
 
-    assert "Was dadurch später interessant werden könnte" in seite
-    assert "Möglichkeitshorizont, kein Projektplan" in seite
+    assert "Welche Möglichkeiten wir danach gemeinsam prüfen würden" in seite
+    assert "Wenn die Grundlage steht, können weitere Bereiche Schritt für Schritt" in seite
 
 
 def test_without_a_path_the_section_disappears(
@@ -115,7 +115,7 @@ def test_without_a_path_the_section_disappears(
 
     seite = _mit_pfad(client, monkeypatch, [])
 
-    assert "Was dadurch später interessant werden könnte" not in seite
+    assert "Welche Möglichkeiten wir danach gemeinsam prüfen würden" not in seite
 
 
 def test_the_section_shows_possibilities_not_a_plan(
@@ -131,6 +131,7 @@ def test_the_section_shows_possibilities_not_a_plan(
     """
 
     seite = _mit_pfad(client, monkeypatch, PFAD)
+    horizon = seite.split('<div class="future-cards">', 1)[1].split("</section>", 1)[0]
 
     # **Hier steht nur das echte Später.** Eine Ausbaustufe, deren Familie
     # bereits zum Zielbild gehört, trägt `phase == "target"` und wird über
@@ -142,13 +143,13 @@ def test_the_section_shows_possibilities_not_a_plan(
     # Karte, und die kennt das Später des hinterlegten Laufs. SF-01 steht
     # in dessen Zielbild, SF-24 in keinem von beidem — beide sind hier
     # kein Später und stehen deshalb nicht in dieser Liste.
-    assert PFAD[2]["nutzen"] in seite, PFAD[2]["nutzen"]
+    assert PFAD[2]["nutzen"] in horizon, PFAD[2]["nutzen"]
     for schritt in (PFAD[0], PFAD[1], PFAD[3]):
-        assert schritt["nutzen"] not in seite, schritt["nutzen"]
+        assert schritt["nutzen"] not in horizon, schritt["nutzen"]
 
     assert "stationsnummer" not in seite
     assert "Freigaben online" not in seite
-    assert seite.count('class="future-list"') == 1
+    assert seite.count('class="future-cards"') == 1
 
 
 def test_the_nearness_is_named_instead_of_numbered(
@@ -163,7 +164,7 @@ def test_the_nearness_is_named_instead_of_numbered(
 
     seite = _mit_pfad(client, monkeypatch, PFAD)
 
-    assert "Zielbild" in seite
+    assert "Welche Möglichkeiten wir danach gemeinsam prüfen würden" in seite
     assert "Später möglich" in seite
 
 
@@ -179,7 +180,7 @@ def test_the_section_says_that_the_path_is_not_yet_decided(
 
     seite = _mit_pfad(client, monkeypatch, PFAD)
 
-    assert "Möglichkeitshorizont, kein Projektplan" in seite
+    assert "Wenn die Grundlage steht, können weitere Bereiche Schritt für Schritt" in seite
 
 
 def _auswahl(pfad: list[dict]) -> dict[str, object]:

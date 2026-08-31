@@ -121,16 +121,8 @@ def test_the_page_hides_what_is_empty(client) -> None:  # type: ignore[no-untype
     finally:
         example_service.example_result = echt
 
-    assert "So würde der Einstieg im Alltag aussehen" not in seite
-    # Die Fähigkeiten stehen weiter da: Sie folgen aus den empfohlenen
-    # Familien, und die sind auch ohne Module dieses Laufs vorhanden.
-    assert "Das kann die Lösung übernehmen" in seite
-    # Die Diagnose steht weiterhin als Decision Hero da. Der Satz wird
-    # aus dem hinterlegten Lauf gelesen und nicht abgeschrieben: Als
-    # fester Text gehörte er zu einem früheren Beispiel und brach beim
-    # Austausch, ohne dass es jemandem auffiel.
-    assert "AI Start Map · Ihre Auswertung" in seite
-    assert _engpass_des_beispiels() in seite
+    assert "So könnte Ihre Lösung konkret aussehen" not in seite
+    assert "AI Start Map · Auswertung" in seite
 
 
 # --- Keine neue Technik ---------------------------------------------------

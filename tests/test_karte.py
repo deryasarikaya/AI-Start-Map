@@ -14,6 +14,8 @@ sie ohne JavaScript vollständig stimmt — sonst fehlte sie im PDF.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from fastapi.testclient import TestClient
 
 from app import karte, solution_catalog
@@ -166,25 +168,28 @@ def test_a_path_leads_from_the_centre_to_every_marked_point() -> None:
         assert weg.pfad.startswith(f"M{karte.MITTE_X} {karte.MITTE_Y}")
 
 
-def test_the_map_is_a_product_landscape_with_a_centre(client: TestClient) -> None:
-    """Die sichtbare Karte ordnet Bereiche um ein Operating Center an."""
+def test_the_map_is_the_approved_four_stage_business_landscape(client: TestClient) -> None:
+    """Die sichtbare Karte zeigt die feste, von links lesbare Strecke."""
 
     seite = client.get("/beispiel/hausverwaltung").text
 
-    assert 'class="operating-landscape"' in seite
-    assert seite.count('class="map-area ') == 6
-    assert 'class="operating-center"' in seite
-    assert 'data-map-node=' in seite
+    assert 'class="approved-map"' in seite
+    assert seite.count('class="approved-map__stage ') == 4
+    assert 'class="approved-map__center"' in seite
+    assert "Was verbindet" in seite
 
 
 def test_the_map_has_a_readable_no_javascript_base(client: TestClient) -> None:
-    """Zustände und Details stehen vor jeder optionalen Interaktion im HTML."""
+    """Alle vier Zustände und der erklärende Startblock stehen im HTML."""
 
     seite = client.get("/beispiel/hausverwaltung").text
 
-    assert 'data-map-node=' in seite
-    assert 'data-map-detail=' in seite
-    assert "Operating Center" in seite
+    assert "Heute" in seite
+    assert "Was verbindet" in seite
+    assert "Neuer Arbeitsstand" in seite
+    assert "Später möglich" in seite
+    assert "Warum dieser Start?" in seite
+    assert "Gemeinsamer Arbeitsstand" in seite
 
 
 def test_the_map_says_where_to_begin(client: TestClient) -> None:
@@ -197,21 +202,24 @@ def test_the_map_says_where_to_begin(client: TestClient) -> None:
 
     seite = client.get("/beispiel/hausverwaltung").text
 
-    assert "Der Lösungsraum für Ihren Betrieb" in seite
-    assert "Die Karte ordnet den Start in ein größeres Zielbild ein." in seite
+    assert "Eine Betriebslandkarte, die sich mit Ihrem Betrieb füllt." in seite
+    assert "Von links nach rechts sehen Sie" in seite
     for zustand in (
-        "Hier würden wir anfangen",
-        "Zielbild",
+        "Heute",
+        "Was verbindet",
+        "Neuer Arbeitsstand",
         "Später möglich",
     ):
         assert zustand in seite, zustand
 
 
-def test_the_phone_gets_prioritized_map_controls(client: TestClient) -> None:
-    """Die mobile Karte erhält Filter und bedienbare Bereichsknoten."""
+def test_the_phone_gets_the_same_route_as_a_vertical_sequence(client: TestClient) -> None:
+    """Mobil wird die genehmigte Strecke gestapelt statt skaliert."""
 
     seite = client.get("/beispiel/hausverwaltung").text
 
-    assert 'class="map-state-controls"' in seite
-    assert seite.count('class="map-area ') == 6
-    assert 'aria-pressed="true"' in seite
+    css = (Path(__file__).resolve().parents[1] / "app/static/results-final.css").read_text(encoding="utf-8")
+
+    assert 'class="approved-map__stage ' in seite
+    assert ".approved-map__stages { grid-template-columns: 1fr;" in css
+    assert 'data-map-filter' not in seite

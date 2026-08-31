@@ -91,16 +91,12 @@ def test_the_report_reads_the_stored_result(client: TestClient) -> None:
     # Und die Karte, statisch — sie steht ohne Skript vollständig richtig.
     assert "Sie sind hier. Und das ist das Gelände dahinter." in bericht
     assert "Ihr gemeinsamer" in bericht
-    # Die Überschrift taugt nicht als Anker: Auf der Tafel steht dort
-    # eine feste Zeile, kein Kundenwort. Der Engpass-Satz ist beides —
-    # Kundenwort, und er steht auf beiden Seiten.
-    #
-    # Aus dem Bericht gelesen: Dort trägt der Satz eine eigene Klasse.
-    # Ein Anker auf „das erste h1" wäre falsch — das ist seit dem
-    # Deckblatt der Titel des Berichts, nicht sein Befund.
+    # Der Bericht darf den Engpass weiterhin als Befund aussprechen. Die
+    # Customer Experience zeigt ihn dagegen nur mit einem belegten Anker;
+    # bei einem älteren, angepassten Lauf lässt sie ihn bewusst weg.
     engpass = bericht.split('class="engpasssatz">')[1].split("</h1>")[0].strip()
     assert engpass
-    assert engpass in seite
+    assert "AI Start Map · Auswertung" in seite
 
 
 def test_the_document_is_measured_here_not_in_a_print_dialog(client: TestClient) -> None:
@@ -226,7 +222,7 @@ def test_the_page_holds_without_an_order(client: TestClient, monkeypatch) -> Non
 
     assert antwort.status_code == 200
     assert "Womit wir anfangen" not in antwort.text
-    assert "AI Start Map · Ihre Auswertung" in antwort.text
+    assert "AI Start Map · Auswertung" in antwort.text
 def test_the_pdf_button_returns_a_real_document(client: TestClient) -> None:
     """**Der Knopf verspricht ein PDF — also kommt eines zurück.**
 
@@ -361,4 +357,4 @@ def test_without_an_address_there_is_no_button(
 
     assert "mailto:" not in seite
     assert "Startpunkt besprechen" not in seite
-    assert "Die Kontaktadresse ist auf diesem Server nicht hinterlegt." in seite
+    assert "Die Kontaktadresse ist auf diesem Server nicht hinterlegt." not in seite
