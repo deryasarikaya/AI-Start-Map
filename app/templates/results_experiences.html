@@ -1,0 +1,89 @@
+{# Kontrollierte Experience-Bibliothek für Results V1.
+
+   Der DTO bestimmt Typ und erlaubten Inhalt. Dieses Makro entscheidet nur
+   über die Darstellung; es ordnet weder Familien zu noch ergänzt es Daten. #}
+
+{% macro status(status) -%}
+<span class="experience-status experience-status--{{ status }}" aria-hidden="true"></span>
+{%- endmacro %}
+
+{% macro frame(experience) -%}
+<article class="experience-window experience-window--{{ experience.typ }}">
+  <header class="experience-window__header">
+    <span class="experience-window__mode">{{ experience.typ | replace('_', ' ') }}</span>
+    <span class="experience-window__live">Beispielansicht</span>
+  </header>
+  <div class="experience-window__body">{{ caller() }}</div>
+</article>
+{%- endmacro %}
+
+{% macro voice_assistant(v) -%}
+{% call frame(v) %}
+  <div class="call-head"><span class="call-head__signal" aria-hidden="true"></span><div><b>{{ v.inhalt.daten.name or v.inhalt.titel }}</b><small>Eingehender Anruf wird erfasst</small></div></div>
+  <div class="conversation">
+  {% for bubble in v.inhalt.daten.blasen or [] %}
+    <div class="conversation__bubble conversation__bubble--{{ bubble.seite }}"><small>{{ 'Anrufer' if bubble.seite == 'kunde' else 'Assistent' }} · {{ bubble.zeit }}</small><p>{{ bubble.text }}</p></div>
+  {% endfor %}
+  </div>
+  {% if v.inhalt.daten.felder %}<p class="experience-label">Erkannte Angaben</p><dl class="field-grid">{% for field in v.inhalt.daten.felder %}<div><dt>{{ field.label }}</dt><dd>{{ field.wert }}</dd></div>{% endfor %}</dl>{% endif %}
+  {% if v.inhalt.daten.statussatz %}<p class="handoff-note">{{ v.inhalt.daten.statussatz }}</p>{% endif %}
+{% endcall %}
+{%- endmacro %}
+
+{% macro ai_inbox(v) -%}
+{% call frame(v) %}
+  <div class="inbox-head"><b>{{ v.inhalt.titel }}</b><span>Neue Eingänge</span></div>
+  <div class="inbox-list">{% for message in v.inhalt.daten.nachrichten or [] %}<article class="inbox-item"><div><b>{{ message.absender }}</b><small>{{ message.zeit }}</small></div><p>{{ message.text }}</p><div class="tag-list">{% for label in message.marken %}<span>{{ label }}</span>{% endfor %}</div></article>{% endfor %}</div>
+{% endcall %}
+{%- endmacro %}
+
+{% macro case_workspace(v) -%}
+{% call frame(v) %}
+  <div class="case-head"><div><span class="experience-label">Vorgang</span><b>{{ v.inhalt.daten.name or v.inhalt.titel }}</b>{% if v.inhalt.daten.notiz %}<small>{{ v.inhalt.daten.notiz }}</small>{% endif %}</div>{% if v.inhalt.daten.abzeichen %}<span class="case-badge case-badge--{{ v.inhalt.daten.abzeichen.status }}">{{ v.inhalt.daten.abzeichen.text }}</span>{% endif %}</div>
+  {% if v.inhalt.daten.felder %}<dl class="field-grid">{% for field in v.inhalt.daten.felder %}<div><dt>{{ field.label }}</dt><dd>{{ field.wert }}</dd></div>{% endfor %}</dl>{% endif %}
+  {% if v.inhalt.daten.verlauf %}<ol class="case-timeline">{% for item in v.inhalt.daten.verlauf %}<li><span></span><div><b>{{ item.text }}</b><small>{{ item.zeit }}</small></div></li>{% endfor %}</ol>{% endif %}
+  {% if v.inhalt.daten.dateien %}<div class="file-list">{% for file in v.inhalt.daten.dateien %}<span>{{ file }}</span>{% endfor %}</div>{% endif %}
+{% endcall %}
+{%- endmacro %}
+
+{% macro document_flow(v) -%}
+{% call frame(v) %}
+  <div class="flow-list">{% for item in v.inhalt.daten.eintraege_dokumente or [] %}<article><span class="flow-list__file">{{ item.typ }}</span><div><b>{{ item.name }}</b><small>{{ item.zuordnung }} · {{ item.datum }}</small></div><span class="flow-list__state">Zur Prüfung</span></article>{% endfor %}</div>
+{% endcall %}
+{%- endmacro %}
+
+{% macro customer_self_service(v) -%}
+{% call frame(v) %}
+  <div class="service-head"><b>{{ v.inhalt.titel }}</b><span>Ihr Anliegen</span></div>
+  <ol class="service-steps">{% for item in v.inhalt.daten.schritte or [] %}<li class="{% if item.erreicht %}is-done{% endif %}"><span>{{ loop.index }}</span>{{ item.text }}</li>{% endfor %}</ol>
+  {% if v.inhalt.daten.statussatz %}<p class="handoff-note">{{ v.inhalt.daten.statussatz }}</p>{% endif %}
+{% endcall %}
+{%- endmacro %}
+
+{% macro management_overview(v) -%}
+{% call frame(v) %}
+  <div class="overview-head"><div><b>{{ v.inhalt.daten.haupttext or v.inhalt.titel }}</b>{% if v.inhalt.daten.untertext %}<small>{{ v.inhalt.daten.untertext }}</small>{% endif %}</div></div>
+  {% if v.inhalt.daten.kennzahlen %}<div class="metric-row">{% for item in v.inhalt.daten.kennzahlen %}<div><b>{{ item.wert }}</b><span>{{ item.label }}</span></div>{% endfor %}</div>{% endif %}
+  <div class="work-list">{% for item in v.inhalt.daten.zeilen or [] %}<div>{{ status(item.status) }}<span>{{ item.text }}</span></div>{% endfor %}</div>
+  {% if v.inhalt.daten.hinweis %}<p class="handoff-note">{{ v.inhalt.daten.hinweis }}</p>{% endif %}
+{% endcall %}
+{%- endmacro %}
+
+{% macro automation_flow(v) -%}
+{% call frame(v) %}
+  <div class="automation-list">{% for item in v.inhalt.daten.zeilen or [] %}<div><span>{{ loop.index }}</span><p>{{ item.text }}</p></div>{% endfor %}</div>
+{% endcall %}
+{%- endmacro %}
+
+{% macro render(experience) -%}
+{% if not experience or not experience.hat_inhalt %}
+  <article class="experience-empty"><p class="experience-label">Vorschau</p><h3>Die konkrete Oberfläche wird im nächsten Schritt gemeinsam festgelegt.</h3><p>Der erste sinnvolle Bereich steht bereits fest. Für diese Darstellung liegt im Ergebnis noch kein freigegebener Inhalt vor.</p></article>
+{% elif experience.typ == 'voice_assistant' %}{{ voice_assistant(experience) }}
+{% elif experience.typ == 'ai_inbox' %}{{ ai_inbox(experience) }}
+{% elif experience.typ == 'case_workspace' %}{{ case_workspace(experience) }}
+{% elif experience.typ == 'document_flow' %}{{ document_flow(experience) }}
+{% elif experience.typ == 'customer_self_service' %}{{ customer_self_service(experience) }}
+{% elif experience.typ == 'management_overview' %}{{ management_overview(experience) }}
+{% elif experience.typ == 'automation_flow' %}{{ automation_flow(experience) }}
+{% else %}<article class="experience-empty"><p class="experience-label">{{ experience.typ | replace('_', ' ') }}</p><h3>{{ experience.inhalt.titel }}</h3><p>{{ experience.inhalt.beschreibung }}</p></article>{% endif %}
+{%- endmacro %}

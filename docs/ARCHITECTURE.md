@@ -148,10 +148,10 @@ GET  /report      routes                Druckansicht fürs PDF
 `/beispiel/hausverwaltung` zeigt einen gespeicherten Lauf ohne jeden
 Modellaufruf — die Rückfallebene für eine Vorführung.
 
-Die Nutzerstrecke vor der Ergebnisdarstellung teilt sich eine semantische
-visuelle Foundation, ohne in diesen Datenfluss einzugreifen. Tokens,
-Komponentenmuster, Zuständigkeiten und die Übergabe an eine spätere Results V1
-stehen in [`PRE_RESULTS_UI_FOUNDATION.md`](PRE_RESULTS_UI_FOUNDATION.md).
+Die Nutzerstrecke und Results V1 teilen sich eine semantische visuelle
+Foundation, ohne in diesen Datenfluss einzugreifen. Tokens,
+Komponentenmuster und die Übergabe stehen in
+[`PRE_RESULTS_UI_FOUNDATION.md`](PRE_RESULTS_UI_FOUNDATION.md).
 
 ---
 
@@ -325,13 +325,13 @@ weil die Sortierung dabei nach Typnamen ging, gewann `ai_inbox`
 alphabetisch sogar gegen `voice_assistant`. Beides ist behoben: Die
 Reihenfolge der Affinitäten ist eine fachliche Aussage und wird erhalten.
 
-### Der gemeinsame Vertrag für Web und PDF
+### Der ResultDTO für die sichtbare Web-Auswertung
 
-`app/results_dto.py` fasst alles zusammen, was die Ergebnisseite zeigt.
-Vorher hing jede Vorlage direkt am gespeicherten Ergebnis und musste sich
-selbst zusammensuchen, was der Einstieg ist und welche Grenze vom Kunden
-stammt — beides fachliche Entscheidungen, die zwei Vorlagen verschieden
-treffen.
+`app/results_dto.py` fasst alles zusammen, was die sichtbare
+Web-Ergebnisseite zeigt. Vorher hing die Vorlage direkt am gespeicherten
+Ergebnis und musste sich selbst zusammensuchen, was der Einstieg ist und
+welche Grenze vom Kunden stammt — beides fachliche Entscheidungen, die zwei
+Vorlagen verschieden treffen.
 
 Ein Feld verdient eine eigene Erwähnung: **die Herkunft einer Grenze.**
 „Sie wollen keine Preiszusagen" ist eine Aussage über diesen Kunden.
@@ -357,6 +357,19 @@ zwei Darstellungen machen sie verschieden.
 Der Zustand wird von der Karte **übernommen**, nicht neu gerechnet: Zwei
 Rechenwege für dieselbe Frage sind zwei Gelegenheiten, sich zu
 widersprechen.
+
+`GET /results` und `/beispiel/{slug}` rufen `results_dto.von_ergebnis()` auf
+und geben ausschließlich diesen Vertrag an `results_v1.html` weiter. Die
+Vorlage entscheidet keine Familien, rekonstruiert keine Belege und liest kein
+altes Ergebnisobjekt. Die Karte zeigt die festen vierzehn Bereiche, ihre
+Zustände und das abgeleitete Operating Center; die kontrollierte
+Experience-Bibliothek zeigt ausschließlich `ansichten.*.inhalt`.
+
+Der bestehende PDF-Weg bleibt in diesem Clean-Sheet-Pass funktionsfähig, ist
+aber **nicht** der visuelle oder technische Constraint der neuen Web-Results.
+Er wird hier nicht auf den neuen Renderer umgestellt. Eine spätere
+PDF-Umsetzung muss denselben ResultDTO konsumieren, bevor sie als gleichwertige
+Darstellung dokumentiert werden darf.
 
 Fehlt für einen Rahmen der Inhalt, bleibt `inhalt` leer und `hat_inhalt`
 falsch — die Darstellung sieht es an einem Feld statt an einer fehlenden

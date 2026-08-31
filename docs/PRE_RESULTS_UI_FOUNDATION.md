@@ -7,10 +7,12 @@ die Betriebsbeschreibung, die beiden Analysezustände und die
 Verständnisbestätigung. Sie verändert weder den Analysevertrag noch den
 Vier-Aufruf-Flow, das RAG, den Lösungskatalog oder die Ergebnisdaten.
 
-Die Ergebnisdarstellung ist in diesem Stand bewusst nicht neu gebaut. Eine
-spätere Results V1 soll dieselben semantischen Tokens und Interaktionsmuster
-verwenden, damit vor und nach der Analyse kein visueller Produktwechsel
-entsteht.
+Die sichtbare Results V1 übernimmt diese semantischen Tokens und
+Interaktionsmuster. Damit bleibt der Wechsel von der Analyse in die
+Auswertung ein Wechsel innerhalb desselben Produkts, nicht in eine zweite
+visuelle Sprache. Die Results-spezifischen Komponenten liegen getrennt in
+`app/templates/results_v1.html`, `app/templates/results_experiences.html`,
+`app/static/results-v1.css` und `app/static/results-v1.js`.
 
 Der Page Background ist dabei eine globale Produktkonstante. Seine Komposition
 ist nicht neu angenähert, sondern aus dem sichtbaren Kopf der aktuellen
@@ -148,10 +150,10 @@ unbelegte Datenschutz-Zusage in Landingpage oder Interview ergänzt werden.
 
 ## Übergabe an Results V1
 
-Results V1 sollte `--page-bg`, die Surface-, Text-, Border-, Radius-, Shadow-,
-Width-, Spacing- und Motion-Tokens direkt übernehmen. Für normale Inhalte,
-wichtige Zielbildflächen und Handlungen stehen die Karten- und Buttonmuster
-bereits bereit.
+Results V1 übernimmt `--page-bg`, die Surface-, Text-, Border-, Radius-,
+Shadow-, Width-, Spacing- und Motion-Tokens direkt. Für normale Inhalte,
+wichtige Zielbildflächen und Handlungen verwendet sie die vorhandenen Karten-
+und Buttonmuster, ergänzt aber keine zweite lokale Palette.
 
 Results V1 bindet außerdem `_page_background.html` ein. Die Backdrop-Schicht
 beginnt unter der jeweiligen oberen Produktleiste; Seiteninhalt und Karten
@@ -160,13 +162,18 @@ Hero-Hintergründe dürfen diese Grundkomposition nicht zurücksetzen. Damit
 bleiben Grundfarbe, Verlauf, Intensität und Bewegung beim Seitenwechsel
 konstant.
 
-Nicht übernehmen sollte Results V1 parallel gepflegte lokale Farbwerte oder
-einen zweiten Satz Radien und Schatten unter `.ergebnis`. Die fachliche
-Informationsarchitektur der Results bleibt eine eigene Aufgabe; diese
-Foundation legt nur die visuelle und interaktive Sprache fest.
+Results V1 übernimmt weder parallel gepflegte lokale Farbwerte noch einen
+zweiten Satz Radien und Schatten unter `.ergebnis`. Die fachliche
+Informationsarchitektur wird ausschließlich aus `ResultDTO` projiziert:
+Engpass, Start, Map States, Operating Center, Capabilities, Evidence,
+Experience-Inhalte, Human Boundaries, Future und Why-not. Map-Filter und
+Node-Auswahl ändern nur die Sicht auf diese Daten; sie treffen keine neue
+fachliche Entscheidung.
 
 ## Status
 
-Implementiert und offline getestet auf `feature/pre-results-ui-foundation`.
-Der Branch bleibt getrennt von `feature/final-stabilization` und wird dort
-nicht automatisch zusammengeführt.
+Die Pre-Results Foundation ist auf `feature/pre-results-ui-foundation`
+implementiert und getestet. Die saubere Results-V1-Webprojektion ist auf
+`feature/results-v1-clean-sheet` implementiert und wird dort separat geprüft.
+Beide Branches werden nicht automatisch in `feature/final-stabilization`
+zusammengeführt.

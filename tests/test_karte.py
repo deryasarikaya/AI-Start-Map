@@ -166,36 +166,25 @@ def test_a_path_leads_from_the_centre_to_every_marked_point() -> None:
         assert weg.pfad.startswith(f"M{karte.MITTE_X} {karte.MITTE_Y}")
 
 
-def test_the_map_is_drawn_not_tabulated(client: TestClient) -> None:
-    """Es ist eine Landkarte, kein Raster aus Kästen.
-
-    Die erste Fassung war genau das: sechs rechteckige Blöcke mit
-    Punktlisten darin. Das ist ein Dashboard. Eine Karte hat Flächen,
-    einen Mittelpunkt und Wege dorthin.
-    """
+def test_the_map_is_a_product_landscape_with_a_centre(client: TestClient) -> None:
+    """Die sichtbare Karte ordnet Bereiche um ein Operating Center an."""
 
     seite = client.get("/beispiel/hausverwaltung").text
 
-    assert "<svg" in seite
-    assert seite.count('class="kartenzone') == 6
-    assert "kartenkern" in seite
-    assert "kartenweg" in seite
+    assert 'class="operating-landscape"' in seite
+    assert seite.count('class="map-area ') == 6
+    assert 'class="operating-center"' in seite
+    assert 'data-map-node=' in seite
 
 
-def test_the_map_needs_no_javascript(client: TestClient) -> None:
-    """**Ohne Skript vollständig richtig.**
-
-    Nicht aus Prinzip, sondern weil dieselbe Karte ins PDF gehört. Stünden
-    Zustände oder Beschriftungen erst im Skript, müsste sie dort ein
-    zweites Mal gebaut werden — und zwei Karten laufen auseinander.
-    """
+def test_the_map_has_a_readable_no_javascript_base(client: TestClient) -> None:
+    """Zustände und Details stehen vor jeder optionalen Interaktion im HTML."""
 
     seite = client.get("/beispiel/hausverwaltung").text
-    kartenteil = seite.split('<figure class="karte">', 1)[1].split("</figure>", 1)[0]
 
-    assert "<script" not in kartenteil
-    assert "kartenpunkt--start" in kartenteil or "kartenpunkt--nah" in kartenteil
-    assert "Ihr gemeinsamer" in kartenteil
+    assert 'data-map-node=' in seite
+    assert 'data-map-detail=' in seite
+    assert "Operating Center" in seite
 
 
 def test_the_map_says_where_to_begin(client: TestClient) -> None:
@@ -208,25 +197,21 @@ def test_the_map_says_where_to_begin(client: TestClient) -> None:
 
     seite = client.get("/beispiel/hausverwaltung").text
 
-    assert "Sie sind hier. Und das ist das Gelände dahinter." in seite
-    assert "Hervorgehoben ist, wo ein sinnvoller Startpunkt liegt." in seite
+    assert "Der Lösungsraum für Ihren Betrieb" in seite
+    assert "Die Karte ordnet den Start in ein größeres Zielbild ein." in seite
     for zustand in (
         "Hier würden wir anfangen",
-        "Das liegt in der Nähe",
-        "Das gibt es darüber hinaus",
+        "Zielbild",
+        "Später möglich",
     ):
         assert zustand in seite, zustand
 
 
-def test_the_phone_gets_the_same_points_as_a_list(client: TestClient) -> None:
-    """Auf dem Handy trägt die Liste, nicht die Karte.
-
-    Fünfundzwanzig Beschriftungen auf einer Landkarte sind auf einem
-    Telefon unlesbar. Dieselben Punkte stehen deshalb zusätzlich als
-    Liste — nach Gebiet gruppiert, in der Reihenfolge des Auftragslaufs.
-    """
+def test_the_phone_gets_prioritized_map_controls(client: TestClient) -> None:
+    """Die mobile Karte erhält Filter und bedienbare Bereichsknoten."""
 
     seite = client.get("/beispiel/hausverwaltung").text
 
-    assert 'class="kartenliste"' in seite
-    assert seite.count('class="listengebiet"') == 6
+    assert 'class="map-state-controls"' in seite
+    assert seite.count('class="map-area ') == 6
+    assert 'aria-pressed="true"' in seite

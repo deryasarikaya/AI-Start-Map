@@ -1,0 +1,142 @@
+{# Results V1 ist eine reine Projektion des ResultDTO.
+
+   Diese Vorlage darf keine Familien auswählen, keine Belege suchen und keine
+   Inhalte aus dem gespeicherten Ergebnis zusammensetzen. Alle sichtbaren
+   Aussagen kommen aus `result`, das vor dem Rendern einmal geprüft wurde. #}
+{% extends "base.html" %}
+{% import "results_experiences.html" as experiences %}
+
+{% block title %}Ihre Auswertung · AI Start Map{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{{ statisch('/results-v1.css') }}">{% endblock %}
+
+{% block content %}
+{% set start_key = result.karte.start[0] if result.karte.start else none %}
+{% set start_module = result.modul(start_key) if start_key else none %}
+{% set primary = result.ansichten.primary %}
+<main class="results-v1" data-results-root>
+  {% if beispiel %}
+  <aside class="results-note" aria-label="Hinweis zum Beispiellauf"><b>Gespeicherter Beispiellauf.</b> Diese Ansicht wird nicht neu berechnet und beschreibt nicht Ihren Betrieb.</aside>
+  {% endif %}
+
+  <section class="results-hero" aria-labelledby="results-title">
+    <div class="results-hero__copy">
+      <p class="eyebrow">AI Start Map · Ihre Auswertung</p>
+      <h1 id="results-title">{{ result.uebersicht.engpass }}</h1>
+      <p class="results-hero__target">{{ result.uebersicht.zielbild_satz }}</p>
+      {% if result.uebersicht.beleg_refs %}
+      <div class="hero-evidence">
+        {% for evidence in result.belege if evidence.id in result.uebersicht.beleg_refs %}
+        <blockquote>„{{ evidence.zitat }}“<footer>{{ evidence.bedeutung }}</footer></blockquote>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <aside class="start-decision card card--elevated">
+      <p class="card-kicker">Hier würden wir anfangen</p>
+      <h2>{{ start_module.customer_label if start_module else result.uebersicht.zielbild_name }}</h2>
+      {% if start_module and start_module.capability_refs %}
+      <ul>{% for capability in start_module.capability_refs[:3] %}<li>{{ capability.label }}</li>{% endfor %}</ul>
+      {% endif %}
+      <a class="secondary-button" href="#ai-start-map">Auf Ihrer AI Start Map ansehen</a>
+    </aside>
+  </section>
+
+  <section class="results-section map-section" id="ai-start-map" aria-labelledby="map-title">
+    <div class="section-intro section-intro--split">
+      <div><p class="eyebrow">Ihre AI Start Map</p><h2 id="map-title">Der Lösungsraum für Ihren Betrieb</h2></div>
+      <p>Die Karte ordnet den Start in ein größeres Zielbild ein. Sie zeigt nur Bereiche, die im geprüften Ergebnis dafür freigegeben sind.</p>
+    </div>
+
+    <div class="map-state-controls" role="group" aria-label="Kartenansicht filtern">
+      <button type="button" class="is-active" data-map-filter="all" aria-pressed="true">Alles</button>
+      <button type="button" data-map-filter="heute" aria-pressed="false">Heute</button>
+      <button type="button" data-map-filter="start" aria-pressed="false">Hier starten</button>
+      <button type="button" data-map-filter="target" aria-pressed="false">Zielbild</button>
+      <button type="button" data-map-filter="future" aria-pressed="false">Später möglich</button>
+    </div>
+
+    <div class="map-workspace" data-map-workspace>
+      <div class="operating-landscape" aria-label="AI Start Map mit Betriebsbereichen">
+        {% for area in result.karte.gebiete %}
+        <section class="map-area map-area--{{ area.kennung }}" aria-label="{{ area.name }}">
+          <h3>{{ area.name }}</h3>
+          <div class="map-area__nodes">
+          {% for node in result.karte.knoten if node.gebiet == area.kennung %}
+            {% set module = result.modul(node.schluessel) %}
+            <button type="button" class="map-node map-node--{{ node.zustand }}{% if node.schluessel == start_key %} is-selected{% endif %}" data-map-node="{{ node.schluessel }}" data-map-state="{{ node.zustand }}" aria-pressed="{{ 'true' if node.schluessel == start_key else 'false' }}">
+              <span class="map-node__state">{{ {'heute': 'Heute', 'start': 'Hier starten', 'target': 'Zielbild', 'future': 'Später möglich', 'still': 'Nicht im Fokus'}.get(node.zustand) }}</span>
+              <b>{{ module.customer_label if module else node.name }}</b>
+            </button>
+          {% endfor %}
+          </div>
+        </section>
+        {% endfor %}
+        <div class="operating-center" aria-label="{{ result.karte.mitte.label }}">
+          <span>Operating Center</span><b>{{ result.karte.mitte.label }}</b><small>{{ result.karte.mitte.zweck }}</small>
+        </div>
+      </div>
+
+      <aside class="map-detail" aria-live="polite">
+        {% for module in result.sichtbare_module %}
+        <article class="map-detail__content{% if module.module_key == start_key %} is-active{% endif %}" data-map-detail="{{ module.module_key }}">
+          <p class="card-kicker">{{ {'heute': 'Heute sichtbar', 'start': 'Empfohlener Start', 'target': 'Teil des Zielbilds', 'future': 'Später möglich'}.get(module.state, 'Betriebsbereich') }}</p>
+          <h3>{{ module.customer_label }}</h3>
+          {% if module.capability_refs %}<div class="capability-list"><p>Das kann die Lösung übernehmen</p><ul>{% for capability in module.capability_refs[:5] %}<li>{{ capability.label }}</li>{% endfor %}</ul></div>{% endif %}
+          {% if module.evidence_refs %}<div class="evidence-inline"><p>Warum das dazugehört</p>{% for evidence in result.belege if evidence.id in module.evidence_refs %}<blockquote>„{{ evidence.zitat }}“<footer>{{ evidence.bedeutung }}</footer></blockquote>{% endfor %}</div>{% endif %}
+          {% if module.boundary_refs %}<div class="boundary-inline"><p>Entscheidungsgrenze</p>{% for index in module.boundary_refs %}<span>{{ result.grenzen[index].titel }}</span>{% endfor %}</div>{% endif %}
+        </article>
+        {% endfor %}
+      </aside>
+    </div>
+  </section>
+
+  <section class="results-section operating-section" aria-labelledby="operating-title">
+    <div class="section-intro"><p class="eyebrow">So könnte Arbeit künftig zusammenlaufen</p><h2 id="operating-title">{{ result.uebersicht.zielbild_name }}</h2><p>{{ result.uebersicht.zielbild_satz }}</p></div>
+    <div class="operating-flow">
+      <article class="operating-flow__stage"><span>01</span><p>Relevante Informationen</p><div>{% for module in result.sichtbare_module if module.state in ['heute', 'start'] %}<b>{{ module.customer_label }}</b>{% endfor %}</div></article>
+      <article class="operating-flow__stage operating-flow__stage--active"><span>02</span><p>Erkennen & zusammenführen</p><div>{% if start_module and start_module.capability_refs %}{% for capability in start_module.capability_refs[:3] %}<b>{{ capability.label }}</b>{% endfor %}{% else %}<b>Geprüfte Informationen zusammenführen</b>{% endif %}</div></article>
+      <article class="operating-flow__center"><span>03</span><p>{{ result.karte.mitte.label }}</p><b>{{ result.karte.mitte.zweck }}</b></article>
+      <article class="operating-flow__stage"><span>04</span><p>Menschen & Arbeitsoberflächen</p><div>{% if primary %}<b>{{ primary.typ | replace('_', ' ') }}</b>{% endif %}{% for module in result.sichtbare_module if module.state == 'target' %}<b>{{ module.customer_label }}</b>{% endfor %}</div></article>
+      <article class="operating-flow__stage"><span>05</span><p>Ergebnis</p><div><b>{{ result.uebersicht.zielbild_name }}</b></div></article>
+    </div>
+    {% if result.mensch_behaelt or result.grenzen %}<aside class="decision-rail"><p class="card-kicker">Menschen entscheiden sichtbar weiter</p><div>{% for item in result.mensch_behaelt[:4] %}<span>{{ item }}</span>{% endfor %}{% for boundary in result.grenzen if boundary.herkunft == 'kunde' %}<span>{{ boundary.titel }}</span>{% endfor %}</div></aside>{% endif %}
+  </section>
+
+  {% if primary %}
+  <section class="results-section experience-section" aria-labelledby="experience-title">
+    <div class="section-intro section-intro--split"><div><p class="eyebrow">So würde der Einstieg im Alltag aussehen</p><h2 id="experience-title">{{ primary.inhalt.titel if primary.hat_inhalt else primary.typ | replace('_', ' ') }}</h2></div><p>{{ primary.inhalt.beschreibung if primary.hat_inhalt else 'Die Erfahrung wird erst mit Ihrem Team konkret ausgestaltet.' }}</p></div>
+    <div class="primary-experience">{{ experiences.render(primary) }}</div>
+    {% if result.ansichten.supporting %}<div class="supporting-experiences">{% for experience in result.ansichten.supporting %}<article><p class="card-kicker">Unterstützend</p><h3>{{ experience.inhalt.titel if experience.hat_inhalt else experience.typ | replace('_', ' ') }}</h3>{{ experiences.render(experience) }}</article>{% endfor %}</div>{% endif %}
+  </section>
+  {% endif %}
+
+  <section class="results-section responsibility-section" aria-labelledby="responsibility-title">
+    <div class="section-intro"><p class="eyebrow">Kontrolle bleibt Teil der Lösung</p><h2 id="responsibility-title">Das übernimmt die Lösung. Das entscheidet Ihr Team.</h2></div>
+    <div class="responsibility-grid">
+      <article class="responsibility-card responsibility-card--system"><p>Die Lösung unterstützt bei</p><ul>{% if start_module and start_module.capability_refs %}{% for capability in start_module.capability_refs[:5] %}<li>{{ capability.label }}</li>{% endfor %}{% endif %}</ul></article>
+      <article class="responsibility-card responsibility-card--human"><p>Ihr Team entscheidet weiterhin</p><ul>{% for item in result.mensch_behaelt[:6] %}<li>{{ item }}</li>{% endfor %}{% for boundary in result.grenzen if boundary.herkunft == 'kunde' %}<li>{{ boundary.erlaeuterung }}</li>{% endfor %}</ul></article>
+    </div>
+  </section>
+
+  {% if result.ausblicke or result.nicht_empfohlen or result.offene_fragen %}
+  <section class="results-section horizon-section" aria-labelledby="horizon-title">
+    <div class="section-intro"><p class="eyebrow">Der Raum danach</p><h2 id="horizon-title">Was dadurch später interessant werden könnte</h2><p>Das ist ein Möglichkeitshorizont, kein Projektplan.</p></div>
+    <div class="horizon-grid">
+      {% if result.ausblicke %}<div class="future-list">{% for future in result.ausblicke %}<article><span>{{ 'Zielbild' if future.phase == 'target' else 'Später möglich' }}</span><h3>{{ future.outcome }}</h3><p>{{ future.grund_fuer_spaeter }}</p>{% if future.beleg_refs %}{% for evidence in result.belege if evidence.id in future.beleg_refs %}<small>„{{ evidence.zitat }}“</small>{% endfor %}{% endif %}</article>{% endfor %}</div>{% endif %}
+      <div class="horizon-asides">
+        {% if result.nicht_empfohlen %}<details class="why-not"><summary>Was wir bewusst noch nicht empfehlen</summary>{% for item in result.nicht_empfohlen[:2] %}<article><b>{{ item.titel }}</b><p>{{ item.erlaeuterung }}</p>{% if item.fehlende_voraussetzung %}<small>Voraussetzung: {{ item.fehlende_voraussetzung }}</small>{% endif %}</article>{% endfor %}</details>{% endif %}
+        {% if result.offene_fragen %}<details class="open-questions"><summary>Das würden wir vor der Umsetzung noch klären</summary><ul>{% for question in result.offene_fragen %}<li>{{ question }}</li>{% endfor %}</ul></details>{% endif %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  <section class="results-cta card card--elevated" aria-labelledby="cta-title">
+    <div><p class="eyebrow">Der nächste Schritt</p><h2 id="cta-title">Startpunkt gemeinsam prüfen</h2><p>Die Auswertung zeigt die Entscheidung. Im Gespräch klären wir den konkreten Weg für Ihren Betrieb.</p></div>
+    {% set kontakt = gespraechs_adresse() %}
+    <div class="results-cta__actions">{% if kontakt %}<a class="primary-button" href="{{ kontakt }}">Startpunkt besprechen</a>{% else %}<p class="contact-note">Die Kontaktadresse ist auf diesem Server nicht hinterlegt.</p>{% endif %}{% if session_id %}<a class="secondary-button" href="/report.pdf">Auswertung als PDF</a>{% endif %}</div>
+  </section>
+</main>
+{% endblock %}
+{% block scripts %}<script src="{{ statisch('/results-v1.js') }}" defer></script>{% endblock %}

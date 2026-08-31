@@ -34,7 +34,7 @@ def test_the_example_is_available_without_a_model_call(
     antwort = client.get("/beispiel/hausverwaltung")
 
     assert antwort.status_code == 200
-    assert "So könnte Ihre Lösung konkret aussehen" in antwort.text
+    assert "AI Start Map · Ihre Auswertung" in antwort.text
 
 
 def test_the_example_says_that_it_is_an_example(client: TestClient) -> None:
@@ -220,7 +220,7 @@ def test_the_board_carries_no_free_advice(
 
 
 def test_the_stored_example_carries_a_full_result(client: TestClient) -> None:
-    """Der hinterlegte Lauf zeigt die Tafel vollständig.
+    """Der hinterlegte Lauf zeigt die Results-Experience vollständig.
 
     Er ist die Rückfallebene für eine Vorführung ohne Netz. Fehlt ihm ein
     Bereich, fehlt er genau dann, wenn jemand zuschaut.
@@ -229,13 +229,13 @@ def test_the_stored_example_carries_a_full_result(client: TestClient) -> None:
     seite = client.get("/beispiel/hausverwaltung").text
 
     for abschnitt in (
-        "Das haben wir verstanden",
-        "Was heute unnötig Aufwand erzeugt",
-        "Das würde sich für Sie verändern",
-        "So könnte Ihre Lösung konkret aussehen",
-        "Damit würden wir anfangen",
-        "Das läuft künftig automatisch",
-        "Möchten Sie so arbeiten?",
+        "AI Start Map · Ihre Auswertung",
+        "Hier würden wir anfangen",
+        "Der Lösungsraum für Ihren Betrieb",
+        "So könnte Arbeit künftig zusammenlaufen",
+        "So würde der Einstieg im Alltag aussehen",
+        "Das übernimmt die Lösung. Das entscheidet Ihr Team.",
+        "Startpunkt gemeinsam prüfen",
     ):
         assert abschnitt in seite, abschnitt
 

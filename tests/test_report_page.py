@@ -159,7 +159,7 @@ def test_the_result_page_links_to_the_report(client: TestClient) -> None:
 
     seite = client.get("/results").text
 
-    assert "Auswertung als PDF ansehen" in seite
+    assert "Auswertung als PDF" in seite
     # „Enthält mehr Details als diese Zusammenfassung" ist gestrichen:
     # Seit das PDF dieselbe Auswertung mit Deckblatt ist, war der Satz ein
     # Versprechen, das die Datei nicht einlöst.
@@ -226,7 +226,7 @@ def test_the_page_holds_without_an_order(client: TestClient, monkeypatch) -> Non
 
     assert antwort.status_code == 200
     assert "Womit wir anfangen" not in antwort.text
-    assert "So könnte Ihre Lösung konkret aussehen" in antwort.text
+    assert "AI Start Map · Ihre Auswertung" in antwort.text
 def test_the_pdf_button_returns_a_real_document(client: TestClient) -> None:
     """**Der Knopf verspricht ein PDF — also kommt eines zurück.**
 
@@ -360,5 +360,5 @@ def test_without_an_address_there_is_no_button(
     seite = client.get("/results").text
 
     assert "mailto:" not in seite
-    assert "Ja, ich möchte das umsetzen" not in seite
+    assert "Startpunkt besprechen" not in seite
     assert "Die Kontaktadresse ist auf diesem Server nicht hinterlegt." in seite

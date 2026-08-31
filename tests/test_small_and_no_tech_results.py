@@ -101,11 +101,11 @@ def test_the_page_hides_what_is_empty(client) -> None:  # type: ignore[no-untype
     finally:
         example_service.example_result = echt
 
-    assert "So könnte Ihre Lösung konkret aussehen" not in seite
-    assert "Was dazugehört" not in seite
-    # Die Diagnose steht weiterhin da: Engpass-Satz und Belege.
-    assert 'class="befund"' in seite
-    assert "<blockquote>" in seite
+    assert "So würde der Einstieg im Alltag aussehen" not in seite
+    assert "Das kann die Lösung übernehmen" not in seite
+    # Die Diagnose steht weiterhin als Decision Hero da.
+    assert "AI Start Map · Ihre Auswertung" in seite
+    assert "Informationen zu einem Fall liegen verstreut" in seite
 
 
 # --- Keine neue Technik ---------------------------------------------------

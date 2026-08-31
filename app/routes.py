@@ -24,7 +24,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, JSONResponse, Response
 from sqlalchemy.orm import Session
 
-from app import bericht_pdf, repository
+from app import bericht_pdf, repository, results_dto
 from app.hintergrund import auswertung_erzeugen
 from app.database import get_db_session
 from app.models import AnalysisSession, InterviewQuestion
@@ -454,8 +454,11 @@ def show_results(
         return redirect_response(next_valid_path(database_session, session_id))
     return templates.TemplateResponse(
         request=request,
-        name="ergebnis.html",
-        context={"session_id": session_id, "e": ergebnis, **kartenkontext(ergebnis)},
+        name="results_v1.html",
+        context={
+            "session_id": session_id,
+            "result": results_dto.von_ergebnis(ergebnis),
+        },
     )
 
 
@@ -617,8 +620,11 @@ def show_example(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND) from None
     return templates.TemplateResponse(
         request=request,
-        name="ergebnis.html",
-        context={"e": ergebnis, "beispiel": True, **kartenkontext(ergebnis)},
+        name="results_v1.html",
+        context={
+            "result": results_dto.von_ergebnis(ergebnis),
+            "beispiel": True,
+        },
     )
 
 
