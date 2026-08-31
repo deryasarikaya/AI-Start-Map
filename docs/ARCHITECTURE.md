@@ -379,6 +379,40 @@ Ein leerer Rahmen an erster Stelle hilft niemandem, während daneben ein
 gefüllter läge — und erfunden wird dabei nichts, der nachrückende Rahmen
 ist genauso an seine Familien gebunden.
 
+**Was der Renderer sonst selbst herleiten müsste.** Sechs Felder sind
+nachgetragen worden, weil ein Renderer, der nur den Vertrag liest, die
+Seite ohne sie nicht zeichnen kann — und jede Herleitung wäre eine
+fachliche Entscheidung:
+
+| Feld | woher | wenn nichts vorliegt |
+|---|---|---|
+| `anker` | ein bis drei Signale über den **Ist-Zustand**, jedes mit Zitat | leer |
+| `module[].outcomes` | die `nutzen`-Sätze der Module dieses Bereichs | leer |
+| `module[].why_now` | die Begründungen der Abdeckung, nur bei `start` | leer |
+| `module[].prerequisites` | `prerequisite`-Signale und `setzt_voraus` aus dem Katalog | leer |
+| `ausblicke[].depends_on_module_refs` | `typische_kombination` im Katalog | leer |
+| `karte.beziehungen` | die kuratierte Tabelle in `operating_model` | keine Kante |
+
+**Nichts davon wird verdichtet, was nicht schon verdichtet ist.** Die
+Überschrift eines Ankers ist die `bedeutung` eines Belegs — der Prompt
+verlangt dafür eine Schlagzeile von höchstens acht Wörtern, und die
+Zitatprüfung hat sie durchgelassen. Der Outcome eines Bereichs ist der
+`nutzen`-Satz seines Moduls, bereits geprüft gegen erfundene Ersparnis.
+Hier wird nur ausgewählt und zugeordnet.
+
+**Ohne Beleg kein Anker.** Ein Punkt über den Ist-Zustand, den niemand
+gesagt hat, wäre eine Behauptung über einen fremden Betrieb.
+
+**Beziehungen sind kuratiert, nicht beobachtet.** In der Tabelle steht
+nur, was für jeden Betrieb gilt: Anfragen werden zu Vorgängen, eine
+Übersicht braucht etwas zum Übersehen, eine Rechnung folgt auf einen
+Auftrag. Eine Kante entsteht **nie** daraus, dass zwei Bereiche im selben
+Ergebnis vorkommen — das wäre eine Linie ohne Aussage, und eine Karte
+voller solcher Linien sieht aus wie ein Zusammenhang, den niemand geprüft
+hat. Gezeigt wird eine Kante nur, wenn beide Enden für diesen Betrieb ein
+Thema sind. Und nie auf sich selbst: An einem echten Lauf stand
+„baut auf sich selbst auf", bis der eigene Bereich ausgeschlossen wurde.
+
 **Läufe von vorher gehen nicht verloren.** Ein Ergebnis ohne
 festgehaltene Entscheidung wird angepasst, so weit es das hergibt: die
 Familien seiner Module als Zielbild, die Module auf Stufe `jetzt` als

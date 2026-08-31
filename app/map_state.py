@@ -27,7 +27,7 @@ from dataclasses import dataclass
 from typing import Literal
 
 from app import karte, operating_model
-from app.operating_model import Bereich, OperatingCenter
+from app.operating_model import Bereich, Beziehung, OperatingCenter
 from app.result_schema import DecisionState
 
 logger = logging.getLogger(__name__)
@@ -82,6 +82,10 @@ class MapState:
     target: tuple[str, ...]
     future: tuple[str, ...]
     mitte: OperatingCenter
+    #: **Die Linien zwischen den Punkten.** Kuratiert und nur zwischen
+    #: Bereichen, die für diesen Betrieb ein Thema sind. Keine Kante
+    #: entsteht daraus, dass zwei Punkte im selben Ergebnis vorkommen.
+    beziehungen: tuple[Beziehung, ...] = ()
 
     def knoten_von(self, schluessel: str) -> Knoten | None:
         """Ein Bereich über seinen Schlüssel."""
@@ -212,13 +216,20 @@ def aus_entscheidung(zustand: DecisionState) -> MapState:
         target=tuple(ziel),
         future=tuple(spaeter),
         mitte=operating_model.operating_center(zustand.target_family_ids),
+        beziehungen=tuple(
+            operating_model.beziehungen_zwischen(
+                [k.schluessel for k in knoten if k.zustand != "still"]
+            )
+        ),
     )
     logger.info(
-        "map_state.built heute=%s start=%s target=%s future=%s mitte=%s",
+        "map_state.built heute=%s start=%s target=%s future=%s mitte=%s "
+        "beziehungen=%d",
         karte_zustand.heute or "keine",
         karte_zustand.start,
         karte_zustand.target,
         karte_zustand.future or "keine",
         karte_zustand.mitte.art,
+        len(karte_zustand.beziehungen),
     )
     return karte_zustand

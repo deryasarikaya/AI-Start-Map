@@ -1,495 +1,785 @@
 {
-  "beschreibung": "Ein echter, von Hand geprueter Durchlauf der grossen Hausverwaltungserzaehlung. Dient als Rueckfallebene fuer die Vorfuehrung: Die Seite /beispiel/hausverwaltung zeigt genau dieses Ergebnis, ohne einen Modellaufruf.",
   "erzaehlung": "Also, wir sind eine kleinere Hausverwaltung. Wir verwalten ungefähr 450 Einheiten, hauptsächlich Wohnungen, aber auch ein paar kleinere Gewerbeeinheiten. Wir sind insgesamt acht Leute. Also wirklich kein riesiges Unternehmen, aber inzwischen groß genug, dass man nicht mehr alles irgendwie über Zuruf machen kann.\n\nUnd genau da liegt eigentlich unser Problem.\n\nAls wir noch 100 oder 150 Wohnungen hatten, ging das alles. Da wusste meine Kollegin, zu welchem Haus welcher Handwerker gehört, ich wusste, welcher Eigentümer gerade irgendein Problem hat, und wenn irgendwo ein Wasserschaden war, hat man sich halt kurz zusammengesetzt.\n\nAber inzwischen kommt einfach wahnsinnig viel rein.\n\nWir haben mehrere allgemeine E-Mail-Adressen. Dann haben manche Eigentümer natürlich direkte E-Mail-Adressen von uns. Manche Mieter rufen an. Manche schreiben über das Kontaktformular auf unserer Website. Manche schicken einen Brief. Und dann gibt es Eigentümer, die WhatsApp benutzen wollen, obwohl wir eigentlich sagen, bitte schreiben Sie eine E-Mail.\n\nWenn morgens jemand sein Outlook öffnet, sind da teilweise 70 oder 80 neue E-Mails.\n\nUnd das Problem ist nicht einmal unbedingt die Menge. Das Problem ist erst einmal herauszufinden: Was ist das eigentlich?\n\nIst das ein Schaden? Ist das eine Rechnung? Ist das eine Beschwerde? Ist das eine Kündigung? Ist das eine Anfrage eines Eigentümers? Ist es eine Terminbestätigung eines Handwerkers? Oder schreibt uns jemand zum dritten Mal, weil er seit vier Tagen keine Antwort bekommen hat?\n\nDann muss die E-Mail natürlich auch zum richtigen Objekt gehören.\n\nDas klingt einfach, ist es aber nicht immer.\n\nDie Leute schreiben zum Beispiel: „In der Wohnung im zweiten Stock funktioniert die Heizung wieder nicht.“\n\nJa, okay. Aber welches Gebäude?\n\nOder sie schreiben von einer anderen E-Mail-Adresse als der, die wir gespeichert haben.\n\nOder ein Eigentümer besitzt fünf Wohnungen und schreibt einfach: „Bei meiner Wohnung gibt es ein Problem mit dem Fenster.“\n\nDann beginnt schon das Suchen.\n\nWir haben eine Hausverwaltungssoftware. Die funktioniert grundsätzlich. Ich möchte die auch nicht ersetzen. Da sind die Stammdaten, Abrechnungen, Mietverträge und so weiter drin.\n\nAber daneben haben wir Outlook, Excel, ein Laufwerk mit Dokumenten, teilweise SharePoint, unseren Kalender und dann noch verschiedene Handwerkerportale.\n\nUnd diese Sachen sprechen kaum miteinander.\n\nWenn zum Beispiel ein Mieter schreibt, dass im Bad Wasser von der Decke kommt, passiert ungefähr Folgendes:\n\nJemand liest die E-Mail.\n\nDann schaut die Person nach, welches Objekt das ist.\n\nDann wird eventuell in unserer Hausverwaltungssoftware nach dem Mieter gesucht.\n\nDann muss herausgefunden werden, welcher Handwerker für dieses Haus zuständig ist.\n\nDann geht eine E-Mail an den Handwerker raus.\n\nManchmal wird zusätzlich noch angerufen.\n\nDann wartet man.\n\nDer Handwerker antwortet vielleicht zwei Stunden später oder am nächsten Tag.\n\nDann muss wieder jemand den ursprünglichen Vorgang finden.\n\nDann kommt vielleicht ein Termin.\n\nDann muss der Mieter informiert werden.\n\nUnd wenn irgendwann die Rechnung kommt, liegt die Rechnung wieder als PDF in einer anderen E-Mail.\n\nDann muss wieder jemand wissen, dass diese Rechnung zu genau diesem Wasserschaden gehört.\n\nUnd genau diese Kette macht mich wahnsinnig.\n\nWeil eigentlich bei jeder Station Informationen entstehen, aber es gibt nicht diesen einen Ort, an dem ich sagen kann:\n\nDas ist der Vorgang.\n\nDas ist passiert.\n\nDas haben wir gemacht.\n\nDarauf warten wir.\n\nDas ist die nächste Aufgabe.\n\nUnd diese Person ist verantwortlich.\n\nWir haben intern zwar Aufgabenlisten, aber jeder arbeitet ein bisschen anders.\n\nEine Kollegin setzt sich eine Outlook-Markierung.\n\nJemand anderes schreibt sich etwas in OneNote.\n\nEine andere Kollegin trägt eine Aufgabe in unsere Software ein.\n\nIch selbst schreibe mir manchmal tatsächlich noch Dinge auf einen Zettel, weil ich denke, das darf ich heute nicht vergessen.\n\nUnd dann haben wir natürlich die Eigentümer.\n\nDa kommen ständig Fragen.\n\n„Ist die Rechnung schon bezahlt?“\n\n„Was ist aus dem Schaden geworden?“\n\n„Hat der Handwerker schon einen Termin?“\n\n„Wann bekomme ich die Abrechnung?“\n\n„Was hat die Reparatur gekostet?“\n\nUnd viele dieser Antworten existieren eigentlich irgendwo.\n\nAber jemand muss sie zusammensuchen.\n\nTeilweise öffnen wir drei Programme, nur um eine E-Mail zu beantworten.\n\nUnd dann kommen die Dokumente dazu.\n\nRechnungen, Angebote, Mietverträge, Übergabeprotokolle, Fotos von Schäden, Handwerkerberichte, Versicherungsschreiben.\n\nDie liegen zwar digital vor, aber wenn jemand eine Datei falsch benennt oder in den falschen Ordner legt, findet man sie später schlecht.\n\nWir haben zum Beispiel Dateien wie:\n\n„Scan_2026_04_18.pdf“\n\nSuper.\n\nDann weiß natürlich niemand, was das ist.\n\nOder eine Rechnung kommt per E-Mail. Dann wird sie heruntergeladen, im Laufwerk gespeichert und später noch einmal in die Hausverwaltungssoftware eingetragen.\n\nAlso dieselbe Information wird mehrfach angefasst.\n\nBei Rechnungen ist es besonders nervig.\n\nDie kommt rein.\n\nJemand schaut nach, zu welchem Objekt sie gehört.\n\nDann Kostenstelle.\n\nDann eventuell Eigentümergemeinschaft.\n\nDann muss geprüft werden, ob der Betrag zu einem Angebot gehört.\n\nDann Freigabe.\n\nDann Buchhaltung.\n\nIch glaube, wir haben wahnsinnig viele Schritte, die eigentlich logisch und wiederholbar sind, aber trotzdem jedes Mal jemand manuell macht.\n\nUnd wir verlieren dadurch auch Zeit bei Sachen, die wirklich wichtig wären.\n\nZum Beispiel Eigentümerberatung oder schwierige Fälle.\n\nStattdessen beschäftigt sich eine Mitarbeiterin eine halbe Stunde damit, eine alte E-Mail und zwei PDFs zu finden.\n\nWas mir auch fehlt, ist Übersicht.\n\nWenn ich montags komme, möchte ich eigentlich sehen:\n\nWelche wirklich dringenden Themen haben wir?\n\nWelche Handwerker warten auf eine Rückmeldung?\n\nBei welchen Vorgängen wartet der Mieter?\n\nWelche Rechnungen müssen freigegeben werden?\n\nWelche Fristen laufen diese Woche?\n\nWelche Eigentümer haben seit mehreren Tagen keine Antwort?\n\nHeute kann ich das nicht auf einen Blick sehen.\n\nIch muss meine Leute fragen.\n\nUnd dann sagt jeder etwas.\n\nDann fällt am Mittwoch jemandem ein: Ach ja, bei Objekt XY warten wir immer noch auf das Angebot.\n\nDas ist eigentlich verrückt.\n\nWas ich aber auch nicht will, ist noch ein weiteres riesiges Programm.\n\nWir haben schon genug Software.\n\nWenn mir jetzt jemand sagt, hier ist noch ein Portal und hier noch ein Tool und hier noch eine App, dann bringt mir das nichts.\n\nEigentlich müsste das, was wir schon haben, besser zusammenarbeiten.\n\nZum Beispiel wäre mein Traum:\n\nEine E-Mail kommt rein.\n\nDas System versteht ungefähr, worum es geht.\n\nEs erkennt möglichst das Objekt und den Mieter.\n\nWenn das nicht eindeutig ist, fragt es nach oder legt es zur Prüfung vor.\n\nDann entsteht ein Vorgang.\n\nWenn ein Dokument dran hängt, landet das direkt beim richtigen Vorgang.\n\nWenn ein Handwerker angeschrieben werden muss, wird eine Nachricht vorbereitet.\n\nMeine Mitarbeiterin schaut kurz drauf und schickt sie ab.\n\nWenn der Handwerker antwortet, landet die Antwort wieder im selben Vorgang.\n\nUnd der Mieter muss nicht fünfmal anrufen, weil wir vielleicht sogar automatisch einen Status vorbereiten könnten.\n\nAber ich will nicht, dass irgendeine KI einem Mieter eigenständig verspricht, dass morgen jemand kommt, wenn das gar nicht stimmt.\n\nSolche Dinge müssen wir natürlich kontrollieren.\n\nWas ich allerdings sehr interessant fände, wäre so eine Art Assistent für Standardfragen.\n\nWenn jemand fragt: „Wann ist meine Abrechnung fertig?“ oder „Wo finde ich dieses Formular?“, dann muss dafür eigentlich nicht jedes Mal jemand 15 Minuten eine E-Mail schreiben.\n\nVielleicht könnte es auch ein Portal geben.\n\nIch weiß gar nicht, ob so etwas Sinn macht.\n\nDass Eigentümer oder vielleicht auch Mieter sehen:\n\nVorgang eingegangen.\n\nHandwerker beauftragt.\n\nTermin vereinbart.\n\nAbgeschlossen.\n\nDann würden wahrscheinlich sehr viele Rückfragen wegfallen.\n\nUnd intern hätte ich gerne wirklich ein Dashboard.\n\nNicht irgendwelche 200 Kennzahlen.\n\nSondern:\n\nWas braucht heute Aufmerksamkeit?\n\nWelche Vorgänge hängen?\n\nWo fehlt eine Antwort?\n\nWelche Fristen kommen?\n\nWo wartet jemand auf uns?\n\nDann könnte ich morgens sehen, was wirklich wichtig ist.\n\nIch glaube eigentlich, wir haben gar kein Personalproblem.\n\nWir haben eher das Problem, dass unsere Informationen ständig zwischen E-Mail, Software, Dateien und Menschen hin und her wandern.\n\nUnd sehr viel davon könnte wahrscheinlich automatisch vorbereitet werden.\n\nAber ich weiß nicht, wo man da anfangen sollte und was davon wirklich sinnvoll ist.",
   "ergebnis": {
-    "wert": {
-      "zeit_fuer": [
-        "Sie können Eigentümer bei schwierigen Fragen besser beraten.",
-        "Sie können unklare Schäden und Sonderfälle prüfen.",
-        "Sie können offene Rückmeldungen gezielt klären.",
-        "Sie können Rechnungen und Termine bewusst entscheiden."
+    "aufgabenteilung": {
+      "system": [
+        "Das System ordnet neue Schadensmeldungen Objekt und Mieter zu.",
+        "Das System legt unklare Zuordnungen zur Prüfung vor.",
+        "Das System führt Nachrichten, Termine und Unterlagen beim Schaden zusammen.",
+        "Das System zeigt Zuständigkeit, Wartepunkt und nächsten Schritt beim Schaden.",
+        "Das System ordnet Rechnungen, Fotos und Berichte dem passenden Schaden zu."
       ],
-      "faellt_weg": [
-        "E-Mails zum passenden Objekt und Schaden zusammensuchen.",
-        "Den Verlauf eines Schadens in mehreren Programmen suchen.",
-        "Handwerkerantworten dem ursprünglichen Schaden zuordnen.",
-        "Rechnungen herunterladen, ablegen und erneut zuordnen.",
-        "Aufgaben zwischen Markierungen, Notizen und Zetteln abgleichen.",
-        "Angaben in mehreren Programmen nachtragen."
+      "mensch": [
+        "Sie prüfen unklare Zuordnungen.",
+        "Sie entscheiden über die Bearbeitung von Sonderfällen.",
+        "Sie prüfen vorbereitete Nachrichten an Mieter und Handwerker.",
+        "Sie geben verbindliche Aussagen an Mieter frei.",
+        "Sie bestätigen wichtige Schritte und Abschlüsse."
+      ],
+      "grenzen": [
+        {
+          "titel": "Kein weiteres riesiges Programm",
+          "erlaeuterung": "Sie wollen kein weiteres großes Programm, sondern dass die vorhandenen Arbeitsmittel besser zusammenarbeiten."
+        },
+        {
+          "titel": "Keine Zusagen ohne Kontrolle",
+          "erlaeuterung": "Eine Nachricht darf keinem Mieter eigenständig versprechen, dass morgen jemand kommt, wenn das nicht stimmt."
+        }
       ]
     },
-    "hebel": [
-      {
-        "idee": "Sie weisen Eigentümer bei WhatsApp-Nachrichten einheitlich auf die E-Mail-Adresse hin.",
-        "warum": "Anliegen kommen dadurch verlässlicher über den vorgesehenen Weg herein. Ihr Team muss weniger zwischen zusätzlichen Nachrichtenwegen wechseln.",
-        "woraus": "Und dann gibt es Eigentümer, die WhatsApp benutzen wollen, obwohl wir eigentlich sagen, bitte schreiben Sie eine E-Mail.",
-        "ohne_technik": true
-      }
-    ],
-    "module": [
-      {
-        "name": "Gemeinsamer Eingang für Nachrichten und Unterlagen",
-        "stufe": "jetzt",
-        "gruppe": "Eingang",
-        "nutzen": "Sie müssen neue Nachrichten nicht mehr einzeln weiterleiten.",
-        "beschreibung": "E-Mails und Anhänge werden einheitlich aufgenommen und an den passenden Schaden weitergegeben. Neue Anliegen erhalten die nötigen Grunddaten.",
-        "baustein_refs": [
-          "gemeinsamer Eingang",
-          "Erkennung von Anliegen und Grunddaten",
-          "Anhang- und Fotozuordnung",
-          "Übergabe an Vorgang oder Fachsystem"
-        ],
-        "solution_family_ids": [
-          "SF-01"
-        ]
-      },
-      {
-        "name": "Gemeinsamer Schadenstand mit Zuständigkeit",
-        "stufe": "jetzt",
-        "gruppe": "Fallbearbeitung",
-        "nutzen": "Sie müssen den Stand eines Schadens nicht mehr zusammensuchen.",
-        "beschreibung": "Zu jedem Schaden stehen Verlauf, Zuständigkeit und nächster Schritt zusammen. Das Team sieht auch später eintreffende Informationen am selben Schaden.",
-        "baustein_refs": [
-          "Vorgangsakte",
-          "Statusmodell",
-          "Verlauf",
-          "Aufgaben und nächste Schritte"
-        ],
-        "solution_family_ids": [
-          "SF-02"
-        ]
-      },
-      {
-        "name": "Rechnungen und Unterlagen beim Schaden",
-        "stufe": "jetzt",
-        "gruppe": "Fallbearbeitung",
-        "nutzen": "Sie müssen Rechnungen nicht mehr separat dem Schaden zuordnen.",
-        "beschreibung": "Rechnungen und weitere Unterlagen werden dem passenden Schaden vorgeschlagen und prüfbar abgelegt. Ihr Team bestätigt die Zuordnung.",
-        "baustein_refs": [
-          "Dokumenteingang",
-          "Dokumenttyp bestimmen",
-          "Zuordnungsvorschlag",
-          "prüfbare Ablage"
-        ],
-        "solution_family_ids": [
-          "SF-03"
-        ]
-      },
-      {
-        "name": "Verbindungen zwischen Ihren vorhandenen Programmen",
-        "stufe": "jetzt",
-        "gruppe": "Verbindung",
-        "nutzen": "Sie müssen Angaben nicht mehr in mehreren Programmen nachtragen.",
-        "beschreibung": "Wichtige Angaben und Unterlagen werden zwischen den bestehenden Programmen übergeben. Unstimmigkeiten bleiben für Ihr Team sichtbar.",
-        "baustein_refs": [
-          "Stammdatenabgleich",
-          "Status-Synchronisation",
-          "Dokumentübergabe",
-          "Fehler- und Konfliktprotokoll"
-        ],
-        "solution_family_ids": [
-          "SF-04"
-        ]
-      }
-    ],
+    "wert": {
+      "faellt_weg": [
+        "Das Suchen nach dem passenden Objekt und Mieter bei neuen Schadensmeldungen fällt weg.",
+        "Das Wiederfinden von Handwerkerantworten in einzelnen E-Mails fällt weg.",
+        "Das getrennte Ablegen und spätere Suchen von Rechnungen, Fotos und Berichten fällt weg.",
+        "Das Übertragen derselben Schadensinformation zwischen E-Mail, Dateien und Software fällt weg.",
+        "Das Nachhalten offener Rückmeldungen auf Zetteln oder in persönlichen Notizen fällt weg."
+      ],
+      "zeit_fuer": [
+        "Sie können sich schwierigen Schadensfällen widmen.",
+        "Sie können Eigentümer gezielter beraten.",
+        "Sie können offene Entscheidungen im Team klären.",
+        "Sie können die Qualität der Bearbeitung prüfen."
+      ]
+    },
     "systeme": [
       {
-        "name": "Outlook",
-        "umgang": "E-Mails und Anhänge werden aus Outlook in den gemeinsamen Eingang übernommen und beim passenden Schaden weitergeführt.",
+        "name": "Hausverwaltungssoftware",
+        "umgang": "Sie bleibt die Stelle, in der Schadensstände, Zuständigkeiten und nächste Schritte zusammengeführt werden.",
         "module_refs": [
-          "Gemeinsamer Eingang für Nachrichten und Unterlagen",
-          "Verbindungen zwischen Ihren vorhandenen Programmen"
+          "Gemeinsamer Schadensstand",
+          "Verantwortlichkeit und Wartepunkte"
         ]
       },
       {
-        "name": "Hausverwaltungssoftware",
-        "umgang": "Stammdaten und bestehende Angaben aus der Hausverwaltungssoftware werden für Schäden und Zuordnungen weiter genutzt.",
+        "name": "Outlook",
+        "umgang": "Neue Schadensmeldungen und Antworten werden von dort dem passenden Schaden zugeordnet.",
         "module_refs": [
-          "Gemeinsamer Schadenstand mit Zuständigkeit",
-          "Verbindungen zwischen Ihren vorhandenen Programmen"
+          "Neue Schadensmeldungen zuordnen",
+          "Gemeinsamer Schadensstand"
         ]
       },
       {
         "name": "Laufwerk mit Dokumenten",
-        "umgang": "Vorhandene Unterlagen werden mit dem passenden Schaden verbunden, damit sie nicht getrennt gesucht werden müssen.",
+        "umgang": "Vorhandene Unterlagen werden dem jeweiligen Schaden zugeordnet und von dort wiedergefunden.",
         "module_refs": [
-          "Rechnungen und Unterlagen beim Schaden",
-          "Verbindungen zwischen Ihren vorhandenen Programmen"
+          "Dokumente beim richtigen Schaden"
         ]
       },
       {
         "name": "SharePoint",
-        "umgang": "Dort abgelegte Unterlagen werden beim passenden Schaden verknüpft.",
+        "umgang": "Dort liegende Unterlagen werden beim jeweiligen Schaden verknüpft.",
         "module_refs": [
-          "Rechnungen und Unterlagen beim Schaden",
-          "Verbindungen zwischen Ihren vorhandenen Programmen"
+          "Dokumente beim richtigen Schaden"
         ]
       }
     ],
+    "architektur": [
+      {
+        "ebene": "Neue Meldungen",
+        "beschreibung": "E-Mails und Anhänge werden geprüft und einem Schaden vorgeschlagen.",
+        "module_refs": [
+          "Neue Schadensmeldungen zuordnen"
+        ]
+      },
+      {
+        "ebene": "Gemeinsamer Schadensstand",
+        "beschreibung": "Status, Verlauf, Zuständigkeit und nächste Schritte stehen beim jeweiligen Schaden zusammen.",
+        "module_refs": [
+          "Gemeinsamer Schadensstand",
+          "Verantwortlichkeit und Wartepunkte"
+        ]
+      },
+      {
+        "ebene": "Unterlagen",
+        "beschreibung": "Rechnungen, Fotos und Berichte bleiben beim zugehörigen Schaden auffindbar.",
+        "module_refs": [
+          "Dokumente beim richtigen Schaden"
+        ]
+      }
+    ],
+    "umsetzung": [
+      {
+        "text": "Wir nehmen gemeinsam mit Ihnen auf, wie Schadensmeldungen heute eingehen und bearbeitet werden.",
+        "module_refs": [
+          "Neue Schadensmeldungen zuordnen",
+          "Gemeinsamer Schadensstand"
+        ]
+      },
+      {
+        "text": "Wir legen mit Ihnen fest, welche Angaben einen Schaden eindeutig zuordnen.",
+        "module_refs": [
+          "Neue Schadensmeldungen zuordnen"
+        ]
+      },
+      {
+        "text": "Wir richten die Prüfung für unklare Objekt- und Mieterzuordnungen ein.",
+        "module_refs": [
+          "Neue Schadensmeldungen zuordnen"
+        ]
+      },
+      {
+        "text": "Wir führen Status, Zuständigkeit, Wartepunkt und nächsten Schritt beim Schaden zusammen.",
+        "module_refs": [
+          "Gemeinsamer Schadensstand",
+          "Verantwortlichkeit und Wartepunkte"
+        ]
+      },
+      {
+        "text": "Wir ordnen vorhandene Nachrichten und Unterlagen dem jeweiligen Schaden zu.",
+        "module_refs": [
+          "Gemeinsamer Schadensstand",
+          "Dokumente beim richtigen Schaden"
+        ]
+      },
+      {
+        "text": "Wir richten die Zuordnung von Rechnungen, Fotos und Berichten zum Schaden ein.",
+        "module_refs": [
+          "Dokumente beim richtigen Schaden"
+        ]
+      },
+      {
+        "text": "Wir testen die Bearbeitung gemeinsam an Ihren echten Schadensfällen.",
+        "module_refs": [
+          "Neue Schadensmeldungen zuordnen",
+          "Gemeinsamer Schadensstand",
+          "Dokumente beim richtigen Schaden",
+          "Verantwortlichkeit und Wartepunkte"
+        ]
+      },
+      {
+        "text": "Wir prüfen mit Ihnen, welche Nachrichten vor dem Versand freigegeben werden müssen.",
+        "module_refs": [
+          "Neue Schadensmeldungen zuordnen",
+          "Gemeinsamer Schadensstand"
+        ]
+      }
+    ],
+    "hebel": [],
+    "ansichten": [
+      {
+        "typ": "eingangspruefung",
+        "titel": "Neue Schadensmeldungen",
+        "beschreibung": "E-Mails und Anhänge mit vorgeschlagener Zuordnung.",
+        "daten": {
+          "kennzahlen": null,
+          "zeilen": null,
+          "haupttext": null,
+          "untertext": null,
+          "hinweis": null,
+          "name": null,
+          "abzeichen": null,
+          "felder": null,
+          "verlauf": null,
+          "dateien": null,
+          "notiz": null,
+          "vorgaenge": null,
+          "nachrichten": [
+            {
+              "absender": "Mieter",
+              "zeit": "08:14",
+              "text": "Im Bad kommt Wasser von der Decke.",
+              "marken": [
+                "Schaden",
+                "Bad",
+                "Objekt unklar"
+              ]
+            },
+            {
+              "absender": "Eigentümer",
+              "zeit": "08:32",
+              "text": "Bei meiner Wohnung gibt es ein Problem mit dem Fenster.",
+              "marken": [
+                "Schaden",
+                "Fenster",
+                "Prüfung"
+              ]
+            }
+          ],
+          "blasen": null,
+          "tag": null,
+          "eintraege_termine": null,
+          "schritte": null,
+          "statussatz": null,
+          "eintraege_dokumente": null
+        },
+        "module_refs": [
+          "Neue Schadensmeldungen zuordnen"
+        ]
+      },
+      {
+        "typ": "vorgangsakte",
+        "titel": "Wasserschaden im Bad",
+        "beschreibung": "Gemeinsamer Stand zum Schaden.",
+        "daten": {
+          "kennzahlen": null,
+          "zeilen": null,
+          "haupttext": null,
+          "untertext": null,
+          "hinweis": null,
+          "name": null,
+          "abzeichen": {
+            "text": "Warten auf Handwerker",
+            "status": "gelb"
+          },
+          "felder": [
+            {
+              "label": "Objekt",
+              "wert": "Wohnung im zweiten Stock"
+            },
+            {
+              "label": "Mieter",
+              "wert": "Mieter"
+            },
+            {
+              "label": "Zuständig",
+              "wert": "Hausverwaltung"
+            },
+            {
+              "label": "Handwerker",
+              "wert": "Handwerker"
+            },
+            {
+              "label": "Nächster Schritt",
+              "wert": "Antwort des Handwerkers"
+            },
+            {
+              "label": "Termin",
+              "wert": "Noch offen"
+            }
+          ],
+          "verlauf": [
+            {
+              "zeit": "08:14",
+              "text": "E-Mail zum Wasserschaden eingegangen"
+            },
+            {
+              "zeit": "08:20",
+              "text": "Schaden dem Objekt zugeordnet"
+            },
+            {
+              "zeit": "08:28",
+              "text": "Handwerker angefragt"
+            },
+            {
+              "zeit": "10:35",
+              "text": "Antwort des Handwerkers erwartet"
+            }
+          ],
+          "dateien": [
+            "Foto Bad.jpg",
+            "E-Mail Wasserschaden.pdf",
+            "Handwerkeranfrage.pdf"
+          ],
+          "notiz": null,
+          "vorgaenge": null,
+          "nachrichten": null,
+          "blasen": null,
+          "tag": null,
+          "eintraege_termine": null,
+          "schritte": null,
+          "statussatz": null,
+          "eintraege_dokumente": null
+        },
+        "module_refs": [
+          "Neue Schadensmeldungen zuordnen",
+          "Gemeinsamer Schadensstand",
+          "Verantwortlichkeit und Wartepunkte"
+        ]
+      },
+      {
+        "typ": "dokumentenablage",
+        "titel": "Unterlagen zum Wasserschaden",
+        "beschreibung": "Dokumente beim zugehörigen Schaden.",
+        "daten": {
+          "kennzahlen": null,
+          "zeilen": null,
+          "haupttext": null,
+          "untertext": null,
+          "hinweis": null,
+          "name": null,
+          "abzeichen": null,
+          "felder": null,
+          "verlauf": null,
+          "dateien": null,
+          "notiz": null,
+          "vorgaenge": null,
+          "nachrichten": null,
+          "blasen": null,
+          "tag": null,
+          "eintraege_termine": null,
+          "schritte": null,
+          "statussatz": null,
+          "eintraege_dokumente": [
+            {
+              "typ": "Foto",
+              "name": "Bad Decke.jpg",
+              "datum": "18.04.2026",
+              "zuordnung": "Wasserschaden im Bad"
+            },
+            {
+              "typ": "E-Mail",
+              "name": "Meldung Wasserschaden.pdf",
+              "datum": "18.04.2026",
+              "zuordnung": "Wasserschaden im Bad"
+            },
+            {
+              "typ": "Rechnung",
+              "name": "Rechnung Handwerker.pdf",
+              "datum": "21.04.2026",
+              "zuordnung": "Wasserschaden im Bad"
+            },
+            {
+              "typ": "Bericht",
+              "name": "Handwerkerbericht.pdf",
+              "datum": "22.04.2026",
+              "zuordnung": "Wasserschaden im Bad"
+            }
+          ]
+        },
+        "module_refs": [
+          "Dokumente beim richtigen Schaden"
+        ]
+      }
+    ],
+    "kurzfassung": {
+      "engpass_satz": "E-Mails, Dateien und Menschen halten Schadensinformationen getrennt.",
+      "loesungsname": "Schadensfälle gemeinsam führen",
+      "relevante_module": [
+        "Schadenszuordnung",
+        "Schadensstand",
+        "Dokumentablage",
+        "Nächste Schritte"
+      ]
+    },
+    "verstanden": {
+      "engpass_absatz": "Zu einem Schaden bleiben E-Mails, Handwerkerantworten, Termine und Rechnungen an verschiedenen Stellen. Weil kein gemeinsamer Stand Zuständigkeit, Wartepunkt und nächsten Schritt zusammenhält, muss das Team den Zusammenhang bei jeder Bearbeitung neu herstellen.",
+      "belege": [
+        {
+          "zitat": "Und diese Sachen sprechen kaum miteinander.",
+          "bedeutung": "Die Arbeitsmittel sprechen kaum miteinander"
+        },
+        {
+          "zitat": "Teilweise öffnen wir drei Programme, nur um eine E-Mail zu beantworten.",
+          "bedeutung": "Eine Antwort braucht drei Programme"
+        },
+        {
+          "zitat": "Und genau diese Kette macht mich wahnsinnig.",
+          "bedeutung": "Jeder Schaden wird zur Suchkette"
+        }
+      ],
+      "eckdaten": [
+        "Rund 450 Einheiten",
+        "70 oder 80 E-Mails",
+        "Mehrere Eingangswege",
+        "Drei Programme pro Antwort",
+        "Rechnungen mehrfach angefasst"
+      ]
+    },
+    "warum_diese_loesung": "Neue Meldungen werden dem richtigen Schaden zugeordnet, alle Beteiligten arbeiten mit demselben Stand und Unterlagen bleiben beim jeweiligen Schaden. Damit entfällt das wiederholte Suchen zwischen E-Mails, Dateien und einzelnen Notizen.",
     "zielbild": {
-      "name": "Schäden und Rechnungen je Einheit verbunden",
+      "name": "Schadensfälle gemeinsam führen",
+      "beschreibung": "Eine Schadensmeldung wird geprüft und in der vorhandenen Hausverwaltungssoftware beim passenden Schaden geführt. Antworten, Termine, Unterlagen und nächste Schritte bleiben für das Team zusammen sichtbar.",
       "ablauf": [
         {
           "art": "eingang",
-          "label": "Neue Informationen",
+          "label": "Neue Meldungen",
           "knoten": [
             {
-              "text": "E-Mails und Anhänge",
-              "kategorie": "Nachricht"
+              "text": "E-Mail mit Schaden",
+              "kategorie": "Meldung"
             },
             {
-              "text": "Rechnungen und Unterlagen",
-              "kategorie": "Dokument"
+              "text": "Anhang oder Foto",
+              "kategorie": "Unterlage"
             }
           ]
         },
         {
           "art": "schluessel",
-          "label": "Schaden je Einheit",
+          "label": "Schaden zuordnen",
           "knoten": [
             {
-              "text": "Schaden mit Verlauf",
-              "kategorie": "Fall"
+              "text": "Objekt und Mieter",
+              "kategorie": "Zuordnung"
             },
             {
-              "text": "Zuständigkeit und nächster Schritt",
-              "kategorie": "Arbeit"
-            },
-            {
-              "text": "Unterlagen beim Schaden",
-              "kategorie": "Dokument"
+              "text": "Schadensfall mit Status",
+              "kategorie": "Bearbeitung"
             }
           ]
         },
         {
           "art": "verzweigung",
-          "label": "Bearbeitung abstimmen",
+          "label": "Bearbeitung steuern",
           "knoten": [
             {
               "text": "Handwerker anfragen",
-              "kategorie": "Abstimmung"
+              "kategorie": "Aufgabe"
             },
             {
               "text": "Termin festhalten",
               "kategorie": "Termin"
+            },
+            {
+              "text": "Unterlagen ablegen",
+              "kategorie": "Dokument"
             }
           ]
         },
         {
           "art": "ausgang",
-          "label": "Nachvollziehbarer Abschluss",
+          "label": "Stand und nächste Schritte",
           "knoten": [
             {
-              "text": "Termininformation",
-              "kategorie": "Nachricht"
+              "text": "Zuständigkeit und Wartepunkt",
+              "kategorie": "Übersicht"
             },
             {
-              "text": "Rechnung zugeordnet",
-              "kategorie": "Abrechnung"
+              "text": "Geprüfte Nachricht vorbereiten",
+              "kategorie": "Kommunikation"
             }
           ]
         }
-      ],
-      "beschreibung": "Jede Nachricht, Handwerkerantwort und Rechnung bleibt beim passenden Schaden und der zugehörigen Einheit. Zuständigkeit, Termin und nächster Schritt sind für das Team an derselben Stelle sichtbar."
+      ]
     },
-    "ansichten": [
-      {
-        "typ": "uebersicht",
-        "daten": {
-          "tag": null,
-          "name": null,
-          "notiz": null,
-          "blasen": null,
-          "felder": null,
-          "zeilen": [
-            {
-              "text": "Wasserschaden: Handwerkerantwort steht aus",
-              "status": "rot"
-            },
-            {
-              "text": "Heizung im zweiten Stock: Objekt noch unklar",
-              "status": "gelb"
-            },
-            {
-              "text": "Rechnung zum Wasserschaden liegt vor",
-              "status": "gelb"
-            },
-            {
-              "text": "Terminbestätigung vom Handwerker eingegangen",
-              "status": "gruen"
-            },
-            {
-              "text": "Eigentümer wartet seit vier Tagen auf Antwort",
-              "status": "rot"
-            }
-          ],
-          "dateien": null,
-          "hinweis": "Neue Nachrichten und Unterlagen erscheinen beim passenden Schaden.",
-          "verlauf": null,
-          "schritte": null,
-          "abzeichen": null,
-          "haupttext": "Heute im Blick: Schäden, wartende Handwerker, Rechnungen und Fristen.",
-          "untertext": "Der gemeinsame Stand je Schaden zeigt, wo etwas offen ist.",
-          "vorgaenge": null,
-          "kennzahlen": [
-            {
-              "wert": "3",
-              "label": "Dringende Schäden"
-            },
-            {
-              "wert": "5",
-              "label": "Warten auf Handwerker"
-            },
-            {
-              "wert": "4",
-              "label": "Rechnungen zur Prüfung"
-            },
-            {
-              "wert": "6",
-              "label": "Fristen diese Woche"
-            }
-          ],
-          "statussatz": null,
-          "nachrichten": null,
-          "eintraege_termine": null,
-          "eintraege_dokumente": null
-        },
-        "titel": "Heute im Blick",
-        "module_refs": [
-          "Gemeinsamer Schadenstand mit Zuständigkeit"
-        ],
-        "beschreibung": "Dringende Schäden, ausstehende Antworten, Rechnungen und Fristen."
-      },
-      {
-        "typ": "vorgangsakte",
-        "daten": {
-          "tag": null,
-          "name": null,
-          "notiz": null,
-          "blasen": null,
-          "felder": [
-            {
-              "wert": "Wohnung 2. OG links",
-              "label": "Einheit"
-            },
-            {
-              "wert": "Anna Becker",
-              "label": "Mieter"
-            },
-            {
-              "wert": "Frau König",
-              "label": "Zuständig"
-            },
-            {
-              "wert": "Müller Sanitär",
-              "label": "Handwerker"
-            },
-            {
-              "wert": "Terminbestätigung abwarten",
-              "label": "Nächster Schritt"
-            },
-            {
-              "wert": "Noch offen",
-              "label": "Termin"
-            }
-          ],
-          "zeilen": null,
-          "dateien": [
-            "Foto Bad.jpg",
-            "Handwerkeranfrage.pdf",
-            "Rechnung Sanitär.pdf"
-          ],
-          "hinweis": null,
-          "verlauf": [
-            {
-              "text": "E-Mail des Mieters zum Wasser im Bad eingegangen",
-              "zeit": "08:14"
-            },
-            {
-              "text": "Dem Schaden und der Einheit zugeordnet",
-              "zeit": "08:20"
-            },
-            {
-              "text": "Anfrage an Müller Sanitär vorbereitet",
-              "zeit": "08:35"
-            },
-            {
-              "text": "Anfrage an den Handwerker versendet",
-              "zeit": "09:02"
-            }
-          ],
-          "schritte": null,
-          "abzeichen": {
-            "text": "Warten auf Handwerker",
-            "status": "gelb"
-          },
-          "haupttext": null,
-          "untertext": null,
-          "vorgaenge": null,
-          "kennzahlen": null,
-          "statussatz": null,
-          "nachrichten": null,
-          "eintraege_termine": null,
-          "eintraege_dokumente": null
-        },
-        "titel": "Wasserschaden im Bad",
-        "module_refs": [
-          "Gemeinsamer Eingang für Nachrichten und Unterlagen",
-          "Gemeinsamer Schadenstand mit Zuständigkeit",
-          "Rechnungen und Unterlagen beim Schaden",
-          "Verbindungen zwischen Ihren vorhandenen Programmen"
-        ],
-        "beschreibung": "Wohnung 2. OG links"
-      },
-      {
-        "typ": "eingangspruefung",
-        "daten": {
-          "tag": null,
-          "name": null,
-          "notiz": null,
-          "blasen": null,
-          "felder": null,
-          "zeilen": null,
-          "dateien": null,
-          "hinweis": null,
-          "verlauf": null,
-          "schritte": null,
-          "abzeichen": null,
-          "haupttext": null,
-          "untertext": null,
-          "vorgaenge": null,
-          "kennzahlen": null,
-          "statussatz": null,
-          "nachrichten": [
-            {
-              "text": "Im Bad kommt Wasser von der Decke. In der Wohnung im zweiten Stock.",
-              "zeit": "08:14",
-              "marken": [
-                "Schaden",
-                "Wasser",
-                "Objekt unklar"
-              ],
-              "absender": "Anna Becker"
-            },
-            {
-              "text": "Bitte bestätigen Sie den Termin für die Heizung.",
-              "zeit": "09:18",
-              "marken": [
-                "Handwerker",
-                "Termin",
-                "Heizung"
-              ],
-              "absender": "Müller Sanitär"
-            },
-            {
-              "text": "Ist die Rechnung für die Reparatur schon bezahlt?",
-              "zeit": "09:41",
-              "marken": [
-                "Rechnung",
-                "Eigentümer",
-                "Rückfrage"
-              ],
-              "absender": "Eigentümerin"
-            }
-          ],
-          "eintraege_termine": null,
-          "eintraege_dokumente": null
-        },
-        "titel": "Neue Nachrichten prüfen",
-        "module_refs": [
-          "Gemeinsamer Eingang für Nachrichten und Unterlagen"
-        ],
-        "beschreibung": "Eingänge mit noch unklarem Objekt oder Schaden."
-      }
-    ],
-    "umsetzung": [
-      {
-        "text": "Wir nehmen gemeinsam auf, wie E-Mails, Schäden und Unterlagen heute weitergegeben werden.",
-        "module_refs": [
-          "Gemeinsamer Eingang für Nachrichten und Unterlagen",
-          "Gemeinsamer Schadenstand mit Zuständigkeit",
-          "Rechnungen und Unterlagen beim Schaden"
-        ]
-      },
-      {
-        "text": "Wir klären mit Ihnen, welche Angaben für die Zuordnung zu Einheit und Schaden reichen.",
-        "module_refs": [
-          "Gemeinsamer Eingang für Nachrichten und Unterlagen",
-          "Gemeinsamer Schadenstand mit Zuständigkeit"
-        ]
-      },
-      {
-        "text": "Wir richten den gemeinsamen Eingang für E-Mails und Anhänge ein.",
-        "module_refs": [
-          "Gemeinsamer Eingang für Nachrichten und Unterlagen"
-        ]
-      },
-      {
-        "text": "Wir bauen den gemeinsamen Schadenstand mit Zuständigkeit und nächstem Schritt auf.",
-        "module_refs": [
-          "Gemeinsamer Schadenstand mit Zuständigkeit"
-        ]
-      },
-      {
-        "text": "Wir verbinden Rechnungen und Unterlagen mit dem passenden Schaden.",
-        "module_refs": [
-          "Rechnungen und Unterlagen beim Schaden"
-        ]
-      },
-      {
-        "text": "Wir verbinden die benötigten Angaben mit Ihren vorhandenen Programmen.",
-        "module_refs": [
-          "Verbindungen zwischen Ihren vorhandenen Programmen"
-        ]
-      },
-      {
-        "text": "Wir testen die Zuordnung gemeinsam an Ihren echten Fällen und legen unklare Fälle zur Prüfung vor.",
-        "module_refs": [
-          "Gemeinsamer Eingang für Nachrichten und Unterlagen",
-          "Gemeinsamer Schadenstand mit Zuständigkeit",
-          "Rechnungen und Unterlagen beim Schaden"
-        ]
-      },
-      {
-        "text": "Wir prüfen den Ablauf mit Ihrem Team, bevor er für neue Schäden genutzt wird.",
-        "module_refs": [
-          "Gemeinsamer Eingang für Nachrichten und Unterlagen",
-          "Gemeinsamer Schadenstand mit Zuständigkeit",
-          "Rechnungen und Unterlagen beim Schaden",
-          "Verbindungen zwischen Ihren vorhandenen Programmen"
-        ]
-      }
-    ],
     "vergleich": {
       "heute": [
-        "E-Mail einem Objekt zuordnen",
+        "Meldung erst einem Objekt zuordnen",
         "Mieter in der Software suchen",
-        "Zuständigen Handwerker herausfinden",
-        "Auf Handwerkerantwort warten",
-        "Ursprünglichen Vorgang wiederfinden",
-        "Mieter über Termin informieren",
-        "Rechnung dem Schaden zuordnen"
+        "Zuständigen Handwerker erst ermitteln",
+        "Antwort später zum Schaden wiederfinden",
+        "Mieter nach Termin erneut informieren",
+        "Rechnung dem Schaden erneut zuordnen"
       ],
       "kuenftig": [
-        "E-Mail wird Schaden und Einheit zugeordnet",
-        "Mieter und Einheit sind direkt sichtbar",
-        "Zuständiger Handwerker ist beim Schaden sichtbar",
-        "Handwerkerantwort bleibt beim Schaden sichtbar",
-        "Der bisherige Verlauf bleibt sichtbar",
-        "Termininformation bleibt beim Schaden nachvollziehbar",
-        "Rechnung bleibt dem Schaden zugeordnet"
+        "Zuordnung wird vorgeschlagen und geprüft",
+        "Mieter und Objekt sind verknüpft",
+        "Zuständiger Handwerker steht beim Schaden",
+        "Antwort bleibt beim Schaden",
+        "Termininformation wird vorbereitet und geprüft",
+        "Rechnung wird dem Schaden zugeordnet"
       ]
+    },
+    "module": [
+      {
+        "gruppe": "Schadensbearbeitung",
+        "name": "Neue Schadensmeldungen zuordnen",
+        "beschreibung": "E-Mails und Anhänge werden nach Anliegen, Objekt und Mieter vorbereitet. Unklare Fälle legt das Team zur Prüfung vor.",
+        "nutzen": "Sie müssen neue Schadensmeldungen nicht mehr zuerst einzeln einordnen.",
+        "stufe": "jetzt",
+        "solution_family_ids": [
+          "SF-01"
+        ],
+        "baustein_refs": [
+          "gemeinsamer Eingang",
+          "Erkennung von Anliegen und Grunddaten",
+          "Anhang- und Fotozuordnung",
+          "Übergabe an Vorgang oder Fachsystem"
+        ]
+      },
+      {
+        "gruppe": "Schadensbearbeitung",
+        "name": "Gemeinsamer Schadensstand",
+        "beschreibung": "Jeder Schaden erhält in der vorhandenen Hausverwaltungssoftware Status, Zuständigkeit und nächste Schritte. Das Team bestätigt wichtige Schritte und Abschlüsse selbst.",
+        "nutzen": "Sie müssen Antworten nicht mehr in mehreren Stellen wiederfinden.",
+        "stufe": "jetzt",
+        "solution_family_ids": [
+          "SF-02"
+        ],
+        "baustein_refs": [
+          "Vorgangsakte",
+          "Statusmodell",
+          "Verlauf",
+          "Aufgaben und nächste Schritte"
+        ]
+      },
+      {
+        "gruppe": "Unterlagen",
+        "name": "Dokumente beim richtigen Schaden",
+        "beschreibung": "Rechnungen, Fotos und Berichte werden dem passenden Schaden vorgeschlagen und prüfbar abgelegt. Unsichere Zuordnungen bleiben beim Team.",
+        "nutzen": "Sie müssen Rechnungen und Fotos nicht mehr getrennt ablegen.",
+        "stufe": "jetzt",
+        "solution_family_ids": [
+          "SF-03"
+        ],
+        "baustein_refs": [
+          "Dokumenteingang",
+          "Dokumenttyp bestimmen",
+          "Zuordnungsvorschlag",
+          "prüfbare Ablage"
+        ]
+      },
+      {
+        "gruppe": "Schadensbearbeitung",
+        "name": "Verantwortlichkeit und Wartepunkte",
+        "beschreibung": "Für jeden Schaden ist sichtbar, wer zuständig ist und worauf gewartet wird. Handwerkerantworten und Termine ergänzen denselben Verlauf.",
+        "nutzen": "Sie müssen offene Rückmeldungen nicht mehr im Gedächtnis behalten.",
+        "stufe": "jetzt",
+        "solution_family_ids": [
+          "SF-02"
+        ],
+        "baustein_refs": [
+          "Verantwortlichkeit",
+          "Aufgaben und nächste Schritte",
+          "Verlauf"
+        ]
+      }
+    ],
+    "entscheidung": {
+      "contract_version": "results-v1",
+      "evidence": [
+        {
+          "id": "B1",
+          "zitat": "Und genau diese Kette macht mich wahnsinnig.",
+          "bedeutung": "Die Bearbeitung eines Schadens zerfällt in viele Such- und Zuordnungsschritte."
+        },
+        {
+          "id": "B2",
+          "zitat": "Ich möchte die auch nicht ersetzen.",
+          "bedeutung": "Die bestehende Hausverwaltungssoftware soll erhalten bleiben."
+        },
+        {
+          "id": "B3",
+          "zitat": "Und diese Sachen sprechen kaum miteinander.",
+          "bedeutung": "Informationen liegen über mehrere Arbeitsmittel verteilt."
+        },
+        {
+          "id": "B4",
+          "zitat": "Heute kann ich das nicht auf einen Blick sehen.",
+          "bedeutung": "Offene Themen und Fristen sind nicht gemeinsam sichtbar."
+        },
+        {
+          "id": "B5",
+          "zitat": "Aber ich will nicht, dass irgendeine KI einem Mieter eigenständig verspricht, dass morgen jemand kommt, wenn das gar nicht stimmt.",
+          "bedeutung": "Verbindliche Aussagen an Mieter müssen kontrolliert werden."
+        },
+        {
+          "id": "B6",
+          "zitat": "Wenn jemand fragt: „Wann ist meine Abrechnung fertig?“ oder „Wo finde ich dieses Formular?“, dann muss dafür eigentlich nicht jedes Mal jemand 15 Minuten eine E-Mail schreiben.",
+          "bedeutung": "Wiederkehrende Standardfragen binden Arbeitszeit."
+        },
+        {
+          "id": "B7",
+          "zitat": "Wenn das nicht eindeutig ist, fragt es nach oder legt es zur Prüfung vor.",
+          "bedeutung": "Unklare Zuordnungen dürfen nicht ungeprüft weiterlaufen."
+        },
+        {
+          "id": "B8",
+          "zitat": "Aber ich weiß nicht, wo man da anfangen sollte und was davon wirklich sinnvoll ist.",
+          "bedeutung": "Die Reihenfolge der Themen ist noch offen."
+        },
+        {
+          "id": "B9",
+          "zitat": "Teilweise öffnen wir drei Programme, nur um eine E-Mail zu beantworten.",
+          "bedeutung": "Schon einfache Auskünfte erfordern Suche an mehreren Stellen."
+        }
+      ],
+      "signals": [
+        {
+          "id": "S1",
+          "kind": "primary_pain",
+          "statement": "Die Schadensbearbeitung wird zur Kette aus Suchen, Zuordnen und Wiederfinden.",
+          "status": "confirmed",
+          "critical": true,
+          "evidence_refs": [
+            "B1"
+          ]
+        },
+        {
+          "id": "S2",
+          "kind": "existing_system",
+          "statement": "Die Hausverwaltungssoftware soll weiter genutzt werden.",
+          "status": "confirmed",
+          "critical": true,
+          "evidence_refs": [
+            "B2",
+            "B3"
+          ]
+        },
+        {
+          "id": "S3",
+          "kind": "explicit_goal",
+          "statement": "Offene Themen, Wartepunkte und Fristen sollen auf einen Blick sichtbar sein.",
+          "status": "confirmed",
+          "critical": true,
+          "evidence_refs": [
+            "B4"
+          ]
+        },
+        {
+          "id": "S4",
+          "kind": "safety_boundary",
+          "statement": "Verbindliche Aussagen an Mieter müssen vor dem Versand kontrolliert werden.",
+          "status": "confirmed",
+          "critical": true,
+          "evidence_refs": [
+            "B5"
+          ]
+        },
+        {
+          "id": "S5",
+          "kind": "explicit_goal",
+          "statement": "Standardfragen sollen nicht jedes Mal eine lange E-Mail erfordern.",
+          "status": "confirmed",
+          "critical": false,
+          "evidence_refs": [
+            "B6"
+          ]
+        },
+        {
+          "id": "S6",
+          "kind": "prerequisite",
+          "statement": "Unklare Objekt- oder Mieterzuordnungen müssen zur Prüfung vorliegen.",
+          "status": "confirmed",
+          "critical": true,
+          "evidence_refs": [
+            "B7"
+          ]
+        },
+        {
+          "id": "S7",
+          "kind": "uncertainty",
+          "statement": "Die sinnvolle Reihenfolge für den Anfang ist noch offen.",
+          "status": "confirmed",
+          "critical": false,
+          "evidence_refs": [
+            "B8"
+          ]
+        },
+        {
+          "id": "S8",
+          "kind": "explicit_goal",
+          "statement": "Auskünfte sollen ohne Suche in mehreren Programmen möglich sein.",
+          "status": "confirmed",
+          "critical": false,
+          "evidence_refs": [
+            "B9"
+          ]
+        }
+      ],
+      "coverage": {
+        "items": [
+          {
+            "signal_id": "S1",
+            "disposition": "start",
+            "family_refs": [
+              "SF-01",
+              "SF-02",
+              "SF-03"
+            ],
+            "explanation": "Der Einstieg führt Meldungen, Unterlagen und Bearbeitung beim jeweiligen Schaden zusammen."
+          },
+          {
+            "signal_id": "S2",
+            "disposition": "start",
+            "family_refs": [
+              "SF-01",
+              "SF-02",
+              "SF-03"
+            ],
+            "explanation": "Die Hausverwaltungssoftware bleibt die führende Stelle für die Schadensbearbeitung."
+          },
+          {
+            "signal_id": "S3",
+            "disposition": "future",
+            "family_refs": [
+              "SF-09"
+            ],
+            "explanation": "Eine Übersicht wird sinnvoll, sobald Schadensstände und Fristen verlässlich gepflegt sind."
+          },
+          {
+            "signal_id": "S4",
+            "disposition": "supporting",
+            "family_refs": [
+              "SF-01",
+              "SF-02"
+            ],
+            "explanation": "Unklare Zuordnungen und verbindliche Nachrichten werden vor dem Versand vom Team geprüft."
+          },
+          {
+            "signal_id": "S5",
+            "disposition": "future",
+            "family_refs": [
+              "SF-05"
+            ],
+            "explanation": "Ein Assistent für Standardfragen folgt erst auf einen verlässlichen Informationsstand."
+          },
+          {
+            "signal_id": "S6",
+            "disposition": "start",
+            "family_refs": [
+              "SF-01",
+              "SF-03"
+            ],
+            "explanation": "Unklare Objekt- und Mieterzuordnungen werden zur Prüfung vorgelegt."
+          },
+          {
+            "signal_id": "S7",
+            "disposition": "supporting",
+            "family_refs": [
+              "SF-01",
+              "SF-02",
+              "SF-03"
+            ],
+            "explanation": "Der Einstieg beginnt mit dem gemeinsamen Schadensstand, weil er die weiteren Schritte trägt."
+          },
+          {
+            "signal_id": "S8",
+            "disposition": "supporting",
+            "family_refs": [
+              "SF-01",
+              "SF-02",
+              "SF-03"
+            ],
+            "explanation": "Der gemeinsame Schadensstand schafft die Grundlage für Auskünfte ohne Suche in mehreren Stellen."
+          }
+        ],
+        "uncovered_critical_signal_ids": []
+      },
+      "why_not": [
+        {
+          "titel": "Verbindliche Antworten selbst versenden",
+          "family_refs": [
+            "SF-05"
+          ],
+          "grund": "human_boundary",
+          "erlaeuterung": "Aussagen zu Terminen oder Zusagen an Mieter bleiben vor dem Versand beim Team.",
+          "evidence_refs": [
+            "B5"
+          ],
+          "fehlende_voraussetzung": null
+        }
+      ],
+      "target_family_ids": [
+        "SF-01",
+        "SF-02",
+        "SF-03"
+      ],
+      "start_family_ids": [
+        "SF-01",
+        "SF-02",
+        "SF-03"
+      ],
+      "future_family_ids": [
+        "SF-04",
+        "SF-12",
+        "SF-09",
+        "SF-05",
+        "SF-10"
+      ],
+      "open_signal_ids": []
     },
     "ausbaupfad": [
       {
-        "name": "Schäden gemeinsam bearbeiten",
         "stufe": "jetzt",
-        "nutzen": "Sie müssen Fallinformationen nicht mehr über mehrere Orte zusammensuchen.",
+        "name": "Schadensfälle gemeinsam führen",
+        "nutzen": "Sie müssen Informationen zum Schaden nicht mehr zusammensuchen.",
         "bausteine": [
-          "Nachrichten beim Schaden",
+          "Meldungen zuordnen",
+          "gemeinsamer Schadensstand",
           "Unterlagen beim Schaden",
-          "sichtbare Zuständigkeit",
-          "Abgleich vorhandener Programme"
+          "nächste Schritte"
         ],
         "solution_family_ids": [
           "SF-01",
@@ -498,42 +788,70 @@
         ]
       },
       {
-        "name": "Einheiten langfristig überblicken",
         "stufe": "danach",
-        "nutzen": "Sie müssen frühere Schäden nicht mehr je Einheit zusammensuchen.",
+        "name": "Arbeitsmittel verbinden",
+        "nutzen": "Sie müssen dieselben Angaben nicht mehr mehrfach übertragen.",
         "bausteine": [
-          "Einheitenhistorie",
-          "frühere Schäden",
-          "verknüpfte Unterlagen",
-          "wiederkehrende Ansprechpartner"
+          "Stammdaten abgleichen",
+          "Dokumente weitergeben",
+          "Status abgleichen",
+          "Fehler prüfen"
         ],
         "solution_family_ids": [
-          "SF-24"
+          "SF-04"
         ]
       },
       {
-        "name": "Ausstehende Antworten nachhalten",
         "stufe": "danach",
-        "nutzen": "Sie müssen ausstehende Handwerkerantworten nicht mehr selbst nachhalten.",
+        "name": "Fristen und Rückmeldungen steuern",
+        "nutzen": "Sie müssen fällige Rückmeldungen nicht mehr selbst nachhalten.",
         "bausteine": [
-          "nächste Aufgabe",
-          "Antwortfrist",
-          "zuständige Person",
-          "Erinnerung bei Stillstand"
+          "Aufgaben aus Schäden",
+          "Fälligkeiten setzen",
+          "Erinnerungen",
+          "Eskalationen"
         ],
         "solution_family_ids": [
           "SF-12"
         ]
       },
       {
-        "name": "Mietern Einsicht ermöglichen",
         "stufe": "spaeter",
-        "nutzen": "Sie müssen Unterlagen nicht mehr einzeln an Mieter versenden.",
+        "name": "Morgenübersicht für das Team",
+        "nutzen": "Sie müssen offene Themen nicht mehr bei allen abfragen.",
         "bausteine": [
-          "Stand des Schadens",
-          "bereitgestellte Unterlagen",
-          "Nachrichten zum Schaden",
-          "geschützter Zugang"
+          "offene Schäden",
+          "wartende Antworten",
+          "kommende Fristen",
+          "dringende Ausnahmen"
+        ],
+        "solution_family_ids": [
+          "SF-09"
+        ]
+      },
+      {
+        "stufe": "spaeter",
+        "name": "Standardfragen vorbereiten",
+        "nutzen": "Sie müssen wiederkehrende Antworten nicht mehr jedes Mal neu schreiben.",
+        "bausteine": [
+          "Fragen erkennen",
+          "Information suchen",
+          "Antwort vorbereiten",
+          "Unsicheres weitergeben"
+        ],
+        "solution_family_ids": [
+          "SF-05"
+        ]
+      },
+      {
+        "stufe": "spaeter",
+        "name": "Status selbst einsehen",
+        "nutzen": "Sie müssen Statusfragen nicht mehr einzeln beantworten.",
+        "bausteine": [
+          "geschützter Zugang",
+          "Schadensstatus ansehen",
+          "Dokumente ansehen",
+          "Nachrichten senden"
         ],
         "solution_family_ids": [
           "SF-10"
@@ -541,99 +859,6 @@
       }
     ],
     "rueckfrage": null,
-    "verstanden": {
-      "belege": [
-        {
-          "zitat": "Und diese Sachen sprechen kaum miteinander.",
-          "bedeutung": "Die Systeme sind kaum verbunden"
-        },
-        {
-          "zitat": "Aber jemand muss sie zusammensuchen.",
-          "bedeutung": "Vorhandene Antworten müssen gesucht werden"
-        },
-        {
-          "zitat": "Teilweise öffnen wir drei Programme, nur um eine E-Mail zu beantworten.",
-          "bedeutung": "Antworten erfordern mehrere Programme"
-        }
-      ],
-      "eckdaten": [
-        "450 Einheiten",
-        "Acht Leute",
-        "Mehrere Eingangswege",
-        "70 oder 80 E-Mails",
-        "Drei Programme pro Antwort"
-      ],
-      "engpass_absatz": "Für Schäden, Rechnungen und Rückfragen entsteht kein gemeinsamer Stand. Zuständigkeit, nächster Schritt und der Zusammenhang zwischen Nachricht, Dokument und Antwort bleiben über verschiedene Orte und persönliche Notizen verteilt."
-    },
-    "architektur": [
-      {
-        "ebene": "Gemeinsamer Eingang",
-        "module_refs": [
-          "Gemeinsamer Eingang für Nachrichten und Unterlagen"
-        ],
-        "beschreibung": "E-Mails und Anhänge werden aufgenommen und auf Schaden, Rechnung oder anderes Anliegen geprüft."
-      },
-      {
-        "ebene": "Schaden je Einheit",
-        "module_refs": [
-          "Gemeinsamer Schadenstand mit Zuständigkeit"
-        ],
-        "beschreibung": "Zu jedem Schaden stehen Verlauf, Zuständigkeit und nächster Schritt zusammen."
-      },
-      {
-        "ebene": "Unterlagen beim Schaden",
-        "module_refs": [
-          "Rechnungen und Unterlagen beim Schaden"
-        ],
-        "beschreibung": "Rechnungen, Fotos und weitere Unterlagen werden dem passenden Schaden zugeordnet."
-      },
-      {
-        "ebene": "Vorhandene Programme",
-        "module_refs": [
-          "Verbindungen zwischen Ihren vorhandenen Programmen"
-        ],
-        "beschreibung": "Wichtige Angaben und Unterlagen werden zwischen Outlook, Hausverwaltungssoftware und Ablagen übergeben."
-      }
-    ],
-    "kurzfassung": {
-      "engpass_satz": "Informationen zu einem Fall liegen verstreut, und Ihr Team setzt sie ständig neu zusammen.",
-      "loesungsname": "Schäden und Rechnungen je Einheit verbunden",
-      "relevante_module": [
-        "Gemeinsamer Eingang",
-        "Schadenstand",
-        "Unterlagen zuordnen",
-        "Programme verbinden"
-      ]
-    },
-    "aufgabenteilung": {
-      "mensch": [
-        "Sie prüfen unklare Zuordnungen zu Einheit oder Schaden.",
-        "Sie entscheiden über Dringlichkeit und Zuständigkeit.",
-        "Sie prüfen und versenden Nachrichten an Handwerker.",
-        "Sie entscheiden über Terminzusagen an Mieter.",
-        "Sie prüfen Rechnungen und geben sie frei.",
-        "Sie entscheiden über Sonderfälle und den Abschluss eines Schadens."
-      ],
-      "system": [
-        "Das System nimmt E-Mails und Anhänge gemeinsam auf.",
-        "Das System erkennt Schäden, Rechnungen und andere Anliegen.",
-        "Das System schlägt die passende Einheit und den passenden Schaden vor.",
-        "Das System hält Verlauf, Zuständigkeit und nächsten Schritt beim Schaden zusammen.",
-        "Das System ordnet Unterlagen dem passenden Schaden zu.",
-        "Das System übergibt wichtige Angaben an die vorhandenen Programme."
-      ],
-      "grenzen": [
-        {
-          "titel": "Kein weiteres riesiges Programm",
-          "erlaeuterung": "Sie wollen nicht noch ein Portal, Tool oder eine App zusätzlich, sondern dass die vorhandenen Programme besser zusammenarbeiten."
-        },
-        {
-          "titel": "Keine Zusagen ohne Kontrolle",
-          "erlaeuterung": "Eine KI soll Mietern nicht eigenständig versprechen, dass morgen jemand kommt, wenn das nicht stimmt."
-        }
-      ]
-    },
-    "contract_version": "ergebnis-v6",
-    "warum_diese_loesung": "Der Engpass entsteht, weil Ihr Team für eine Antwort Informationen aus mehreren Orten zusammensuchen muss. Die Zusammenstellung verbindet neue Nachrichten, Schäden, Unterlagen und die vorhandenen Programme zu einem nachvollziehbaren Zusammenhang."
+    "contract_version": "ergebnis-v6"
   }
 }

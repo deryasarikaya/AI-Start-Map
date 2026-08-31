@@ -34,6 +34,19 @@ logger = logging.getLogger(__name__)
 
 VERTRAG = "results-v1"
 
+#: Wie viele Ist-Zustands-Punkte höchstens gezeigt werden. Drei — mehr ist
+#: keine Zuspitzung mehr, sondern eine Nacherzählung.
+ANKER_HOECHSTENS = 3
+
+#: Welche Signalarten den **heutigen** Zustand beschreiben, in dieser
+#: Rangfolge. Ein Ziel oder ein Wunsch gehört nicht dazu: Er sagt, wo es
+#: hingehen soll, und nicht, wie es ist.
+ANKER_ARTEN: tuple[str, ...] = (
+    "primary_pain",
+    "existing_system",
+    "prerequisite",
+)
+
 #: Woher eine Grenze kommt. **Der Unterschied ist wichtig genug für ein
 #: eigenes Feld:** „Sie wollen keine Preiszusagen" ist eine Aussage über
 #: diesen Kunden. „Preise bleiben beim Menschen" ist eine Eigenschaft
@@ -59,6 +72,42 @@ class Grenze:
     erlaeuterung: str
     herkunft: GrenzenHerkunft
     #: Nur bei `katalog` gefüllt: aus welcher Familie die Grenze stammt.
+    familie: str | None = None
+
+
+@dataclass(frozen=True)
+class Anker:
+    """Ein Punkt, wie es **heute** ist — mit dem Satz, der ihn belegt.
+
+    **Verdichtet, nicht erfunden.** Beides steht bereits geprüft da: Die
+    Überschrift ist die `bedeutung` eines Belegs — der Prompt verlangt
+    dafür eine Schlagzeile von höchstens acht Wörtern, und die Prüfung
+    lässt sie nur mit wörtlichem Zitat durch. Der Satz darunter ist das
+    `statement` des Signals.
+
+    **Ohne Beleg kein Anker.** Ein Punkt über den Ist-Zustand, den
+    niemand gesagt hat, ist eine Behauptung über einen fremden Betrieb.
+    """
+
+    id: str
+    customer_label: str
+    short_description: str
+    evidence_refs: tuple[str, ...]
+    business_area_ref: str | None = None
+
+
+@dataclass(frozen=True)
+class Voraussetzung:
+    """Was dafür da sein muss — und woher wir das wissen.
+
+    Dieselbe Trennung wie bei den Grenzen: Was der Betrieb selbst gesagt
+    hat, ist etwas anderes als das, was unser Katalog für eine Familie
+    verlangt. Beides als seine Aussage auszugeben, legt ihm Sätze in den
+    Mund.
+    """
+
+    text: str
+    herkunft: GrenzenHerkunft
     familie: str | None = None
 
 
@@ -115,6 +164,17 @@ class OperatingModul:
     #: Stellen in `ResultDTO.grenzen`, die zu diesem Bereich gehören.
     #: Als Index, damit dieselbe Grenze nicht zweimal im Vertrag steht.
     boundary_refs: tuple[int, ...] = field(default_factory=tuple)
+    #: **Was der Betrieb davon hat.** Die `nutzen`-Sätze der Module, die
+    #: aus diesem Bereich gebaut werden — in der Sie-Form, ohne erfundene
+    #: Ersparnis, bereits vom Vertrag geprüft. Eine Fähigkeitenliste
+    #: beantwortet diese Frage nicht: Sie sagt, was das System kann, und
+    #: nicht, was von seinem Tisch verschwindet.
+    outcomes: tuple[str, ...] = field(default_factory=tuple)
+    #: **Warum gerade hier anfangen.** Die Begründungen der Abdeckung, die
+    #: diesen Bereich zum Einstieg gemacht haben. Nur bei `start` gefüllt.
+    why_now: tuple[str, ...] = field(default_factory=tuple)
+    #: Was dafür vorhanden sein muss.
+    prerequisites: tuple[Voraussetzung, ...] = field(default_factory=tuple)
     #: Reihenfolge im Arbeitslauf.
     map_order: int = 0
 
@@ -123,6 +183,12 @@ class OperatingModul:
         """Ob dieser Bereich für diesen Betrieb überhaupt ein Thema ist."""
 
         return self.state != "still"
+
+    @property
+    def business_outcome(self) -> str | None:
+        """Der eine Satz, der diesen Einstieg beantwortet."""
+
+        return self.outcomes[0] if self.outcomes else None
 
 
 @dataclass(frozen=True)
@@ -149,6 +215,14 @@ class Ausblick:
     phase: Literal["target", "future"]
     bereich: str | None = None
     beleg_refs: tuple[str, ...] = field(default_factory=tuple)
+    #: **Worauf das aufbaut** — Bereiche, die jetzt entstehen.
+    #:
+    #: Abgeleitet aus `typische_kombination` im Katalog, also aus einer
+    #: kuratierten Angabe und nicht aus der Beobachtung, dass zwei Dinge
+    #: im selben Ergebnis stehen. Leer, wenn sich keine belastbare
+    #: Abhängigkeit ergibt — `grund_fuer_spaeter` erklärt es dann in
+    #: Worten, und das ist besser als eine erfundene Kante.
+    depends_on_module_refs: tuple[str, ...] = field(default_factory=tuple)
 
 
 @dataclass(frozen=True)
@@ -191,6 +265,8 @@ class ResultDTO:
     herkunft: str
     uebersicht: Uebersicht
     belege: tuple[Beleg, ...]
+    #: **Wie es heute ist.** Ein bis drei belegte Punkte.
+    anker: tuple[Anker, ...]
     entscheidung: DecisionState
     karte: MapState
     #: **Alle vierzehn Bereiche, jeder mit seinem Zustand.** Die stillen
@@ -302,8 +378,134 @@ def _belege_je_familie(zustand: DecisionState) -> dict[str, list[str]]:
     return gefunden
 
 
+def _anker(zustand: DecisionState) -> list[Anker]:
+    """Ein bis drei belegte Punkte über den heutigen Zustand.
+
+    **Nichts wird verdichtet, was nicht schon verdichtet ist.** Die
+    Überschrift ist die `bedeutung` eines Belegs — der Prompt verlangt
+    dafür eine Schlagzeile von höchstens acht Wörtern, und die
+    Zitatprüfung hat sie durchgelassen. Der Satz darunter ist das
+    `statement` des Signals. Beides ist geprüfter Text; hier wird nur
+    ausgewählt.
+
+    **Ohne Beleg kein Anker.** Ein Punkt über den Ist-Zustand, den
+    niemand gesagt hat, wäre eine Behauptung über einen fremden Betrieb —
+    und davor schützt die ganze Belegkette.
+    """
+
+    nach_kennung = {beleg.id: beleg for beleg in zustand.evidence}
+    fuer_signal = {
+        eintrag.signal_id: eintrag.family_refs
+        for eintrag in (
+            zustand.coverage.items if zustand.coverage is not None else []
+        )
+    }
+    gefunden: list[Anker] = []
+    for art in ANKER_ARTEN:
+        for signal in zustand.signals:
+            if signal.kind != art:
+                continue
+            belegt = [b for b in signal.evidence_refs if b in nach_kennung]
+            if not belegt:
+                continue
+            bereiche = operating_model.bereiche_fuer(
+                list(fuer_signal.get(signal.id, []))
+            )
+            gefunden.append(
+                Anker(
+                    id=signal.id,
+                    customer_label=nach_kennung[belegt[0]].bedeutung,
+                    short_description=signal.statement,
+                    evidence_refs=tuple(belegt),
+                    business_area_ref=(
+                        bereiche[0].schluessel if bereiche else None
+                    ),
+                )
+            )
+            if len(gefunden) >= ANKER_HOECHSTENS:
+                return gefunden
+    return gefunden
+
+
+def _voraussetzungen(
+    zustand: DecisionState, eigene: list[str], empfohlen: list[str]
+) -> tuple[Voraussetzung, ...]:
+    """Was für diesen Bereich vorhanden sein muss — nach Herkunft getrennt.
+
+    Vom Betrieb zuerst: ein Signal der Art `prerequisite`, dessen
+    Entscheidung auf eine Familie dieses Bereichs zeigt. Danach, was der
+    Katalog für die empfohlenen Familien ohnehin verlangt.
+    """
+
+    gefunden: list[Voraussetzung] = []
+    fuer_signal = {
+        eintrag.signal_id: eintrag.family_refs
+        for eintrag in (
+            zustand.coverage.items if zustand.coverage is not None else []
+        )
+    }
+    for signal in zustand.signals:
+        if signal.kind != "prerequisite":
+            continue
+        if not any(k in eigene for k in fuer_signal.get(signal.id, [])):
+            continue
+        gefunden.append(Voraussetzung(signal.statement, "kunde"))
+    katalog = solution_catalog.katalog()
+    for kennung in empfohlen:
+        familie = katalog.get(kennung)
+        if familie is None:
+            continue
+        for satz in familie.setzt_voraus:
+            if any(vorhanden.text == satz for vorhanden in gefunden):
+                continue
+            gefunden.append(Voraussetzung(satz, "katalog", kennung))
+    return tuple(gefunden)
+
+
+def _nutzen_je_bereich(module: list[object]) -> dict[str, list[str]]:
+    """Die `nutzen`-Sätze der Module, nach Bereich sortiert.
+
+    Der Satz steht bereits im Ergebnis, in der Sie-Form und ohne
+    erfundene Ersparnis — der Vertrag hat ihn geprüft. Er beantwortet
+    genau die Frage, die eine Fähigkeitenliste offen lässt: Welche Arbeit
+    verschwindet vom Tisch dieses Betriebs?
+    """
+
+    gefunden: dict[str, list[str]] = {}
+    for modul in module:
+        satz = str(getattr(modul, "nutzen", "") or "").strip()
+        if not satz:
+            continue
+        for bereich in operating_model.bereiche_fuer(
+            list(getattr(modul, "solution_family_ids", []) or [])
+        ):
+            fuer_bereich = gefunden.setdefault(bereich.schluessel, [])
+            if satz not in fuer_bereich:
+                fuer_bereich.append(satz)
+    return gefunden
+
+
+def _einstiegsgruende(zustand: DecisionState) -> dict[str, list[str]]:
+    """Warum ein Bereich der Einstieg ist — die Begründungen der Abdeckung."""
+
+    gefunden: dict[str, list[str]] = {}
+    for eintrag in (
+        zustand.coverage.items if zustand.coverage is not None else []
+    ):
+        if eintrag.disposition != "start":
+            continue
+        for bereich in operating_model.bereiche_fuer(list(eintrag.family_refs)):
+            fuer_bereich = gefunden.setdefault(bereich.schluessel, [])
+            if eintrag.explanation not in fuer_bereich:
+                fuer_bereich.append(eintrag.explanation)
+    return gefunden
+
+
 def _module(
-    zustand: DecisionState, karte: MapState, grenzen: list[Grenze]
+    zustand: DecisionState,
+    karte: MapState,
+    grenzen: list[Grenze],
+    module: list[object],
 ) -> list[OperatingModul]:
     """Die vierzehn Bereiche, fertig zum Anzeigen.
 
@@ -320,6 +522,8 @@ def _module(
 
     belege = _belege_je_familie(zustand)
     im_zielbild = set(zustand.target_family_ids)
+    nutzen = _nutzen_je_bereich(module)
+    gruende = _einstiegsgruende(zustand)
     gefunden: list[OperatingModul] = []
     for bereich in sorted(operating_model.BEREICHE, key=lambda b: b.reihenfolge):
         knoten = karte.knoten_von(bereich.schluessel)
@@ -362,10 +566,60 @@ def _module(
                     for stelle, grenze in enumerate(grenzen)
                     if grenze.familie is not None and grenze.familie in eigene
                 ),
+                outcomes=tuple(nutzen.get(bereich.schluessel, ())),
+                why_now=(
+                    tuple(gruende.get(bereich.schluessel, ()))
+                    if zustand_des_bereichs == "start"
+                    else ()
+                ),
+                prerequisites=(
+                    _voraussetzungen(zustand, eigene, empfohlen)
+                    if empfohlen
+                    else ()
+                ),
                 map_order=bereich.reihenfolge,
             )
         )
     return gefunden
+
+
+def _abhaengig_von(
+    familien: tuple[str, ...],
+    vorhandene_bereiche: dict[str, set[str]],
+    eigener_bereich: str | None,
+) -> tuple[str, ...]:
+    """Worauf eine spätere Möglichkeit aufbaut — aus dem Katalog gelesen.
+
+    Der Katalog führt je Familie `typische_kombination`: welche Familien
+    üblicherweise daneben stehen. Steht eine davon jetzt schon im
+    Zielbild, ist ihr Bereich die Grundlage.
+
+    **Nicht daraus, dass zwei Dinge im selben Ergebnis vorkommen.** Das
+    wäre eine Abhängigkeit, die niemand geprüft hat. Findet sich nichts
+    Kuratiertes, bleibt die Liste leer und `grund_fuer_spaeter` erklärt
+    es in Worten — besser als eine erfundene Kante.
+
+    **Und nie auf sich selbst.** Der Ausbaupfad öffnet regelmässig einen
+    Bereich weiter, in dem schon etwas steht; „baut auf sich selbst auf"
+    ist keine Aussage, sondern eine Zeile, die der Leser zweimal liest,
+    bevor er merkt, dass sie nichts sagt.
+    """
+
+    from app import solution_catalog as katalogmodul
+
+    katalog = katalogmodul.katalog()
+    gefunden: list[str] = []
+    for kennung in familien:
+        familie = katalog.get(kennung)
+        if familie is None:
+            continue
+        for nachbar in familie.typische_kombination:
+            for schluessel, eigene in vorhandene_bereiche.items():
+                if schluessel == eigener_bereich:
+                    continue
+                if nachbar in eigene and schluessel not in gefunden:
+                    gefunden.append(schluessel)
+    return tuple(gefunden)
 
 
 def _ausblicke(
@@ -387,6 +641,14 @@ def _ausblicke(
         if eintrag.disposition == "future"
         for kennung in eintrag.family_refs
     }
+    # Welche Bereiche jetzt entstehen — die möglichen Grundlagen.
+    jetzt_gebaut: dict[str, set[str]] = {}
+    for bereich in operating_model.bereiche_fuer(zustand.target_family_ids):
+        jetzt_gebaut[bereich.schluessel] = set(
+            operating_model.familien_im_bereich(
+                bereich, zustand.target_family_ids
+            )
+        )
     gefunden: list[Ausblick] = []
     for stufe in ergebnis.ausbaupfad:
         if stufe.stufe == "jetzt":
@@ -404,6 +666,11 @@ def _ausblicke(
                 outcome=stufe.nutzen or stufe.name,
                 grund_fuer_spaeter=grund,
                 familien=familien,
+                depends_on_module_refs=_abhaengig_von(
+                    familien,
+                    jetzt_gebaut,
+                    bereiche[0].schluessel if bereiche else None,
+                ),
                 # **Die Karte ist die Quelle, nicht eine zweite Rechnung.**
                 # Ob eine Familie im Zielbild steht, ist nicht dieselbe
                 # Frage: Eine neue Familie kann in einem Bereich liegen,
@@ -476,9 +743,10 @@ def von_ergebnis(ergebnis: Result) -> ResultDTO:
         belege=tuple(
             Beleg(b.id, b.zitat, b.bedeutung) for b in zustand.evidence
         ),
+        anker=tuple(_anker(zustand)),
         entscheidung=zustand,
         karte=karte,
-        module=tuple(_module(zustand, karte, grenzen)),
+        module=tuple(_module(zustand, karte, grenzen, list(ergebnis.module))),
         ansichten=ansichten,
         grenzen=tuple(grenzen),
         mensch_behaelt=tuple(ergebnis.aufgabenteilung.mensch),
@@ -517,6 +785,7 @@ def von_ergebnis(ergebnis: Result) -> ResultDTO:
 
 
 __all__ = [
+    "Anker",
     "Ausblick",
     "Beleg",
     "Faehigkeit",
@@ -526,5 +795,6 @@ __all__ = [
     "ResultDTO",
     "Uebersicht",
     "VERTRAG",
+    "Voraussetzung",
     "von_ergebnis",
 ]

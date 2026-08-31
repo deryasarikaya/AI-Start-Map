@@ -276,6 +276,77 @@ def affinitaeten_von(kennungen: Sequence[str]) -> tuple[ExperienceType, ...]:
     return tuple(gefunden)
 
 
+#: Wie zwei Bereiche zusammenhängen können. Vier Arten, mehr braucht die
+#: Karte nicht — und jede weitere wäre eine Behauptung, die niemand prüft.
+Beziehungsart = Literal[
+    "feeds_into",
+    "enables",
+    "shared_state_for",
+    "extends_to",
+]
+
+
+@dataclass(frozen=True)
+class Beziehung:
+    """Ein Zusammenhang zwischen zwei Bereichen."""
+
+    von: str
+    nach: str
+    art: Beziehungsart
+
+
+#: **Die kuratierten Beziehungen.** Von Hand gesetzt und bewusst kurz.
+#:
+#: Hier steht nur, was für **jeden** Betrieb gilt: Anfragen werden zu
+#: Vorgängen, eine Übersicht braucht etwas zum Übersehen, eine Rechnung
+#: folgt auf einen Auftrag. Was davon abhängt, wie ein einzelner Betrieb
+#: arbeitet, steht nicht hier.
+#:
+#: **Keine Kante entsteht daraus, dass zwei Bereiche im selben Ergebnis
+#: vorkommen.** Das wäre eine Linie ohne Aussage — und eine Karte voller
+#: solcher Linien sieht aus wie ein Zusammenhang, den niemand geprüft hat.
+#: Im Zweifel keine Kante.
+BEZIEHUNGEN: tuple[Beziehung, ...] = (
+    # Was hereinkommt, wird zu Arbeit.
+    Beziehung("kundenzugang_intake", "vorgaenge_aufgaben", "feeds_into"),
+    # Unterlagen gehören an den Vorgang, zu dem sie passen.
+    Beziehung("dokumente_pruefpfad", "vorgaenge_aufgaben", "feeds_into"),
+    # Aus einem Vorgang wird ein Angebot, aus dem Angebot eine Rechnung.
+    Beziehung("vorgaenge_aufgaben", "angebot_uebergabe", "feeds_into"),
+    Beziehung("angebot_uebergabe", "finanzieller_abschluss", "feeds_into"),
+    # Und was abgerechnet ist, trägt die Vorschau.
+    Beziehung("finanzieller_abschluss", "steuerung_vorschau", "feeds_into"),
+    # Eine Übersicht braucht etwas zum Übersehen.
+    Beziehung("vorgaenge_aufgaben", "steuerung_vorschau", "enables"),
+    # Selbstauskunft geht nur, wenn es innen einen verlässlichen Stand gibt.
+    Beziehung("vorgaenge_aufgaben", "service_selfservice", "enables"),
+    # Auskunft braucht etwas, worauf sie sich stützt.
+    Beziehung("wissen_zugaenglich", "service_selfservice", "enables"),
+    # Verbundene Systeme tragen den gemeinsamen Vorgang.
+    Beziehung("daten_systemverbund", "vorgaenge_aufgaben", "enables"),
+    # Kunde und Objekt sind der Zusammenhang, an dem Vorgänge hängen.
+    Beziehung("kunden_objektkontext", "vorgaenge_aufgaben", "shared_state_for"),
+    # Und was danach kommt, wächst aus dem laufenden Betrieb heraus.
+    Beziehung("vorgaenge_aufgaben", "wachstum_bindung", "extends_to"),
+)
+
+
+def beziehungen_zwischen(schluessel: Sequence[str]) -> list[Beziehung]:
+    """Die Beziehungen, deren **beide** Enden hier ein Thema sind.
+
+    Eine Kante zu einem Bereich, der auf der Karte still bleibt, zeigte
+    ins Leere — der Betrieb sähe eine Linie zu einem Punkt, über den nichts
+    gesagt wird.
+    """
+
+    sichtbar = set(schluessel)
+    return [
+        beziehung
+        for beziehung in BEZIEHUNGEN
+        if beziehung.von in sichtbar and beziehung.nach in sichtbar
+    ]
+
+
 class BereichsLuecke(RuntimeError):
     """Eine Familie hat keinen Bereich — oder einen Bereich zweimal.
 
@@ -357,6 +428,20 @@ def pruefe_vollstaendigkeit() -> None:
     if ohne_zieltyp:
         raise BereichsLuecke(
             f"Diese Familien haben keinen Zieltyp: {ohne_zieltyp}."
+        )
+    schluessel = {bereich.schluessel for bereich in BEREICHE}
+    fremde_kanten = sorted(
+        {
+            ende
+            for beziehung in BEZIEHUNGEN
+            for ende in (beziehung.von, beziehung.nach)
+            if ende not in schluessel
+        }
+    )
+    if fremde_kanten:
+        raise BereichsLuecke(
+            f"Diese Beziehungen nennen Bereiche, die es nicht gibt: "
+            f"{fremde_kanten}."
         )
     gebiete = {zone.kennung for zone in karte.ZONEN}
     fremde = sorted({b.gebiet for b in BEREICHE} - gebiete)
