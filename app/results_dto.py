@@ -622,6 +622,24 @@ def _abhaengig_von(
     return tuple(gefunden)
 
 
+def _belege_zu(
+    familien: tuple[str, ...], belege: dict[str, list[str]]
+) -> tuple[str, ...]:
+    """Die Belege dieser Familien — in stabiler Reihenfolge, ohne Dubletten.
+
+    Die Reihenfolge folgt den Familien und darin den Belegen: Zweimal
+    derselbe Lauf ergibt zweimal dieselbe Liste. Ohne das stünde unter
+    einem Ausblick mal das eine, mal das andere Zitat.
+    """
+
+    gefunden: list[str] = []
+    for kennung in familien:
+        for bezug in belege.get(kennung, []):
+            if bezug not in gefunden:
+                gefunden.append(bezug)
+    return tuple(gefunden)
+
+
 def _ausblicke(
     ergebnis: Result, zustand: DecisionState, karte: MapState
 ) -> list[Ausblick]:
@@ -631,8 +649,21 @@ def _ausblicke(
     dazukommt und was der Betrieb dann nicht mehr selbst macht. Die
     Begründung „warum später" nimmt, wenn vorhanden, die Abdeckung dazu —
     dort hat der Planner sie in einem Satz geschrieben.
+
+    **Und die Belege.** Sie standen bereits bereit — dieselbe Kette wie
+    bei den Bereichen: Die Abdeckung sagt, welches Signal zu welcher
+    Familie führte, das Signal sagt, auf welchen Zitaten es steht. Nur
+    abgefragt hat sie hier niemand, und ein Ausblick ohne Beleg liest
+    sich wie eine Idee statt wie eine Folge aus dem, was er erzählt hat.
+
+    **Nur die eigenen.** Ein Ausblick bekommt die Belege seiner eigenen
+    Familien und keine von nebenan. Ein Zitat, das zu einer anderen
+    Familie gehört, würde hier eine Verbindung behaupten, die niemand
+    geprüft hat — und es sähe genauso überzeugend aus wie ein echter
+    Beleg. Findet sich nichts, bleibt die Liste leer.
     """
 
+    belege = _belege_je_familie(zustand)
     gruende = {
         kennung: eintrag.explanation
         for eintrag in (
@@ -683,6 +714,7 @@ def _ausblicke(
                     else "target"
                 ),
                 bereich=bereiche[0].schluessel if bereiche else None,
+                beleg_refs=_belege_zu(familien, belege),
             )
         )
     return gefunden[:4]
