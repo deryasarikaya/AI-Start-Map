@@ -158,8 +158,10 @@
   {# 9 · Abschluss: keine technische Fehlermeldung, wenn kein Kontaktweg konfiguriert ist. #}
   <section class="results-cta results-cta--final" aria-labelledby="cta-title">
     <div><h2 id="cta-title">Möchten Sie so arbeiten?</h2><p>Diese Auswertung zeigt, wo Sie sinnvoll anfangen können und welche Möglichkeiten daraus entstehen. Im Gespräch klären wir, was für Ihren Betrieb wirklich Sinn ergibt.</p></div>
-    <div class="results-cta__actions">{% set kontakt = gespraechs_adresse() %}{% if kontakt %}<a class="primary-button" href="{{ kontakt }}">Ja, ich möchte das umsetzen <span aria-hidden="true">→</span></a>{% endif %}{% if session_id %}<a class="secondary-button" href="/report.pdf">Auswertung als PDF ansehen</a>{% endif %}</div>
-    <div class="results-cta__trust"><span>Sie behalten die Kontrolle. Um die Umsetzung kümmern wir uns.</span><small>Diese Auswertung basiert auf Ihrer eigenen Beschreibung.</small>{% if kontakt %}<small>Öffnet eine vorbereitete E-Mail für das Umsetzungsgespräch.</small>{% endif %}</div>
+    {% set kontakt = gespraechs_adresse() %}
+    <div class="results-cta__actions">{% if kontakt %}<a class="primary-button" href="{{ kontakt }}"><span>Ja, ich möchte das umsetzen</span><span aria-hidden="true">→</span></a>{% endif %}<a class="secondary-button" href="/report.pdf"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path></svg><span>Auswertung als PDF ansehen</span></a></div>
+    {% if kontakt %}<p class="results-cta__notice">Öffnet eine vorbereitete E-Mail für das Umsetzungsgespräch.</p>{% endif %}
+    <div class="results-cta__trust"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3 19 6v5c0 4.4-2.9 8.3-7 10-4.1-1.7-7-5.6-7-10V6z"></path><path d="m9 12 2 2 4-4"></path></svg><div><span>Sie behalten die Kontrolle. Um die Umsetzung kümmern wir uns.</span><small>Diese Auswertung basiert auf Ihrer eigenen Beschreibung.</small></div></div>
   </section>
 </main>
 {% endblock %}

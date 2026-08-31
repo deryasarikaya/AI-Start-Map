@@ -235,6 +235,7 @@ def test_the_stored_example_carries_a_full_result(client: TestClient) -> None:
         "So liefe Ihr Alltag künftig",
         "Das läuft künftig automatisch — das bleibt in Ihrer Verantwortung",
         "Möchten Sie so arbeiten?",
+        "Auswertung als PDF ansehen",
     ):
         assert abschnitt in seite, abschnitt
 

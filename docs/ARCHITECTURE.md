@@ -383,6 +383,12 @@ Entscheidungen; die folgende Leitplanken-Section zeigt ausschließlich Grenzen
 mit Herkunft `kunde`. Die interne Why-not-Entscheidung bleibt im Vertrag,
 wird auf dieser Customer Experience aber bewusst nicht dargestellt.
 
+Der Abschluss verwendet die bestehenden, öffentlichen Wege: **Auswertung als
+PDF ansehen** führt immer auf `/report.pdf`; **Ja, ich möchte das umsetzen**
+erscheint nur mit einer tatsächlich konfigurierten `KONTAKT_ADRESSE` und nutzt
+die vorbereitete `mailto:`-Adresse. So ist der CTA vollständig, ohne einen
+leeren Mail-Empfänger vorzutäuschen.
+
 Der bestehende PDF-Weg bleibt in diesem Clean-Sheet-Pass funktionsfähig, ist
 aber **nicht** der visuelle oder technische Constraint der neuen Web-Results.
 Er wird hier nicht auf den neuen Renderer umgestellt. Eine spätere
