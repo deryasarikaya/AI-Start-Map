@@ -321,3 +321,90 @@ def test_the_contract_stays_readable_twice(beispiel: results_dto.ResultDTO) -> N
     assert beispiel.module == nochmal.module
     assert beispiel.karte.beziehungen == nochmal.karte.beziehungen
     assert beispiel.ausblicke == nochmal.ausblicke
+
+
+# --- Woraus ein Später folgt -----------------------------------------------
+
+
+def test_an_outlook_carries_the_evidence_of_its_own_families(
+    beispiel: results_dto.ResultDTO,
+) -> None:
+    """Ein Ausblick steht auf den Zitaten seiner eigenen Familien.
+
+    Die Kette lag schon bereit — Abdeckung, Signal, Zitat —, nur abgefragt
+    hatte sie hier niemand. Ein Ausblick ohne Beleg liest sich wie eine
+    Idee statt wie eine Folge aus dem, was er erzählt hat.
+    """
+
+    nach_bereich = {a.bereich: a for a in beispiel.ausblicke}
+
+    assert nach_bereich["steuerung_vorschau"].beleg_refs == ("B4",)
+    assert nach_bereich["service_selfservice"].beleg_refs == ("B6",)
+
+
+def test_an_outlook_without_evidence_stays_empty(
+    beispiel: results_dto.ResultDTO,
+) -> None:
+    """Wo nichts belegt ist, wird nichts geliehen.
+
+    SF-04 und SF-12 haben in diesem Fall kein Signal, das auf ein Zitat
+    zeigt. Ihnen eines der Nachbarn zu geben, sähe genauso überzeugend
+    aus wie ein echter Beleg — und wäre eine Verbindung, die niemand
+    geprüft hat.
+    """
+
+    nach_bereich = {a.bereich: a for a in beispiel.ausblicke}
+
+    assert nach_bereich["daten_systemverbund"].familien == ("SF-04",)
+    assert nach_bereich["daten_systemverbund"].beleg_refs == ()
+    assert nach_bereich["vorgaenge_aufgaben"].familien == ("SF-12",)
+    assert nach_bereich["vorgaenge_aufgaben"].beleg_refs == ()
+
+
+def test_every_outlook_reference_exists(beispiel: results_dto.ResultDTO) -> None:
+    """Jede Kennung zeigt auf einen Beleg, den es wirklich gibt."""
+
+    vorhanden = {beleg.id for beleg in beispiel.belege}
+
+    for ausblick in beispiel.ausblicke:
+        assert set(ausblick.beleg_refs) <= vorhanden
+
+
+def test_an_outlook_borrows_no_foreign_evidence(
+    beispiel: results_dto.ResultDTO,
+) -> None:
+    """Kein Zitat aus einer Familie, die zu diesem Ausblick nicht gehört.
+
+    Die Probe geht über dieselbe Zuordnung, die auch die Bereiche
+    benutzen: Was dort nicht unter einer der eigenen Familien steht, darf
+    hier nicht auftauchen.
+    """
+
+    zuordnung = results_dto._belege_je_familie(beispiel.entscheidung)
+
+    for ausblick in beispiel.ausblicke:
+        erlaubt = {
+            bezug
+            for familie in ausblick.familien
+            for bezug in zuordnung.get(familie, [])
+        }
+        assert set(ausblick.beleg_refs) <= erlaubt
+
+
+def test_outlook_evidence_is_free_of_duplicates_and_stable(
+    beispiel: results_dto.ResultDTO,
+) -> None:
+    """Keine Kennung zweimal, und zweimal derselbe Lauf ergibt dasselbe."""
+
+    nochmal = _dto_aus(BEISPIEL)
+
+    for ausblick, wieder in zip(beispiel.ausblicke, nochmal.ausblicke):
+        assert len(ausblick.beleg_refs) == len(set(ausblick.beleg_refs))
+        assert ausblick.beleg_refs == wieder.beleg_refs
+
+
+def test_a_run_without_a_ledger_gets_no_outlook_evidence() -> None:
+    """Ein Lauf ohne Speicher bekommt auch hier nichts angedichtet."""
+
+    for ausblick in _dto_aus(ALTLAUF).ausblicke:
+        assert ausblick.beleg_refs == ()
