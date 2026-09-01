@@ -34,7 +34,7 @@
 .before-after > article { align-self: start; min-height: 0; padding: clamp(1.15rem, 2.5vw, 1.7rem); border-radius: var(--radius-card); }
 .before-after__today { border: 1px solid #f5e0c2; background: var(--flaeche-sand); }
 .before-after__future { border: 1px solid var(--rand-mint); background: var(--flaeche-mint); }
-.before-after h3 { max-width: 20ch; margin-bottom: 1.2rem; font-size: clamp(1.25rem, 2vw, 1.65rem); }
+.before-after h3 { max-width: none; margin-bottom: 1.2rem; font-size: clamp(1.25rem, 2vw, 1.65rem); }
 .before-after ul { display: grid; gap: .7rem; margin: 0; padding: 0; list-style: none; }
 .before-after li { position: relative; padding-left: 1.45rem; color: var(--text-secondary); font-size: .9rem; line-height: 1.42; }
 .before-after__today li::before { position: absolute; left: 0; color: var(--text-warning); content: "×"; font-weight: 900; }
