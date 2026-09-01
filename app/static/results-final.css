@@ -3,7 +3,7 @@
 .results-v1--final > * + * { margin-top: clamp(2.7rem, 5vw, 4.7rem); }
 .results-hero--final { min-height: 0; align-items: center; padding-block: clamp(1rem, 4vw, 3.2rem); }
 .results-hero--final h1 { max-width: 18ch; font-size: clamp(2.25rem, 4vw, 3.7rem); }
-.start-decision--final { max-width: 25rem; justify-self: end; border-color: var(--rand-mint); background: linear-gradient(145deg, var(--surface-accent), var(--surface-elevated)); }
+.start-decision--final { max-width: 25rem; justify-self: end; border-color: var(--rand-mint); background: linear-gradient(168deg, var(--teal-soft) 0%, var(--grund) 100%); }
 .start-decision--final h2 { margin-bottom: .85rem; font-size: clamp(1.35rem, 2.2vw, 1.8rem); }
 .start-decision__outcome { color: var(--text-secondary); line-height: 1.5; }
 .start-decision--final .primary-button { width: 100%; margin-top: 1.1rem; }
