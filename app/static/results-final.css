@@ -147,7 +147,7 @@
 .responsibility-split__human li::before { position: absolute; left: 0; color: var(--text-warning); content: "○"; font-weight: 900; }
 .customer-boundaries { padding: clamp(1.2rem, 3vw, 1.9rem); border: 1px solid var(--rand-sand); border-radius: var(--radius-card); background: var(--flaeche-sand); }
 .customer-boundaries .section-intro { margin-bottom: 1rem; }
-.customer-boundaries h2 { font-size: 30px; }
+.customer-boundaries h2 { max-width: none; font-size: 25px; white-space: normal; }
 .customer-boundaries__list { display: grid; gap: .95rem; }
 .customer-boundaries__list article { display: grid; grid-template-columns: 1.3rem 1fr; gap: .75rem; max-width: 58rem; }
 .customer-boundaries__list > article > span { color: var(--text-accent); font-size: 1.1rem; }
