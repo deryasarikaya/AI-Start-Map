@@ -157,6 +157,7 @@
 
 /* Future: jede Karte benennt die spätere, kundennah sichtbare Funktion. */
 .future-section { padding: 1.5rem; border-radius: var(--radius-card); background: var(--flaeche-mint); }
+.future-section .section-intro--compact { max-width: none; }
 .future-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .9rem; }
 .future-cards article { align-self: stretch; min-height: 0; padding: 1.2rem; border: 1px solid var(--border-subtle); border-radius: var(--radius-control); background: var(--surface-elevated); }
 .future-cards h3 { margin: 0 0 .65rem; font-size: 1.15rem; }
