@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ statisch('/styles.css') }}">
     {% block extra_head %}{% endblock %}
 </head>
-<body>
+<body{% if pdf %} class="pdf-mode"{% endif %}>
     <header class="site-header">
         <div class="page-shell header-inner">
             <a class="brand" href="{{ url_for('landing') }}" aria-label="AI Start Map Startseite">

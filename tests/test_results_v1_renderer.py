@@ -52,3 +52,16 @@ def test_results_v1_projects_the_approved_four_stage_map() -> None:
     assert 'data-map-filter' not in template
     assert 'data-map-popup' not in template
     assert 'data-map-detail-close' not in template
+
+
+def test_results_v1_contains_the_new_full_pdf_flow() -> None:
+    """Die PDF nutzt dieselbe Result-Darstellung mit eigenem Deckblatt."""
+
+    template = (
+        Path(__file__).resolve().parents[1] / "app/templates/results_v1.html"
+    ).read_text(encoding="utf-8")
+
+    assert "pdf-cover" in template
+    assert "{{ stil('results-v1.css') }}" in template
+    assert "{{ stil('results-final.css') }}" in template
+    assert "@page { size: A4;" in template

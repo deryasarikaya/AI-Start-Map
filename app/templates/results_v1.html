@@ -5,9 +5,25 @@
 {% extends "base.html" %}
 
 {% block title %}Ihre Auswertung · AI Start Map{% endblock %}
-{% block extra_head %}<link rel="stylesheet" href="{{ statisch('/results-v1.css') }}&amp;cx=results-final-1"><link rel="stylesheet" href="{{ statisch('/results-final.css') }}&amp;cx=results-final-1">{% endblock %}
+{% block extra_head %}{% if pdf %}<style>{{ stil('results-v1.css') }}</style><style>{{ stil('results-final.css') }}</style><style>
+@page { size: A4; margin: 14mm 16mm 16mm; }
+.pdf-mode .site-header, .pdf-mode .processing-layer { display: none; }
+.pdf-mode .page-content { max-width: none; padding: 0; }
+.pdf-cover { min-height: 267mm; box-sizing: border-box; display: grid; align-content: center; padding: 42mm 24mm; page-break-after: always; background: linear-gradient(160deg, #e7f3ee 0%, #f4faf7 100%); color: #173b32; }
+.pdf-cover__eyebrow { margin: 0 0 1rem; color: #237966; font-size: .75rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+.pdf-cover h1 { max-width: 17ch; margin: 0 0 1.25rem; font-size: 2.8rem; line-height: 1.08; }
+.pdf-cover p { max-width: 54ch; margin: 0; color: #5d7770; line-height: 1.6; }
+.pdf-cover__meta { margin-top: 2.5rem !important; padding-top: 1rem; border-top: 1px solid #c6ddd4; font-size: .8rem; }
+.pdf-mode [data-results-root] > .results-note { display: none; }
+.pdf-mode [data-results-root] > section { break-before: page; }
+.pdf-mode [data-results-root] > .results-hero { break-before: auto; }
+.pdf-mode [data-results-root] > section, .pdf-mode [data-results-root] > aside { break-inside: avoid; }
+.pdf-mode h1, .pdf-mode h2, .pdf-mode h3 { break-after: avoid; }
+@media print { .pdf-cover { print-color-adjust: exact; -webkit-print-color-adjust: exact; } }
+</style>{% else %}<link rel="stylesheet" href="{{ statisch('/results-v1.css') }}&amp;cx=results-final-1"><link rel="stylesheet" href="{{ statisch('/results-final.css') }}&amp;cx=results-final-1">{% endif %}{% endblock %}
 
 {% block content %}
+{% if pdf %}<section class="pdf-cover" aria-label="Deckblatt"><div><p class="pdf-cover__eyebrow">AI Start Map · Ihre Auswertung</p><h1>{{ result.uebersicht.zielbild_name or result.uebersicht.zielbild_satz }}</h1><p>Ihre persönliche Auswertung: der heutige Ausgangspunkt, der sinnvolle erste Schritt und die nächsten Möglichkeiten für Ihren Betrieb.</p><p class="pdf-cover__meta">Erstellt auf Grundlage Ihrer eigenen Beschreibung · {{ auswertungsdatum }}</p></div></section>{% endif %}
 {% set start_modules = result.sichtbare_module | selectattr('module_key', 'in', result.karte.start) | list %}
 {% set future_items = result.ausblicke | selectattr('phase', 'equalto', 'future') | list %}
 {% set customer_boundaries = result.grenzen | selectattr('herkunft', 'equalto', 'kunde') | list %}
@@ -157,7 +173,8 @@
   <section class="results-cta results-cta--final" aria-labelledby="cta-title">
     <div><h2 id="cta-title">Möchten Sie so arbeiten?</h2><p>Diese Auswertung zeigt, wo Sie sinnvoll anfangen können und welche Möglichkeiten daraus entstehen. Im Gespräch klären wir, was für Ihren Betrieb wirklich Sinn ergibt.</p></div>
     {% set kontakt = gespraechs_adresse() %}
-    <div class="results-cta__actions">{% if kontakt %}<a class="primary-button" href="{{ kontakt }}"><span>Ja, ich möchte das umsetzen</span><span aria-hidden="true">→</span></a>{% endif %}<a class="secondary-button" href="/report.pdf"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path></svg><span>Auswertung als PDF ansehen</span></a></div>
+    {% set pdf_href = "/beispiel/" ~ beispiel_slug ~ "/report.pdf" if beispiel else "/report.pdf" %}
+    <div class="results-cta__actions">{% if kontakt %}<a class="primary-button" href="{{ kontakt }}"><span>Ja, ich möchte das umsetzen</span><span aria-hidden="true">→</span></a>{% endif %}<a class="secondary-button" href="{{ pdf_href }}"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path></svg><span>Auswertung als PDF ansehen</span></a></div>
     {% if kontakt %}<p class="results-cta__notice">Öffnet eine vorbereitete E-Mail für das Umsetzungsgespräch.</p>{% endif %}
     <div class="results-cta__trust"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3 19 6v5c0 4.4-2.9 8.3-7 10-4.1-1.7-7-5.6-7-10V6z"></path><path d="m9 12 2 2 4-4"></path></svg><div><span>Sie behalten die Kontrolle. Um die Umsetzung kümmern wir uns.</span><small>Diese Auswertung basiert auf Ihrer eigenen Beschreibung.</small></div></div>
   </section>

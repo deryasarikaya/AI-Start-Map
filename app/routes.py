@@ -542,8 +542,12 @@ async def show_report_pdf(
     if daten is None:
         return redirect_response(next_valid_path(database_session, session_id))
 
-    html = templates.get_template("report.html").render(
-        request=request, pdf=True, **daten
+    html = templates.get_template("results_v1.html").render(
+        request=request,
+        pdf=True,
+        beispiel=False,
+        result=results_dto.von_ergebnis(daten["e"]),
+        auswertungsdatum=daten["auswertungsdatum"],
     )
     try:
         dokument = await bericht_pdf.aus_html(html)
@@ -624,7 +628,43 @@ def show_example(
         context={
             "result": results_dto.von_ergebnis(ergebnis),
             "beispiel": True,
+            "beispiel_slug": example_slug,
         },
+    )
+
+
+@router.get("/beispiel/{example_slug}/report.pdf", name="show_example_report_pdf")
+async def show_example_report_pdf(
+    request: Request,
+    example_slug: str,
+    database_session: Session = Depends(get_db_session),
+) -> Response:
+    """Erzeugt die vollständige DTO-basierte PDF-Auswertung eines Beispiels."""
+
+    try:
+        ergebnis = example_service.example_result(database_session, example_slug)
+    except ExampleNotFound:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND) from None
+
+    html = templates.get_template("results_v1.html").render(
+        request=request,
+        pdf=True,
+        beispiel=True,
+        beispiel_slug=example_slug,
+        result=results_dto.von_ergebnis(ergebnis),
+        auswertungsdatum=date.today().strftime("%d.%m.%Y"),
+    )
+    try:
+        dokument = await bericht_pdf.aus_html(html)
+    except bericht_pdf.PdfNichtVerfuegbar:
+        logger.exception("PDF konnte nicht erzeugt werden, Beispiel %s", example_slug)
+        return redirect_response(f"/beispiel/{example_slug}")
+
+    name = bericht_pdf.dateiname(date.today().strftime("%d.%m.%Y"))
+    return Response(
+        content=dokument,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'inline; filename="{name}"'},
     )
 
 
