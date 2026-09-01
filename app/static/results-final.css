@@ -34,14 +34,16 @@
 
 /* Freigegebene Betriebslandkarte: kein Filter, keine Tabs, kein Inspector. */
 .map-section--approved { scroll-margin-top: 1.5rem; }
-.approved-map { position: relative; overflow: hidden; padding: clamp(1rem, 2.5vw, 1.5rem); border: 1px solid var(--rand-mint); border-radius: var(--radius-card); background: linear-gradient(120deg, var(--grund-tief), var(--flaeche-mint) 52%, var(--flaeche-sand)); box-shadow: var(--shadow-card); }
-.approved-map__terrain { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-.approved-map__terrain path { fill: none; stroke: color-mix(in srgb, var(--teal) 20%, white); stroke-width: 1.1; }
-.approved-map__terrain .approved-map__route-under { stroke: color-mix(in srgb, var(--teal) 14%, white); stroke-width: 12; }
-.approved-map__terrain .approved-map__route { stroke: var(--teal); stroke-width: 3; }
+.approved-map { position: relative; overflow: hidden; padding: clamp(1rem, 2.5vw, 1.5rem); border: 1px solid #B6D8D0; border-radius: 1.7rem; background: radial-gradient(circle at 49% 53%, rgb(255 255 255 / .7) 0 13%, transparent 30%), radial-gradient(circle at 9% 9%, #D7EEE7 0, transparent 35%), radial-gradient(circle at 96% 82%, #F7ECD6 0, transparent 35%), #EDF6F2; box-shadow: 0 1.1rem 2.9rem rgb(28 84 70 / .12); isolation: isolate; }
+.approved-map::before { position: absolute; z-index: -1; inset: -24%; background: radial-gradient(ellipse at center, rgb(47 133 120 / .12), transparent 56%); content: ""; }
+.approved-map__terrain { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: .88; }
+.approved-map__terrain path { fill: none; stroke: color-mix(in srgb, var(--teal) 28%, white); stroke-width: 1.1; }
 .approved-map__terrain .approved-map__later-route { stroke: var(--warm); stroke-width: 1.6; stroke-dasharray: 5 7; }
-.approved-map__stages { position: relative; display: grid; grid-template-columns: 1.05fr .92fr 1.13fr .9fr; gap: 1rem; min-height: 24rem; }
-.approved-map__stage { display: grid; grid-template-rows: auto 1fr; min-width: 0; }
+.approved-map__stages { position: relative; display: grid; grid-template-columns: 1.05fr .92fr 1.13fr .9fr; gap: .7rem; min-height: 24rem; }
+.approved-map__stage { display: grid; grid-template-rows: auto 1fr; min-width: 0; padding: .55rem .5rem .75rem; border-top: 2px solid color-mix(in srgb, var(--teal) 28%, transparent); border-radius: 1rem; background: linear-gradient(180deg, rgb(255 255 255 / .48), rgb(255 255 255 / 0) 76%); }
+.approved-map__stage--connect { border-top-color: var(--teal); background: linear-gradient(180deg, rgb(212 237 229 / .86), rgb(223 241 236 / .12) 78%); }
+.approved-map__stage--target { border-top-color: var(--marke); background: linear-gradient(180deg, rgb(234 246 241 / .78), rgb(255 255 255 / 0) 76%); }
+.approved-map__stage--later { border-top-color: var(--warm); background: linear-gradient(180deg, rgb(255 249 238 / .86), rgb(255 255 255 / 0) 76%); }
 .approved-map__stage-head { display: flex; align-items: center; gap: .5rem; min-height: 1.8rem; margin: 0 0 .8rem; color: var(--text-muted); font-size: .66rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
 .approved-map__stage-head b { display: grid; width: 1.4rem; height: 1.4rem; place-items: center; border: 1px solid var(--border-subtle); border-radius: 50%; color: var(--text-muted); background: var(--surface-elevated); font-size: .66rem; letter-spacing: 0; }
 .approved-map__stage--connect .approved-map__stage-head, .approved-map__stage--target .approved-map__stage-head { color: var(--text-accent); }
@@ -82,6 +84,28 @@
 .map-explainer h3 { margin: .15rem 0 .35rem; font-size: 1.05rem; }
 .map-explainer p:last-child { margin-bottom: 0; color: var(--text-secondary); font-size: .86rem; line-height: 1.42; }
 
+/* Die Map bewegt sich wie ein ruhiges Gelände, nie wie eine Präsentationsanimation. */
+@media (prefers-reduced-motion: no-preference) {
+  .results-v1--final > section { animation: results-section-arrival .58s cubic-bezier(.2, .75, .28, 1) both; }
+  .results-v1--final > section:nth-of-type(2) { animation-delay: .05s; }
+  .results-v1--final > section:nth-of-type(3) { animation-delay: .1s; }
+  .results-v1--final > section:nth-of-type(4) { animation-delay: .15s; }
+  .approved-map::before { animation: map-glow-drift 12s ease-in-out infinite alternate; }
+  .approved-map__terrain { animation: map-terrain-drift 16s ease-in-out infinite alternate; }
+  .approved-map__center { animation: map-center-float 4.6s ease-in-out infinite; }
+  .approved-map__bridge-step--start { position: relative; }
+  .approved-map__bridge-step--start::after { position: absolute; inset: -.28rem; border: 1px solid rgb(47 133 120 / .42); border-radius: 1rem; content: ""; animation: map-start-pulse 3.2s ease-out infinite; pointer-events: none; }
+  .approved-map__later-route { animation: map-later-flow 5s linear infinite; }
+  .approved-map__point, .approved-map__bridge-step { transition: transform var(--motion-standard) var(--motion-ease), box-shadow var(--motion-standard) var(--motion-ease); }
+  .approved-map__point:hover, .approved-map__bridge-step:hover { transform: translateY(-.16rem); }
+}
+@keyframes results-section-arrival { from { opacity: 0; transform: translateY(.65rem); } to { opacity: 1; transform: translateY(0); } }
+@keyframes map-glow-drift { from { transform: translate3d(-3%, -2%, 0) scale(.96); } to { transform: translate3d(5%, 3%, 0) scale(1.08); } }
+@keyframes map-terrain-drift { from { transform: translateX(-.45%); } to { transform: translateX(.45%); } }
+@keyframes map-center-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-.32rem); } }
+@keyframes map-start-pulse { 0%, 36% { opacity: 0; transform: scale(.98); } 56% { opacity: .8; } 100% { opacity: 0; transform: scale(1.1); } }
+@keyframes map-later-flow { to { stroke-dashoffset: -48; } }
+
 /* Alter Claude-Alltagsflow: eine verbundene Strecke, nicht Kartenraster. */
 .operating-section--final { padding: clamp(1.25rem, 3vw, 2rem); border: 1px solid var(--rand-mint); border-radius: var(--radius-card); background: var(--surface-accent); }
 .operating-section__intro { margin-inline: auto; text-align: center; }
@@ -93,7 +117,7 @@
 .everyday-flow ul { display: grid; gap: .4rem; margin: 0; padding: 0; list-style: none; }
 .everyday-flow li { padding: .35rem .45rem; border-radius: .45rem; color: var(--text-secondary); background: var(--flaeche-sand); font-size: .72rem; line-height: 1.3; }
 .everyday-flow > i { display: grid; place-items: center; color: var(--teal); font-size: 1.25rem; font-style: normal; font-weight: 900; }
-.everyday-flow__stage--automation { border-color: #4F9F90 !important; background: linear-gradient(165deg, #94C9BD 0%, #C7E3DB 100%) !important; box-shadow: var(--shadow-card); }
+.everyday-flow__stage--automation { border-color: #74B7A8 !important; background: linear-gradient(165deg, #B8DDD3 0%, #D9EEE7 100%) !important; box-shadow: var(--shadow-card); }
 .everyday-flow__stage--automation li { background: var(--surface-elevated); }
 .everyday-flow__stage--center { border-color: var(--teal-tief) !important; color: var(--flaeche); background: var(--teal) !important; }
 .everyday-flow__stage--center p { color: var(--teal-soft); }
