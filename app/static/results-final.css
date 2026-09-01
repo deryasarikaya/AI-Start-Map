@@ -43,13 +43,12 @@
 .approved-map__stage { display: grid; grid-template-rows: auto 1fr; min-width: 0; padding: .55rem .5rem .75rem; border-top: 2px solid color-mix(in srgb, var(--teal) 28%, transparent); border-radius: 1rem; background: linear-gradient(180deg, rgb(255 255 255 / .48), rgb(255 255 255 / 0) 76%); }
 .approved-map__stage--connect { border-top-color: var(--teal); background: linear-gradient(180deg, rgb(212 237 229 / .86), rgb(223 241 236 / .12) 78%); }
 .approved-map__stage--target { border-top-color: var(--marke); background: linear-gradient(180deg, rgb(234 246 241 / .78), rgb(255 255 255 / 0) 76%); }
-.approved-map__stage--later { border-top-color: var(--warm); background: linear-gradient(180deg, rgb(255 249 238 / .86), rgb(255 255 255 / 0) 76%); }
+.approved-map__stage--later { border-top-color: #D5A63B; background: linear-gradient(180deg, rgb(250 228 174 / .8), rgb(255 247 226 / .2) 78%); opacity: 1; }
 .approved-map__stage-head { display: flex; align-items: center; gap: .5rem; min-height: 1.8rem; margin: 0 0 .8rem; color: var(--text-muted); font-size: .66rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
 .approved-map__stage-head b { display: grid; width: 1.4rem; height: 1.4rem; place-items: center; border: 1px solid var(--border-subtle); border-radius: 50%; color: var(--text-muted); background: var(--surface-elevated); font-size: .66rem; letter-spacing: 0; }
 .approved-map__stage--connect .approved-map__stage-head, .approved-map__stage--target .approved-map__stage-head { color: var(--text-accent); }
 .approved-map__stage--connect .approved-map__stage-head b { border-color: var(--teal); color: var(--flaeche); background: var(--teal); }
 .approved-map__stage--target .approved-map__stage-head b { border-color: var(--marke); color: var(--flaeche); background: var(--marke); }
-.approved-map__stage--later { opacity: .78; }
 .approved-map__list, .approved-map__bridge { display: grid; align-content: center; gap: .8rem; padding-bottom: 1.9rem; }
 .approved-map__point { display: grid; grid-template-columns: 1.85rem 1fr; gap: .5rem; align-items: center; }
 .approved-map__pin { display: grid; width: 1.75rem; height: 1.75rem; place-items: center; border: 1px solid var(--rand-sand); border-radius: 50% 50% 50% .5rem; color: var(--text-warning); background: var(--flaeche-sand); box-shadow: 0 .25rem .55rem rgba(75, 70, 55, .08); font-size: .72rem; }
@@ -58,7 +57,9 @@
 .approved-map__point b { color: var(--text-primary); font-size: .76rem; line-height: 1.2; }
 .approved-map__point small { margin-top: .15rem; color: var(--text-muted); font-size: .65rem; line-height: 1.28; }
 .approved-map__point--today { opacity: .85; }
-.approved-map__point--later .approved-map__pin { border-style: dashed; }
+.approved-map__stage--today .approved-map__point { padding: .42rem; border-radius: .7rem; background: rgb(255 255 255 / .42); }
+.approved-map__point--later { padding: .48rem; border: 1px solid rgb(213 166 59 / .38); border-radius: .76rem; background: rgb(255 252 242 / .72); box-shadow: 0 .4rem .9rem rgb(152 111 28 / .08); }
+.approved-map__point--later .approved-map__pin { border-color: #E8C76C; border-style: dashed; background: #FFF4D8; }
 .approved-map__bridge { gap: .55rem; }
 .approved-map__bridge-step { display: grid; grid-template-columns: 1.7rem 1fr; gap: .48rem; align-items: center; padding: .65rem; border: 1px solid var(--rand-mint); border-radius: .85rem; background: color-mix(in srgb, var(--flaeche-mint) 88%, white); }
 .approved-map__bridge-step > span { display: grid; width: 1.55rem; height: 1.55rem; place-items: center; border-radius: .45rem; color: var(--text-accent); background: var(--teal-soft); font-size: .75rem; }
@@ -101,13 +102,13 @@
 }
 @keyframes results-section-arrival { from { opacity: 0; transform: translateY(.65rem); } to { opacity: 1; transform: translateY(0); } }
 @keyframes map-glow-drift { from { transform: translate3d(-3%, -2%, 0) scale(.96); } to { transform: translate3d(5%, 3%, 0) scale(1.08); } }
-@keyframes map-terrain-drift { from { transform: translateX(-.45%); } to { transform: translateX(.45%); } }
+@keyframes map-terrain-drift { from { transform: translate3d(-1.8%, -.35%, 0) scale(1.025); } to { transform: translate3d(1.8%, .35%, 0) scale(1.025); } }
 @keyframes map-center-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-.32rem); } }
 @keyframes map-start-pulse { 0%, 36% { opacity: 0; transform: scale(.98); } 56% { opacity: .8; } 100% { opacity: 0; transform: scale(1.1); } }
 @keyframes map-later-flow { to { stroke-dashoffset: -48; } }
 
 /* Alter Claude-Alltagsflow: eine verbundene Strecke, nicht Kartenraster. */
-.operating-section--final { padding: clamp(1.25rem, 3vw, 2rem); border: 1px solid var(--rand-mint); border-radius: var(--radius-card); background: var(--surface-accent); }
+.operating-section--final { padding: clamp(1.25rem, 3vw, 2rem); border: 1px solid var(--linie); border-radius: var(--radius-card); background: var(--flaeche-karte); }
 .operating-section__intro { margin-inline: auto; text-align: center; }
 .operating-section__intro h2 { margin-inline: auto; }
 .everyday-flow { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1.1fr) auto minmax(0, 1fr) auto minmax(0, 1fr); gap: .55rem; align-items: stretch; }
