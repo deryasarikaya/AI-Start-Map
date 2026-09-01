@@ -142,7 +142,8 @@ POST /analyze     analysis_service      run_second_call
                     → openai_service    generate_result_part_two      Aufruf 3+4
                     → repository        Ergebnis speichern
 GET  /results     routes                Ergebnisseite
-GET  /report      routes                Druckansicht fürs PDF
+GET  /report      routes                lesbare HTML-Fallbackseite
+GET  /report.pdf  routes                serverseitig gerendertes A4-PDF
 ```
 
 `/beispiel/hausverwaltung` zeigt einen gespeicherten Lauf ohne jeden
@@ -389,11 +390,16 @@ erscheint nur mit einer tatsächlich konfigurierten `KONTAKT_ADRESSE` und nutzt
 die vorbereitete `mailto:`-Adresse. So ist der CTA vollständig, ohne einen
 leeren Mail-Empfänger vorzutäuschen.
 
-Der bestehende PDF-Weg bleibt in diesem Clean-Sheet-Pass funktionsfähig, ist
-aber **nicht** der visuelle oder technische Constraint der neuen Web-Results.
-Er wird hier nicht auf den neuen Renderer umgestellt. Eine spätere
-PDF-Umsetzung muss denselben ResultDTO konsumieren, bevor sie als gleichwertige
-Darstellung dokumentiert werden darf.
+Die PDF-Auswertung nutzt denselben `ResultDTO` wie die Web-Ergebnisseite,
+aber eine eigene, druckoptimierte Vorlage: `results_pdf.html` bindet
+`results-pdf.css` inline ein, damit der Renderer keine weiteren Netzaufrufe
+braucht. Chromium erzeugt daraus ein kontrolliertes A4-Dokument mit einer
+vollflächigen mintfarbenen Titelseite, anschließenden Abschnitten im
+fortlaufenden Seitenfluss und `break-inside: avoid` für Karten und
+zusammengehörige Blöcke. Die letzte Seite enthält ausschließlich die
+Kontaktinformation; Web-Buttons und Druckhinweise werden nicht übernommen.
+`/beispiel/{slug}/report.pdf` verwendet denselben Pfad für den gespeicherten
+Vorführfall.
 
 Fehlt für einen Rahmen der Inhalt, bleibt `inhalt` leer und `hat_inhalt`
 falsch — die Darstellung sieht es an einem Feld statt an einer fehlenden

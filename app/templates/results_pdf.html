@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>Ihre Auswertung · AI Start Map</title>
+  <style>{{ stil('results-pdf.css') }}</style>
+</head>
+<body>
+{% set start_modules = result.sichtbare_module | selectattr('module_key', 'in', result.karte.start) | list %}
+{% set future_items = result.ausblicke | selectattr('phase', 'equalto', 'future') | list %}
+{% set customer_boundaries = result.grenzen | selectattr('herkunft', 'equalto', 'kunde') | list %}
+{% set system_capabilities = namespace(items=[]) %}
+{% for module in start_modules %}{% for capability in module.capability_refs %}{% if capability.label not in system_capabilities.items and system_capabilities.items | length < 5 %}{% set system_capabilities.items = system_capabilities.items + [capability.label] %}{% endif %}{% endfor %}{% endfor %}
+{% set start_outcomes = namespace(items=[]) %}
+{% for module in start_modules %}{% for outcome in module.outcomes %}{% if outcome not in start_outcomes.items and start_outcomes.items | length < 3 %}{% set start_outcomes.items = start_outcomes.items + [outcome] %}{% endif %}{% endfor %}{% endfor %}
+
+<article class="pdf-document">
+  <section class="pdf-cover">
+    <div class="pdf-cover__inner">
+      <div class="pdf-cover__rule"></div>
+      <p class="pdf-cover__eyebrow">AI Start Map · Ihre Auswertung</p>
+      <h1>Ihre persönliche Auswertung</h1>
+      <p class="pdf-cover__subtitle">Eine klare Übersicht darüber, wo Ihr Betrieb heute steht, was bereits funktioniert und welche nächsten Schritte sich daraus ergeben.</p>
+      <p class="pdf-cover__meta">Erstellt auf Grundlage Ihrer eigenen Beschreibung · {{ auswertungsdatum }}</p>
+    </div>
+  </section>
+
+  <div class="pdf-body">
+    <section class="pdf-section pdf-hero">
+      <p class="pdf-kicker">So könnte Ihr Betrieb künftig laufen</p>
+      <h2>{{ result.uebersicht.zielbild_name or result.uebersicht.zielbild_satz }}</h2>
+      {% if result.uebersicht.zielbild_name and result.uebersicht.zielbild_satz %}<p class="pdf-hero__target">{{ result.uebersicht.zielbild_satz }}</p>{% endif %}
+      {% if start_modules %}<div class="pdf-card pdf-card--mint" style="margin-top:7mm;max-width:105mm"><p class="pdf-kicker">Hier würden wir anfangen</p><h3>{% for module in start_modules[:2] %}{{ module.customer_label }}{% if not loop.last %} · {% endif %}{% endfor %}</h3>{% if start_outcomes.items %}<p>{{ start_outcomes.items[0] }}</p>{% endif %}</div>{% endif %}
+    </section>
+
+    {% if result.anker %}<section class="pdf-section"><div class="pdf-section__head"><div><p class="pdf-kicker">Das haben wir verstanden</p><h2>{{ result.uebersicht.engpass }}</h2><p class="pdf-section__lead">Was heute unnötig Aufwand erzeugt.</p></div></div><div class="pdf-card-grid">{% for anchor in result.anker[:3] %}{% set evidence = (result.belege | selectattr('id', 'in', anchor.evidence_refs) | list | first) %}<article class="pdf-card"><h3>{{ anchor.customer_label }}</h3>{% if anchor.short_description %}<p>{{ anchor.short_description }}</p>{% endif %}{% if evidence %}<blockquote>„{{ evidence.zitat }}“</blockquote>{% endif %}</article>{% endfor %}</div></section>{% endif %}
+
+    {% if result.anker or start_outcomes.items %}<section class="pdf-section"><p class="pdf-kicker">Auf einen Blick</p><h2>Was sich mit AI Start Map für Sie verändert</h2><div class="pdf-before-after" style="margin-top:6mm"><article class="pdf-card pdf-card--sand"><p class="pdf-kicker">Heute · ohne AI Start Map</p><h3>Heute hält Ihr Team die Informationen selbst zusammen</h3><ul>{% for anchor in result.anker[:3] %}<li>{{ anchor.customer_label }}</li>{% endfor %}</ul></article><div class="pdf-before-after__arrow">→</div><article class="pdf-card pdf-card--mint"><p class="pdf-kicker">Mit AI Start Map</p><h3>Mit AI Start Map entsteht ein gemeinsamer Arbeitsstand</h3><ul>{% for outcome in start_outcomes.items %}<li>{{ outcome }}</li>{% endfor %}</ul></article></div></section>{% endif %}
+
+    <section class="pdf-section pdf-map-section"><p class="pdf-kicker">Ihre AI Start Map</p><h2>Eine Betriebslandkarte, die sich mit Ihrem Betrieb füllt.</h2><p class="pdf-section__lead">Von links nach rechts: heutige Reibung, verbindende Bausteine, neuer Arbeitsstand und spätere Möglichkeiten.</p><div class="pdf-map" style="margin-top:6mm"><div class="pdf-map__stages"><article class="pdf-map__stage"><h3>1 · Heute</h3>{% for anchor in result.anker[:3] %}<p><b>{{ anchor.customer_label }}</b><small>{{ anchor.short_description }}</small></p>{% endfor %}</article><article class="pdf-map__stage pdf-map__stage--connect"><h3>2 · Was verbindet</h3>{% for module in start_modules[:3] %}<p><b>{{ module.customer_label }}</b>{% if module.capability_refs %}<small>{{ module.capability_refs[0].label }}</small>{% endif %}</p>{% endfor %}</article><article class="pdf-map__stage pdf-map__stage--target"><h3>3 · Neuer Arbeitsstand</h3><p><b>{{ result.karte.mitte.label }}</b><small>{{ result.karte.mitte.zweck }}</small></p></article><article class="pdf-map__stage pdf-map__stage--later"><h3>4 · Später möglich</h3>{% for future in future_items[:3] %}<p><b>{{ future.outcome }}</b></p>{% endfor %}</article></div></div></section>
+
+    <section class="pdf-section pdf-flow-section"><p class="pdf-kicker">Gemeinsamer Arbeitsstand je Anfrage</p><h2>So liefe Ihr Alltag künftig</h2><p class="pdf-section__lead">Wiederkehrende Schritte werden vorbereitet; der nächste wichtige Schritt bleibt sichtbar.</p><div class="pdf-flow" style="margin-top:6mm"><article><h3>Neue Informationen</h3><ul>{% for anchor in result.anker[:2] %}<li>{{ anchor.customer_label }}</li>{% endfor %}</ul></article><i>→</i><article><h3>Automatisch vorbereiten</h3><ul>{% for capability in system_capabilities.items[:3] %}<li>{{ capability }}</li>{% endfor %}</ul></article><i>→</i><article><h3>Gemeinsamer Arbeitsstand</h3><ul><li>{{ result.karte.mitte.zweck }}</li></ul></article><i>→</i><article><h3>Nachvollziehbarer nächster Schritt</h3><ul>{% for outcome in start_outcomes.items[:2] %}<li>{{ outcome }}</li>{% endfor %}</ul></article></div></section>
+
+    {% if system_capabilities.items or result.mensch_behaelt %}<section class="pdf-section pdf-responsibility-section"><p class="pdf-kicker">System und Verantwortung</p><h2>Das läuft künftig automatisch — das bleibt in Ihrer Verantwortung</h2><p class="pdf-section__lead">Wiederkehrende Arbeit wird vorbereitet. Entscheidungen bleiben bei Ihnen.</p><div class="pdf-responsibility" style="margin-top:6mm">{% if system_capabilities.items %}<article><h3>Das übernimmt das System</h3><ul>{% for capability in system_capabilities.items %}<li>{{ capability }}</li>{% endfor %}</ul></article>{% endif %}{% if result.mensch_behaelt %}<article><h3>Das bleibt in Ihrer Verantwortung</h3><ul>{% for item in result.mensch_behaelt[:5] %}<li>{{ item }}</li>{% endfor %}</ul></article>{% endif %}</div></section>{% endif %}
+
+    {% if customer_boundaries %}<section class="pdf-section pdf-boundaries-section"><p class="pdf-kicker">Ihre Rahmenbedingungen</p><h2>Die von Ihnen definierten Grenzen bleiben Teil der Lösung.</h2><div class="pdf-boundaries" style="margin-top:6mm">{% for boundary in customer_boundaries[:3] %}<article><span>♢</span><div><h3>{{ boundary.titel }}</h3><p>{{ boundary.erlaeuterung }}</p></div></article>{% endfor %}</div></section>{% endif %}
+
+    {% if future_items %}<section class="pdf-section pdf-future-section"><p class="pdf-kicker">Wenn das läuft</p><h2>Welche Möglichkeiten wir danach gemeinsam prüfen würden</h2><p class="pdf-section__lead">Sie müssen nicht alles auf einmal umsetzen. Wenn die Grundlage steht, können weitere Bereiche Schritt für Schritt sinnvoll darauf aufbauen.</p><div class="pdf-card-grid" style="margin-top:6mm">{% for future in future_items[:4] %}<article class="pdf-card"><h3>{{ future.outcome }}</h3><p>{{ future.grund_fuer_spaeter }}</p></article>{% endfor %}</div></section>{% endif %}
+
+    <section class="pdf-section pdf-contact-section"><div class="pdf-contact"><p class="pdf-kicker">Kontakt</p><h2>Möchten Sie den nächsten Schritt besprechen?</h2><p>Wenn Sie gemeinsam prüfen möchten, wie sich diese Auswertung in Ihrem Betrieb umsetzen lässt, schreiben Sie gerne direkt.</p><p class="pdf-contact__address">{{ kontakt_adresse() or 'deryaxsarikaya@gmail.com' }}</p><p class="pdf-contact__note">Bitte hängen Sie diese Auswertung an Ihre E-Mail an, damit wir direkt an den Ergebnissen anknüpfen können.</p></div><p class="pdf-footer">AI Start Map · Ihre persönliche Auswertung · {{ auswertungsdatum }}</p></section>
+  </div>
+</article>
+</body>
+</html>

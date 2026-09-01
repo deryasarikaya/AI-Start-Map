@@ -1,9 +1,9 @@
-{# **Die Auswertung als Dokument.** Acht Seiten, feste Reihenfolge.
+{# **Die Auswertung als lesbare Fallback-Seite.**
 
-   Das hier ist keine Druckansicht der Ergebnisseite mehr. Es wird auf dem
-   Server zu einem PDF gerendert (`app/bericht_pdf.py`), und die
-   Seitenaufteilung steht deshalb hier unten unter `@page` — nicht in den
-   Einstellungen eines fremden Druckdialogs.
+   Der PDF-Weg nutzt inzwischen die eigenständige Vorlage
+   `results_pdf.html` mit `results-pdf.css`. Diese Seite bleibt als
+   HTML-Fallback erhalten, falls die serverseitige PDF-Erzeugung nicht
+   verfügbar ist.
 
    **Was hier nicht mehr steht.** Der Anhang trug Kurzfassung, Reihenfolge,
    Begründung, Hebel, Wert, Systeme, Architektur und Umsetzungsschritte.

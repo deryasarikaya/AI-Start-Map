@@ -11,7 +11,7 @@ keines davon sah aus wie etwas, das man weiterleitet.
 
 Hier entsteht das PDF stattdessen auf dem Server: **eine** Seitengrösse,
 **ein** Rand, keine Browserzeilen, Hintergrundfarben immer an. Die
-Seitenaufteilung steht in `report.html` unter `@page` — nicht in den
+Seitenaufteilung steht in `results-pdf.css` unter `@page` — nicht in den
 Einstellungen eines fremden Rechners.
 
 **Das Blatt ist geschlossen.** Gerendert wird eine Zeichenkette, kein

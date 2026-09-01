@@ -542,7 +542,7 @@ async def show_report_pdf(
     if daten is None:
         return redirect_response(next_valid_path(database_session, session_id))
 
-    html = templates.get_template("results_v1.html").render(
+    html = templates.get_template("results_pdf.html").render(
         request=request,
         pdf=True,
         beispiel=False,
@@ -646,7 +646,7 @@ async def show_example_report_pdf(
     except ExampleNotFound:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND) from None
 
-    html = templates.get_template("results_v1.html").render(
+    html = templates.get_template("results_pdf.html").render(
         request=request,
         pdf=True,
         beispiel=True,

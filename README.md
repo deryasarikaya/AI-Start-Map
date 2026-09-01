@@ -48,6 +48,11 @@ Erzählung des Betriebs
         └─ Ergebnisseite + PDF
 ```
 
+Die PDF-Auswertung wird serverseitig aus demselben `ResultDTO` wie die
+Ergebnisseite erzeugt. Eine eigene A4-Vorlage (`app/templates/results_pdf.html`
+mit `app/static/results-pdf.css`) hält die mintfarbene Titelseite,
+zusammengehörige Karten und den fortlaufenden Seitenfluss stabil.
+
 Details in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 Die gemeinsame visuelle und inhaltliche Foundation für Landingpage,
