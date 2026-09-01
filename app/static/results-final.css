@@ -117,7 +117,7 @@
 @keyframes map-later-flow { to { stroke-dashoffset: -48; } }
 
 /* Alter Claude-Alltagsflow: eine verbundene Strecke, nicht Kartenraster. */
-.operating-section--final { padding: clamp(1.25rem, 3vw, 2rem); border: 1px solid var(--linie); border-radius: var(--radius-card); background: var(--flaeche-karte); }
+.operating-section--final { padding: 1.5rem; border: 1px solid var(--linie); border-radius: var(--radius-card); background: var(--flaeche-karte); }
 .operating-section__intro { margin-inline: 0; text-align: left; }
 .operating-section__intro h2 { margin-inline: 0; }
 .everyday-flow { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1.1fr) auto minmax(0, 1fr) auto minmax(0, 1fr); gap: .55rem; align-items: stretch; }
@@ -146,7 +146,7 @@
 .responsibility-split__system li::before { position: absolute; left: 0; color: var(--teal); content: "✓"; font-weight: 900; }
 .responsibility-split__human li::before { position: absolute; left: 0; color: var(--text-warning); content: "○"; font-weight: 900; }
 .customer-boundaries { padding: 1.5rem; border: 1px solid var(--rand-sand); border-radius: var(--radius-card); background: var(--flaeche-sand); }
-.customer-boundaries .section-intro { margin-bottom: 1rem; }
+.customer-boundaries .section-intro { margin-bottom: 1.2rem; }
 .customer-boundaries h2 { max-width: none; font-size: 25px; white-space: normal; }
 .customer-boundaries__list { display: grid; gap: .95rem; }
 .customer-boundaries__list article { display: grid; grid-template-columns: 1.3rem 1fr; gap: .75rem; max-width: 58rem; }
