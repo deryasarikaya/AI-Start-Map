@@ -22,7 +22,7 @@
 /* Vorher / Nachher */
 .before-after { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 1rem; align-items: stretch; }
 .before-after > article { min-height: 16rem; padding: clamp(1.15rem, 2.5vw, 1.7rem); border-radius: var(--radius-card); }
-.before-after__today { border: 1px solid var(--rand-sand); background: var(--flaeche-sand); }
+.before-after__today { border: 1px solid #f5e0c2; background: var(--flaeche-sand); }
 .before-after__future { border: 1px solid var(--rand-mint); background: var(--flaeche-mint); }
 .before-after h3 { max-width: 20ch; margin-bottom: 1.2rem; font-size: clamp(1.25rem, 2vw, 1.65rem); }
 .before-after ul { display: grid; gap: .7rem; margin: 0; padding: 0; list-style: none; }
@@ -110,7 +110,7 @@
 .responsibility-split li { position: relative; padding-left: 1.5rem; color: var(--text-secondary); font-size: .9rem; line-height: 1.42; }
 .responsibility-split__system li::before { position: absolute; left: 0; color: var(--teal); content: "✓"; font-weight: 900; }
 .responsibility-split__human li::before { position: absolute; left: 0; color: var(--text-warning); content: "○"; font-weight: 900; }
-.customer-boundaries { padding: clamp(1.2rem, 3vw, 1.9rem); border: 1px solid var(--rand-sand); border-radius: var(--radius-card); background: color-mix(in srgb, var(--flaeche-sand) 66%, var(--surface-elevated)); }
+.customer-boundaries { padding: clamp(1.2rem, 3vw, 1.9rem); border: 1px solid var(--rand-sand); border-radius: var(--radius-card); background: var(--flaeche-sand); }
 .customer-boundaries__list { display: grid; gap: .95rem; }
 .customer-boundaries__list article { display: grid; grid-template-columns: 1.3rem 1fr; gap: .75rem; max-width: 58rem; }
 .customer-boundaries__list > article > span { color: var(--text-accent); font-size: 1.1rem; }
