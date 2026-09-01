@@ -21,7 +21,7 @@
 
 /* Problemverständnis */
 .understood-section { padding: 1.25rem 1.5rem .9rem; border: 1px solid var(--border-subtle); border-radius: var(--radius-card); background: var(--surface-elevated); }
-.understood-section .section-intro { margin-bottom: .65rem; }
+.understood-section .section-intro { margin-bottom: 0; }
 .evidence-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .85rem; }
 .evidence-card { align-self: start; min-height: 0; padding: 1rem; border: 1px solid var(--border-subtle); border-radius: var(--radius-control); background: var(--grund-tief); }
 .evidence-card__mark { display: grid; width: 1.8rem; height: 1.8rem; place-items: center; border-radius: 50%; color: var(--text-accent); background: var(--teal-soft); font-weight: 900; }
@@ -157,7 +157,7 @@
 
 /* Future: jede Karte benennt die spätere, kundennah sichtbare Funktion. */
 .future-section { padding: 1.5rem; border-radius: var(--radius-card); background: var(--flaeche-mint); }
-.future-section .section-intro--compact { max-width: none; margin-bottom: .65rem; }
+.future-section .section-intro--compact { max-width: none; margin-bottom: 0; }
 .future-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .9rem; }
 .future-cards article { align-self: stretch; min-height: 0; padding: 1.2rem; border: 1px solid var(--border-subtle); border-radius: var(--radius-control); background: var(--surface-elevated); }
 .future-cards h3 { margin: 0 0 .65rem; font-size: 1.15rem; }
