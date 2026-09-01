@@ -63,7 +63,6 @@
         {% for anchor in result.anker[:3] %}
           {% set evidence = (result.belege | selectattr('id', 'in', anchor.evidence_refs) | list | first) %}
           <article class="evidence-card">
-            <span class="evidence-card__mark" aria-hidden="true">↗</span>
             <h3>{{ anchor.customer_label }}</h3>
             {% if anchor.short_description %}<p>{{ anchor.short_description }}</p>{% endif %}
             {% if evidence %}<blockquote>„{{ evidence.zitat }}“</blockquote>{% endif %}

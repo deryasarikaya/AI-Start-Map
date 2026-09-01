@@ -20,11 +20,12 @@
 .section-intro--compact h2 { max-width: 28ch; }
 
 /* Problemverständnis */
-.understood-section { padding: 1.5rem; border: 1px solid var(--border-subtle); border-radius: var(--radius-card); background: var(--surface-elevated); }
+.understood-section { padding: 1.25rem 1.5rem .9rem; border: 1px solid var(--border-subtle); border-radius: var(--radius-card); background: var(--surface-elevated); }
+.understood-section .section-intro { margin-bottom: .9rem; }
 .evidence-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .85rem; }
 .evidence-card { align-self: start; min-height: 0; padding: 1rem; border: 1px solid var(--border-subtle); border-radius: var(--radius-control); background: var(--grund-tief); }
 .evidence-card__mark { display: grid; width: 1.8rem; height: 1.8rem; place-items: center; border-radius: 50%; color: var(--text-accent); background: var(--teal-soft); font-weight: 900; }
-.evidence-card h3 { margin: .7rem 0 .35rem; font-size: 1rem; }
+.evidence-card h3 { margin: 0 0 .35rem; font-size: 1rem; }
 .evidence-card p { margin: 0; color: var(--text-secondary); font-size: .84rem; line-height: 1.4; }
 .evidence-card blockquote, .future-cards blockquote { margin: .75rem 0 0; padding-left: .65rem; border-left: 2px solid var(--teal); color: var(--text-muted); font: italic .78rem/1.35 Georgia, "Times New Roman", serif; }
 
