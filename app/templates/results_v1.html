@@ -143,7 +143,7 @@
 
   {# 7 · Nur Kunden-Grenzen. Kataloggrenzen werden nie als Kundenaussage ausgegeben. #}
   {% if customer_boundaries %}
-    <section class="results-section customer-boundaries" aria-labelledby="boundaries-title"><div class="section-intro section-intro--compact"><h2 id="boundaries-title">Ihre Grenzen bleiben Teil der Lösung</h2></div><div class="customer-boundaries__list">{% for boundary in customer_boundaries[:3] %}<article><span aria-hidden="true">♢</span><div><h3>{{ boundary.titel }}</h3><p>{{ boundary.erlaeuterung }}</p></div></article>{% endfor %}</div></section>
+    <section class="results-section customer-boundaries" aria-labelledby="boundaries-title"><div class="section-intro section-intro--compact"><h2 id="boundaries-title">Ihre Grenzen bleiben Teil der Lösung</h2><p class="customer-boundaries__intro">Die von Ihnen definierten Grenzen bleiben Teil der Lösung.</p></div><div class="customer-boundaries__list">{% for boundary in customer_boundaries[:3] %}<article><span aria-hidden="true">♢</span><div><h3>{{ boundary.titel }}</h3><p>{{ boundary.erlaeuterung }}</p></div></article>{% endfor %}</div></section>
   {% endif %}
 
   {# 8 · Nur echte future-Ausblicke. Why-not und target-Ausblicke bleiben unsichtbar. #}

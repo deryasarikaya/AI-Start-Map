@@ -126,6 +126,7 @@
 
 /* System / Verantwortung und ausdrücklich kundenseitige Grenzen. */
 .responsibility-section--final { padding: 0; border: 0; border-radius: 0; background: transparent; }
+.results-v1--final > .responsibility-section--final + .customer-boundaries { margin-top: clamp(1.15rem, 2.4vw, 1.7rem); }
 .responsibility-split { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
 .responsibility-split > article { min-height: 17rem; padding: 1.25rem; border-radius: var(--radius-card); }
 .responsibility-split__system { border: 1px solid var(--rand-teal); background: var(--flaeche-teal); }
@@ -136,6 +137,9 @@
 .responsibility-split__system li::before { position: absolute; left: 0; color: var(--teal); content: "✓"; font-weight: 900; }
 .responsibility-split__human li::before { position: absolute; left: 0; color: var(--text-warning); content: "○"; font-weight: 900; }
 .customer-boundaries { padding: clamp(1.2rem, 3vw, 1.9rem); border: 1px solid var(--rand-sand); border-radius: var(--radius-card); background: var(--flaeche-sand); }
+.customer-boundaries .section-intro { margin-bottom: 1rem; }
+.customer-boundaries h2 { font-size: 30px; }
+.customer-boundaries__intro { color: var(--text-secondary) !important; font-size: .95rem; }
 .customer-boundaries__list { display: grid; gap: .95rem; }
 .customer-boundaries__list article { display: grid; grid-template-columns: 1.3rem 1fr; gap: .75rem; max-width: 58rem; }
 .customer-boundaries__list > article > span { color: var(--text-accent); font-size: 1.1rem; }
