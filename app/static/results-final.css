@@ -95,7 +95,7 @@
 .everyday-flow > i { display: grid; place-items: center; color: var(--teal); font-size: 1.25rem; font-style: normal; font-weight: 900; }
 .everyday-flow__stage--automation { border-color: var(--rand-teal) !important; background: var(--flaeche-teal) !important; box-shadow: var(--shadow-card); }
 .everyday-flow__stage--automation li { background: var(--surface-elevated); }
-.everyday-flow__stage--center { border-color: var(--teal) !important; color: var(--flaeche); background: var(--marke) !important; }
+.everyday-flow__stage--center { border-color: color-mix(in srgb, var(--teal) 60%, white) !important; color: var(--flaeche); background: color-mix(in srgb, var(--marke) 76%, white) !important; }
 .everyday-flow__stage--center p { color: var(--teal-soft); }
 .everyday-flow__stage--center b { color: var(--flaeche); font-size: .8rem; line-height: 1.42; }
 
