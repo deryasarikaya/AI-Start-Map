@@ -157,8 +157,8 @@
 /* Future: jede Karte benennt die spätere, kundennah sichtbare Funktion. */
 .future-section { padding: 1.5rem; border-radius: var(--radius-card); background: var(--flaeche-mint); }
 .future-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .9rem; }
-.future-cards article { align-self: start; min-height: 0; padding: 1.2rem; border: 1px solid var(--border-subtle); border-radius: var(--radius-control); background: var(--surface-elevated); }
-.future-cards h3 { margin: .55rem 0 .65rem; font-size: 1.15rem; }
+.future-cards article { align-self: stretch; min-height: 0; padding: 1.2rem; border: 1px solid var(--border-subtle); border-radius: var(--radius-control); background: var(--surface-elevated); }
+.future-cards h3 { margin: 0 0 .65rem; font-size: 1.15rem; }
 .future-cards p { margin: 0 0 .7rem; color: var(--text-secondary); font-size: .85rem; line-height: 1.42; }
 .future-cards__label { margin-bottom: .18rem !important; color: var(--text-accent) !important; font-size: .68rem !important; font-weight: 900; letter-spacing: .07em; text-transform: uppercase; }
 .future-cards__dependency { padding-top: .65rem; border-top: 1px solid var(--border-subtle); color: var(--text-muted) !important; font-size: .75rem !important; font-weight: 700; }
