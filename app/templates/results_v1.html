@@ -133,7 +133,7 @@
   {# 6 · System und Mensch: die klare Zweiteilung des Claude-Referenzstands. #}
   {% if system_capabilities.items or result.mensch_behaelt %}
     <section class="results-section responsibility-section responsibility-section--final" aria-labelledby="responsibility-title">
-      <div class="section-intro section-intro--compact"><h2 id="responsibility-title">Das läuft künftig automatisch — das bleibt in Ihrer Verantwortung</h2><p>Wiederkehrende Arbeit wird vorbereitet. Entscheidungen bleiben bei Ihnen.</p></div>
+      <div class="section-intro section-intro--compact"><p class="eyebrow">System und Verantwortung</p><h2 id="responsibility-title">Das läuft künftig automatisch — das bleibt in Ihrer Verantwortung</h2><p>Wiederkehrende Arbeit wird vorbereitet. Entscheidungen bleiben bei Ihnen.</p></div>
       <div class="responsibility-split">
         {% if system_capabilities.items %}<article class="responsibility-split__system"><h3>✦ Das übernimmt das System</h3><ul>{% for capability in system_capabilities.items %}<li>{{ capability }}</li>{% endfor %}</ul></article>{% endif %}
         {% if result.mensch_behaelt %}<article class="responsibility-split__human"><h3>♙ Das bleibt in Ihrer Verantwortung</h3><ul>{% for item in result.mensch_behaelt[:5] %}<li>{{ item }}</li>{% endfor %}</ul></article>{% endif %}
