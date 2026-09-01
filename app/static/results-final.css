@@ -1,6 +1,12 @@
 /* Finaler Results-UI-Auftrag: feste DTO-Entscheidungsreise. */
 .results-v1--final { max-width: 78rem; margin-inline: auto; }
 .results-v1--final > * + * { margin-top: clamp(2.7rem, 5vw, 4.7rem); }
+.results-v1--final #understood-title,
+.results-v1--final #change-title,
+.results-v1--final #map-title,
+.results-v1--final #operating-title,
+.results-v1--final #responsibility-title,
+.results-v1--final #future-title { font-size: 35px; }
 .results-hero--final { min-height: 0; align-items: center; padding-block: clamp(1rem, 4vw, 3.2rem); }
 .results-hero--final h1 { max-width: 18ch; font-size: clamp(2.25rem, 4vw, 3.7rem); }
 .start-decision--final { max-width: 25rem; justify-self: end; border-color: var(--rand-mint); background: linear-gradient(168deg, var(--teal-soft) 0%, var(--grund) 100%); }
@@ -109,8 +115,8 @@
 
 /* Alter Claude-Alltagsflow: eine verbundene Strecke, nicht Kartenraster. */
 .operating-section--final { padding: clamp(1.25rem, 3vw, 2rem); border: 1px solid var(--linie); border-radius: var(--radius-card); background: var(--flaeche-karte); }
-.operating-section__intro { margin-inline: auto; text-align: center; }
-.operating-section__intro h2 { margin-inline: auto; }
+.operating-section__intro { margin-inline: 0; text-align: left; }
+.operating-section__intro h2 { margin-inline: 0; }
 .everyday-flow { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1.1fr) auto minmax(0, 1fr) auto minmax(0, 1fr); gap: .55rem; align-items: stretch; }
 .everyday-flow > article { position: relative; display: grid; min-height: 12.3rem; align-content: start; padding: 1rem; border: 1px solid var(--border-subtle); border-radius: var(--radius-control); background: var(--surface-elevated); }
 .everyday-flow > article > span { position: absolute; top: -1rem; left: 50%; display: grid; width: 1.75rem; height: 1.75rem; place-items: center; border-radius: 50%; color: var(--flaeche); background: var(--marke); font-size: .75rem; font-weight: 900; transform: translateX(-50%); }
