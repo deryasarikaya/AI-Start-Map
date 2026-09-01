@@ -13,7 +13,7 @@
 /* Problemverständnis */
 .understood-section { padding: clamp(1.2rem, 3vw, 2rem); border: 1px solid var(--border-subtle); border-radius: var(--radius-card); background: var(--surface-elevated); }
 .evidence-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .85rem; }
-.evidence-card { min-height: 11rem; padding: 1rem; border: 1px solid var(--border-subtle); border-radius: var(--radius-control); background: linear-gradient(168deg, var(--teal-soft) 0%, var(--grund) 100%); }
+.evidence-card { min-height: 11rem; padding: 1rem; border: 1px solid var(--border-subtle); border-radius: var(--radius-control); background: var(--grund-tief); }
 .evidence-card__mark { display: grid; width: 1.8rem; height: 1.8rem; place-items: center; border-radius: 50%; color: var(--text-accent); background: var(--teal-soft); font-weight: 900; }
 .evidence-card h3 { margin: .7rem 0 .35rem; font-size: 1rem; }
 .evidence-card p { margin: 0; color: var(--text-secondary); font-size: .84rem; line-height: 1.4; }
