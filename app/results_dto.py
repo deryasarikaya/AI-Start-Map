@@ -47,6 +47,24 @@ ANKER_ARTEN: tuple[str, ...] = (
     "prerequisite",
 )
 
+TodayContextType = Literal[
+    "current_friction",
+    "existing_foundation",
+    "solution_requirement",
+]
+
+TODAY_CONTEXT_TYPES: dict[str, TodayContextType] = {
+    "primary_pain": "current_friction",
+    "existing_system": "existing_foundation",
+    "prerequisite": "solution_requirement",
+}
+
+TODAY_CONTEXT_LABELS: dict[TodayContextType, str] = {
+    "current_friction": "Heutige Reibung",
+    "existing_foundation": "Bestehende Grundlage",
+    "solution_requirement": "Anforderung an die Lösung",
+}
+
 #: Woher eine Grenze kommt. **Der Unterschied ist wichtig genug für ein
 #: eigenes Feld:** „Sie wollen keine Preiszusagen" ist eine Aussage über
 #: diesen Kunden. „Preise bleiben beim Menschen" ist eine Eigenschaft
@@ -90,11 +108,12 @@ class Anker:
     """
 
     id: str
+    type: TodayContextType
+    type_label: str
     customer_label: str
     short_description: str
     evidence_refs: tuple[str, ...]
     business_area_ref: str | None = None
-
 
 @dataclass(frozen=True)
 class Voraussetzung:
@@ -414,6 +433,8 @@ def _anker(zustand: DecisionState) -> list[Anker]:
             gefunden.append(
                 Anker(
                     id=signal.id,
+                    type=TODAY_CONTEXT_TYPES[signal.kind],
+                    type_label=TODAY_CONTEXT_LABELS[TODAY_CONTEXT_TYPES[signal.kind]],
                     customer_label=nach_kennung[belegt[0]].bedeutung,
                     short_description=signal.statement,
                     evidence_refs=tuple(belegt),

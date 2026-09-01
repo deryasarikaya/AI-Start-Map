@@ -90,6 +90,23 @@ def test_the_evidence_of_the_start_reaches_the_first_screen() -> None:
     assert {b.id for b in dto.belege} == {"B1", "B2"}
 
 
+def test_today_context_items_expose_deterministic_semantic_types() -> None:
+    """Today-Karten übernehmen die geprüfte Signalart ohne Textheuristik."""
+
+    dto = results_dto.von_ergebnis(_lauf_mit_entscheidung())
+
+    assert [anker.type for anker in dto.anker] == [
+        "current_friction",
+        "existing_foundation",
+        "solution_requirement",
+    ]
+    assert [anker.type_label for anker in dto.anker] == [
+        "Heutige Reibung",
+        "Bestehende Grundlage",
+        "Anforderung an die Lösung",
+    ]
+
+
 def test_the_start_of_the_overview_is_the_start_of_the_map() -> None:
     """Beide lesen dieselbe Entscheidung — sonst wäre nichts gewonnen."""
 

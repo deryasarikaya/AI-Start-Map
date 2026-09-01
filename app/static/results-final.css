@@ -65,6 +65,7 @@
 .approved-map__point > div { min-width: 0; }
 .approved-map__point b, .approved-map__point small { display: block; }
 .approved-map__point b { color: var(--text-primary); font-size: .76rem; line-height: 1.2; }
+.approved-map__point .approved-map__type { display: block; margin-bottom: .2rem; color: var(--text-accent); font-size: .58rem; font-weight: 900; letter-spacing: .08em; line-height: 1.1; text-transform: uppercase; }
 .approved-map__point small { margin-top: .15rem; color: var(--text-muted); font-size: .65rem; line-height: 1.28; }
 .approved-map__point--today { opacity: .85; }
 .approved-map__stage--today .approved-map__point { padding: .42rem; border-radius: .7rem; background: rgb(255 255 255 / .42); }
