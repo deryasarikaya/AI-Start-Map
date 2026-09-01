@@ -20,6 +20,30 @@
 .pdf-mode [data-results-root] > section, .pdf-mode [data-results-root] > aside { break-inside: avoid; }
 .pdf-mode h1, .pdf-mode h2, .pdf-mode h3 { break-after: avoid; }
 @media print { .pdf-cover { print-color-adjust: exact; -webkit-print-color-adjust: exact; } }
+/* Eigenständiges A4-Layout: Die Result-Seite bleibt die Quelle, wird aber
+   nicht als verkleinerte Webansicht auf Papier gedrückt. */
+.pdf-mode { background: #fff; color: #183b32; font-size: 10.5pt; line-height: 1.45; }
+.pdf-mode .results-v1 { width: 100%; max-width: none; padding: 0; }
+.pdf-mode .results-v1--final > * + * { margin-top: 0; }
+.pdf-mode .results-v1--final > section { min-height: 0; padding: 10mm 0 8mm; border-top: 1px solid #d9e7e1; }
+.pdf-mode .results-v1--final > .results-hero { padding: 0 0 10mm; border-top: 0; }
+.pdf-mode .results-hero--final { grid-template-columns: minmax(0, 1.2fr) minmax(68mm, .8fr); gap: 12mm; }
+.pdf-mode .results-hero--final h1 { max-width: 16ch; font-size: 31pt; line-height: 1.08; }
+.pdf-mode .results-hero__target { font-size: 12pt; }
+.pdf-mode .section-intro { max-width: none; margin-bottom: 7mm; }
+.pdf-mode .section-intro h2 { max-width: 25ch; font-size: 23pt; line-height: 1.12; }
+.pdf-mode .section-intro > p:last-child { max-width: 70ch; font-size: 10.5pt; }
+.pdf-mode .understood-section, .pdf-mode .operating-section, .pdf-mode .future-section { padding: 8mm; border: 1px solid #d9e7e1; border-radius: 4mm; }
+.pdf-mode .evidence-cards, .pdf-mode .before-after, .pdf-mode .responsibility-split, .pdf-mode .future-cards { gap: 4mm; }
+.pdf-mode .evidence-card, .pdf-mode .before-after > article, .pdf-mode .future-cards article, .pdf-mode .responsibility-split > article { padding: 5mm; box-shadow: none; }
+.pdf-mode .map-section--approved { padding: 8mm; border: 1px solid #b9d8ce; border-radius: 4mm; background: #f4faf7; }
+.pdf-mode .approved-map { min-height: 0; }
+.pdf-mode .operating-flow__stage, .pdf-mode .operating-flow__center { min-height: 0; }
+.pdf-mode .customer-boundaries { padding: 8mm; border: 1px solid #ead9b8; border-radius: 4mm; background: #fffaf0; }
+.pdf-mode .results-cta { padding: 8mm; border-radius: 4mm; }
+.pdf-mode .results-cta__trust { margin-top: 5mm; }
+.pdf-mode .pdf-cover { margin: -14mm -16mm -16mm; padding: 42mm 30mm; min-height: 297mm; }
+@media print { .pdf-mode .results-v1--final > section, .pdf-mode .results-v1--final > aside { break-inside: avoid; } .pdf-mode .evidence-card, .pdf-mode .future-cards article, .pdf-mode .responsibility-split > article { break-inside: avoid; } }
 </style>{% else %}<link rel="stylesheet" href="{{ statisch('/results-v1.css') }}&amp;cx=results-final-1"><link rel="stylesheet" href="{{ statisch('/results-final.css') }}&amp;cx=results-final-1">{% endif %}{% endblock %}
 
 {% block content %}
