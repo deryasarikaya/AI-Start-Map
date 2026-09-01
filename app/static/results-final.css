@@ -93,7 +93,7 @@
 .everyday-flow ul { display: grid; gap: .4rem; margin: 0; padding: 0; list-style: none; }
 .everyday-flow li { padding: .35rem .45rem; border-radius: .45rem; color: var(--text-secondary); background: var(--flaeche-sand); font-size: .72rem; line-height: 1.3; }
 .everyday-flow > i { display: grid; place-items: center; color: var(--teal); font-size: 1.25rem; font-style: normal; font-weight: 900; }
-.everyday-flow__stage--automation { border-color: var(--rand-teal) !important; background: var(--flaeche-teal) !important; box-shadow: var(--shadow-card); }
+.everyday-flow__stage--automation { border-color: var(--rand-teal) !important; background: linear-gradient(165deg, #CFE6E1 0%, #EEF7F5 100%) !important; box-shadow: var(--shadow-card); }
 .everyday-flow__stage--automation li { background: var(--surface-elevated); }
 .everyday-flow__stage--center { border-color: var(--teal-tief) !important; color: var(--flaeche); background: var(--teal) !important; }
 .everyday-flow__stage--center p { color: var(--teal-soft); }
