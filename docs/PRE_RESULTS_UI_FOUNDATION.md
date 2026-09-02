@@ -166,12 +166,14 @@ Results V1 übernimmt weder parallel gepflegte lokale Farbwerte noch einen
 zweiten Satz Radien und Schatten unter `.ergebnis`. Die fachliche
 Informationsarchitektur wird ausschließlich aus `ResultDTO` projiziert:
 Engpass, Start, Anker, Operating Center, Capabilities, Evidence, Human
-Boundaries und Future. Die sichtbare Betriebslandkarte ist dabei die feste
+Boundaries, Future und die konkrete Lösungsvorschau aus `ansichten`. Die
+sichtbare Betriebslandkarte ist dabei die feste
 vierstufige Strecke **Heute → Was verbindet → Neuer Arbeitsstand → Später
 möglich**. Sie zeigt nur bereits im DTO entschiedene Inhalte und trifft im
 Renderer keine neue fachliche Entscheidung. Experience-Inhalte und Why-not
-bleiben Vertragsdaten, sind aber in der finalen Customer-Results-Seite keine
-eigenen Sections.
+bleiben Vertragsdaten; die Experience-Inhalte werden nach dem Alltagsflow als
+eigene, kontrollierte Lösungsvorschau mit einer Haupt- und höchstens zwei
+ergänzenden Ansichten gezeigt.
 
 ## Status
 

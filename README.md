@@ -51,7 +51,10 @@ Erzählung des Betriebs
 Die PDF-Auswertung wird serverseitig aus demselben `ResultDTO` wie die
 Ergebnisseite erzeugt. Eine eigene A4-Vorlage (`app/templates/results_pdf.html`
 mit `app/static/results-pdf.css`) hält die mintfarbene Titelseite,
-zusammengehörige Karten und den fortlaufenden Seitenfluss stabil.
+zusammengehörige Karten und den fortlaufenden Seitenfluss stabil. Die
+konkrete Lösungsvorschau liest in Web und PDF dieselbe Auswahl aus
+`result.ansichten`: eine gefüllte Hauptansicht und bis zu zwei gefüllte
+ergänzende Ansichten; leere Ansichten werden nicht ausgegeben.
 
 Details in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 

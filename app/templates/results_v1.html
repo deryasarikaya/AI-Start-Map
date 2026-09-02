@@ -3,6 +3,7 @@
    Die Vorlage trifft keine fachliche Auswahl: Alle Sichtbarkeit, Phasen,
    Belege, Module, Grenzen und Ausblicke liegen bereits im Vertrag vor. #}
 {% extends "base.html" %}
+{% import "results_experiences.html" as experiences %}
 
 {% block title %}Ihre Auswertung · AI Start Map{% endblock %}
 {% block extra_head %}{% if pdf %}<style>{{ stil('results-v1.css') }}</style><style>{{ stil('results-final.css') }}</style><style>
@@ -44,13 +45,15 @@
 .pdf-mode .results-cta__trust { margin-top: 5mm; }
 .pdf-mode .pdf-cover { margin: -14mm -16mm -16mm; padding: 42mm 30mm; min-height: 297mm; }
 @media print { .pdf-mode .results-v1--final > section, .pdf-mode .results-v1--final > aside { break-inside: avoid; } .pdf-mode .evidence-card, .pdf-mode .future-cards article, .pdf-mode .responsibility-split > article { break-inside: avoid; } }
-</style>{% else %}<link rel="stylesheet" href="{{ statisch('/results-v1.css') }}&amp;cx=results-final-1"><link rel="stylesheet" href="{{ statisch('/results-final.css') }}&amp;cx=results-final-1">{% endif %}{% endblock %}
+</style>{% else %}<link rel="stylesheet" href="{{ statisch('/results-v1.css') }}&amp;cx=results-final-2"><link rel="stylesheet" href="{{ statisch('/results-final.css') }}&amp;cx=results-final-2">{% endif %}{% endblock %}
 
 {% block content %}
 {% if pdf %}<section class="pdf-cover" aria-label="Deckblatt"><div><p class="pdf-cover__eyebrow">AI Start Map · Ihre Auswertung</p><h1>{{ result.uebersicht.zielbild_name or result.uebersicht.zielbild_satz }}</h1><p>Ihre persönliche Auswertung: der heutige Ausgangspunkt, der sinnvolle erste Schritt und die nächsten Möglichkeiten für Ihren Betrieb.</p><p class="pdf-cover__meta">Erstellt auf Grundlage Ihrer eigenen Beschreibung · {{ auswertungsdatum }}</p></div></section>{% endif %}
 {% set start_modules = result.sichtbare_module | selectattr('module_key', 'in', result.karte.start) | list %}
 {% set future_items = result.ausblicke | selectattr('phase', 'equalto', 'future') | list %}
 {% set customer_boundaries = result.grenzen | selectattr('herkunft', 'equalto', 'kunde') | list %}
+{% set primary = result.ansichten.primary %}
+{% set supporting_experiences = result.ansichten.supporting | selectattr('hat_inhalt') | list %}
 {% set system_capabilities = namespace(items=[]) %}
 {% for module in start_modules %}
   {% for capability in module.capability_refs %}
@@ -169,7 +172,25 @@
       </div>
     </section>
 
-  {# 6 · System und Mensch: die klare Zweiteilung des Claude-Referenzstands. #}
+  {# 6 · Konkrete Lösungsvorschau: ausschließlich freigegebene Experience-Daten. #}
+  {% if primary and primary.hat_inhalt %}
+    <section class="results-section experience-section" aria-labelledby="experience-title">
+      <div class="section-intro section-intro--split">
+        <div><p class="eyebrow">Konkrete Lösungsvorschau</p><h2 id="experience-title">So könnte Ihre Lösung konkret aussehen</h2></div>
+        <p>{{ primary.inhalt.beschreibung }}</p>
+      </div>
+      <div class="primary-experience">{{ experiences.render(primary) }}</div>
+      {% if supporting_experiences %}
+        <div class="supporting-experiences">
+          {% for experience in supporting_experiences[:2] %}
+            <article><p class="card-kicker">Ergänzend</p><h3>{{ experience.inhalt.titel }}</h3>{{ experiences.render(experience) }}</article>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </section>
+  {% endif %}
+
+  {# 7 · System und Mensch: die klare Zweiteilung des Claude-Referenzstands. #}
   {% if system_capabilities.items or result.mensch_behaelt %}
     <section class="results-section responsibility-section responsibility-section--final" aria-labelledby="responsibility-title">
       <div class="section-intro section-intro--compact"><p class="eyebrow">System und Verantwortung</p><h2 id="responsibility-title">Das läuft künftig automatisch — das bleibt in Ihrer Verantwortung</h2><p>Wiederkehrende Arbeit wird vorbereitet. Entscheidungen bleiben bei Ihnen.</p></div>

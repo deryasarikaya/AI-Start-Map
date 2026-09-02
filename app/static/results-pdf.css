@@ -65,6 +65,130 @@ body { font: 10.5pt/1.48 Inter, Arial, sans-serif; }
 .pdf-flow > article:nth-of-type(3) { color: #fff; background: var(--pdf-teal); border-color: var(--pdf-teal); }
 .pdf-flow > article:nth-of-type(3) li { color: #eaf7f2; }
 .pdf-flow > i { display: grid; place-items: center; color: var(--pdf-teal); font-size: 16pt; font-style: normal; }
+.pdf-experience-section { break-before: page; break-inside: auto; }
+.pdf-experience-primary { margin-top: 6mm; }
+.pdf-experience-supporting-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3mm; margin-top: 3mm; align-items: start; }
+.pdf-experience-supporting { min-width: 0; padding: 2.5mm; border: 1px solid var(--pdf-line); border-radius: 3mm; background: #fbfcfb; break-inside: avoid; }
+.pdf-experience-supporting > .pdf-kicker { margin-bottom: 1.5mm; font-size: 7.5pt; }
+.pdf-experience-supporting > h3 { margin: 0 0 2mm; font: 700 12.5pt/1.18 Georgia, serif; overflow-wrap: anywhere; hyphens: auto; }
+.pdf-experience-section .experience-window { overflow: hidden; border: 1px solid #9bcabd; border-radius: 3mm; background: #fff; box-shadow: 0 2mm 5mm rgb(23 59 50 / .08); break-inside: avoid; }
+.pdf-experience-section .experience-window__header { display: flex; min-height: 10mm; align-items: center; justify-content: space-between; gap: 4mm; padding: 3mm 4mm; color: #fff; background: var(--pdf-teal); }
+.pdf-experience-section .experience-window__mode { color: #dff2eb; font-size: 8pt; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.pdf-experience-section .experience-window__live { padding: 1.2mm 2mm; border-radius: 99px; color: var(--pdf-ink); background: #dff2eb; font-size: 7pt; font-weight: 800; white-space: nowrap; }
+.pdf-experience-section .experience-window__body { padding: 5mm; }
+.pdf-experience-supporting .experience-window__header { min-height: 8mm; padding: 2mm 3mm; }
+.pdf-experience-supporting .experience-window__mode { font-size: 7pt; }
+.pdf-experience-supporting .experience-window__live { padding: .8mm 1.5mm; font-size: 6.5pt; }
+.pdf-experience-supporting .experience-window__body { padding: 2.5mm; }
+.pdf-experience-section .call-head, .pdf-experience-section .case-head, .pdf-experience-section .inbox-head, .pdf-experience-section .service-head, .pdf-experience-section .overview-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 4mm; padding-bottom: 3mm; border-bottom: 1px solid var(--pdf-line); }
+.pdf-experience-section .call-head { justify-content: flex-start; }
+.pdf-experience-section .call-head__signal { width: 3mm; height: 3mm; margin-top: 1.2mm; border-radius: 50%; background: var(--pdf-teal); box-shadow: 0 0 0 1.2mm #dff2eb; }
+.pdf-experience-section .call-head b, .pdf-experience-section .case-head b, .pdf-experience-section .inbox-head b, .pdf-experience-section .service-head b, .pdf-experience-section .overview-head b { display: block; color: var(--pdf-ink); font-size: 11pt; }
+.pdf-experience-section .call-head small, .pdf-experience-section .case-head small, .pdf-experience-section .overview-head small { display: block; margin-top: 1mm; color: var(--pdf-muted); font-size: 8.5pt; }
+.pdf-experience-section .inbox-head span, .pdf-experience-section .service-head span { color: var(--pdf-muted); font-size: 8pt; white-space: nowrap; }
+.pdf-experience-section .conversation { display: grid; gap: 3mm; margin: 4mm 0; }
+.pdf-experience-section .conversation__bubble { max-width: 82%; padding: 3mm 4mm; border-radius: 3mm; background: #f4f8f6; }
+.pdf-experience-section .conversation__bubble--betrieb { justify-self: end; background: var(--pdf-mint-deep); }
+.pdf-experience-section .conversation__bubble small { color: var(--pdf-muted); font-size: 7.5pt; }
+.pdf-experience-section .conversation__bubble p { margin: 1mm 0 0; color: var(--pdf-ink); font-size: 9.5pt; }
+.pdf-experience-section .experience-label { margin: 0; color: var(--pdf-muted); font-size: 7.5pt; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.pdf-experience-section .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2mm 5mm; margin: 2.5mm 0 0; }
+.pdf-experience-section .field-grid div { padding: 2mm 0; border-bottom: 1px solid var(--pdf-line); }
+.pdf-experience-section .field-grid dt { color: var(--pdf-muted); font-size: 7.5pt; }
+.pdf-experience-section .field-grid dd { margin: .5mm 0 0; color: var(--pdf-ink); font-size: 9pt; font-weight: 700; }
+.pdf-experience-section .handoff-note { margin: 4mm 0 0; padding: 3mm 4mm; border-left: 1mm solid #d0a642; color: var(--pdf-muted); background: var(--pdf-sand); font-size: 8.5pt; }
+.pdf-experience-section .inbox-list { display: grid; margin-top: 3mm; border: 1px solid var(--pdf-line); border-radius: 2mm; overflow: hidden; }
+.pdf-experience-section .inbox-item { padding: 3mm; border-bottom: 1px solid var(--pdf-line); break-inside: avoid; }
+.pdf-experience-section .inbox-item:last-child { border-bottom: 0; }
+.pdf-experience-section .inbox-item > div:first-child { display: flex; justify-content: space-between; gap: 3mm; }
+.pdf-experience-section .inbox-item small { color: var(--pdf-muted); font-size: 7.5pt; }
+.pdf-experience-section .inbox-item p { margin: 1.5mm 0 2mm; color: var(--pdf-muted); font-size: 8.8pt; }
+.pdf-experience-section .tag-list { display: flex; flex-wrap: wrap; gap: 1.2mm; }
+.pdf-experience-section .tag-list span { padding: .8mm 1.5mm; border-radius: 99px; color: var(--pdf-teal); background: #dff2eb; font-size: 7pt; font-weight: 700; }
+.pdf-experience-section .case-badge { padding: 1.2mm 2mm; border-radius: 99px; color: #80631c; background: #f8edcc; font-size: 7.5pt; font-weight: 800; }
+.pdf-experience-section .case-timeline { display: grid; gap: 2.5mm; margin: 4mm 0; padding: 0; list-style: none; }
+.pdf-experience-section .case-timeline li { display: grid; grid-template-columns: 3mm 1fr; gap: 3mm; }
+.pdf-experience-section .case-timeline li > span { width: 2.2mm; height: 2.2mm; margin-top: 1.2mm; border-radius: 50%; background: var(--pdf-teal); }
+.pdf-experience-section .case-timeline b, .pdf-experience-section .case-timeline small { display: block; }
+.pdf-experience-section .case-timeline b { color: var(--pdf-ink); font-size: 8.8pt; }
+.pdf-experience-section .case-timeline small { margin-top: .5mm; color: var(--pdf-muted); font-size: 7.5pt; }
+.pdf-experience-section .file-list { display: flex; flex-wrap: wrap; gap: 1.5mm; }
+.pdf-experience-section .file-list span { padding: 1.2mm 2mm; border: 1px solid var(--pdf-line); border-radius: 1.5mm; color: var(--pdf-muted); font-size: 7.5pt; }
+.pdf-experience-section .flow-list { display: grid; gap: 2mm; }
+.pdf-experience-section .flow-list article { display: grid; grid-template-columns: auto 1fr auto; gap: 3mm; align-items: center; padding: 2.5mm; border: 1px solid var(--pdf-line); border-radius: 2mm; break-inside: avoid; }
+.pdf-experience-section .flow-list__file { padding: 1mm 1.5mm; border-radius: 1mm; color: var(--pdf-teal); background: #dff2eb; font-size: 7pt; font-weight: 800; text-transform: uppercase; }
+.pdf-experience-section .flow-list b, .pdf-experience-section .flow-list small { display: block; }
+.pdf-experience-section .flow-list b { color: var(--pdf-ink); font-size: 8.5pt; }
+.pdf-experience-section .flow-list small { color: var(--pdf-muted); font-size: 7.2pt; }
+.pdf-experience-section .flow-list__state { color: #80631c; font-size: 7pt; font-weight: 700; }
+.pdf-experience-section .service-steps { display: grid; gap: 2.5mm; margin: 3mm 0 0; padding: 0; list-style: none; }
+.pdf-experience-section .service-steps li { display: grid; grid-template-columns: 5mm 1fr; gap: 3mm; align-items: center; color: var(--pdf-muted); font-size: 9pt; }
+.pdf-experience-section .service-steps li span { display: grid; width: 4.5mm; height: 4.5mm; place-items: center; border: 1px solid var(--pdf-line); border-radius: 50%; color: var(--pdf-muted); font-size: 7pt; font-weight: 800; }
+.pdf-experience-section .service-steps .is-done { color: var(--pdf-ink); font-weight: 700; }
+.pdf-experience-section .service-steps .is-done span { color: #fff; border-color: var(--pdf-teal); background: var(--pdf-teal); }
+.pdf-experience-section .metric-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(25mm, 1fr)); gap: 2mm; margin: 3mm 0; }
+.pdf-experience-section .metric-row div { padding: 2.5mm; border-left: 1mm solid var(--pdf-teal); background: #f4f8f6; }
+.pdf-experience-section .metric-row b, .pdf-experience-section .metric-row span { display: block; }
+.pdf-experience-section .metric-row b { color: var(--pdf-ink); font-size: 12pt; }
+.pdf-experience-section .metric-row span { color: var(--pdf-muted); font-size: 7pt; line-height: 1.25; }
+.pdf-experience-section .work-list { display: grid; border: 1px solid var(--pdf-line); border-radius: 2mm; overflow: hidden; }
+.pdf-experience-section .work-list div { display: grid; grid-template-columns: 2.5mm 1fr; gap: 3mm; padding: 2.5mm; border-bottom: 1px solid var(--pdf-line); color: var(--pdf-muted); font-size: 8.5pt; }
+.pdf-experience-section .work-list div:last-child { border-bottom: 0; }
+.pdf-experience-section .experience-status { width: 2mm; height: 2mm; margin-top: 1mm; border-radius: 50%; background: #9aaea8; }
+.pdf-experience-section .experience-status--rot { background: #c45f50; }.pdf-experience-section .experience-status--gelb { background: #d0a642; }.pdf-experience-section .experience-status--gruen { background: var(--pdf-teal); }
+.pdf-experience-section .automation-list { display: grid; gap: 2.5mm; }
+.pdf-experience-section .automation-list div { display: grid; grid-template-columns: 5mm 1fr; gap: 3mm; align-items: start; }
+.pdf-experience-section .automation-list span { display: grid; width: 4.5mm; height: 4.5mm; place-items: center; border-radius: 50%; color: var(--pdf-teal); background: #dff2eb; font-size: 7pt; font-weight: 800; }
+.pdf-experience-section .automation-list p { margin: .5mm 0 0; color: var(--pdf-muted); font-size: 9pt; }
+.pdf-experience-supporting .call-head, .pdf-experience-supporting .case-head, .pdf-experience-supporting .inbox-head, .pdf-experience-supporting .service-head, .pdf-experience-supporting .overview-head { padding-bottom: 2mm; }
+.pdf-experience-supporting .call-head b, .pdf-experience-supporting .case-head b, .pdf-experience-supporting .inbox-head b, .pdf-experience-supporting .service-head b, .pdf-experience-supporting .overview-head b { font-size: 9.5pt; }
+.pdf-experience-supporting .call-head small, .pdf-experience-supporting .case-head small, .pdf-experience-supporting .overview-head small { margin-top: .5mm; font-size: 7pt; }
+.pdf-experience-supporting .inbox-head span, .pdf-experience-supporting .service-head span { font-size: 7pt; }
+.pdf-experience-supporting .conversation { gap: 1.5mm; margin: 2.5mm 0; }
+.pdf-experience-supporting .conversation__bubble { padding: 2mm 3mm; }
+.pdf-experience-supporting .conversation__bubble small { font-size: 6.5pt; }
+.pdf-experience-supporting .conversation__bubble p { margin-top: .5mm; font-size: 8pt; }
+.pdf-experience-supporting .field-grid { gap: 1mm 3mm; margin-top: 1.5mm; }
+.pdf-experience-supporting .field-grid div { padding: 1.3mm 0; }
+.pdf-experience-supporting .field-grid dt { font-size: 6.5pt; }
+.pdf-experience-supporting .field-grid dd { margin-top: .3mm; font-size: 7.8pt; }
+.pdf-experience-supporting .case-head { gap: 2mm; }
+.pdf-experience-supporting .case-badge { padding: .8mm 1.5mm; font-size: 6.5pt; }
+.pdf-experience-supporting .case-timeline { gap: 1.2mm; margin: 2.5mm 0; }
+.pdf-experience-supporting .case-timeline li { grid-template-columns: 2.5mm 1fr; gap: 2mm; }
+.pdf-experience-supporting .case-timeline li > span { width: 1.8mm; height: 1.8mm; margin-top: .8mm; }
+.pdf-experience-supporting .case-timeline b { font-size: 7.5pt; }
+.pdf-experience-supporting .case-timeline small { margin-top: .2mm; font-size: 6.5pt; }
+.pdf-experience-supporting .file-list { gap: 1mm; }
+.pdf-experience-supporting .file-list span { padding: .8mm 1.2mm; font-size: 6.5pt; }
+.pdf-experience-supporting .flow-list { gap: 1.2mm; }
+.pdf-experience-supporting .flow-list article { gap: 2mm; padding: 1.5mm; }
+.pdf-experience-supporting .flow-list__file { padding: .6mm 1mm; font-size: 6pt; }
+.pdf-experience-supporting .flow-list b { font-size: 7.2pt; }
+.pdf-experience-supporting .flow-list small { font-size: 6.2pt; }
+.pdf-experience-supporting .flow-list__state { font-size: 6pt; }
+.pdf-experience-supporting .service-steps { gap: 1.5mm; margin-top: 2mm; }
+.pdf-experience-supporting .service-steps li { grid-template-columns: 4mm 1fr; gap: 2mm; font-size: 7.8pt; }
+.pdf-experience-supporting .service-steps li span { width: 3.5mm; height: 3.5mm; font-size: 6pt; }
+.pdf-experience-supporting .handoff-note { margin-top: 2.5mm; padding: 2mm 3mm; font-size: 7pt; }
+.pdf-experience-supporting .experience-summary__header { padding-bottom: 2mm; border-bottom: 1px solid var(--pdf-line); }
+.pdf-experience-supporting .experience-summary__header .experience-label { display: block; margin-bottom: 1mm; color: var(--pdf-teal); }
+.pdf-experience-supporting .experience-summary__header h4 { margin: 0; color: var(--pdf-ink); font: 700 10.5pt/1.18 Georgia, serif; overflow-wrap: anywhere; hyphens: auto; }
+.pdf-experience-supporting .experience-summary__header p { margin: 1.2mm 0 0; color: var(--pdf-muted); font-size: 7pt; line-height: 1.35; }
+.pdf-experience-supporting .experience-summary > .conversation { margin-top: 2mm; }
+.pdf-experience-supporting .experience-summary > .inbox-list { margin-top: 2mm; }
+.pdf-experience-supporting .experience-summary > .field-grid { margin-top: 1mm; }
+.pdf-experience-supporting .experience-summary > .case-timeline { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2mm 3mm; margin: 2mm 0 0; }
+.pdf-experience-supporting .experience-summary > .case-timeline li { grid-template-columns: 2mm 1fr; gap: 1.5mm; }
+.pdf-experience-supporting .experience-summary > .case-timeline b { font-size: 7pt; }
+.pdf-experience-supporting .experience-summary > .case-timeline small { font-size: 6pt; }
+.pdf-experience-supporting .experience-summary > .flow-list { margin-top: 2mm; }
+.pdf-experience-supporting .experience-summary > .service-steps { gap: 1.2mm; margin-top: 2mm; }
+.pdf-experience-supporting .experience-summary > .service-steps li { font-size: 7.5pt; }
+.pdf-experience-supporting .experience-summary > .metric-row { margin: 2mm 0; }
+.pdf-experience-supporting .experience-summary > .work-list { margin-top: 2mm; }
+.pdf-experience-supporting .experience-summary > .file-list { margin-top: 2mm; }
+.pdf-experience-supporting .experience-summary__note { margin: 2mm 0 0; color: var(--pdf-muted); font-size: 7pt; }
 .pdf-responsibility { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
 .pdf-responsibility > article { padding: 5mm; border: 1px solid #c7e1d7; border-radius: 3mm; background: var(--pdf-mint); break-inside: avoid; }
 .pdf-responsibility > article + article { border-color: #ead9b8; background: var(--pdf-sand); }
@@ -75,12 +199,12 @@ body { font: 10.5pt/1.48 Inter, Arial, sans-serif; }
 .pdf-boundaries article > span { color: var(--pdf-teal); font-size: 14pt; }
 .pdf-boundaries h3 { margin: 0 0 1mm; font: 700 12pt/1.2 Georgia, serif; overflow-wrap: anywhere; hyphens: auto; }
 .pdf-boundaries p { margin: 0; color: var(--pdf-muted); }
-.pdf-contact { margin-top: 4mm; padding: 9mm; border-radius: 4mm; background: var(--pdf-mint); border: 1px solid #c7e1d7; break-inside: avoid; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
-.pdf-contact h2 { margin: 0 0 3mm; font-size: 20pt; }
-.pdf-contact p { max-width: 125mm; margin: 0 0 3mm; color: var(--pdf-muted); }
+.pdf-contact { margin-top: 2mm; padding: 5mm 7mm; border-radius: 4mm; background: var(--pdf-mint); border: 1px solid #c7e1d7; break-inside: avoid; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+.pdf-contact h2 { margin: 0 0 2mm; font-size: 18pt; }
+.pdf-contact p { max-width: 125mm; margin: 0 0 2mm; color: var(--pdf-muted); }
 .pdf-contact__address { color: var(--pdf-ink) !important; font-weight: 800; }
 .pdf-contact__note { font-size: 9pt; }
-.pdf-footer { margin-top: 7mm; padding-top: 4mm; border-top: 1px solid var(--pdf-line); color: var(--pdf-muted); font-size: 8.5pt; }
+.pdf-footer { margin-top: 4mm; padding-top: 3mm; border-top: 1px solid var(--pdf-line); color: var(--pdf-muted); font-size: 8.5pt; }
 @media print {
   .pdf-section, .pdf-map, .pdf-contact { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
   .pdf-card, .pdf-map__stage, .pdf-flow > article, .pdf-responsibility > article, .pdf-boundaries article { page-break-inside: avoid; }

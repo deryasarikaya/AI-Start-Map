@@ -149,6 +149,15 @@ GET  /report.pdf  routes                serverseitig gerendertes A4-PDF
 `/beispiel/hausverwaltung` zeigt einen gespeicherten Lauf ohne jeden
 Modellaufruf — die Rückfallebene für eine Vorführung.
 
+Die Ergebnisseite und das PDF projizieren zusätzlich dieselbe konkrete
+Lösungsvorschau aus `ResultDTO.ansichten`: eine gefüllte `primary`-Ansicht
+als Hauptdarstellung und höchstens zwei gefüllte `supporting`-Ansichten. Die
+Vorlage wählt keine Ansicht aus, zeigt keine internen Ansichtsschlüssel und
+blendet leere Ansichten aus. Die kontrollierte Bibliothek in
+`app/templates/results_experiences.html` hält für alle neun Zieltypen einen
+kundenverständlichen Renderer bereit; das PDF nutzt für die unterstützenden
+Ansichten eine kompakte Darstellung derselben DTO-Daten.
+
 Die Nutzerstrecke und Results V1 teilen sich eine semantische visuelle
 Foundation, ohne in diesen Datenfluss einzugreifen. Tokens,
 Komponentenmuster und die Übergabe stehen in
@@ -363,14 +372,16 @@ widersprechen.
 und geben ausschließlich diesen Vertrag an `results_v1.html` weiter. Die
 Vorlage entscheidet keine Familien, rekonstruiert keine Belege und liest kein
 altes Ergebnisobjekt. Die Experience-Bibliothek bleibt Teil des Vertrages und
-liest ausschließlich `ansichten.*.inhalt`; sie ist in der abgeschlossenen
-Customer-Results-Seite aber keine eigene Hauptsection.
+liest ausschließlich `ansichten.*.inhalt`; ihre konkrete
+Lösungsvorschau steht nach dem künftigen Alltag und vor der
+System/Mensch-Arbeitsteilung.
 
 **Die sichtbare Results V1 ist eine Entscheidungsreise, keine zweite
 Entscheidungslogik.** Ihre feste Reihenfolge lautet: Hero, belegter heutiger
 Aufwand, Vorher/Nachher, Betriebslandkarte, künftiger Alltag,
-System/Mensch-Arbeitsteilung, kundenseitige Grenzen, spätere Möglichkeiten
-und CTA. Die Betriebslandkarte ist eine vierstufige, von links nach rechts
+konkrete Lösungsvorschau, System/Mensch-Arbeitsteilung, kundenseitige
+Grenzen, spätere Möglichkeiten und CTA. Die Betriebslandkarte ist eine
+vierstufige, von links nach rechts
 lesbare Projektion: `Anker` zeigen **Heute**, Startmodule und ihre
 Capabilities zeigen **Was verbindet**, das aus `karte.mitte` abgeleitete
 Operating Center zeigt den **Neuen Arbeitsstand**, und ausschließlich
@@ -397,7 +408,9 @@ braucht. Chromium erzeugt daraus ein kontrolliertes A4-Dokument mit einer
 vollflächigen mintfarbenen Titelseite, anschließenden Abschnitten im
 fortlaufenden Seitenfluss und `break-inside: avoid` für Karten und
 zusammengehörige Blöcke. Die letzte Seite enthält ausschließlich die
-Kontaktinformation; Web-Buttons und Druckhinweise werden nicht übernommen.
+Kontaktinformation am Schluss; Web-Buttons und Druckhinweise werden nicht
+übernommen. Der fortlaufende Seitenfluss darf den vorangehenden Ausblick
+auf derselben letzten Seite platzieren.
 `/beispiel/{slug}/report.pdf` verwendet denselben Pfad für den gespeicherten
 Vorführfall.
 

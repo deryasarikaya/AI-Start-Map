@@ -30,10 +30,48 @@ def test_results_v1_has_a_separate_controlled_experience_library() -> None:
         "case_workspace",
         "document_flow",
         "customer_self_service",
+        "knowledge_assistant",
+        "guided_intake",
         "management_overview",
         "automation_flow",
     ):
         assert experience_type in library
+
+
+def test_results_v1_renders_the_selected_experiences_in_web_and_pdf() -> None:
+    """Die konkrete Vorschau nutzt denselben DTO-Auswahlpunkt in beiden Medien."""
+
+    root = Path(__file__).resolve().parents[1]
+    web_template = (root / "app/templates/results_v1.html").read_text(
+        encoding="utf-8"
+    )
+    pdf_template = (root / "app/templates/results_pdf.html").read_text(
+        encoding="utf-8"
+    )
+    library = (root / "app/templates/results_experiences.html").read_text(
+        encoding="utf-8"
+    )
+
+    assert "result.ansichten.primary" in web_template
+    assert "result.ansichten.primary" in pdf_template
+    assert "experiences.render(primary)" in web_template
+    assert "experiences.render(primary)" in pdf_template
+    assert "experiences.render_compact(experience)" in pdf_template
+    assert "So könnte Ihre Lösung konkret aussehen" in web_template
+    assert "So könnte Ihre Lösung konkret aussehen" in pdf_template
+    assert "experience-empty" not in library
+
+
+def test_results_v1_keeps_the_experience_section_in_the_approved_order() -> None:
+    """Die Vorschau steht zwischen künftigem Alltag und Verantwortung."""
+
+    template = (
+        Path(__file__).resolve().parents[1] / "app/templates/results_v1.html"
+    ).read_text(encoding="utf-8")
+
+    assert template.index("So liefe Ihr Alltag künftig") < template.index(
+        "So könnte Ihre Lösung konkret aussehen"
+    ) < template.index("Das läuft künftig automatisch")
 
 
 def test_results_v1_projects_the_approved_four_stage_map() -> None:
