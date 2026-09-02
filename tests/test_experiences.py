@@ -51,6 +51,35 @@ _MINDESTDATEN: dict[str, dict[str, object]] = {
         ]
     },
     "aussenansicht": {"schritte": [{"text": "Anfrage eingegangen", "erreicht": True}]},
+    "wissensassistent": {
+        "blasen": [
+            {"seite": "kunde", "text": "Hatten wir so einen Fall schon?", "zeit": "09:12"},
+            {"seite": "betrieb", "text": "Ja, in zwei früheren Projekten.", "zeit": "09:12"},
+        ],
+        "eintraege_dokumente": [
+            {
+                "typ": "Gutachten",
+                "name": "Projekt 2023-14",
+                "datum": "04.09.",
+                "zuordnung": "Vergleichbarer Fall",
+            }
+        ],
+        "statussatz": "Die fachliche Bewertung prüft ein Ingenieur.",
+    },
+    "gefuehrte_aufnahme": {
+        "schritte": [
+            {"text": "Objekt benannt", "erreicht": True},
+            {"text": "Anliegen beschrieben", "erreicht": True},
+            {"text": "Foto ergänzt", "erreicht": False},
+        ]
+    },
+    "ablaufkette": {
+        "zeilen": [
+            {"text": "Eingang erfasst", "status": "gruen"},
+            {"text": "Angaben geprüft", "status": "gelb"},
+            {"text": "Weitergabe vorbereitet", "status": "gruen"},
+        ]
+    },
     "dokumentenablage": {
         "eintraege_dokumente": [
             {
@@ -345,18 +374,31 @@ def test_the_allowed_view_types_reach_the_call_in_order() -> None:
     assert all(ANSICHT_ZU_EXPERIENCE[a] in typen for a in erlaubt)
 
 
-def test_a_business_without_a_matching_view_gets_no_restriction() -> None:
-    """Drei Zieltypen haben heute keine Ansicht — das darf keine leere Seite geben.
+def test_an_empty_scope_means_no_restriction() -> None:
+    """Leer heisst „keine Einschränkung", nicht „nichts erlaubt".
 
-    Leer heisst deshalb „keine Einschränkung", nicht „nichts erlaubt".
+    Der Fall, für den diese Regel gebaut wurde, existiert nicht mehr:
+    Damals hatten drei Zieltypen keine Ansicht, und ein Betrieb, dessen
+    Einstieg auf einen davon fiel, hätte sonst eine leere Seite bekommen.
+    Inzwischen hat jeder Zieltyp eine Ansicht — die Regel bleibt trotzdem,
+    weil ein Lauf ohne Zielbild weiterhin keine Kandidaten hat.
     """
 
-    nur_ohne_ansicht = DecisionState.model_validate(
+    ohne_zielbild = DecisionState()
+
+    assert experiences.kandidaten(ohne_zielbild) == []
+    assert experiences.erlaubte_ansichtstypen(ohne_zielbild) == []
+
+
+def test_automation_now_has_a_view_of_its_own() -> None:
+    """SF-04 stand lange ohne Ansicht da — jetzt trägt es die Ablaufkette."""
+
+    systemverbund = DecisionState.model_validate(
         {"target_family_ids": ["SF-04"], "start_family_ids": ["SF-04"]}
     )
 
-    assert experiences.kandidaten(nur_ohne_ansicht)[0].typ == "automation_flow"
-    assert experiences.erlaubte_ansichtstypen(nur_ohne_ansicht) == []
+    assert experiences.kandidaten(systemverbund)[0].typ == "automation_flow"
+    assert experiences.erlaubte_ansichtstypen(systemverbund) == ["ablaufkette"]
 
 
 # --- Die Durchsetzung im Vertrag -------------------------------------------
@@ -495,3 +537,94 @@ def test_the_primary_falls_forward_to_the_first_view_with_content() -> None:
     assert gewaehlt.primary.typ == "case_workspace"
     assert gewaehlt.primary.hat_inhalt
     assert gewaehlt.primary.familien == ("SF-02",)
+
+
+# --- Die Darstellungsgrenze gehört nicht in die Auswahl --------------------
+
+
+def test_the_map_cap_never_removes_a_candidate() -> None:
+    """Die Zwei-Bereiche-Grenze der Karte ist eine Frage der Darstellung.
+
+    Sie sagt, wie viele Bereiche hervorgehoben werden — nicht, welche
+    Ansichten dieser Betrieb bekommen kann. Ein Handwerksbetrieb, dessen
+    Einstieg Eingang, Vorgänge **und** Dokumente umfasst, muss den
+    Dokumentenfluss als Kandidaten behalten, auch wenn sein Bereich als
+    dritter nicht mehr auf die hervorgehobene Karte passt.
+    """
+
+    from app import map_state
+
+    zustand = DecisionState.model_validate(
+        {
+            "target_family_ids": ["SF-01", "SF-02", "SF-03"],
+            "start_family_ids": ["SF-01", "SF-02", "SF-03"],
+        }
+    )
+
+    karte = map_state.aus_entscheidung(zustand)
+    typen = {k.typ for k in experiences.kandidaten(zustand)}
+
+    # Die Karte kürzt — das ist ihr gutes Recht.
+    assert len(karte.start) == 2
+    assert "dokumente_pruefpfad" not in karte.start
+    # Die Auswahl kürzt nicht mit.
+    assert "document_flow" in typen
+    assert "dokumentenablage" in experiences.erlaubte_ansichtstypen(zustand)
+    assert {k.bereich for k in experiences.kandidaten(zustand)} >= {
+        "kundenzugang_intake",
+        "vorgaenge_aufgaben",
+        "dokumente_pruefpfad",
+    }
+
+
+def test_every_target_type_can_be_filled() -> None:
+    """Jeder der neun Zieltypen hat eine Ansicht, die ihn füllen kann.
+
+    Fehlte eine, könnte der Aufruf für diesen Betrieb grundsätzlich
+    nichts liefern — der Rahmen bliebe leer, egal wie gut die
+    Entscheidung war. Genau das war beim Wissensassistenten der Fall.
+    """
+
+    from app.operating_model import ANSICHT_ZU_EXPERIENCE, FAMILIEN_AFFINITAETEN
+
+    alle_zieltypen = {
+        typ for typen in FAMILIEN_AFFINITAETEN.values() for typ in typen
+    }
+
+    assert alle_zieltypen <= set(ANSICHT_ZU_EXPERIENCE.values())
+    assert len(alle_zieltypen) == 9
+
+
+def test_a_knowledge_business_can_be_shown_something() -> None:
+    """Der Fall, an dem es aufgefallen ist: ein Büro mit nur SF-11.
+
+    Vorher gab es für `knowledge_assistant` keinen Ansichtstyp; der
+    Aufruf lieferte notgedrungen eine Dokumentenablage, und die Auswahl
+    verwarf sie zu Recht als nicht zugehörig. Der Kunde sah nichts.
+    """
+
+    zustand = DecisionState.model_validate(
+        {"target_family_ids": ["SF-11"], "start_family_ids": ["SF-11"]}
+    )
+
+    assert experiences.erlaubte_ansichtstypen(zustand) == ["wissensassistent"]
+
+    gewaehlt = experiences.auswahl(
+        zustand, [_Ansicht("wissensassistent", "Ihre Frage zum neuen Fall")]
+    )
+
+    assert gewaehlt.primary.typ == "knowledge_assistant"
+    assert gewaehlt.primary.hat_inhalt
+    assert gewaehlt.primary.titel == "Ihre Frage zum neuen Fall"
+
+
+def test_the_new_views_carry_real_content() -> None:
+    """Die drei neuen Typen tragen strukturierte Daten, keine leeren Hüllen."""
+
+    wissen = _Ansicht("wissensassistent", "Frage und Fundstellen")
+    aufnahme = _Ansicht("gefuehrte_aufnahme", "Schritt für Schritt")
+    kette = _Ansicht("ablaufkette", "Was von selbst läuft")
+
+    assert wissen.daten.blasen
+    assert aufnahme.daten.schritte
+    assert kette.daten.zeilen

@@ -51,6 +51,18 @@ ViewType = Literal[
     "aussenansicht",
     "dokumentenablage",
     "telefonassistent",
+    # **Drei Typen, die lange keine Ansicht hatten.** Für einen Betrieb,
+    # dessen Einstieg ein Wissensraum, eine geführte Aufnahme oder eine
+    # Ablaufkette ist, konnte Aufruf 3 deshalb **grundsätzlich** nichts
+    # liefern — der Rahmen blieb leer, egal wie gut die Entscheidung war.
+    # Gemessen am Ingenieurbüro: Der Aufruf lieferte eine Dokumentenablage,
+    # weil es nichts Besseres gab, und die Auswahl verwarf sie zu Recht als
+    # nicht zugehörig.
+    #
+    # Die Daten dafür gab es bereits. Neu sind nur die Namen.
+    "wissensassistent",
+    "gefuehrte_aufnahme",
+    "ablaufkette",
 ]
 
 # Die Ebenen des Ablaufdiagramms. Mehr Arten gibt es nicht, damit die Vorlage
@@ -775,6 +787,14 @@ REQUIRED_VIEW_FIELDS: dict[str, tuple[str, ...]] = {
     # steckt in denselben Sprechblasen wie ein Chatverlauf, das Erkannte
     # in denselben Feldern wie eine Akte.
     "telefonassistent": ("blasen",),
+    # **Und dieselbe Sparsamkeit für die drei neuen.** Eine Frage mit
+    # ihrer Antwort ist ein Verlauf; die Fundstellen daneben stehen in
+    # denselben Dokumenteinträgen wie in einer Ablage. Eine geführte
+    # Aufnahme ist eine Folge von Schritten, eine Ablaufkette eine Folge
+    # von Stationen mit Zustand. Nichts davon braucht ein neues Feld.
+    "wissensassistent": ("blasen",),
+    "gefuehrte_aufnahme": ("schritte",),
+    "ablaufkette": ("zeilen",),
 }
 
 

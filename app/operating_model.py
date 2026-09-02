@@ -71,6 +71,12 @@ ANSICHT_ZU_EXPERIENCE: dict[str, ExperienceType] = {
     # Eine Terminübersicht ist eine Steuerungsansicht: Sie zeigt, was
     # ansteht, und nicht, wie ein einzelner Fall aussieht.
     "terminuebersicht": "management_overview",
+    # Die drei Zieltypen, die vorher keine Ansicht hatten. Ohne sie konnte
+    # ein Wissensbetrieb keinen Inhalt bekommen — der Rahmen stand leer da,
+    # obwohl die Entscheidung stimmte.
+    "wissensassistent": "knowledge_assistant",
+    "gefuehrte_aufnahme": "guided_intake",
+    "ablaufkette": "automation_flow",
 }
 
 

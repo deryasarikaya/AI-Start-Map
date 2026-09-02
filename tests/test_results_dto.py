@@ -90,10 +90,63 @@ def test_the_evidence_of_the_start_reaches_the_first_screen() -> None:
     assert {b.id for b in dto.belege} == {"B1", "B2"}
 
 
+def _lauf_mit_drei_ist_signalen():
+    """Ein Lauf, in dem alle drei Ist-Zustands-Arten **belegt** sind.
+
+    Die Regel lautet: ohne Beleg kein Today-Eintrag. Ein Test, der drei
+    Arten erwartet, muss sie also auch mitbringen — sonst prüft er nicht
+    die Zuordnung, sondern nur, dass die Regel greift.
+    """
+
+    from app import decision_state
+    from app.result_schema import Diagnose, Zielarchitektur, narrative, signalregister
+    from tests.test_decision_signals import ERZAEHLUNG, _diagnose, _zielarchitektur
+
+    belegte_ist_signale = [
+        {
+            "id": "S1",
+            "kind": "primary_pain",
+            "statement": "Meldungen kommen über drei Wege herein.",
+            "status": "confirmed",
+            "critical": True,
+            "evidence_refs": ["B1"],
+        },
+        {
+            "id": "S2",
+            "kind": "existing_system",
+            "statement": "Die Buchhaltung bleibt, wie sie ist.",
+            "status": "confirmed",
+            "critical": False,
+            "evidence_refs": ["B2"],
+        },
+        {
+            "id": "S3",
+            "kind": "prerequisite",
+            "statement": "Der Stand muss ohne Suchen abrufbar sein.",
+            "status": "confirmed",
+            "critical": False,
+            "evidence_refs": ["B1"],
+        },
+    ]
+    with narrative(ERZAEHLUNG):
+        diagnose = Diagnose.model_validate(
+            _diagnose(decision_signals=belegte_ist_signale)
+        )
+    with signalregister(
+        diagnose.decision_signals, diagnose.evidence_items
+    ), narrative(ERZAEHLUNG):
+        gewaehlt = Zielarchitektur.model_validate(_zielarchitektur())
+    zustand = decision_state.aus_lauf(diagnose, gewaehlt)
+    return _ergebnis(
+        zustand.model_dump(mode="json"),
+        aufgabenteilung=_division(grenzen=[SELBST_GENANNT]),
+    )
+
+
 def test_today_context_items_expose_deterministic_semantic_types() -> None:
     """Today-Karten übernehmen die geprüfte Signalart ohne Textheuristik."""
 
-    dto = results_dto.von_ergebnis(_lauf_mit_entscheidung())
+    dto = results_dto.von_ergebnis(_lauf_mit_drei_ist_signalen())
 
     assert [anker.type for anker in dto.anker] == [
         "current_friction",
@@ -105,6 +158,23 @@ def test_today_context_items_expose_deterministic_semantic_types() -> None:
         "Bestehende Grundlage",
         "Anforderung an die Lösung",
     ]
+
+
+def test_an_unproven_state_signal_stays_off_the_page() -> None:
+    """Und die Regel selbst: ohne Beleg kein Today-Eintrag.
+
+    Der Test daneben zeigt die Zuordnung der drei Arten. Dieser hier
+    hält fest, dass sie überhaupt nur greift, wenn ein Zitat dahinter
+    steht — sonst wäre die Karte eine Behauptung über einen fremden
+    Betrieb.
+    """
+
+    dto = results_dto.von_ergebnis(_lauf_mit_entscheidung())
+
+    # In dieser Vorrichtung trägt nur der Schmerz einen Beleg; das
+    # `existing_system`-Signal hat keinen und bleibt deshalb draussen.
+    assert [anker.type for anker in dto.anker] == ["current_friction"]
+    assert all(anker.evidence_refs for anker in dto.anker)
 
 
 def test_the_start_of_the_overview_is_the_start_of_the_map() -> None:

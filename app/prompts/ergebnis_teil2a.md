@@ -87,6 +87,9 @@ echt aussehen.
 | `kundenakte` | Person mit Vorgeschichte | `name`, `abzeichen`: {`text`, `status`}; `felder`: 4 × {`label`, `wert`}; `notiz`; `vorgaenge`: 2–4 Zeilen |
 | `terminuebersicht` | Kalender und Auslastung | `tag`; `eintraege`: 5–8 × {`zeit`, `person`, `leistung`, `status`} |
 | `aussenansicht` | was der Kunde des Kunden sieht | `schritte`: 4 × {`text`, `erreicht`: true/false}; `statussatz` |
+| `wissensassistent` | eine Frage und die Antwort samt Fundstellen | `blasen`: 4–6 × {`seite`, `text`, `zeit`} — die Frage vom `kunde`, die Antwort vom `betrieb`; `eintraege_dokumente`: 2–4 × {`typ`, `name`, `datum`, `zuordnung`} als Fundstellen; `statussatz`: wer die Antwort prüft |
+| `gefuehrte_aufnahme` | Schritt für Schritt aufnehmen | `schritte`: 4–6 × {`text`, `erreicht`}; `felder`: 3–5 × {`label`, `wert`} für das schon Erfasste |
+| `ablaufkette` | was nacheinander von selbst läuft | `zeilen`: 4–6 × {`text`, `status`} — je Station eine Zeile, `gelb` wo ein Mensch prüft; `hinweis`: die Stelle, an der jemand zustimmt |
 | `dokumentenablage` | Dateien mit Zuordnung | `eintraege`: 4–6 × {`typ`, `name`, `datum`, `zuordnung`} |
 | `telefonassistent` | ein Anruf, den der Assistent annimmt | `name`: wer anruft; `blasen`: 3–5 × {`seite`: `kunde` für den Anrufer oder `betrieb` für den Assistenten, `text`, `zeit`}; `felder`: 3–4 × {`label`, `wert`} — was aus dem Gespräch erkannt wurde; `statussatz`: was daraus entstanden ist |
 
