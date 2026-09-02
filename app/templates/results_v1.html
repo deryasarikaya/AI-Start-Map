@@ -175,8 +175,9 @@
   {# 6 · Konkrete Lösungsvorschau: ausschließlich freigegebene Experience-Daten. #}
   {% if primary and primary.hat_inhalt %}
     <section class="results-section experience-section" aria-labelledby="experience-title">
-      <div class="section-intro section-intro--split">
-        <div><p class="eyebrow">Konkrete Lösungsvorschau</p><h2 id="experience-title">So könnte Ihre Lösung konkret aussehen</h2></div>
+      <div class="section-intro section-intro--compact">
+        <p class="eyebrow">Konkrete Lösungsvorschau</p>
+        <h2 id="experience-title">So könnte Ihre Lösung konkret aussehen</h2>
         <p>{{ primary.inhalt.beschreibung }}</p>
       </div>
       <div class="primary-experience">{{ experiences.render(primary) }}</div>
