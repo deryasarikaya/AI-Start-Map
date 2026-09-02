@@ -6,7 +6,8 @@
 .results-v1--final #map-title,
 .results-v1--final #operating-title,
 .results-v1--final #responsibility-title,
-.results-v1--final #future-title { font-size: 35px; }
+.results-v1--final #future-title,
+.results-v1--final #experience-title { font-size: 35px; }
 .results-hero--final { min-height: 0; align-items: center; padding-block: clamp(1rem, 4vw, 3.2rem); }
 .results-hero--final h1 { max-width: 18ch; font-size: clamp(2.25rem, 4vw, 3.7rem); }
 .map-section--approved .section-intro { margin-bottom: 1.2rem; }
@@ -134,6 +135,12 @@
 .everyday-flow__stage--center { border-color: var(--teal-tief) !important; color: var(--flaeche); background: var(--teal) !important; }
 .everyday-flow__stage--center p { color: var(--teal-soft); }
 .everyday-flow__stage--center b { color: var(--flaeche); font-size: .8rem; line-height: 1.42; }
+
+/* Die Lösungsvorschau ist die Fortsetzung des Alltagsflows, kein zweiter
+   weißer Container direkt darunter. Die eigentliche Vorschau bleibt als
+   klar abgegrenztes Fenster sichtbar. */
+.results-v1--final > .experience-section { margin-top: 1.5rem; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.results-v1--final > .experience-section .section-intro { margin-bottom: 1.2rem; }
 
 /* System / Verantwortung und ausdrücklich kundenseitige Grenzen. */
 .responsibility-section--final { padding: 0; border: 0; border-radius: 0; background: transparent; }
