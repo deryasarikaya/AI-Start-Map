@@ -45,7 +45,7 @@
 .pdf-mode .results-cta__trust { margin-top: 5mm; }
 .pdf-mode .pdf-cover { margin: -14mm -16mm -16mm; padding: 42mm 30mm; min-height: 297mm; }
 @media print { .pdf-mode .results-v1--final > section, .pdf-mode .results-v1--final > aside { break-inside: avoid; } .pdf-mode .evidence-card, .pdf-mode .future-cards article, .pdf-mode .responsibility-split > article { break-inside: avoid; } }
-</style>{% else %}<link rel="stylesheet" href="{{ statisch('/results-v1.css') }}&amp;cx=results-final-3"><link rel="stylesheet" href="{{ statisch('/results-final.css') }}&amp;cx=results-final-3">{% endif %}{% endblock %}
+</style>{% else %}<link rel="stylesheet" href="{{ statisch('/results-v1.css') }}&amp;cx=results-final-5"><link rel="stylesheet" href="{{ statisch('/results-final.css') }}&amp;cx=results-final-5">{% endif %}{% endblock %}
 
 {% block content %}
 {% if pdf %}<section class="pdf-cover" aria-label="Deckblatt"><div><p class="pdf-cover__eyebrow">AI Start Map · Ihre Auswertung</p><h1>{{ result.uebersicht.zielbild_name or result.uebersicht.zielbild_satz }}</h1><p>Ihre persönliche Auswertung: der heutige Ausgangspunkt, der sinnvolle erste Schritt und die nächsten Möglichkeiten für Ihren Betrieb.</p><p class="pdf-cover__meta">Erstellt auf Grundlage Ihrer eigenen Beschreibung · {{ auswertungsdatum }}</p></div></section>{% endif %}

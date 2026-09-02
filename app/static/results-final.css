@@ -1,5 +1,5 @@
 /* Finaler Results-UI-Auftrag: feste DTO-Entscheidungsreise. */
-.results-v1--final { max-width: 78rem; margin-inline: auto; }
+.results-v1--final { max-width: 78rem; margin-inline: auto; padding-top: .5rem; }
 .results-v1--final > * + * { margin-top: 3rem; }
 .results-v1--final #understood-title,
 .results-v1--final #change-title,
@@ -8,7 +8,9 @@
 .results-v1--final #responsibility-title,
 .results-v1--final #future-title,
 .results-v1--final #experience-title { font-size: 35px; }
-.results-hero--final { min-height: 0; align-items: center; padding-block: clamp(1rem, 4vw, 3.2rem); }
+.results-hero--final { min-height: 0; align-items: center; padding-block: 1rem; }
+.results-hero--final .eyebrow { margin-bottom: .35rem; }
+.results-hero--final .results-question { margin-top: 0; margin-bottom: .35rem; }
 .results-hero--final h1 { max-width: 18ch; font-size: clamp(2.25rem, 4vw, 3.7rem); }
 .map-section--approved .section-intro { margin-bottom: 1.2rem; }
 .map-section--approved .section-intro--split { align-items: start; }
