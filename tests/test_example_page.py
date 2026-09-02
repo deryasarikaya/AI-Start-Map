@@ -233,6 +233,7 @@ def test_the_stored_example_carries_a_full_result(client: TestClient) -> None:
         "Hier würden wir anfangen",
         "Eine Betriebslandkarte, die sich mit Ihrem Betrieb füllt.",
         "So liefe Ihr Alltag künftig",
+        "So könnte Ihre Lösung konkret aussehen",
         "Das läuft künftig automatisch — das bleibt in Ihrer Verantwortung",
         "Möchten Sie so arbeiten?",
         "Auswertung als PDF ansehen",
@@ -248,7 +249,9 @@ def test_the_stored_example_carries_a_full_result(client: TestClient) -> None:
 
     assert "Was wir noch nicht empfehlen" not in seite
     assert "Noch nicht empfohlen" not in seite
-    assert "So könnte Ihre Lösung konkret aussehen" not in seite
+    assert "Gemeinsamer Eingang" in seite
+    assert "Wasserschaden im Bad" in seite
+    assert "Unterlagen zum Wasserschaden" in seite
     assert "Die Lösung unterstützt. Ihr Team entscheidet." not in seite
 
 
